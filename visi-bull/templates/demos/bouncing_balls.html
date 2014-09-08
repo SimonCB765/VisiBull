@@ -1,14 +1,17 @@
 {% extends "home.html" %}
 
 {% block head %}
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
-    <script type="text/javascript" src="{{ url_for('static', filename='scripts/culling.js') }}"></script>
+    <!--Block for including page specific CSS and JS files within the <head> tag.-->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/demos/bouncing_balls.css') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='scripts/demos/bouncing_balls.js') }}"></script>
 {% endblock %}
 
 {% block header %}
+    <!--Block for including page specific header information (e.g. page title) within the <header> tag.-->
     Title of Demo
 {% endblock %}
 
 {% block body %}
+    <!--Block for including the content of the page within the <body> tag.-->
     Body of Demo
 {% endblock %}

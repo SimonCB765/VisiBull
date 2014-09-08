@@ -4,17 +4,21 @@
         <title>Visual Perambulations</title>
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
         {% block head %}
+            <!--Block for including page specific CSS and JS files within the <head> tag.-->
+            <script type="text/javascript" src="{{ url_for('static', filename='scripts/main.js') }}"></script>
         {% endblock %}
     </head>
 
     <header>
         {% block header %}
+            <!--Block for including page specific header information (e.g. page title) within the <header> tag.-->
             Title of Page
         {% endblock %}
     </header>
 
     <body>
         {% block body %}
+            <!--Block for including the content of the page within the <body> tag.-->
             Body of Page
         {% endblock %}
     </body>
