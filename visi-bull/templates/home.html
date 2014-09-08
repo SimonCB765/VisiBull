@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Visual Perambulations</title>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+        {% block head %}
+        {% endblock %}
+    </head>
+
+    <header>
+        {% block header %}
+            Title of Page
+        {% endblock %}
+    </header>
+
+    <body>
+        {% block body %}
+            Body of Page
+        {% endblock %}
+    </body>
+
+    <footer>
+        Footer Links
+    </footer>
+</html>
