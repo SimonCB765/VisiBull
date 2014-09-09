@@ -1,8 +1,8 @@
 /*
 Contents:
-_element	-> style declarations for all elements of a given type (html, body, table, all p tags etc.).
-_header		-> style declarations for the <header> tag
-_footer		-> style declarations for the <footer> tag
+_element    -> style declarations for all elements of a given type (html, body, table, all p tags etc.).
+_header     -> style declarations for the <header> tag
+_footer     -> style declarations for the <footer> tag
 */
 
 /* Reset all padding and margins. */
