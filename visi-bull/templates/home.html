@@ -4,26 +4,31 @@
         <title>Visual Perambulations</title>
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
         {% block head %}
-            <!--Block for including page specific CSS and JS files within the <head> tag.-->
-            <script type="text/javascript" src="{{ url_for('static', filename='scripts/main.js') }}"></script>
+        <!--Block for including page specific CSS and JS files within the <head> tag.-->
+        <script type="text/javascript" src="{{ url_for('static', filename='scripts/main.js') }}"></script>
         {% endblock %}
     </head>
 
-    <header>
-        {% block header %}
-            <!--Block for including page specific header information (e.g. page title) within the <header> tag.-->
-            Title of Page
-        {% endblock %}
-    </header>
-
     <body>
-        {% block body %}
-            <!--Block for including the content of the page within the <body> tag.-->
-            Body of Page
-        {% endblock %}
-    </body>
+        <header>
+            {% block header %}
+            <!--Block for including page specific header information (e.g. page title) within the <header> tag.-->
+            <h1 class="pageTitle">Title of Page</h1>
+            {% endblock %}
+        </header>
 
-    <footer>
-        Footer Links
-    </footer>
+        <div class="content">
+            {% block content %}
+            <!--Block for including the content of the page within the div.content tag.-->
+            Page Content
+            {% endblock %}
+        </div>
+
+        <footer>
+            <a href="{{ url_for('home') }}">Home</a>
+            <a href="https://github.com/SimonCB765">GitHub</a>
+            <a href="">Resume</a>
+            <a href="">Contact</a>
+        </footer>
+    </body>
 </html>
