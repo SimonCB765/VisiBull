@@ -1,17 +1,31 @@
 {% extends "home.html" %}
 
 {% block head %}
-    <!--Block for including page specific CSS and JS files within the <head> tag.-->
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/demos/bouncing_balls.css') }}">
-    <script type="text/javascript" src="{{ url_for('static', filename='scripts/demos/bouncing_balls.js') }}"></script>
+<!--Block for including page specific CSS and JS files within the <head> tag.-->
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/demos/bouncing_balls.css') }}">
+<script type="text/javascript" src="{{ url_for('static', filename='scripts/d3/d3.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='scripts/demos/bouncing_balls.js') }}"></script>
 {% endblock %}
 
 {% block header %}
-    <!--Block for including page specific header information (e.g. page title) within the <header> tag.-->
-    Title of Demo
+<!--Block for including page specific header information (e.g. page title) within the <header> tag.-->
+<h1 class="pageTitle">Title of Demo</h1>
 {% endblock %}
 
-{% block body %}
-    <!--Block for including the content of the page within the <body> tag.-->
-    Body of Demo
+{% block content %}
+<!--Block for including the content of the page within the div.content tag.-->
+<div id="introduction">
+	<p>Introduction</p>
+</div>
+<div id="ballInitialisation">
+	<p>First initialise the balls (position and color of each ball will be randomly assigned on page reload).</p>
+	<script>addBallInitialisation()</script>
+</div>
+<p>Next get the balls to move in a random direction (speed slider to make them move faster or slower).</p>
+<p>Next get the balls to bounce off of the walls.</p>
+<p>Next get the balls to bounce off of each other.</p>
+<p>Next get the balls to flee from the mouse (speed slider now controls how fast they flee.</p>
+<p>Next get the balls to be attracted to the mouse the mouse.</p>
+<p>Next get the balls to flee when the mouse moves (with speed inversely related to how long it's been since the mouse moved), and
+then have the balls come back to the mouse if it hasn't moved in some amount of time.</p>
 {% endblock %}
