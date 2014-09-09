@@ -13,6 +13,7 @@ _element
 */
 html {min-wdith: 1040px;}
 body {background-color: #F8F8F8; color: #222222; font-family: "Segoe UI", sans-serif; margin: 4em auto 1em auto; width: 960px;}
+p {margin: 1em 0}
 a {color: #EA594D}
 a:not(:hover) {text-decoration: none;}
 
