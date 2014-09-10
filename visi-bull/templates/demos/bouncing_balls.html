@@ -3,25 +3,18 @@
 {% block head %}
 <!--Block for including page specific CSS and JS files within the <head> tag.-->
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/demos/bouncing_balls.css') }}">
-<script type="text/javascript" src="{{ url_for('static', filename='scripts/demos/bouncing_balls.js') }}"></script>
 {% endblock %}
 
 {% block header %}
 <!--Block for including page specific header information (e.g. page title) within the <header> tag.-->
-<h1 class="pageTitle">Title of Demo</h1>
+<h1 class="pageTitle">Bouncing Balls</h1>
 {% endblock %}
 
 {% block content %}
 <!--Block for including the content of the page within the div.content tag.-->
-<div id="introduction">
-	<p>Introduction</p>
-</div>
-<div id="ballInitialisation">
-	<p>First initialise the balls (position and color of each ball will be randomly assigned on page reload).</p>
-	<script>addBallInitialisation()</script>
-</div>
-<p>Next get the balls to move in a random direction (speed slider to make them move faster or slower).</p>
-<p>Next get the balls to bounce off of the walls.</p>
+<script type="text/javascript" src="{{ url_for('static', filename='scripts/demos/bouncing_balls.js') }}"></script>
+<p>TODO:</p>
+<p>Speed slider for speed of balls.</p>
 <p>Next get the balls to bounce off of each other.</p>
 <p>Next get the balls to flee from the mouse (speed slider now controls how fast they flee.</p>
 <p>Next get the balls to be attracted to the mouse the mouse.</p>
