@@ -1,10 +1,19 @@
 /*
 Contents:
 _element    -> style declarations for all elements of a given type (html, body, table, all p tags etc.).
+_classes    -> style declarations for specific classes.
 */
 
 /*
 _element
 */
-svg {outline: thin solid black;}
-circle {stroke-width: 0}
+svg {outline: thin solid #3A3A3B;}
+
+/*
+_classes
+*/
+svg .ball {stroke-width: 0}
+svg .domain {fill : none; stroke : #454545; stroke-linecap : round; stroke-width : 13;}
+svg .halo {fill : none; stroke : #EA594D; stroke-linecap : round; stroke-width : 7;}
+svg .handle {fill : #F0F0F0; stroke : #3A3A3B; stroke-width : 2}
+svg .sliderBox {stroke : #3A3A3B;}

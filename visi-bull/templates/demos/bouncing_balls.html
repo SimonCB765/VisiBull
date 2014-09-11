@@ -12,11 +12,20 @@
 
 {% block content %}
 <!--Block for including the content of the page within the div.content tag.-->
-<script type="text/javascript" src="{{ url_for('static', filename='scripts/demos/bouncing_balls.js') }}"></script>
 <p>TODO:</p>
-<p>Speed slider for speed of balls.</p>
-<p>Next get the balls to bounce off of each other.</p>
-<p>Next get the balls to flee from the mouse (speed slider now controls how fast they flee.</p>
+<p>Make the balls draggable - RELEASE KEEPS THEM GOING AT SAME SPEED AND DIRECTION AS BEFORE</p>
+<p>make the release of the drag cause the ball to start travelling in that direction - could use drag events, store the last X to determine the direction, and how long it took to cover the last X to determine speed</p>
+<p>Make balls clickable</p>
+<p>make ball transition to no radius when it gets clicked on</p>
+<p>Make a bucket on the right side of svg element</p>
+<p>Make bucket fill when a ball is clocked on and empty when the ball container g element is clicked on (ball of correct color then appears on g element and moves)</p>
+<p>Make bucket hold balls that have been clicked on (have to make the balls squash down and spring up as bucket fills and empties</p>
+<p>Rectangle container edges (bottom and right) look strange</p>
+<p>Speed text looks slightly fuzzy</p>
+<p>slider bar looks slightly fuzzy - might have to shrink the stroke-width</p>
+<p>slider numbers look slightly fuzzy</p>
+<script type="text/javascript" src="{{ url_for('static', filename='scripts/demos/bouncing_balls.js') }}"></script>
+<p>Next get the balls to flee from the mouse</p>
 <p>Next get the balls to be attracted to the mouse the mouse.</p>
 <p>Next get the balls to flee when the mouse moves (with speed inversely related to how long it's been since the mouse moved), and
 then have the balls come back to the mouse if it hasn't moved in some amount of time.</p>
