@@ -10,8 +10,11 @@ from flask import render_template
 # Home page.
 app.add_url_rule('/', 'home', view_func=views.home)
 
-# Demo pages.
-app.add_url_rule('/demos/<string:demoName>', 'demos', view_func=views.demos)
+# Admin post upload page.
+app.add_url_rule('/admin/post_uploader', 'post_uploader', view_func=views.post_uploader, methods=['POST', 'GET'])
+
+# Pretty picture pages (every non-specific page).
+app.add_url_rule('/<string:primaryTag>/<string:prettyPictureName>', 'prettyPictures', view_func=views.prettyPictures)
 
 
 ###################
