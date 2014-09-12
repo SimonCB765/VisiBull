@@ -5,23 +5,25 @@
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
 		<script type="text/javascript" src="{{ url_for('static', filename='scripts/d3/d3.js') }}"></script>
         {% block head %}
-        <!--Block for including page specific CSS and JS files within the <head> tag.-->
-        <script type="text/javascript" src="{{ url_for('static', filename='scripts/main.js') }}"></script>
+			<!--Block for including page specific CSS and JS files within the <head> tag.-->
+			<script type="text/javascript" src="{{ url_for('static', filename='scripts/main.js') }}"></script>
         {% endblock %}
     </head>
 
     <body>
         <header>
             {% block header %}
-            <!--Block for including page specific header information (e.g. page title) within the <header> tag.-->
-            <h1 class="pageTitle">Title of Page</h1>
+				<!--Block for including page specific header information (e.g. page title) within the <header> tag.-->
+				<h1 class="pageTitle">Title of Page</h1>
             {% endblock %}
         </header>
 
         <div class="content">
             {% block content %}
-            <!--Block for including the content of the page within the div.content tag.-->
-            Page Content
+				<!--Block for including the content of the page within the div.content tag.-->
+				{% for item in pageData %}
+					<p><a href="{{ url_for('prettyPictures', primaryTag=item.primaryTag, prettyPictureName=item.postName) }}">{{ item }}</a></p>
+				{% endfor %}
             {% endblock %}
         </div>
 

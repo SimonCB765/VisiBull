@@ -1,4 +1,8 @@
-# Flask import.
+# Python imports.
+import datetime
+import os
+
+# Flask imports.
 from flask import render_template, request
 
 # App imports.
@@ -7,7 +11,29 @@ import models
 
 def home():
     """Render the home page."""
-    return render_template('home.html')
+
+    # Get all pages with visualisations, with the most recent first.
+    query = models.PrettyPicture.query().order(-models.PrettyPicture.postDate)
+    queryResult = query.fetch()
+
+    # Process the information of interest.
+    processedPages = []
+    for i in queryResult:
+        tags = set([])
+        tags.add('Demo' if i.isDemo else '')
+        tags.add('Info' if i.isInfo else '')
+        tags.add('Tool' if i.isTool else '')
+        tags.add('Visu' if i.isVisu else '')
+        tags -= set([''])
+#        tags = {}
+#        tags['Demo'] = True if i.isDemo else False
+#        tags['Info'] = True if i.isInfo else False
+#        tags['Tool'] = True if i.isTool else False
+#        tags['Visu'] = True if i.isVisu else False
+        processedPages.append({'postName' : i.postName, 'primaryTag' : i.primaryTag, 'tags' : tags,
+            'postDate' : i.postDate.strftime('%B') + ' {0}, {1}'.format(i.postDate.day, i.postDate.year)})
+
+    return render_template('home.html', pageData=processedPages)
 
 def post_uploader():
     """Render the post upload page."""
@@ -42,4 +68,13 @@ def post_uploader():
 
 def prettyPictures(primaryTag, prettyPictureName):
     """Render a page with some sort of visualisation on it."""
-    return render_template(primaryTag + '/' + prettyPictureName + '.html')
+
+    # Check if the page exists before rendering it.
+    projectDirectory = os.path.dirname(os.path.realpath(__file__))
+    pageRelativePath = primaryTag + '/' + prettyPictureName + '.html'
+    pageFullPath = projectDirectory + '/templates/' + pageRelativePath
+    #return pageFullPath
+    if not os.path.isfile(pageFullPath):
+        return render_template('404.html')
+    else:
+        return render_template(pageRelativePath)
