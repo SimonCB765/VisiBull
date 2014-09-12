@@ -3,6 +3,7 @@ Contents:
 _element    -> style declarations for all elements of a given type (html, body, table, all p tags etc.).
 _header     -> style declarations for the <header> tag
 _footer     -> style declarations for the <footer> tag
+_classes    -> style declarations for specific classes.
 */
 
 /* Reset all padding and margins. */
@@ -28,3 +29,8 @@ _footer
 */
 footer {margin-top: 4em; word-spacing: 30px;}
 footer a {font-style: oblique;}
+
+/*
+_classes
+*/
+.date {font-style: oblique; font-size: small;}
