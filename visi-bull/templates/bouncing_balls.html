@@ -2,7 +2,7 @@
 
 {% block head %}
 <!--Block for including page specific CSS and JS files within the <head> tag.-->
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/demos/bouncing_balls.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bouncing_balls.css') }}">
 {% endblock %}
 
 {% block header %}
@@ -25,9 +25,5 @@
 <p>Speed text looks slightly fuzzy</p>
 <p>slider bar looks slightly fuzzy - might have to shrink the stroke-width</p>
 <p>slider numbers look slightly fuzzy</p>
-<script type="text/javascript" src="{{ url_for('static', filename='scripts/demos/bouncing_balls.js') }}"></script>
-<p>Next get the balls to flee from the mouse</p>
-<p>Next get the balls to be attracted to the mouse the mouse.</p>
-<p>Next get the balls to flee when the mouse moves (with speed inversely related to how long it's been since the mouse moved), and
-then have the balls come back to the mouse if it hasn't moved in some amount of time.</p>
+<script type="text/javascript" src="{{ url_for('static', filename='scripts/bouncing_balls.js') }}"></script>
 {% endblock %}

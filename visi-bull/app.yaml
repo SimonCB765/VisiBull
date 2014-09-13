@@ -26,11 +26,6 @@ handlers:
   static_files: static/images/favicon.ico
   upload: static/images/favicon.ico
 
-# Add the remote_api on a custom path.
-- url: /admin/remote_api.*
-  script: google.appengine.ext.remote_api.handler.application
-  login: admin
-
 # Setup appstats on a custom path.
 - url: /admin/stats.*
   script: google.appengine.ext.appstats.ui.app
