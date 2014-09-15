@@ -4,13 +4,24 @@ runtime: python27
 api_version: 1
 threadsafe: yes
 
-# Handlers tell app engine how to route requests to your application.
 handlers:
-
-# Workaround for errors loading CSS.
-- url: /static/css
+# Serve CSS files from their page directory.
+- url: /static/(.*\.css)
+  static_files: pages/\1
+  upload: pages/(.*\.css)
   mime_type: text/css
-  static_dir: static/css
+
+# Serve D3 from the static directory.
+- url: /static/(.*d3.min.js)
+  static_files: static/\1
+  upload: /static/(.*d3.min.js)
+  mime_type: text/javascript
+
+# Serve all other Javascript files from their page directory.
+- url: /static/(.*\.js)
+  static_files: pages/\1
+  upload: pages/(.*\.js)
+  mime_type: text/javascript
 
 # Static directory for all other static files.
 - url: /static

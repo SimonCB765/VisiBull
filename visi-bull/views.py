@@ -15,8 +15,8 @@ def prettyPictures(prettyPictureName):
 
     # Check if the page exists before rendering it.
     projectDirectory = os.path.dirname(os.path.realpath(__file__))
-    pageRelativePath = prettyPictureName + '.html'
-    pageFullPath = projectDirectory + '/templates/' + pageRelativePath
+    pageRelativePath = prettyPictureName + '/' + prettyPictureName + '.html'
+    pageFullPath = projectDirectory + '/pages/' + pageRelativePath
     if not os.path.isfile(pageFullPath):
         return render_template('404.html')
     else:
