@@ -24,56 +24,14 @@ var ballBox = svg.append("rect")
 // Create the balls.
 var balls = initiliase_balls(svg);
 
-// Create the g element for holding the speed slider.
-var speedSliderBox = svg.append("g")
-    .classed("sliderBox", true)
-    .attr("transform", "translate(0," + containerHeight + ")");
-
-// Define the drag behaviour.
-var drag = d3.behavior.drag()
-    .origin(function(d) {return d;})
-    .on("drag", slider_drag_update);
-
-// Create the scale and axis for the speed slider.
-var sliderOffset = 150;
-var sliderMax = containerWidth - (2 * sliderOffset)
-var speedScale = d3.scale.linear()
-    .domain([0, 3])
-    .range([0, sliderMax])
-    .clamp(true);
-var speedScaleAxisFormat = d3.format("%");
-var speedScaleAxis = d3.svg.axis()
-    .scale(speedScale)
-    .orient("bottom")
-    .tickFormat(speedScaleAxisFormat)
-    .tickSize(0)
-    .tickPadding(10);
-var speedScaleAxisContainer = speedSliderBox.append("g")
-    .classed("xAxis", true)
-    .attr("transform", "translate(" + sliderOffset + "," + sliderGap / 2 + ")")
-    .call(speedScaleAxis)
-speedScaleAxisContainer.select(".domain")  // Select the path with the domain class that is created along with the axis.
-    .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })  // Clone the domain class path...
-    .attr("class", "halo");  // ...and set the class of the newly cloned path (enables the .domain to act as a little shadow around the .halo path).
-var speedSliderLabel = speedSliderBox.append("text")
-    .text("Speed")
-    .attr("x", sliderOffset / 2)
-    .attr("y", sliderGap / 2)
-    .style("font-weight", 700)
-    .style("dominant-baseline", "middle");
-
-// Add the speed slider handle.
-var handleRadius = 8;  // The radius of the circle used as the speed slider handle.
-var handle = speedScaleAxisContainer.append("circle")
-    .datum({"x" : 0, "y" : 0})
-    .classed("handle", true)
-    .attr("r", handleRadius)
-    .attr("cx", function(d) { return d.x; })
-    .attr("cy", function(d) { return d.y; })
-    .call(drag);
-handle.transition()  // Unnecessary intro transition.
-    .duration(1000)
-    .attr("cx", function(d) { d.x = speedScale(1); return d.x; });
+// Create the speed slider.
+var sliderOffset = 150;  // Offset of the slider's left end from the left of the SVG element.
+var sliderMax = containerWidth - (2 * sliderOffset)  // Offset of the slider's right end from the left of the SVG element
+var speedScale = d3.scale.linear()  // Scale used to map position on the slider to speed of ball movement.
+	.domain([0, 3])
+	.range([0, sliderMax])
+	.clamp(true);
+create_slider(svg, sliderOffset, sliderMax, speedScale)
 
 // Setup the loop to animate the balls.
 d3.timer(function()
@@ -85,17 +43,52 @@ d3.timer(function()
         .each(function(d) {if (d.y == ballRadius || d.y == containerHeight - ballRadius) {d.angle = 2 - d.angle}});
 });
 
-function slider_drag_update(d)
+function create_slider(svg, sliderOffset, sliderMax, speedScale)
 {
-    var sliderPos = d3.event.x;  // Current position of the slider handle relative to its container.
+	// Create the g element for holding the speed slider.
+	var speedSliderBox = svg.append("g")
+		.classed("sliderBox", true)
+		.attr("transform", "translate(0," + containerHeight + ")");
 
-    // Update the slider handle position.
-    d3.select(this)
-        .attr("cx", d.x = Math.max(0, Math.min(sliderMax, d3.event.x)));
+	// Define the drag behaviour.
+	var drag = d3.behavior.drag()
+		.origin(function(d) {return d;})
+		.on("drag", slider_drag_update);
 
-    // Update the value by which the speed is scaled.
-    ballSpeedScaling = speedScale.invert(d3.event.x);
-    console.log(ballSpeedScaling);
+	// Create the axis for the speed slider.
+	var speedScaleAxisFormat = d3.format("%");
+	var speedScaleAxis = d3.svg.axis()
+		.scale(speedScale)
+		.orient("bottom")
+		.tickFormat(speedScaleAxisFormat)
+		.tickSize(0)
+		.tickPadding(10);
+	var speedScaleAxisContainer = speedSliderBox.append("g")
+		.classed("xAxis", true)
+		.attr("transform", "translate(" + sliderOffset + "," + sliderGap / 2 + ")")
+		.call(speedScaleAxis)
+	speedScaleAxisContainer.select(".domain")  // Select the path with the domain class that is created along with the axis.
+		.select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })  // Clone the domain class path...
+		.attr("class", "halo");  // ...and set the class of the newly cloned path (enables the .domain to act as a little shadow around the .halo path).
+	var speedSliderLabel = speedSliderBox.append("text")
+		.text("Speed")
+		.attr("x", sliderOffset / 2)
+		.attr("y", sliderGap / 2)
+		.style("font-weight", 700)
+		.style("dominant-baseline", "middle");
+
+	// Add the speed slider handle.
+	var handleRadius = 8;  // The radius of the circle used as the speed slider handle.
+	var handle = speedScaleAxisContainer.append("circle")
+		.datum({"x" : 0, "y" : 0})
+		.classed("handle", true)
+		.attr("r", handleRadius)
+		.attr("cx", function(d) { return d.x; })
+		.attr("cy", function(d) { return d.y; })
+		.call(drag);
+	handle.transition()  // Unnecessary intro transition.
+		.duration(1000)
+		.attr("cx", function(d) { d.x = speedScale(1); return d.x; });
 }
 
 function create_SVG(selectionString)
@@ -145,4 +138,17 @@ function initiliase_balls(svg)
         .attr("r", ballRadius)
         .style("fill", function(d) { return d.color; });
     return balls
+}
+
+function slider_drag_update(d)
+{
+    var sliderPos = d3.event.x;  // Current position of the slider handle relative to its container.
+
+    // Update the slider handle position.
+    d3.select(this)
+        .attr("cx", d.x = Math.max(0, Math.min(sliderMax, d3.event.x)));
+
+    // Update the value by which the speed is scaled.
+    ballSpeedScaling = speedScale.invert(d3.event.x);
+    console.log(ballSpeedScaling);
 }
