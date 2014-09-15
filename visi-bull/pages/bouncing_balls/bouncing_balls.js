@@ -1,6 +1,6 @@
 var ballRadius = 20;  // The radius of the balls.
-var numberOfBalls = 25;  // The number of balls in the container.
-var baseBallSpeed = 5;  // The starting speed of the balls.
+var numberOfBalls = 2;  // The number of balls in the container.
+var baseBallSpeed = 4;  // The starting speed of the balls.
 var ballSpeedScaling = 1.0;  // The value by which to scale the balls speed (the user can alter this dynamically).
 var svgWidth = 960;  // The width of the SVG element.
 var svgHeight = 500;  // The height of the SVG element.
@@ -18,9 +18,7 @@ var svg = create_SVG("div.content");
 var ballBox = svg.append("rect")
     .classed("ballBox", true)
     .attr("width", containerWidth)
-    .attr("height", containerHeight)
-    .style("fill-opacity", 0)
-    .style("stroke", "black");
+    .attr("height", containerHeight);
 
 // Create the balls.
 var balls = initiliase_balls(svg);
@@ -44,7 +42,9 @@ d3.timer(function()
         .each(function(d) {if (d.y == ballRadius || d.y == containerHeight - ballRadius) {d.angle = 2 - d.angle}});
 });
 
-// Define the drag behavious of the balls.
+// Define the drag behaviour of the balls.
+var dragsStored = 5;
+var dragBuffer = [];
 var ballDrag = d3.behavior.drag()
     .origin(function(d) {return d;})
     .on("dragstart", ball_drag_start)
@@ -54,13 +54,56 @@ balls.call(ballDrag);
 
 function ball_drag_end()
 {
-    d3.select(this).classed("anim", true);  // Turn on animation for the ball.
+	d3.event.sourceEvent.stopPropagation(); // Silence any other listeners.
+	
+	var currentBall = d3.select(this);
+
+	if (dragBuffer.length < 2)
+	{
+		// If only a click has been performed.
+		currentBall.classed("anim", false);
+	}
+	else
+	{
+		// Extract details about the drag.
+		var firstPos = dragBuffer[0];
+		var lastPos = dragBuffer.slice(-1)[0];
+		var distanceTravelledX = lastPos.x - firstPos.x;
+		var distanceTravelledY = lastPos.y - firstPos.y;
+		var distanceTravelledTotal = Math.sqrt((distanceTravelledX * distanceTravelledX) + (distanceTravelledY * distanceTravelledY))
+		var timeTaken = lastPos.time - firstPos.time;
+		
+		// Determine the new angle of movement.
+		var angleTravelled = 0;
+		if (distanceTravelledX == 0) angleTravelled = distanceTravelledY > 0 ? 0.5 : 1.5;  // 0.5 when both X and Y movement are positive as SVG coords are upside down.
+		else if (distanceTravelledY == 0) angleTravelled = distanceTravelledX > 0 ? 0 : 1;
+		else
+		{
+			angleTravelled = Math.atan(Math.abs(distanceTravelledY) / Math.abs(distanceTravelledX)) / Math.PI;
+			// There are four possibilities for the movement of the ball:
+			//     1) X +ve Y +ve (down and to the right) - arctan gives correct angle
+			//     2) X -ve Y +ve (down and to the left) - arctan give 1 - the correct angle
+			//     3) X -ve Y -ve (up and to the left) - 1 + arctan gives correct angle
+			//     4) X +ve Y -ve (up and to the right) - arctan gives 2 - correct angle
+			if (distanceTravelledX < 0) angleTravelled = distanceTravelledY > 0 ? (1 - angleTravelled) : (1 + angleTravelled);
+			else if (distanceTravelledY < 0) angleTravelled = 2 - angleTravelled;
+		}
+		
+		// Turn on animation for the ball, and give it a new angle and speed.
+		var currentBallData = currentBall.datum();
+		currentBallData.angle = angleTravelled;
+		currentBallData.speed = (distanceTravelledTotal / timeTaken) * 7;
+		currentBall
+			.datum(currentBallData)
+			.classed("anim", true);
+	}
 }
 
 function ball_drag_start()
 {
     d3.event.sourceEvent.stopPropagation(); // Silence any other listeners.
     d3.select(this).classed("anim", false);  // Turn off animation for the ball.
+	dragBuffer = [];  // Initialise the drag buffer.
 }
 
 function ball_drag_update(d)
@@ -68,6 +111,10 @@ function ball_drag_update(d)
     // Current position of the ball relative to its container.
     var ballPosX = d3.event.x;
     var ballPosY = d3.event.y;
+
+	// Add the new info to the drag buffer.
+	dragBuffer.push({"x" : ballPosX, "y" : ballPosY, "time" : new Date()});
+	dragBuffer = dragBuffer.slice(0, dragsStored);
 
     // Update the ball's position.
     d3.select(this)
@@ -107,7 +154,8 @@ function create_slider(svg, sliderOffset, sliderMax, speedScale)
         .attr("x", sliderOffset / 2)
         .attr("y", sliderGap / 2)
         .style("font-weight", 700)
-        .style("dominant-baseline", "middle");
+        .style("dominant-baseline", "middle")
+		.style("stroke-width", 0);  // Stroke width to 0 in order to make the text crisper.
 
     // Add the speed slider handle.
     var handleRadius = 8;  // The radius of the circle used as the speed slider handle.

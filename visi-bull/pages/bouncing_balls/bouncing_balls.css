@@ -9,11 +9,14 @@ _element
 */
 svg {outline: thin solid #3A3A3B;}
 
+
 /*
 _classes
 */
-svg .ball {stroke-width: 0}
-svg .domain {fill : none; stroke : #454545; stroke-linecap : round; stroke-width : 13;}
-svg .halo {fill : none; stroke : #EA594D; stroke-linecap : round; stroke-width : 7;}
+svg .ball {stroke-width : 0;}
+svg .ballBox {fill-opacity : 0; stroke : black; stroke-width : 1;}
+svg .domain {fill : none; stroke : #EA594D; stroke-linecap : round; stroke-width : 13;}
+svg .halo {fill : none; stroke : #454545; stroke-linecap : round; stroke-width : 7;}
 svg .handle {fill : #F0F0F0; stroke : #3A3A3B; stroke-width : 2}
 svg .sliderBox {stroke : #3A3A3B;}
+svg .xAxis {stroke-width : 0;}  /* Set stroke width to 0 in order to make the text crisper. */
