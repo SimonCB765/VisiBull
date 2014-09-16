@@ -1,5 +1,5 @@
 var ballRadius = 20;  // The radius of the balls.
-var numberOfBalls = 2;  // The number of balls in the container.
+var numberOfBalls = 15;  // The number of balls in the container.
 var baseBallSpeed = 4;  // The starting speed of the balls.
 var ballSpeedScaling = 1.0;  // The value by which to scale the balls speed (the user can alter this dynamically).
 var svgWidth = 960;  // The width of the SVG element.
@@ -15,13 +15,16 @@ var colors = ["rgb(102,194,165)", "rgb(252,141,98)", "rgb(141,160,203)", "rgb(23
 var svg = create_SVG("div.content");
 
 // Create the container in which the balls will bounce around.
-var ballBox = svg.append("rect")
-    .classed("ballBox", true)
+var ballBox = svg.append("g")
+    .classed("ballContainer", true)
+    .attr("transform", "translate(1, 1)");  // Shift of one down and right to enable the border of the ball container to show properly at the top and left.
+ballBox.append("rect")
+    .classed("ballBoundingSquare", true)
     .attr("width", containerWidth)
     .attr("height", containerHeight);
 
 // Create the balls.
-var balls = initiliase_balls(svg);
+var balls = initiliase_balls(ballBox);
 
 // Create the speed slider.
 var sliderOffset = 150;  // Offset of the slider's left end from the left of the SVG element.
@@ -31,6 +34,13 @@ var speedScale = d3.scale.linear()  // Scale used to map position on the slider 
     .range([0, sliderMax])
     .clamp(true);
 create_slider(svg, sliderOffset, sliderMax, speedScale)
+
+// Create the bucket to contain the balls that have been clicked on.
+var bucketWidth = (2 * (ballRadius + 2));  // Width of the bucket.
+var bucketOffsetX = containerWidth + ((bucketGap - bucketWidth) / 2);  // Offset of the bucket's top left corner from the left of the SVG element.
+var bucketOffsetY = 50;  // Offset of the bucket's top left corner from the top of the SVG element.
+var bucketHeight = containerHeight - (2 * bucketOffsetY);  // Height of the bucket.
+var clickedBallBucket = create_bucket(svg, bucketWidth, bucketHeight, bucketOffsetX, bucketOffsetY, numberOfBalls, ballRadius);
 
 // Setup the loop to animate the balls.
 d3.timer(function()
@@ -50,60 +60,79 @@ var ballDrag = d3.behavior.drag()
     .on("dragstart", ball_drag_start)
     .on("drag", ball_drag_update)
     .on("dragend", ball_drag_end);
+var noBallDrag = d3.behavior.drag()
+    .origin(function(d) {return d;})
+    .on("dragstart", null)
+    .on("drag", null)
+    .on("dragend", null);
 balls.call(ballDrag);
 
 function ball_drag_end()
 {
-	d3.event.sourceEvent.stopPropagation(); // Silence any other listeners.
-	
-	var currentBall = d3.select(this);
+    d3.event.sourceEvent.stopPropagation(); // Silence any other listeners.
 
-	if (dragBuffer.length < 2)
-	{
-		// If only a click has been performed.
-		currentBall.classed("anim", false);
-	}
-	else
-	{
-		// Extract details about the drag.
-		var firstPos = dragBuffer[0];
-		var lastPos = dragBuffer.slice(-1)[0];
-		var distanceTravelledX = lastPos.x - firstPos.x;
-		var distanceTravelledY = lastPos.y - firstPos.y;
-		var distanceTravelledTotal = Math.sqrt((distanceTravelledX * distanceTravelledX) + (distanceTravelledY * distanceTravelledY))
-		var timeTaken = lastPos.time - firstPos.time;
-		
-		// Determine the new angle of movement.
-		var angleTravelled = 0;
-		if (distanceTravelledX == 0) angleTravelled = distanceTravelledY > 0 ? 0.5 : 1.5;  // 0.5 when both X and Y movement are positive as SVG coords are upside down.
-		else if (distanceTravelledY == 0) angleTravelled = distanceTravelledX > 0 ? 0 : 1;
-		else
-		{
-			angleTravelled = Math.atan(Math.abs(distanceTravelledY) / Math.abs(distanceTravelledX)) / Math.PI;
-			// There are four possibilities for the movement of the ball:
-			//     1) X +ve Y +ve (down and to the right) - arctan gives correct angle
-			//     2) X -ve Y +ve (down and to the left) - arctan give 1 - the correct angle
-			//     3) X -ve Y -ve (up and to the left) - 1 + arctan gives correct angle
-			//     4) X +ve Y -ve (up and to the right) - arctan gives 2 - correct angle
-			if (distanceTravelledX < 0) angleTravelled = distanceTravelledY > 0 ? (1 - angleTravelled) : (1 + angleTravelled);
-			else if (distanceTravelledY < 0) angleTravelled = 2 - angleTravelled;
-		}
-		
-		// Turn on animation for the ball, and give it a new angle and speed.
-		var currentBallData = currentBall.datum();
-		currentBallData.angle = angleTravelled;
-		currentBallData.speed = (distanceTravelledTotal / timeTaken) * 7;
-		currentBall
-			.datum(currentBallData)
-			.classed("anim", true);
-	}
+    var currentBall = d3.select(this);
+
+    if (dragBuffer.length < 2)
+    {
+        // If only a click has been performed.
+        currentBall.classed({"anim" : false, "inBucket" : true});  // Disable timer animation and record as in bucket.
+
+        // Remove ball from bouncy container and add it to bucket.
+        currentBall.remove();  // Selection.remove() removes the selected elements from the DOM.
+        clickedBallBucket.bucket.append(function() { return currentBall[0][0]; });  // The removed elements can then be added back through the use of a function with append.
+        currentBall
+            .attr("cx", ballRadius + 2)
+            .attr("cy", -ballRadius)
+            .call(noBallDrag)  // Remove drag event listeners by calling the no drag behaviour.
+            .transition()
+            .duration(1000)
+            .ease("bounce")
+            .attr("cy", bucketHeight - ballRadius - (clickedBallBucket.inBucket.length * clickedBallBucket.ballCenterGap));
+
+        clickedBallBucket.inBucket.push(currentBall);  // Add the ball to the record of balls in the bucket.
+    }
+    else
+    {
+        // Extract details about the drag.
+        var firstPos = dragBuffer[0];
+        var lastPos = dragBuffer.slice(-1)[0];
+        var distanceTravelledX = lastPos.x - firstPos.x;
+        var distanceTravelledY = lastPos.y - firstPos.y;
+        var distanceTravelledTotal = Math.sqrt((distanceTravelledX * distanceTravelledX) + (distanceTravelledY * distanceTravelledY))
+        var timeTaken = lastPos.time - firstPos.time;
+
+        // Determine the new angle of movement.
+        var angleTravelled = 0;
+        if (distanceTravelledX == 0) angleTravelled = distanceTravelledY > 0 ? 0.5 : 1.5;  // 0.5 when both X and Y movement are positive as SVG coords are upside down.
+        else if (distanceTravelledY == 0) angleTravelled = distanceTravelledX > 0 ? 0 : 1;
+        else
+        {
+            angleTravelled = Math.atan(Math.abs(distanceTravelledY) / Math.abs(distanceTravelledX)) / Math.PI;
+            // There are four possibilities for the movement of the ball:
+            //     1) X +ve Y +ve (down and to the right) - arctan gives correct angle
+            //     2) X -ve Y +ve (down and to the left) - arctan give 1 - the correct angle
+            //     3) X -ve Y -ve (up and to the left) - 1 + arctan gives correct angle
+            //     4) X +ve Y -ve (up and to the right) - arctan gives 2 - correct angle
+            if (distanceTravelledX < 0) angleTravelled = distanceTravelledY > 0 ? (1 - angleTravelled) : (1 + angleTravelled);
+            else if (distanceTravelledY < 0) angleTravelled = 2 - angleTravelled;
+        }
+
+        // Turn on animation for the ball, and give it a new angle and speed.
+        var currentBallData = currentBall.datum();
+        currentBallData.angle = angleTravelled;
+        currentBallData.speed = (distanceTravelledTotal / timeTaken) * 7;
+        currentBall
+            .datum(currentBallData)
+            .classed("anim", true);
+    }
 }
 
 function ball_drag_start()
 {
     d3.event.sourceEvent.stopPropagation(); // Silence any other listeners.
     d3.select(this).classed("anim", false);  // Turn off animation for the ball.
-	dragBuffer = [];  // Initialise the drag buffer.
+    dragBuffer = [];  // Initialise the drag buffer.
 }
 
 function ball_drag_update(d)
@@ -112,14 +141,35 @@ function ball_drag_update(d)
     var ballPosX = d3.event.x;
     var ballPosY = d3.event.y;
 
-	// Add the new info to the drag buffer.
-	dragBuffer.push({"x" : ballPosX, "y" : ballPosY, "time" : new Date()});
-	dragBuffer = dragBuffer.slice(0, dragsStored);
+    // Add the new info to the drag buffer.
+    dragBuffer.push({"x" : ballPosX, "y" : ballPosY, "time" : new Date()});
+    dragBuffer = dragBuffer.slice(0, dragsStored);
 
     // Update the ball's position.
     d3.select(this)
         .attr("cx", d.x = Math.max(ballRadius, Math.min(containerWidth - ballRadius, ballPosX)))
         .attr("cy", d.y = Math.max(ballRadius, Math.min(containerHeight - ballRadius, ballPosY)));
+}
+
+function create_bucket(svg, bucketWidth, bucketHeight, bucketOffsetX, bucketOffsetY, numberOfBalls, ballRadius)
+{
+    // Determine the gap between ball centers when they're stacked in the bucket.
+    var ballCenterGap = Math.min((bucketHeight / numberOfBalls), 2 * ballRadius);
+
+    // Create the g element for holding the bucket.
+    var bucketBox = svg.append("g")
+        .attr("transform", "translate(" + bucketOffsetX + ", " + bucketOffsetY + ")");
+
+    // Create the bucket. Could use a polyline or paths to form the open container instead.
+    bucketHeight += 2;
+    var bucket = bucketBox.append("rect")
+        .classed("bucket", true)
+        .attr("width", bucketWidth)
+        .attr("height", bucketHeight)
+        .style("stroke-dasharray", bucketHeight + bucketWidth + bucketHeight + ", " + bucketWidth)
+        .style("stroke-dashoffset", bucketHeight + bucketWidth + bucketHeight);
+
+    return {"inBucket" : [], "bucket" : bucketBox, "ballCenterGap" : ballCenterGap};
 }
 
 function create_slider(svg, sliderOffset, sliderMax, speedScale)
@@ -155,7 +205,7 @@ function create_slider(svg, sliderOffset, sliderMax, speedScale)
         .attr("y", sliderGap / 2)
         .style("font-weight", 700)
         .style("dominant-baseline", "middle")
-		.style("stroke-width", 0);  // Stroke width to 0 in order to make the text crisper.
+        .style("stroke-width", 0);  // Stroke width to 0 in order to make the text crisper.
 
     // Add the speed slider handle.
     var handleRadius = 8;  // The radius of the circle used as the speed slider handle.
@@ -217,7 +267,7 @@ function initiliase_balls(svg)
         .attr("cy", function (d) { return d.y; })
         .attr("r", ballRadius)
         .style("fill", function(d) { return d.color; });
-    return balls
+    return balls;
 }
 
 function slider_drag_update(d)

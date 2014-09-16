@@ -14,11 +14,7 @@
 {% block content %}
 <!--Block for including the content of the page within the div.content tag.-->
 <p>TODO:</p>
-<p>Make a bucket on the right side of svg element</p>
-<p>Make bucket fill when a ball is clocked on and empty when the ball container g element is clicked on (ball of correct color then appears on g element and moves)</p>
-<p>Make bucket hold balls that have been clicked on (have to make the balls squash down and spring up as bucket fills and empties</p>
-<p>Rectangle container edges (bottom and right) look messed up as the top and left get cut off very slightly by going over the edge of the SVG</p>
-<p>maybe include text box to set number of balls (if so a button for resets is needed)</p>
+<p>Click on ball, ball moves to right column and pile up so that they overlap, overlap is determined as max height of stack / # balls</p>
 <script type="text/javascript" src="{{ url_for('static', filename='bouncing_balls/bouncing_balls.js') }}"></script>
 <br><br><br><br>
 <p>Text in the SVG element ('Speed' and tick marks) made crisp by setting stroke-width to 0.</p>
