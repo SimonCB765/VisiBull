@@ -1,5 +1,5 @@
 var ballRadius = 20;  // The radius of the balls.
-var numberOfBalls = 15;  // The number of balls in the container.
+var numberOfBalls = 10;  // The number of balls in the container.
 var baseBallSpeed = 4;  // The starting speed of the balls.
 var ballSpeedScaling = 1.0;  // The value by which to scale the balls speed (the user can alter this dynamically).
 var svgWidth = 960;  // The width of the SVG element.
@@ -17,7 +17,8 @@ var svg = create_SVG("div.content");
 // Create the container in which the balls will bounce around.
 var ballBox = svg.append("g")
     .classed("ballContainer", true)
-    .attr("transform", "translate(1, 1)");  // Shift of one down and right to enable the border of the ball container to show properly at the top and left.
+    .attr("transform", "translate(1, 1)")  // Shift of one down and right to enable the border of the ball container to show properly at the top and left.
+    .on("click", fire_ball);  // Setup the clicking on the background.
 ballBox.append("rect")
     .classed("ballBoundingSquare", true)
     .attr("width", containerWidth)
@@ -60,14 +61,14 @@ var ballDrag = d3.behavior.drag()
     .on("dragstart", ball_drag_start)
     .on("drag", ball_drag_update)
     .on("dragend", ball_drag_end);
-var noBallDrag = d3.behavior.drag()
+var noBallDrag = d3.behavior.drag()  // Used to remove all drag listeners from the balls.
     .origin(function(d) {return d;})
     .on("dragstart", null)
     .on("drag", null)
     .on("dragend", null);
 balls.call(ballDrag);
 
-function ball_drag_end()
+function ball_drag_end(d)
 {
     d3.event.sourceEvent.stopPropagation(); // Silence any other listeners.
 
@@ -82,13 +83,13 @@ function ball_drag_end()
         currentBall.remove();  // Selection.remove() removes the selected elements from the DOM.
         clickedBallBucket.bucket.append(function() { return currentBall[0][0]; });  // The removed elements can then be added back through the use of a function with append.
         currentBall
-            .attr("cx", ballRadius + 2)
-            .attr("cy", -ballRadius)
+            .attr("cx", d.x = ballRadius + 2)
+            .attr("cy", d.y = -ballRadius)
             .call(noBallDrag)  // Remove drag event listeners by calling the no drag behaviour.
             .transition()
             .duration(1000)
             .ease("bounce")
-            .attr("cy", bucketHeight - ballRadius - (clickedBallBucket.inBucket.length * clickedBallBucket.ballCenterGap));
+            .attr("cy", d.y = bucketHeight - ballRadius - (clickedBallBucket.inBucket.length * clickedBallBucket.ballCenterGap));
 
         clickedBallBucket.inBucket.push(currentBall);  // Add the ball to the record of balls in the bucket.
     }
@@ -137,6 +138,8 @@ function ball_drag_start()
 
 function ball_drag_update(d)
 {
+    d3.event.sourceEvent.stopPropagation(); // Silence any other listeners.
+
     // Current position of the ball relative to its container.
     var ballPosX = d3.event.x;
     var ballPosY = d3.event.y;
@@ -228,6 +231,35 @@ function create_SVG(selectionString)
         .attr("width", svgWidth)
         .attr("height", svgHeight);
     return svg;
+}
+
+function fire_ball()
+{
+    //d3.event.sourceEvent.stopPropagation(); // Silence any other listeners.
+    if (clickedBallBucket.inBucket.length > 0)
+    {
+        // If there is a ball in the bucket.
+        var ballToFire = clickedBallBucket.inBucket.pop();
+        ballToFire.transition();  // Empty transition to kill any that are currently active on the ball.
+
+        console.log(d3.event.offsetX, d3.event.layerX, d3.event.offsetY, d3.event.layerY, d3.mouse(this));
+
+        // Remove ball from the bucket and add it to the bouncy container.
+        ballToFire.remove();  // Selection.remove() removes the selected elements from the DOM.
+        d3.select(this).append(function() { return ballToFire[0][0]; });  // The removed elements can then be added back through the use of a function with append.
+        ballData = ballToFire.datum();
+        ballData.x = d3.mouse(this)[0];  // Could also use d3.event.offsetX if the browser supports it.
+        ballData.y = d3.mouse(this)[1];  // Could also use d3.event.offsetY if the browser supports it.
+        ballData.angle = 1.35;
+        ballData.speed = baseBallSpeed;
+        ballToFire
+            .datum(ballData)
+            .attr("cx", function(d) { return d.x; })
+            .attr("cy", function(d) { return d.y; })
+            .call(ballDrag)  // Add drag event listeners.
+
+        ballToFire.classed({"anim" : true, "inBucket" : false});  // Enable timer animation and record as not in bucket.
+    }
 }
 
 function initiliase_balls(svg)
