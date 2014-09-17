@@ -1,0 +1,33 @@
+{% extends "home.html" %}
+
+{% block head %}
+<!--Block for including page specific CSS and JS files within the <head> tag.-->
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='class_visualisation/class_visualisation.css') }}">
+{% endblock %}
+
+{% block header %}
+<!--Block for including page specific header information (e.g. page title) within the <header> tag.-->
+<h1 class="pageTitle">Exploring Class Data</h1>
+<span class="date">September 16, 2014</span>
+{% endblock %}
+
+{% block content %}
+<!--Block for including the content of the page within the div.content tag.-->
+<p>TODO:</p>
+<p>Brush only appearing on one cell.</p>
+<p>Brush action causing all dots to go out when starting</p>
+<p>Brush causing all dots to appear colored when brush is gone</p>
+<p>Bruch linking between cells</p>
+<p>Click on a circle causes all other circle of same class to highlight and all other classes to deselect</p>
+<p>Very light gridlines (only in borders)</p>
+<p>Sort out the ticks (especially x axis)</p>
+<br><br>
+<p>NOTES:</p>
+<p>Have each draggable tab given a class (that is also given to each cell in its row/column), and then select the cells with the tag and change their transform.</p>
+<p>Possibly have to move some create visualisation code to the data loader if it's not working due to async nature of data load.</p>
+<p>Same brushing/linking features for all chart types.</p>
+<script type="text/javascript" src="{{ url_for('static', filename='class_visualisation/class_visualisation.js') }}"></script>
+<br><br><br><br>
+<p>The class variable is assumed to be called Class in any files uploaded.</p>
+<p>CSS, HTML and Javascript code for creating the page can be found <a href={{ githubURL }}>here</a>.</p>
+{% endblock %}
