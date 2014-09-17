@@ -23,6 +23,12 @@ handlers:
   upload: pages/(.*\.js)
   mime_type: text/javascript
 
+# Serve tsv data files from their page directory.
+- url: /static/(.*\.tsv)
+  static_files: pages/\1
+  upload: pages/(.*\.tsv)
+  mime_type: text/tab-separated-values
+
 # Static directory for all other static files.
 - url: /static
   static_dir: static
