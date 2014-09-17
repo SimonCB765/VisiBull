@@ -1,9 +1,9 @@
 var ballRadius = 20;  // The radius of the balls.
-var numberOfBalls = 10;  // The number of balls in the container.
+var numberOfBalls = 15;  // The number of balls in the container.
 var baseBallSpeed = 4;  // The starting speed of the balls.
 var ballSpeedScaling = 1.0;  // The value by which to scale the balls speed (the user can alter this dynamically).
 var svgWidth = 960;  // The width of the SVG element.
-var svgHeight = 500;  // The height of the SVG element.
+var svgHeight = 450;  // The height of the SVG element.
 var bucketGap = 100;  // The gap at the right of the SVG element for the ball bucket.
 var sliderGap = 50;  // The gap at the bottom of the SVG element for the slider.
 var containerWidth = svgWidth - bucketGap;  // The width of the container that will contain the balls.

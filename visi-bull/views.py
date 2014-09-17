@@ -20,4 +20,5 @@ def prettyPictures(prettyPictureName):
     if not os.path.isfile(pageFullPath):
         return render_template('404.html')
     else:
-        return render_template(pageRelativePath)
+        githubURL = 'https://github.com/SimonCB765/VisiBull/tree/master/visi-bull/pages/' + prettyPictureName
+        return render_template(pageRelativePath, githubURL=githubURL)

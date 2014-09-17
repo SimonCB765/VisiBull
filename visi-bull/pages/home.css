@@ -13,7 +13,7 @@ _classes    -> style declarations for specific classes.
 _element
 */
 html {min-width: 1040px;}
-body {background-color: #F8F8F8; color: #222222; font-family: "Segoe UI", sans-serif; margin: 4em auto 1em auto; width: 960px;}
+body {background-color: #F8F8F8; color: #222222; font-family: "Segoe UI", sans-serif; margin: 2em auto 1em auto; width: 960px;}
 p {margin: 1em 0}
 a {color: #FF0066}
 a:not(:hover) {text-decoration: none;}
@@ -23,7 +23,6 @@ _header
 */
 header {margin-bottom: 2em;}
 header .pageTitle {font-size: 60px; font-weight: normal; letter-spacing: -1px;}
-header .date {color: #0099FF; font-size: 14px; font-style: oblique; font-weight: bold; letter-spacing: 2px;}
 
 /*
 _footer
@@ -34,4 +33,4 @@ footer a {font-style: oblique; font-weight: bold;}
 /*
 _classes
 */
-.banner .date {font-size: small;}
+.date {color: #0099FF; font-size: 14px; font-style: oblique; font-weight: bold; letter-spacing: 2px;}
