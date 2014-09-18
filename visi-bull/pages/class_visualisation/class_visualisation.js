@@ -98,7 +98,7 @@ function visualise_dataset(dataset)
         var xScale = d3.scale.linear()
             .range([0, chartDim]);
         var yScale = d3.scale.linear()
-            .range([0, chartDim]);
+            .range([chartDim, 0]);
 
         // Setup the x and y axes.
         var xAxis = d3.svg.axis()
