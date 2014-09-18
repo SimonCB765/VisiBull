@@ -151,13 +151,23 @@ function visualise_dataset(dataset)
 
         function brush_end()
         {
-            if (brush.empty() && !classSelection)
-            {
-                // If the brush has been cleared.
-                currentlyBrushedCell = undefined;
-                svg.selectAll(".deselected")
-                    .classed("deselected", false);
-            }
+			if (brush.empty())
+			{
+				// If the brush is empty, then either the brush needs to be cleared or a class highlighting is taking place.
+				if (classSelection)
+				{
+					// Highlight all datapoints of the selected class.
+					d3.selectAll(".dataPoint")
+						.classed("deselected", function(d) { return d["Class"] !== classSelection; });
+				}
+				else
+				{
+					// If the brush has been cleared and no class selection is going on, then you know the user has just tried to clear a brushing.
+					currentlyBrushedCell = undefined;
+					svg.selectAll(".deselected")
+						.classed("deselected", false);
+				}
+			}
 			
 			// Now record there being no class highlighting going on. This ensures that the next time the brush_end is fired, all the deselections
 			// will be cleared, unless a class highlighting has been performed again.
@@ -193,31 +203,35 @@ function visualise_dataset(dataset)
 		
 		function class_select(d)
 		{
-			// Did you click within the extent?
-				// If yes then don't do any highlighting (simply allow normal brush events to occur).
-				// If no then ...
+			// Are you in the cell with the extent?
+				// If Yes
+					// Did you click within the extent?
+						// If yes then don't do any highlighting (simply allow normal brush events to occur).
+						// If no then ...
+				// If No then...
 		
-			// Highlight the datapoints in the class clicked on.
-			classSelection = true;  // A class has been selected for highlighting.
-			var dataClass = d3.select(this).datum()["Class"];
-			d3.selectAll(".dataPoint")
-				.classed("deselected", function(d) { return d["Class"] !== dataClass; });
+			// Determine the class chosen for highlighting.
+			classSelection = d3.select(this).datum()["Class"];
 			
 			// Handle non-zero brush extents. If the extent is not cleared here, and the datapoint click on is in a different chart cell from
 			// the currently brushed area, then the brush extent will travel to the chart cell of the clicked datapoint. For example, if you brushed
 			// a small square in cell (1, 1) and then clicked on a datapoint in cell (2, 2), then the brushed square would disappear from (1, 1) due
 			// to the brush_start function, but would appear in (2, 2). Clearing the brush here, before any brushing events are triggered prevents this.
+			// This problem occurs because the brush_start only clears the brush extent from the old chart cell (as it assumes that the
+			// brush_move will handle any extents in the new chart cell).
 			d3.select(currentlyBrushedCell).call(brush.clear());
-
-			/*
-			console.log(d3.mouse(this), xScale.domain(), yScale.domain());
-			// Scale the coordinate appropriately for this chart cell.
-			var chartCell = d3.select(this.parentNode);
-			var chartCellData = chartCell.datum();
-			xScale.domain(domainByFeature[chartCellData.row_feature]);
-            yScale.domain(domainByFeature[chartCellData.col_feature]);
-			console.log(d3.mouse(this), xScale.domain(), yScale.domain());
-			*/
+			
+			// Enable brushing when you start the brushing by clicking on a datapoint instead of the background.
+			var chartCell = d3.select(this.parentNode);  // The chart cell that the datapoint is in.
+			var chartCellData = chartCell.datum();  // The information about the features displayed in the cell.
+			
+			// Convert the absolute values of the mouse x and y coords within the chart cell into positions along the x and y axis.
+			// This is necessary for providing values to properly set the brush extent, and requires setting the scale domains correctly.
+			xScale.domain(domainByFeature[chartCellData.row_feature]);  // Give the correct domain for the x scale in this chart cell.
+            yScale.domain(domainByFeature[chartCellData.col_feature]);  // Give the correct domain for the y scale in this chart cell.
+			var startXVal = xScale.invert(d3.mouse(this)[0]);
+			var startYVal = yScale.invert(d3.mouse(this)[1]);
+			brush.extent([[startXVal, startYVal], [startXVal, startYVal]]);
 		}
 		
 		function plot_border(cell)
