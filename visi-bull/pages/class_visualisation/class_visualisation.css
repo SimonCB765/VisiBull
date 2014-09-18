@@ -13,7 +13,7 @@ svg {display: block; margin: 0 auto; outline: thin solid #3A3A3B;}
 /*
 _classes
 */
-svg .chartBorder {fill-opacity: 0; stroke: #3A3A3B;}
+svg .chartBorder {fill: none; stroke: #3A3A3B;}
 svg .dataPoint {opacity: .8; stroke: none;}
 svg .dataPoint.deselected {fill: #C0C0C0 !important;}  /* !important in order to override the fills specified in the JS file... */
 svg .chartCell .extent {fill: black; opacity: 0.1;}

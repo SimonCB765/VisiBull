@@ -141,21 +141,27 @@ function visualise_dataset(dataset)
             .enter()
             .append("g")
             .attr("class", function(d) { return "chartCell row" + d.row_index + " col" + d.col_index; })
-            .attr("transform", function(d) { return "translate(" + (chartOffsetX + d.row_index * (chartDim + chartGap)) + ", " + (chartOffsetY + d.col_index * (chartDim + chartGap)) + ")"; })
-            .each(plot)
-            .call(brush);
+            .attr("transform", function(d) { return "translate(" + (chartOffsetX + d.col_index * (chartDim + chartGap)) + "," + (chartOffsetY + d.row_index * (chartDim + chartGap)) + ")"; })
+			.each(plot_border)  // Plot the border first in order to not interfere with the brushing (else the brush cross disappears and the brushing coords are messed up).
+            .call(brush)  // Next add the brush behaviour.
+            .each(plot);  // Finally add the data points so that they're clickable.
 
         var currentlyBrushedCell;  // The cell that is currently being brushed.
+		var classSelection = false;  // Whether highlighting by class has been performed.
 
         function brush_end()
         {
-            if (brush.empty())
+            if (brush.empty() && !classSelection)
             {
                 // If the brush has been cleared.
                 currentlyBrushedCell = undefined;
                 svg.selectAll(".deselected")
                     .classed("deselected", false);
             }
+			
+			// Now record there being no class highlighting going on. This ensures that the next time the brush_end is fired, all the deselections
+			// will be cleared, unless a class highlighting has been performed again.
+			classSelection = false;
         }
 
         function brush_move(cell)
@@ -184,17 +190,61 @@ function visualise_dataset(dataset)
                 yScale.domain(domainByFeature[cell.col_feature]);
             }
         }
+		
+		function class_select(d)
+		{
+			// Did you click within the extent?
+				// If yes then don't do any highlighting (simply allow normal brush events to occur).
+				// If no then ...
+		
+			// Highlight the datapoints in the class clicked on.
+			classSelection = true;  // A class has been selected for highlighting.
+			var dataClass = d3.select(this).datum()["Class"];
+			d3.selectAll(".dataPoint")
+				.classed("deselected", function(d) { return d["Class"] !== dataClass; });
+			
+			// Handle non-zero brush extents. If the extent is not cleared here, and the datapoint click on is in a different chart cell from
+			// the currently brushed area, then the brush extent will travel to the chart cell of the clicked datapoint. For example, if you brushed
+			// a small square in cell (1, 1) and then clicked on a datapoint in cell (2, 2), then the brushed square would disappear from (1, 1) due
+			// to the brush_start function, but would appear in (2, 2). Clearing the brush here, before any brushing events are triggered prevents this.
+			d3.select(currentlyBrushedCell).call(brush.clear());
+
+			/*
+			console.log(d3.mouse(this), xScale.domain(), yScale.domain());
+			// Scale the coordinate appropriately for this chart cell.
+			var chartCell = d3.select(this.parentNode);
+			var chartCellData = chartCell.datum();
+			xScale.domain(domainByFeature[chartCellData.row_feature]);
+            yScale.domain(domainByFeature[chartCellData.col_feature]);
+			console.log(d3.mouse(this), xScale.domain(), yScale.domain());
+			*/
+		}
+		
+		function plot_border(cell)
+		{
+			var chartCell = d3.select(this);
+
+            // Create the boundary around the chart.
+			var boundaryVerts = [ {"x" : 0, "y" : 0},
+								  {"x" : 0, "y" : chartDim},
+								  {"x" : chartDim, "y" : chartDim},
+								  {"x" : chartDim, "y" : 0},
+								  {"x" : 0, "y" : 0}];
+			var line = d3.svg.line()
+				.x(function(d) { return d.x; })
+				.y(function(d) { return d.y; })
+				.interpolate("linear");
+            chartCell.append("path")
+				.datum(boundaryVerts)
+                .attr("d", line)
+				.attr("d", function(d) { return line(d) + "Z"; })  // Close the border.
+                .classed("chartBorder", true);
+		}
 
         function plot(cell)
         {
             var chartCell = d3.select(this);
-
-            // Create the boundary around the chart
-            chartCell.append("rect")
-                .attr("width", chartDim)
-                .attr("height", chartDim)
-                .classed("chartBorder", true);
-
+			
             // Setup the domain for the data in this cell.
             xScale.domain(domainByFeature[cell.row_feature]);
             yScale.domain(domainByFeature[cell.col_feature]);
@@ -206,9 +256,11 @@ function visualise_dataset(dataset)
                 .append("circle")
                 .attr("cx", function(d) { return xScale(d[cell.row_feature]); })
                 .attr("cy", function(d) { return yScale(d[cell.col_feature]); })
-                .attr("r", 3)
+                .attr("r", 10)
                 .classed("dataPoint", true)
-                .style("fill", function(d) { return classColors(d.Class) });
+                .style("fill", function(d) { return classColors(d.Class) })
+				.on("mousedown", class_select)
+				;
         }
     }
 }
