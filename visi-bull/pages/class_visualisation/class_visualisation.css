@@ -17,4 +17,5 @@ svg .chartBorder {fill: none; stroke: #3A3A3B;}
 svg .dataPoint {opacity: .8; stroke: none;}
 svg .dataPoint.deselected {fill: #C0C0C0 !important;}  /* !important in order to override the fills specified in the JS file... */
 svg .chartCell .extent {fill: black; opacity: 0.1;}
+svg .guideline {fill: none; stroke: black; stroke-width: 2;}
 svg .xAxis path, svg .xAxis line, svg .yAxis path, svg .yAxis line {fill: none;}
