@@ -12,9 +12,15 @@ handlers:
   mime_type: text/css
 
 # Serve D3 from the static directory.
-- url: /static/(.*d3.min.js)
+- url: /static/(.*d3.*js)
   static_files: static/\1
-  upload: /static/(.*d3.min.js)
+  upload: /static/(.*d3.*js)
+  mime_type: text/javascript
+
+# Serve jQuery from the static directory.
+- url: /static/(.*jquery.*js)
+  static_files: static/\1
+  upload: /static/(.*jquery.*js)
   mime_type: text/javascript
 
 # Serve all other Javascript files from their page directory.
