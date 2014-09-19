@@ -13,9 +13,9 @@ svg {display: block; margin: 0 auto; outline: thin solid #3A3A3B;}
 /*
 _classes
 */
-svg .chartBorder {fill: none; stroke: #3A3A3B;}
+svg .chartBorder {fill: none; stroke: #3A3A3B;}  /* The border around each scatter plot chart cell. */
+svg .chartCell .extent {fill: black; opacity: 0.1;}  /* The brush extent in a scatter plot chart cell. */
 svg .dataPoint {opacity: .8; stroke: none;}
 svg .dataPoint.deselected {fill: #C0C0C0 !important;}  /* !important in order to override the fills specified in the JS file... */
-svg .chartCell .extent {fill: black; opacity: 0.1;}
-svg .guideline {fill: none; stroke: black; stroke-width: 2;}
-svg .xAxis path, svg .xAxis line, svg .yAxis path, svg .yAxis line {fill: none;}
+svg .guideline {fill: none; stroke: #3A3A3B; stroke-width: 2;}  /* The mini guidelines that appear along each axis instead of tick marks. */
+svg .xAxis path, svg .xAxis line, svg .yAxis path, svg .yAxis line {fill: none;}  /* Tick marks and lines associated with an axis.*/
