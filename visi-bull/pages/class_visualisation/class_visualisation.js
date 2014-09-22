@@ -1,14 +1,15 @@
 var margin = {top: 10, right: 10, bottom: 25, left: 10};  // The margins to leave on each side of the SVG element.
-var chartDim = 140;  // The width and height of the individual charts.
-var displayedFeatures = 4;  // The number of features to display charts for.
-var chartOffsetX = 40;  // The gap between the left of the SVG element and the leftmost charts (where the y axis labels will reside).
+var chartDim;  // The width and height of the individual charts.
+var maxFeaturesToDisplay = 4;  // The number of features to display charts for (maximum of 4).
+var yAxisPadding = 40;  // The gap between the left of the SVG element and the leftmost charts (where the y axis labels will reside).
 var chartOffsetY = 40;  // The gap between the top of the SVG element and the topmost charts (where the feature names of the columns will reside).
 var chartGap = 10;  // The gap between charts in the X and Y directions.
+var buttonPadding = 100;  // The gap between the right of the charts and the dataset buttons.
 var scatterRadius = 4;  // The radius of the circles representing the datapoints.
 
 // Calculate the width and height of the SVG element.
-var svgWidth = 900 - margin.left - margin.right;//(chartDim * displayedFeatures) + chartOffsetX + (chartGap * (displayedFeatures - 1));
-var svgHeight = 665 - margin.top - margin.bottom;//(chartDim * displayedFeatures) + chartOffsetY + (chartGap * (displayedFeatures - 1));
+var svgWidth = 900 - margin.left - margin.right;//(chartDim * maxFeaturesToDisplay) + yAxisPadding + (chartGap * (maxFeaturesToDisplay - 1));
+var svgHeight = 665 - margin.top - margin.bottom;//(chartDim * maxFeaturesToDisplay) + chartOffsetY + (chartGap * (maxFeaturesToDisplay - 1));
 
 // Get the path to the current script, then the path to the directory containing it and then to the data directory.
 // This could also be done by hardcoding the path to the data directory instead.
@@ -89,10 +90,14 @@ function load_dataset(datasetLocation, datasetName)
 
 function visualise_dataset(dataset)
 {
-    // Determine the domains for each feature in the dataset.
+    // Determine the number of features in the dataset and their domains.
     var domainByFeature = {};
-    var features = d3.keys(dataset[0]).filter(function(d) {return d != "Class";}).slice(0, displayedFeatures);
+    var features = d3.keys(dataset[0]).filter(function(d) {return d != "Class";});
+	var featuresToDisplay = features.slice(0, Math.min(maxFeaturesToDisplay, features.length));
     features.forEach(function(feature) {domainByFeature[feature] = d3.extent(dataset, function(d) { return d[feature]; });});
+	
+	// Determine the dimensions for each of the plots.
+	chartDim = (svgHeight - (chartGap * (featuresToDisplay.length - 1)) - chartOffsetY) / featuresToDisplay.length;
 
 	// Setup the x and y scales.
 	var xScale = d3.scale.linear()
@@ -112,18 +117,18 @@ function visualise_dataset(dataset)
 
 	// Create the x and y axes for each feature that is to be displayed.
 	svg.selectAll(".xAxis")
-		.data(features)
+		.data(featuresToDisplay)
 		.enter()
 		.append("g")
 		.classed("xAxis", true)
-		.attr("transform", function(d, i) { return "translate(" + (chartOffsetX + (chartDim + chartGap) * i) + ", " + svgHeight + ")"; })
+		.attr("transform", function(d, i) { return "translate(" + (yAxisPadding + (chartDim + chartGap) * i) + ", " + svgHeight + ")"; })
 		.each(function(d) { xScale.domain(domainByFeature[d]); d3.select(this).call(xAxis); });
 	svg.selectAll(".yAxis")
-		.data(features)
+		.data(featuresToDisplay)
 		.enter()
 		.append("g")
 		.classed("yAxis", true)
-		.attr("transform", function(d, i) { return "translate(" + chartOffsetX + ", " + (chartOffsetY + (chartDim + chartGap) * i) + ")"; })
+		.attr("transform", function(d, i) { return "translate(" + yAxisPadding + ", " + (chartOffsetY + (chartDim + chartGap) * i) + ")"; })
 		.each(function(d) { yScale.domain(domainByFeature[d]); d3.select(this).call(yAxis); });
 
 	// Setup the brush action. By changing the xScale and yScale for each chart cell, this setup can be used as a base definition for the brush
@@ -143,9 +148,9 @@ function visualise_dataset(dataset)
 			{
 				// Create the vertices for the lines.
 				var mousePos = d3.mouse(this);
-				var mousePosX = Math.max(chartOffsetX, mousePos[0]);
+				var mousePosX = Math.max(yAxisPadding, mousePos[0]);
 				var mousePosY = Math.max(chartOffsetY, Math.min(svgHeight, mousePos[1]));
-				var verts = [ {"x" : chartOffsetX - 10, "y" : mousePosY}, {"x" : chartOffsetX + 10, "y" : mousePosY},
+				var verts = [ {"x" : yAxisPadding - 10, "y" : mousePosY}, {"x" : yAxisPadding + 10, "y" : mousePosY},
 							  {"x" : mousePosX, "y" : svgHeight - 10}, {"x" : mousePosX, "y" : svgHeight + 10} ];
 
 				// Draw the lines.
@@ -158,11 +163,11 @@ function visualise_dataset(dataset)
 
 	// Create the chart cells.
 	var chartCells = plottingElement.selectAll(".chartCell")
-		.data(cross_product(features, features))
+		.data(cross_product(featuresToDisplay, featuresToDisplay))
 		.enter()
 		.append("g")
 		.attr("class", function(d) { return "chartCell row" + d.row_index + " col" + d.col_index; })
-		.attr("transform", function(d) { return "translate(" + (chartOffsetX + d.col_index * (chartDim + chartGap)) + "," + (chartOffsetY + d.row_index * (chartDim + chartGap)) + ")"; })
+		.attr("transform", function(d) { return "translate(" + (yAxisPadding + d.col_index * (chartDim + chartGap)) + "," + (chartOffsetY + d.row_index * (chartDim + chartGap)) + ")"; })
 		.each(plot_border)  // Plot the border first in order to not interfere with the brushing (else the brush cross disappears and the brushing coords are messed up).
 		.call(brush)  // Next add the brush behaviour.
 		.each(plot);  // Finally add the data points last so that they're clickable.
