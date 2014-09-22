@@ -29,7 +29,7 @@ var classColors = d3.scale.category10();
 
 // Load up the first example dataset visualisation.
 var loadedDatasets = {};  // The datasets that have been loaded into memory.
-load_dataset(dataDirectory + "ExData1.tsv", "ExData1")
+load_dataset(dataDirectory + "ExData2.tsv", "ExData1")
 
 /*****************
 Helper Functions.
@@ -150,8 +150,8 @@ function visualise_dataset(dataset)
 				var mousePos = d3.mouse(this);
 				var mousePosX = Math.max(yAxisPadding, mousePos[0]);
 				var mousePosY = Math.max(chartOffsetY, Math.min(svgHeight, mousePos[1]));
-				var verts = [ {"x" : yAxisPadding - 10, "y" : mousePosY}, {"x" : yAxisPadding + 10, "y" : mousePosY},
-							  {"x" : mousePosX, "y" : svgHeight - 10}, {"x" : mousePosX, "y" : svgHeight + 10} ];
+				var verts = [ {"x" : yAxisPadding, "y" : mousePosY}, {"x" : yAxisPadding + 10, "y" : mousePosY},
+							  {"x" : mousePosX, "y" : svgHeight - 10}, {"x" : mousePosX, "y" : svgHeight} ];
 
 				// Draw the lines.
 				d3.select(".guideline")
