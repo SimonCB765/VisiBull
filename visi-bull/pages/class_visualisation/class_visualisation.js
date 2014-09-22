@@ -40,7 +40,8 @@ function create_slider(container, xTransform, yTransform, sliderMax, features, v
     // Define the drag behaviour.
     var drag = d3.behavior.drag()
         .origin(function(d) {return d;})
-        .on("drag", slider_drag_update);
+        .on("drag", slider_drag_update)
+		.on("dragend", slider_drag_end);
 
 	// Create the scale for the slider.
 	var sliderScale = d3.scale.linear()
@@ -61,11 +62,13 @@ function create_slider(container, xTransform, yTransform, sliderMax, features, v
         .call(sliderScaleAxis)
 	
 	// Create the data for the feature labels.
-	var featureData = []
+	var featureData = [];
+	var validPositions = [];
 	var labelPos = 0.5;
 	for (var i = 0; i < features.length; i++)
 	{
 		featureData.push({"feature" : features[i], "position" : labelPos});
+		validPositions.push(labelPos);
 		labelPos += 1;
 	}
 
@@ -74,12 +77,18 @@ function create_slider(container, xTransform, yTransform, sliderMax, features, v
 		.data(featureData)
 		.enter()
 		.append("text")
-        .classed("handle", true)
+        .classed({"horizontalHandle" : !verticalAxis, "verticalHandle" : verticalAxis})
         .attr("x", verticalAxis ? 0 : function(d) { return sliderScale(d.position); })
         .attr("y", verticalAxis ? function(d) { return sliderScale(d.position); } : 0)
 		.attr("text-anchor", "middle")
 		.text(function(d) { return d.feature; })
         .call(drag);
+
+	function round_to_vector(value, vector)
+	{
+		var distances = vector.map(function(d) { return Math.abs(d - value); });
+		return vector[distances.indexOf(d3.min(distances))];
+	}
 	
 	function slider_drag_update(d)
 	{
@@ -89,6 +98,18 @@ function create_slider(container, xTransform, yTransform, sliderMax, features, v
 		d3.select(this)
 			.attr("x", verticalAxis ? 0 : d.position = Math.max(0, Math.min(sliderMax, sliderPos[0])))
 			.attr("y", verticalAxis ? d.position = Math.max(0, Math.min(sliderMax, sliderPos[1])) : 0);
+	}
+	
+	function slider_drag_end(d)
+	{
+		var sliderPos = d3.mouse(this);  // Current position of the slider handle relative to its container.
+
+		// Update the slider handle position.
+		d3.select(this)
+			.transition()
+			.duration(500)
+			.attr("x", verticalAxis ? 0 : d.position = sliderScale(round_to_vector(sliderScale.invert(Math.max(0, Math.min(sliderMax, sliderPos[0]))), validPositions)))
+			.attr("y", verticalAxis ? d.position = sliderScale(round_to_vector(sliderScale.invert(Math.max(0, Math.min(sliderMax, sliderPos[1]))), validPositions)) : 0);
 	}
 }
 
