@@ -1,14 +1,14 @@
 var margin = {top: 10, right: 10, bottom: 25, left: 10};  // The margins to leave on each side of the SVG element.
 var chartDim = 140;  // The width and height of the individual charts.
 var displayedFeatures = 4;  // The number of features to display charts for.
-var chartOffsetX = 100;  // The gap between the left of the SVG element and the leftmost charts.
-var chartOffsetY = 40;  // The gap between the top of the SVG elements and the topmost charts.
+var chartOffsetX = 40;  // The gap between the left of the SVG element and the leftmost charts (where the y axis labels will reside).
+var chartOffsetY = 40;  // The gap between the top of the SVG element and the topmost charts (where the feature names of the columns will reside).
 var chartGap = 10;  // The gap between charts in the X and Y directions.
 var scatterRadius = 4;  // The radius of the circles representing the datapoints.
 
 // Calculate the width and height of the SVG element.
-var svgWidth = (chartDim * displayedFeatures) + chartOffsetX + (chartGap * (displayedFeatures - 1));
-var svgHeight = (chartDim * displayedFeatures) + chartOffsetY + (chartGap * (displayedFeatures - 1));
+var svgWidth = 900 - margin.left - margin.right;//(chartDim * displayedFeatures) + chartOffsetX + (chartGap * (displayedFeatures - 1));
+var svgHeight = 665 - margin.top - margin.bottom;//(chartDim * displayedFeatures) + chartOffsetY + (chartGap * (displayedFeatures - 1));
 
 // Get the path to the current script, then the path to the directory containing it and then to the data directory.
 // This could also be done by hardcoding the path to the data directory instead.
@@ -19,6 +19,9 @@ var scripts = document.getElementsByTagName("script"),
 
 // Create the SVG element.
 var svg = create_SVG("div.content");
+
+// Create the g element that will contain the plots.
+var plottingElement = svg.append("g").classed("chartArea", true);
 
 // Setup the ordinal scale for the class colors.
 var classColors = d3.scale.category10();
@@ -133,17 +136,17 @@ function visualise_dataset(dataset)
 	  .on("brushend", brush_end);
 
 	// Add the guidelines before any important elements so that they hide behind them and don't interfere with any interactions.
-	svg.append("path")
+	plottingElement.append("path")
 		.classed("guideline", true);
-	svg
+	plottingElement
 		.on("mousemove", function()
 			{
 				// Create the vertices for the lines.
 				var mousePos = d3.mouse(this);
-				var mousePosX = Math.max(chartOffsetX, Math.min(svgWidth, mousePos[0]));
+				var mousePosX = Math.max(chartOffsetX, mousePos[0]);
 				var mousePosY = Math.max(chartOffsetY, Math.min(svgHeight, mousePos[1]));
-				var verts = [ {"x" : chartOffsetX - 15, "y" : mousePosY}, {"x" : chartOffsetX + 10, "y" : mousePosY},
-							  {"x" : mousePosX, "y" : svgHeight - 15}, {"x" : mousePosX, "y" : svgHeight + 10} ];
+				var verts = [ {"x" : chartOffsetX - 10, "y" : mousePosY}, {"x" : chartOffsetX + 10, "y" : mousePosY},
+							  {"x" : mousePosX, "y" : svgHeight - 10}, {"x" : mousePosX, "y" : svgHeight + 10} ];
 
 				// Draw the lines.
 				d3.select(".guideline")
@@ -154,7 +157,7 @@ function visualise_dataset(dataset)
 		.on("mouseleave", function() { d3.select(this).selectAll(".guideline").style("visibility", "hidden"); });
 
 	// Create the chart cells.
-	var chartCells = svg.selectAll(".chartCell")
+	var chartCells = plottingElement.selectAll(".chartCell")
 		.data(cross_product(features, features))
 		.enter()
 		.append("g")
@@ -171,7 +174,7 @@ function visualise_dataset(dataset)
 	function brush_end(cell)
 	{
 		// Enable pointer events on all datapoints. The points that need it disabled will be disabled later in the function.
-		svg.selectAll(".dataPoint").attr("pointer-events", "auto");
+		plottingElement.selectAll(".dataPoint").attr("pointer-events", "auto");
 
 		// Determine whether the extent has changed or is empty.
 		var extentUnchanged = (extentAtStart[0][0] === brush.extent()[0][0] && extentAtStart[0][1] === brush.extent()[0][1] &&
@@ -184,14 +187,14 @@ function visualise_dataset(dataset)
 			{
 				// The user has clicked on a datapoint circle and not dragged to create abrushed region. They have therefore chosen to highlight the
 				// class of the clicked on datapoint.
-				svg.selectAll(".dataPoint")
+				plottingElement.selectAll(".dataPoint")
 					.classed("deselected", function(d) { return d["Class"] !== classSelection; });
 			}
 			else
 			{
 				// If the brush has been cleared and no class selection is going on, then you know the user has just tried to clear a brushed
 				// region by clicking on the background outside the extent. Therefore, no datapoints should be deselected.
-				svg.selectAll(".dataPoint").classed("deselected", false);
+				plottingElement.selectAll(".dataPoint").classed("deselected", false);
 			}
 		}
 		else
@@ -232,7 +235,7 @@ function visualise_dataset(dataset)
 					// If the mouse click was inside a datapoint circle.
 					brush.clear();  // Clear the brush extent.
 					brush(d3.select(this));  // Redraw the brush (this will clear it from view as the extent is empty).
-					svg.selectAll(".dataPoint")
+					plottingElement.selectAll(".dataPoint")
 						.classed("deselected", function(d) { return d["Class"] !== classSelection; });  // Deselect datapoints of the wrong class.
 				}
 			}
@@ -252,14 +255,14 @@ function visualise_dataset(dataset)
 		extentAtStart = undefined;
 
 		// Bring back the guidelines.
-		svg.select(".guideline").style("visibility", "visible");
-		svg.on("mouseenter", function() { d3.select(this).selectAll(".guideline").style("visibility", "visible"); });
+		plottingElement.select(".guideline").style("visibility", "visible");
+		plottingElement.on("mouseenter", function() { d3.select(this).selectAll(".guideline").style("visibility", "visible"); });
 	}
 
 	function brush_move(cell)
 	{
 		var brushExtent = brush.extent();
-		svg.selectAll(".dataPoint")
+		plottingElement.selectAll(".dataPoint")
 			.classed("deselected", function(d)
 				{
 					var rowFeatureVal = d[cell.row_feature];
@@ -292,8 +295,8 @@ function visualise_dataset(dataset)
 		extentAtStart = brush.extent();
 
 		// Hide the guidelines.
-		svg.select(".guideline").style("visibility", "hidden");
-		svg.on("mouseenter", null);
+		plottingElement.select(".guideline").style("visibility", "hidden");
+		plottingElement.on("mouseenter", null);
 	}
 
 	function class_select(d)
