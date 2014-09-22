@@ -35,6 +35,63 @@ load_dataset(dataDirectory + "ExData2.tsv", "ExData1")
 Helper Functions.
 ******************/
 
+function create_slider(container, xTransform, yTransform, sliderMax, features, verticalAxis)
+{
+    // Define the drag behaviour.
+    var drag = d3.behavior.drag()
+        .origin(function(d) {return d;})
+        .on("drag", slider_drag_update);
+
+	// Create the scale for the slider.
+	var sliderScale = d3.scale.linear()
+		.domain([0, features.length])
+		.range([0, sliderMax])
+		.clamp(true);
+
+    // Create the axis for the slider.
+    var sliderScaleAxis = d3.svg.axis()
+		.tickFormat(function (d) { return ''; })  // Hide the tick labels.
+		.orient(verticalAxis ? "right" : "bottom")
+        .scale(sliderScale);
+	
+    // Create the g element for holding the speed slider.
+    var sliderAxisContainer = container.append("g")
+        .classed("sliderAxis", true)
+        .attr("transform", "translate(" + xTransform + "," + yTransform + ")")
+        .call(sliderScaleAxis)
+	
+	// Create the data for the feature labels.
+	var featureData = []
+	var labelPos = 0.5;
+	for (var i = 0; i < features.length; i++)
+	{
+		featureData.push({"feature" : features[i], "position" : labelPos});
+		labelPos += 1;
+	}
+
+	// Add the feature name labels.
+    var featureLabels = sliderAxisContainer.selectAll(".handle")
+		.data(featureData)
+		.enter()
+		.append("text")
+        .classed("handle", true)
+        .attr("x", verticalAxis ? 0 : function(d) { return sliderScale(d.position); })
+        .attr("y", verticalAxis ? function(d) { return sliderScale(d.position); } : 0)
+		.attr("text-anchor", "middle")
+		.text(function(d) { return d.feature; })
+        .call(drag);
+	
+	function slider_drag_update(d)
+	{
+		var sliderPos = d3.mouse(this);  // Current position of the slider handle relative to its container.
+
+		// Update the slider handle position.
+		d3.select(this)
+			.attr("x", verticalAxis ? 0 : d.position = Math.max(0, Math.min(sliderMax, sliderPos[0])))
+			.attr("y", verticalAxis ? d.position = Math.max(0, Math.min(sliderMax, sliderPos[1])) : 0);
+	}
+}
+
 function create_SVG(selectionString)
 {
     var containerDiv = d3.select(selectionString);
@@ -88,6 +145,23 @@ function load_dataset(datasetLocation, datasetName)
         });
 }
 
+function plot_border(cell)
+{
+	var chartCell = d3.select(this);
+
+	// Create the boundary around the chart.
+	var boundaryVerts = [ {"x" : 0, "y" : 0},
+						  {"x" : 0, "y" : chartDim},
+						  {"x" : chartDim, "y" : chartDim},
+						  {"x" : chartDim, "y" : 0},
+						  {"x" : 0, "y" : 0}];
+	chartCell.append("path")
+		.datum(boundaryVerts)
+		.attr("d", line_generator)
+		.attr("d", function(d) { return line_generator(d) + "Z"; })  // Close the border.
+		.classed("chartBorder", true);
+}
+
 function visualise_dataset(dataset)
 {
     // Determine the number of features in the dataset and their domains.
@@ -98,6 +172,11 @@ function visualise_dataset(dataset)
 	
 	// Determine the dimensions for each of the plots.
 	chartDim = (svgHeight - (chartGap * (featuresToDisplay.length - 1)) - chartOffsetY) / featuresToDisplay.length;
+
+	// Define some variables needed for the brushing and class highlighting.
+	var currentlyBrushedCell;  // The cell that is currently being brushed.
+	var classSelection;  // Whether highlighting by class has been performed.
+	var extentAtStart;  // The extent at the start of the brushing.
 
 	// Setup the x and y scales.
 	var xScale = d3.scale.linear()
@@ -172,9 +251,10 @@ function visualise_dataset(dataset)
 		.call(brush)  // Next add the brush behaviour.
 		.each(plot);  // Finally add the data points last so that they're clickable.
 
-	var currentlyBrushedCell;  // The cell that is currently being brushed.
-	var classSelection;  // Whether highlighting by class has been performed.
-	var extentAtStart;  // The extent at the start of the brushing.
+	// Create the feature labels for the columns.
+	var sliderLength = ((chartDim * featuresToDisplay.length) + (chartGap * (featuresToDisplay.length - 1)));
+	create_slider(svg, yAxisPadding, chartOffsetY / 2, sliderLength, featuresToDisplay, false);
+	create_slider(svg, yAxisPadding + sliderLength + (buttonPadding / 2), chartOffsetY, sliderLength, featuresToDisplay, true);
 
 	function brush_end(cell)
 	{
@@ -321,23 +401,6 @@ function visualise_dataset(dataset)
 		var startXVal = xScale.invert(d3.mouse(this)[0]);  // Convert x mouse coord into the coord system of the plot (needed by brush).
 		var startYVal = yScale.invert(d3.mouse(this)[1]);  // Convert y mouse coord into the coord system of the plot (needed by brush).
 		brush.extent([[startXVal, startYVal], [startXVal, startYVal]]);  // Reset brush extent to empty and at the mouse 'mousedown' location.
-	}
-
-	function plot_border(cell)
-	{
-		var chartCell = d3.select(this);
-
-		// Create the boundary around the chart.
-		var boundaryVerts = [ {"x" : 0, "y" : 0},
-							  {"x" : 0, "y" : chartDim},
-							  {"x" : chartDim, "y" : chartDim},
-							  {"x" : chartDim, "y" : 0},
-							  {"x" : 0, "y" : 0}];
-		chartCell.append("path")
-			.datum(boundaryVerts)
-			.attr("d", line_generator)
-			.attr("d", function(d) { return line_generator(d) + "Z"; })  // Close the border.
-			.classed("chartBorder", true);
 	}
 
 	function plot(cell)
