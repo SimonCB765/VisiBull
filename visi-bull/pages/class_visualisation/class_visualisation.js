@@ -3,7 +3,7 @@ var chartDim;  // The width and height of the individual charts.
 var maxFeaturesToDisplay = 4;  // The number of features to display charts for (maximum of 4).
 var yAxisPadding = 40;  // The gap between the left of the SVG element and the leftmost charts (where the y axis labels will reside).
 var chartOffsetY = 40;  // The gap between the top of the SVG element and the topmost charts (where the feature names of the columns will reside).
-var chartGap = 10;  // The gap between charts in the X and Y directions.
+var chartGap = 15;  // The gap between charts in the X and Y directions.
 var buttonPadding = 150;  // The gap between the right of the charts and the dataset buttons.
 var scatterRadius = 4;  // The radius of the circles representing the datapoints.
 
@@ -151,19 +151,41 @@ function create_slider(container, xTransform, yTransform, labelAreaAvailable, sl
 				.transition()
 				.duration(700)
 				.delay(function(d, i) { return i * delayDuration; })
-				.attr("transform", function(d) { d.transY = sliderScale(d.position); return "translate(" + d.transX + "," + d.transY + ")"; });
+				.attr("transform", function(d) { d.transY = sliderScale(d.position); return "translate(" + d.transX + "," + d.transY + ")"; })
+				.each(function(d)
+					{
+						svg.select(".yAxis.row_" + d.feature)
+							.transition()
+							.attr("transform", function(subD) { subD.transY = chartOffsetY + ((chartDim + chartGap) * (d.position - 0.5)); return "translate(" + subD.transX + "," + subD.transY + ")"; });
+					});
 		}
 		else
 		{
 			// If the slider is horizontal.
 			var newLabelPos = sliderScale.invert(mousePos[0]);  // Only care about the x position of the handle.
 			var reorderedData = calculate_reordering(newLabelPos);
+			
+			// Transform label positions.
 			featureLabels
 				.data(reorderedData, function(d) { return d.feature; })
 				.transition()
 				.duration(700)
 				.delay(function(d, i) { return i * delayDuration; })
-				.attr("transform", function(d) { d.transX = sliderScale(d.position); return "translate(" + d.transX + "," + d.transY + ")"; });
+				.attr("transform", function(d) { d.transX = sliderScale(d.position); return "translate(" + d.transX + "," + d.transY + ")"; })
+				.each(function(d)
+					{
+						svg.select(".xAxis.col_" + d.feature)
+							.transition()
+							.attr("transform", function(subD) { subD.transX = yAxisPadding + ((chartDim + chartGap) * (d.position - 0.5)); return "translate(" + subD.transX + "," + subD.transY + ")"; });
+					});
+				
+			// Transform chart and axis positions.
+			/*
+			svg.selectAll(".xAxis.col_" + d.feature)
+				.transition()
+				.duration(700)
+				.attr("transform", function(d) { d.transX = sliderScale(d.position); console.log(d.transX); return "translate(" + d.transX + "," + d.transY + ")"; });
+			*/
 		}
 		
 		function calculate_reordering(newLabelPos)
@@ -351,20 +373,28 @@ function visualise_dataset(dataset)
 		.ticks(5);
 
 	// Create the x and y axes for each feature that is to be displayed.
+	var xAxisData = [];
+	var yAxisData = [];
+	for (var i = 0; i < featuresToDisplay.length; i++)
+	{
+		xAxisData[i] = {"feature" : featuresToDisplay[i], "transX" : 0, "transY" : 0}
+		yAxisData[i] = {"feature" : featuresToDisplay[i], "transX" : 0, "transY" : 0}
+	}
 	svg.selectAll(".xAxis")
-		.data(featuresToDisplay)
+		.data(xAxisData)
 		.enter()
 		.append("g")
-		.classed("xAxis", true)
-		.attr("transform", function(d, i) { return "translate(" + (yAxisPadding + (chartDim + chartGap) * i) + ", " + svgHeight + ")"; })
-		.each(function(d) { xScale.domain(domainByFeature[d]); d3.select(this).call(xAxis); });
+		.attr("class", function(d) { return "xAxis col_" + d.feature; })
+		.attr("transform", function(d, i) { d.transX = yAxisPadding + (chartDim + chartGap) * i; d.transY = svgHeight; return "translate(" + d.transX + ", " + d.transY + ")"; })
+		.each(function(d) { xScale.domain(domainByFeature[d.feature]); d3.select(this).call(xAxis); });
 	svg.selectAll(".yAxis")
-		.data(featuresToDisplay)
+		.data(yAxisData)
 		.enter()
 		.append("g")
-		.classed("yAxis", true)
-		.attr("transform", function(d, i) { return "translate(" + yAxisPadding + ", " + (chartOffsetY + (chartDim + chartGap) * i) + ")"; })
-		.each(function(d) { yScale.domain(domainByFeature[d]); d3.select(this).call(yAxis); });
+		.attr("class", function(d) { return "yAxis row_" + d.feature; })
+		.attr("transform", function(d, i) { d.transX = yAxisPadding; d.transY = chartOffsetY + (chartDim + chartGap) * i; return "translate(" + d.transX + ", " + d.transY + ")"; })
+		.each(function(d) { yScale.domain(domainByFeature[d.feature]); d3.select(this).call(yAxis); });
+	console.log("axes added");
 
 	// Setup the brush action. By changing the xScale and yScale for each chart cell, this setup can be used as a base definition for the brush
 	// for each chart.
@@ -401,7 +431,7 @@ function visualise_dataset(dataset)
 		.data(cross_product(featuresToDisplay, featuresToDisplay))
 		.enter()
 		.append("g")
-		.attr("class", function(d) { return "chartCell row" + d.row_index + " col" + d.col_index; })
+		.attr("class", function(d) { return "chartCell row_" + d.row_feature + " col_" + d.col_feature; })
 		.attr("transform", function(d) { return "translate(" + (yAxisPadding + d.col_index * (chartDim + chartGap)) + "," + (chartOffsetY + d.row_index * (chartDim + chartGap)) + ")"; })
 		.each(plot_border)  // Plot the border first in order to not interfere with the brushing (else the brush cross disappears and the brushing coords are messed up).
 		.call(brush)  // Next add the brush behaviour.
