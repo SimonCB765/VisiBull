@@ -37,9 +37,12 @@ Helper Functions.
 
 function create_slider(container, xTransform, yTransform, sliderMax, features, verticalAxis)
 {
+	var initialLabelPos;  // The initial position of the label being dragged.
+
     // Define the drag behaviour.
     var drag = d3.behavior.drag()
         .origin(function(d) {return d;})
+		.on("dragstart", function(d) { return initialLabelPos = d.position; })
         .on("drag", slider_drag_update)
 		.on("dragend", slider_drag_end);
 
@@ -74,7 +77,7 @@ function create_slider(container, xTransform, yTransform, sliderMax, features, v
 
 	// Add the feature name labels.
     var featureLabels = sliderAxisContainer.selectAll(".handle")
-		.data(featureData)
+		.data(featureData, function(d) { return d.feature; })  // Assign the feature name as the key for the data binding.
 		.enter()
 		.append("text")
         .classed({"horizontalHandle" : !verticalAxis, "verticalHandle" : verticalAxis})
@@ -83,33 +86,108 @@ function create_slider(container, xTransform, yTransform, sliderMax, features, v
 		.attr("text-anchor", "middle")
 		.text(function(d) { return d.feature; })
         .call(drag);
-
-	function round_to_vector(value, vector)
+	
+	function slider_drag_end(d)
 	{
-		var distances = vector.map(function(d) { return Math.abs(d - value); });
-		return vector[distances.indexOf(d3.min(distances))];
+		var mousePos = d3.mouse(this);  // Current position of the mouse relative to the dragged element's container.
+		var delayDuration = 100;  // The length of the transition delay in ms.
+		
+		if (verticalAxis)
+		{
+			// If the slider is vertical.
+			var newLabelPos = sliderScale.invert(mousePos[1]);  // Only care about the y position of the handle.
+			var reorderedData = calculate_reordering(newLabelPos);
+			featureLabels
+				.data(reorderedData, function(d) { return d.feature; })
+				.transition()
+				.duration(700)
+				.delay(function(d, i) { return i * delayDuration; })
+				.attr("y", function(d) { return sliderScale(d.position); });
+		}
+		else
+		{
+			// If the slider is horizontal.
+			var newLabelPos = sliderScale.invert(mousePos[0]);  // Only care about the x position of the handle.
+			var reorderedData = calculate_reordering(newLabelPos);
+			featureLabels
+				.data(reorderedData, function(d) { return d.feature; })
+				.transition()
+				.duration(700)
+				.delay(function(d, i) { return i * delayDuration; })
+				.attr("x", function(d) { return sliderScale(d.position); });
+		}
+		
+		function calculate_reordering(newLabelPos)
+		{
+			var sliderMoveDist = newLabelPos - initialLabelPos;  // Distance that the slider moved.
+			var newPosition;  // The new position for the dragged label.
+			if (sliderMoveDist >= -1 && sliderMoveDist <= 1)
+			{
+				// The label has not been dragged far enough to reorder the labels (i.e. it has not been dragged past another label).
+				newPosition = initialLabelPos;
+			}
+			else
+			{
+				// The label has been dragged past another one, so a reordering of the labels and rows is needed.
+				// The new position for the dragged label is the valid label position between the current position of the dragged label and it
+				// initial position, that is also closest to the current position of the dragged label. For example,
+				// Label1    Label2    Label3    
+				//         ^                     ^
+				//       final                 start
+				// if Label4 is dragged from start to final, then it should be placed where Label2 currently is, and labels Label2 and Label3
+				// should be shifted right.
+				newPosition = round_to_vector(newLabelPos, sliderMoveDist > 0, validPositions);
+			}
+			
+			// Update the label data.
+			var sortedDraggedPositons = [initialLabelPos, newLabelPos].sort();
+			var labelData = featureLabels.data();
+			for (var i = 0; i < labelData.length; i++)
+			{
+				var currentLabelData = labelData[i];
+				if (currentLabelData.feature !== d.feature)
+				{
+					// The data is not for the dragged label.
+					if (currentLabelData.position > sortedDraggedPositons[0] && currentLabelData.position < sortedDraggedPositons[1])
+					{
+						// If the label needs to be reordered as it is between the original and final position of the dragged label.
+						currentLabelData.position = sliderMoveDist > 0 ? currentLabelData.position - 1 : currentLabelData.position + 1;
+					}
+				}
+				else
+				{
+					currentLabelData.position = newPosition
+				}
+			}
+			
+			return labelData;
+		}
+		
+		function round_to_vector(finalPos, finalGreaterThanInit, vector)
+		{
+			var distancesToFinal = vector.map(function(d) { return d - finalPos; });
+			var filteredPossibilities;
+			if (finalGreaterThanInit)
+			{
+				filteredPossibilities = distancesToFinal.filter(function(d) { return d < 0; });
+				return vector[distancesToFinal.indexOf(d3.max(filteredPossibilities))];
+			}
+			else
+			{
+				filteredPossibilities = distancesToFinal.filter(function(d) { return d > 0; });
+				return vector[distancesToFinal.indexOf(d3.min(filteredPossibilities))];
+			}
+		}
 	}
 	
 	function slider_drag_update(d)
 	{
-		var sliderPos = d3.mouse(this);  // Current position of the slider handle relative to its container.
+		var newLabelPos = d3.mouse(this);  // Current position of the slider handle relative to its container.
 
 		// Update the slider handle position.
 		d3.select(this)
-			.attr("x", verticalAxis ? 0 : d.position = Math.max(0, Math.min(sliderMax, sliderPos[0])))
-			.attr("y", verticalAxis ? d.position = Math.max(0, Math.min(sliderMax, sliderPos[1])) : 0);
-	}
-	
-	function slider_drag_end(d)
-	{
-		var sliderPos = d3.mouse(this);  // Current position of the slider handle relative to its container.
-
-		// Update the slider handle position.
-		d3.select(this)
-			.transition()
-			.duration(500)
-			.attr("x", verticalAxis ? 0 : d.position = sliderScale(round_to_vector(sliderScale.invert(Math.max(0, Math.min(sliderMax, sliderPos[0]))), validPositions)))
-			.attr("y", verticalAxis ? d.position = sliderScale(round_to_vector(sliderScale.invert(Math.max(0, Math.min(sliderMax, sliderPos[1]))), validPositions)) : 0);
+			.attr("x", verticalAxis ? 0 : Math.max(0, Math.min(sliderMax, newLabelPos[0])))
+			.attr("y", verticalAxis ? Math.max(0, Math.min(sliderMax, newLabelPos[1])) : 0);
 	}
 }
 
