@@ -154,7 +154,7 @@ function create_slider(container, xTransform, yTransform, labelAreaAvailable, sl
 				.attr("transform", function(d) { d.transY = sliderScale(d.position); return "translate(" + d.transX + "," + d.transY + ")"; })
 				.each(function(d)
 					{
-						svg.select(".yAxis.row_" + d.feature)
+						svg.selectAll(".row_" + d.feature)
 							.transition()
 							.attr("transform", function(subD) { subD.transY = chartOffsetY + ((chartDim + chartGap) * (d.position - 0.5)); return "translate(" + subD.transX + "," + subD.transY + ")"; });
 					});
@@ -174,18 +174,10 @@ function create_slider(container, xTransform, yTransform, labelAreaAvailable, sl
 				.attr("transform", function(d) { d.transX = sliderScale(d.position); return "translate(" + d.transX + "," + d.transY + ")"; })
 				.each(function(d)
 					{
-						svg.select(".xAxis.col_" + d.feature)
+						svg.selectAll(".col_" + d.feature)
 							.transition()
 							.attr("transform", function(subD) { subD.transX = yAxisPadding + ((chartDim + chartGap) * (d.position - 0.5)); return "translate(" + subD.transX + "," + subD.transY + ")"; });
 					});
-				
-			// Transform chart and axis positions.
-			/*
-			svg.selectAll(".xAxis.col_" + d.feature)
-				.transition()
-				.duration(700)
-				.attr("transform", function(d) { d.transX = sliderScale(d.position); console.log(d.transX); return "translate(" + d.transX + "," + d.transY + ")"; });
-			*/
 		}
 		
 		function calculate_reordering(newLabelPos)
@@ -427,12 +419,20 @@ function visualise_dataset(dataset)
 		.on("mouseleave", function() { d3.select(this).selectAll(".guideline").style("visibility", "hidden"); });
 
 	// Create the chart cells.
+	var cellData = cross_product(featuresToDisplay, featuresToDisplay);
+	for (var i = 0; i < cellData.length; i++)
+	{
+		cellData[i].transX = 0;
+		cellData[i].transY = 0;
+	}
+	console.log(cellData);
+	
 	var chartCells = plottingElement.selectAll(".chartCell")
-		.data(cross_product(featuresToDisplay, featuresToDisplay))
+		.data(cellData)
 		.enter()
 		.append("g")
 		.attr("class", function(d) { return "chartCell row_" + d.row_feature + " col_" + d.col_feature; })
-		.attr("transform", function(d) { return "translate(" + (yAxisPadding + d.col_index * (chartDim + chartGap)) + "," + (chartOffsetY + d.row_index * (chartDim + chartGap)) + ")"; })
+		.attr("transform", function(d) { d.transX = yAxisPadding + d.col_index * (chartDim + chartGap); d.transY = chartOffsetY + d.row_index * (chartDim + chartGap); return "translate(" + d.transX + "," + d.transY + ")"; })
 		.each(plot_border)  // Plot the border first in order to not interfere with the brushing (else the brush cross disappears and the brushing coords are messed up).
 		.call(brush)  // Next add the brush behaviour.
 		.each(plot);  // Finally add the data points last so that they're clickable.
