@@ -18,6 +18,8 @@ svg .chartCell .extent {fill: black; opacity: 0.1;}  /* The brush extent in a sc
 svg .dataPoint {opacity: .8; stroke: none;}
 svg .dataPoint.deselected {fill: #C0C0C0 !important;}  /* !important in order to override the fills specified in the JS file... */
 svg .guideline {fill: none; stroke: #3A3A3B; stroke-width: 2;}  /* The mini guidelines that appear along each axis instead of tick marks. */
+svg .handle text {alignment-baseline: middle; fill: white; font-weight: normal; letter-spacing: 1px; stroke: none; text-anchor: middle;}  /* The label text for the feature labels. */
+svg .handleBorder {fill: #454545; stroke: #EA594D; stroke-width: 3;}  /* The rectangle used to make a border around a feature label. */
 svg .sliderAxis path, svg .sliderAxis line {fill: none;}  /* Tick marks and lines associated with the feature label slider.*/
 svg .xAxis path, svg .xAxis line {fill: none;}  /* Tick marks and lines associated with the feature value x axis.*/
 svg .yAxis path, svg .yAxis line {fill: none;}  /* Tick marks and lines associated with the feature value y axis.*/

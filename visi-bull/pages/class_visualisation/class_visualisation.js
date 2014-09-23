@@ -4,7 +4,7 @@ var maxFeaturesToDisplay = 4;  // The number of features to display charts for (
 var yAxisPadding = 40;  // The gap between the left of the SVG element and the leftmost charts (where the y axis labels will reside).
 var chartOffsetY = 40;  // The gap between the top of the SVG element and the topmost charts (where the feature names of the columns will reside).
 var chartGap = 10;  // The gap between charts in the X and Y directions.
-var buttonPadding = 100;  // The gap between the right of the charts and the dataset buttons.
+var buttonPadding = 150;  // The gap between the right of the charts and the dataset buttons.
 var scatterRadius = 4;  // The radius of the circles representing the datapoints.
 
 // Calculate the width and height of the SVG element.
@@ -35,14 +35,26 @@ load_dataset(dataDirectory + "ExData2.tsv", "ExData1")
 Helper Functions.
 ******************/
 
-function create_slider(container, xTransform, yTransform, sliderMax, features, verticalAxis)
+function create_slider(container, xTransform, yTransform, labelAreaAvailable, sliderMax, features, verticalAxis)
 {
+	// For each label, one of the axes needs to be centered on labelAreaAvailable / 2. This axis is the horizontal one for
+	// horizontal axes and the vertical one for vertical axes
+
 	var initialLabelPos;  // The initial position of the label being dragged.
+	var labelHeight = 25;  // The height of the rectangle containing the label.
+	var labelWidth = 100;  // The width of the rectangle containing the label.
 
     // Define the drag behaviour.
     var drag = d3.behavior.drag()
         .origin(function(d) {return d;})
-		.on("dragstart", function(d) { return initialLabelPos = d.position; })
+		.on("dragstart", function(d)
+			{
+				// Remove and re-add the dragged g element at the end of the list of labels, this ensures it stays on top of the other labels while dragging.
+				var parent = d3.select(this.parentNode);
+				var dragged = d3.select(this).remove();
+				parent.append(function() { return dragged[0][0]; });
+				return initialLabelPos = d.position;
+			})
         .on("drag", slider_drag_update)
 		.on("dragend", slider_drag_end);
 
@@ -70,26 +82,63 @@ function create_slider(container, xTransform, yTransform, sliderMax, features, v
 	var labelPos = 0.5;
 	for (var i = 0; i < features.length; i++)
 	{
-		featureData.push({"feature" : features[i], "position" : labelPos});
+		featureData.push({"feature" : features[i], "position" : labelPos, "transX" : 0, "transY" : 0});
 		validPositions.push(labelPos);
 		labelPos += 1;
 	}
 
-	// Add the feature name labels.
+	// Add the draggable feature name labels.
     var featureLabels = sliderAxisContainer.selectAll(".handle")
 		.data(featureData, function(d) { return d.feature; })  // Assign the feature name as the key for the data binding.
 		.enter()
-		.append("text")
-        .classed({"horizontalHandle" : !verticalAxis, "verticalHandle" : verticalAxis})
-        .attr("x", verticalAxis ? 0 : function(d) { return sliderScale(d.position); })
-        .attr("y", verticalAxis ? function(d) { return sliderScale(d.position); } : 0)
-		.attr("text-anchor", "middle")
-		.text(function(d) { return d.feature; })
-        .call(drag);
+		.append("g")
+		.classed("handle", true);
+	if (verticalAxis)
+	{
+		featureLabels
+			.append("rect")
+			.attr("x", (labelAreaAvailable / 2) - (labelWidth / 2))
+			.attr("y", -labelHeight / 2)
+			.attr("rx", 15)
+			.attr("ry", 15)
+			.attr("height", labelHeight)
+			.attr("width", 100)
+			.classed("handleBorder", true);
+		featureLabels
+			.classed("verticalHandle", true)
+			.attr("transform", function(d) { d.transX = 0; d.transY = sliderScale(d.position); return "translate(" + d.transX + "," + d.transY + ")"; })
+			.append("text")
+			.attr("x", labelAreaAvailable / 2)
+			.attr("y", 0)
+			.attr("pointer-events", "none")
+			.text(function(d) { return d.feature; });
+	}
+	else
+	{
+		featureLabels
+			.append("rect")
+			.attr("x", -labelWidth / 2)
+			.attr("y", (labelAreaAvailable / 2) - (labelHeight / 2))
+			.attr("rx", 15)
+			.attr("ry", 15)
+			.attr("height", labelHeight)
+			.attr("width", 100)
+			.classed("handleBorder", true);
+		featureLabels
+			.classed("horizontalHandle", true)
+			.attr("transform", function(d) { d.transX = sliderScale(d.position); d.transY = 0; return "translate(" + d.transX + "," + d.transY + ")"; })
+			.append("text")
+			.attr("x", 0)
+			.attr("y", labelAreaAvailable / 2)
+			.attr("pointer-events", "none")
+			.text(function(d) { return d.feature; });
+	}
+    featureLabels.call(drag);
+		
 	
 	function slider_drag_end(d)
 	{
-		var mousePos = d3.mouse(this);  // Current position of the mouse relative to the dragged element's container.
+		var mousePos = d3.mouse(this.parentNode);  // Current position of the mouse (and label) relative to the axis slider container.
 		var delayDuration = 100;  // The length of the transition delay in ms.
 		
 		if (verticalAxis)
@@ -102,7 +151,7 @@ function create_slider(container, xTransform, yTransform, sliderMax, features, v
 				.transition()
 				.duration(700)
 				.delay(function(d, i) { return i * delayDuration; })
-				.attr("y", function(d) { return sliderScale(d.position); });
+				.attr("transform", function(d) { d.transY = sliderScale(d.position); return "translate(" + d.transX + "," + d.transY + ")"; });
 		}
 		else
 		{
@@ -114,7 +163,7 @@ function create_slider(container, xTransform, yTransform, sliderMax, features, v
 				.transition()
 				.duration(700)
 				.delay(function(d, i) { return i * delayDuration; })
-				.attr("x", function(d) { return sliderScale(d.position); });
+				.attr("transform", function(d) { d.transX = sliderScale(d.position); return "translate(" + d.transX + "," + d.transY + ")"; });
 		}
 		
 		function calculate_reordering(newLabelPos)
@@ -185,9 +234,17 @@ function create_slider(container, xTransform, yTransform, sliderMax, features, v
 		var newLabelPos = d3.mouse(this);  // Current position of the slider handle relative to its container.
 
 		// Update the slider handle position.
-		d3.select(this)
-			.attr("x", verticalAxis ? 0 : Math.max(0, Math.min(sliderMax, newLabelPos[0])))
-			.attr("y", verticalAxis ? Math.max(0, Math.min(sliderMax, newLabelPos[1])) : 0);
+		if (verticalAxis)
+		{
+			d.transY += d3.event.dy;
+			d.transY = Math.max(0, Math.min(sliderMax, d.transY));
+		}
+		else
+		{
+			d.transX += d3.event.dx;
+			d.transX = Math.max(0, Math.min(sliderMax, d.transX));
+		}
+		d3.select(this).attr("transform", "translate(" + d.transX + "," + d.transY + ")");
 	}
 }
 
@@ -350,10 +407,10 @@ function visualise_dataset(dataset)
 		.call(brush)  // Next add the brush behaviour.
 		.each(plot);  // Finally add the data points last so that they're clickable.
 
-	// Create the feature labels for the columns.
+	// Create the feature labels for the columns and rows.
 	var sliderLength = ((chartDim * featuresToDisplay.length) + (chartGap * (featuresToDisplay.length - 1)));
-	create_slider(svg, yAxisPadding, chartOffsetY / 2, sliderLength, featuresToDisplay, false);
-	create_slider(svg, yAxisPadding + sliderLength + (buttonPadding / 2), chartOffsetY, sliderLength, featuresToDisplay, true);
+	create_slider(svg, yAxisPadding, 0, chartOffsetY, sliderLength, featuresToDisplay, false);
+	create_slider(svg, yAxisPadding + sliderLength, chartOffsetY, buttonPadding, sliderLength, featuresToDisplay, true);
 
 	function brush_end(cell)
 	{
