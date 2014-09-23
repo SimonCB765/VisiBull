@@ -14,14 +14,15 @@
 {% block content %}
 <!--Block for including the content of the page within the div.content tag.-->
 <p>TODO:</p>
+<p>Style the feature label names.</p>
+<p>Reorder of features after dragging.</p>
+<p>Reorder of columns/rows after dragging.</p>
 <p>Sort out the tick labels (especially x axis)</p>
-<p>Get the axes to have enough space so that the scater points are not right on the edge of the graphs</p>
-<p>Stick all ode associated with scatter plot into its own function.</p>
+<p>Text wrapping of feature names.</p>
+<p>Get the axes to have enough space so that the scatter points are not right on the edge of the graphs</p>
 <br><br>
 <p>NOTES:</p>
 <p>Have each draggable tab given a class (that is also given to each cell in its row/column), and then select the cells with the tag and change their transform.</p>
-<p>Possibly have to move some create visualisation code to the data loader if it's not working due to async nature of data load.</p>
-<p>Same brushing/linking features for all chart types.</p>
 <script type="text/javascript" src="{{ url_for('static', filename='class_visualisation/class_visualisation.js') }}"></script>
 <br><br><br><br>
 <p>The class variable is assumed to be called Class in any files uploaded.</p>

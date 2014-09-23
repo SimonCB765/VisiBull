@@ -18,4 +18,6 @@ svg .chartCell .extent {fill: black; opacity: 0.1;}  /* The brush extent in a sc
 svg .dataPoint {opacity: .8; stroke: none;}
 svg .dataPoint.deselected {fill: #C0C0C0 !important;}  /* !important in order to override the fills specified in the JS file... */
 svg .guideline {fill: none; stroke: #3A3A3B; stroke-width: 2;}  /* The mini guidelines that appear along each axis instead of tick marks. */
-svg .xAxis path, svg .xAxis line, svg .yAxis path, svg .yAxis line {fill: none;}  /* Tick marks and lines associated with an axis.*/
+svg .sliderAxis path, svg .sliderAxis line {fill: none;}  /* Tick marks and lines associated with the feature label slider.*/
+svg .xAxis path, svg .xAxis line {fill: none;}  /* Tick marks and lines associated with the feature value x axis.*/
+svg .yAxis path, svg .yAxis line {fill: none;}  /* Tick marks and lines associated with the feature value y axis.*/
