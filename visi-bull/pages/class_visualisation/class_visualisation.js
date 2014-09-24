@@ -27,6 +27,44 @@ var plottingElement = svg.append("g").classed("chartArea", true);
 // Setup the ordinal scale for the class colors.
 var classColors = d3.scale.category10();
 
+// Create context menu for the feature labels.
+var contextMenuShowing = false;
+d3.select("body").on("contextmenu", function()
+	{
+		// Order of operations is wrong currently and should be
+		//		1) If clicked on handle
+		//			1.1) create or alter context menu
+		//		2) If not
+		//			2.1) remove context menu
+		// Also need to fix to get the context menu displaying where it should (where the mouse is http://bl.ocks.org/clemens-tolboom/7229863)
+		//		Should also make it from a list with some padding on the left so that the mouse does not overlap any choices
+		if (contextMenuShowing)
+		{
+			// If the context menu is showing, then get rid of it on the next contextmenu event.
+			d3.event.preventDefault();
+			d3.select(".popup").remove();
+			contextMenuShowing = false;
+		}
+		else
+		{
+			var eventTarget = d3.select(d3.event.target);
+			if (eventTarget.classed("handleBorder"))
+			{
+				// If the even target is a valid feature label handle.
+				var handleData = eventTarget.datum();
+				d3.event.preventDefault();
+				var popup = d3.select(".content")
+					.append("div")
+					.classed("popup", true)
+					.style("position", "absolute")
+					.attr("left", 40)
+					.attr("top", 200);
+				popup.append("p").text(handleData.feature);
+				contextMenuShowing = true;
+			}
+		}
+	});
+
 // Load up the first example dataset visualisation.
 var loadedDatasets = {};  // The datasets that have been loaded into memory.
 load_dataset(dataDirectory + "ExData2.tsv", "ExData1")
@@ -386,7 +424,6 @@ function visualise_dataset(dataset)
 		.attr("class", function(d) { return "yAxis row_" + d.feature; })
 		.attr("transform", function(d, i) { d.transX = yAxisPadding; d.transY = chartOffsetY + (chartDim + chartGap) * i; return "translate(" + d.transX + ", " + d.transY + ")"; })
 		.each(function(d) { yScale.domain(domainByFeature[d.feature]); d3.select(this).call(yAxis); });
-	console.log("axes added");
 
 	// Setup the brush action. By changing the xScale and yScale for each chart cell, this setup can be used as a base definition for the brush
 	// for each chart.
@@ -425,7 +462,6 @@ function visualise_dataset(dataset)
 		cellData[i].transX = 0;
 		cellData[i].transY = 0;
 	}
-	console.log(cellData);
 	
 	var chartCells = plottingElement.selectAll(".chartCell")
 		.data(cellData)
