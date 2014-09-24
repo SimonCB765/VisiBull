@@ -8,7 +8,7 @@ from flask import render_template, request
 
 def home():
     """Render the home page."""
-    githubURL = 'https://github.com/SimonCB765/VisiBull/tree/master/visi-bull/pages/home'
+    githubURL = 'https://github.com/SimonCB765/VisiBull/tree/master/visi-bull/pages'
     return render_template('home.html', githubURL=githubURL)
 
 def prettyPictures(prettyPictureName):
