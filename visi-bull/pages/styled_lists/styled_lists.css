@@ -1,14 +1,25 @@
 /*
 Contents:
-_element    -> style declarations for all elements of a given type (html, body, table, all p tags etc.).
 _classes    -> style declarations for specific classes.
+_tabs       -> general style declarations for lists styled to look like tabs.
+_navigation -> style declarations for the set of page navigation tabs and their content divs.
 */
-
-/*
-_element
-*/
-svg {display: block; margin: 0 auto;}
 
 /*
 _classes
 */
+.hide {display: none;}  /* Class for hiding any components that need it. */
+
+/*
+_tabs
+*/
+.tabs {cursor: default;}  /* Style information for the entire div containing the tabs. */
+.tabs.horizontal li {display: inline; padding: 0 1em;}  /* Make a list horizontal. */
+.tabs a {text-decoration: none;}  /* Remove all text decoration from links in the tabs. */
+.tabs ul {list-style: none; margin: 0; padding: 0;}  /* No list marker, padding or margin. */
+
+/*
+_navigation
+*/
+.navigation li {border: 1px solid #000000;}  /* Add a bad border to make them look sort of like tabs. */
+.navigation-panel {margin: 1em 0 0;}  /* The div of content for each navigation tab. */

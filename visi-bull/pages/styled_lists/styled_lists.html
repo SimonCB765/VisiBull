@@ -3,6 +3,7 @@
 {% block head %}
 <!--Block for including page specific CSS and JS files within the <head> tag.-->
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styled_lists/styled_lists.css') }}">
+<script type="text/javascript" src="{{ url_for('static', filename='scripts/jQuery/jquery-1.11.1.min.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='styled_lists/styled_lists.js') }}"></script>
 {% endblock %}
 
@@ -14,37 +15,47 @@
 
 {% block content %}
 <!--Block for including the content of the page within the div.content tag.-->
-<div>
-	<h2>Tabbed Lists</h2>
-	<p>Should show differences (tabs of fixed size with text wrap, tabs that size to text with no wrap, tabs that size to text but have min and max size)</p>
-	<p>Lists with tabs peeking above and hanging below</p>
-	<p>4 Lists next to each other (each one taking up 25% of screen): 1) tabs on left horiozontal text 2) tabs on left vertical text 3) tabs right horiz text 4) tabs right vert text</p>
+<div class="horizontal navigation tabs upwards">
+    <ul>
+        <li data-navLink="tabs">Tabs</li>
+        <li data-navLink="buttons">Buttons</li>
+        <li data-navLink="standard">Standard</li>
+        <li data-navLink="thematic">Thematic</li>
+        <li data-navLink="inline">Inline</li>
+        <li data-navLink="breadcrumb">Breadcrumb</li>
+    </ul>
 </div>
-<div>
-	<h2>Buttons</h2>
-	<p>Vertical and horizontal, arbitrary spacing between them</p>
-	<p>Text buttons</p>
-	<p>With pictures inside</p>
-	<p>Buttons with arbitrary elements inside</p>
+<div id="tabs" class="navigation-panel">
+    <h2>Tabbed Lists</h2>
+    <p>Should show differences (tabs of fixed size with text wrap, tabs that size to text with no wrap, tabs that size to text but have min and max size)</p>
+    <p>Lists with tabs peeking above and hanging below</p>
+    <p>4 Lists next to each other (each one taking up 25% of screen): 1) tabs on left horiozontal text 2) tabs on left vertical text 3) tabs right horiz text 4) tabs right vert text</p>
 </div>
-<div>
-	<h2>Context Menus</h2>
-	<p>Windows style (including breaks between sections)</p>
-	<p>More stylised ones to fit themes</p>
-	<p>Hoizontal and vertical text</p>
-	<p>Ones with text wrapping, ones that cut off long text (i.e. cells in menu are fixed size and no wrapping), ones that extend length to max text field length</p>
+<div id="buttons" class="navigation-panel">
+    <h2>Buttons</h2>
+    <p>Vertical and horizontal, arbitrary spacing between them</p>
+    <p>Text buttons</p>
+    <p>With pictures inside</p>
+    <p>Buttons with arbitrary elements inside</p>
 </div>
-<div>
-	<h2>Thematic Lists</h2>
-	<p>One that looks like the sticky labels you get to mark places in documents (thin lng ones with color at top and long white translucent body</p>
-	<p>Sign Here type ones</p>
+<div id="standard" class="navigation-panel">
+    <h2>Context Menus</h2>
+    <p>Windows style (including breaks between sections)</p>
+    <p>More stylised ones to fit themes</p>
+    <p>Hoizontal and vertical text</p>
+    <p>Ones with text wrapping, ones that cut off long text (i.e. cells in menu are fixed size and no wrapping), ones that extend length to max text field length</p>
 </div>
-<div>
-	<h2>Inlined Lists</h2>
-	<p>Lists inlined in text as simple text and as links</p>
+<div id="thematic" class="navigation-panel">
+    <h2>Thematic Lists</h2>
+    <p>One that looks like the sticky labels you get to mark places in documents (thin lng ones with color at top and long white translucent body</p>
+    <p>Sign Here type ones</p>
 </div>
-<div>
-	<h2>Breadcrumb Lists</h2>
-	<p>Like :   Home >> Products >> Computers</p>
+<div id="inline" class="navigation-panel">
+    <h2>Inlined Lists</h2>
+    <p>Lists inlined in text as simple text and as links</p>
+</div>
+<div id="breadcrumb" class="navigation-panel">
+    <h2>Breadcrumb Lists</h2>
+    <p>Like :   Home >> Products >> Computers</p>
 </div>
 {% endblock %}
