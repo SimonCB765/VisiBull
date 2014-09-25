@@ -14,12 +14,16 @@ _classes
 _tabs
 */
 .tabs {cursor: default;}  /* Style information for the entire div containing the tabs. */
-.tabs.horizontal li {display: inline; padding: 0 1em;}  /* Make a list horizontal. */
 .tabs a {text-decoration: none;}  /* Remove all text decoration from links in the tabs. */
 .tabs ul {list-style: none; margin: 0; padding: 0;}  /* No list marker, padding or margin. */
+.tabs.horizontal li {display: inline; padding: 0 1em;}  /* Make a list horizontal. */
 
 /*
 _navigation
 */
 .navigation li {border: 1px solid #000000;}  /* Add a bad border to make them look sort of like tabs. */
+.navigation li.selected {background-color: blue;}  /* Styling for the selected tab. */
+.navigation li:not(.selected) {background-color: green;}  /* Styling for the non-selected tab. */
+.navigation li:not(.selected):hover {background-color: red;}  /* Hover styling for the non-selected tab. */
+
 .navigation-panel {margin: 1em 0 0;}  /* The div of content for each navigation tab. */
