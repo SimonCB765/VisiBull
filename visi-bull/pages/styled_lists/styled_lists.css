@@ -1,22 +1,56 @@
 /*
 Contents:
-_classes    -> style declarations for specific classes.
-_tabs       -> general style declarations for lists styled to look like tabs.
-_navigation -> style declarations for the set of page navigation tabs and their content divs.
+_classes				-> general style declarations.
+_buttons				-> style declarations for lists styled to look like buttons.
+_buttons_border-shadow	-> style declarations for lists styled to look like buttons that indicate state using borders and shadows.
+_buttons_gradient		-> style declarations for lists styled to look like buttons that indicate state using gradients.
+_tabs     				-> general style declarations for lists styled to look like tabs.
+_navigation				-> style declarations for the set of page navigation tabs and their content divs.
 */
 
 /*
 _classes
 */
-.hide {display: none;}  /* Class for hiding any components that need it. */
+div.centered {text-align: center;}  /* Div with centered inline content. */
+
+/*
+_buttons
+
+Notes
+	Clipping background div color to 'shrinkwrap' the contained list can be achieved by setting the div to display as inline-block
+		or by setting the background-clip. However, background-clip will still leave the div taking up invisible space.
+	To center a horizontal set of buttons set the button div to inline-block and enclose it in a div with text-align set to center.
+*/
+.buttons {display: inline-block;}  /* Div containing buttons should maintain the normal pointer while over all elements. */
+.buttons.horizontal li {display: inline-block;}  /* Make list horizontal. */
+.buttons ul {cursor: default; list-style: none;}  /* No bullet points or anything for list members. */
+
+/*
+_buttons_border-shadow
+
+Notes
+	rgba(69,69,69,-) is #454545
+	#FC7064 is a very slightly 'darker' version of #FF7367, and #FF7D71 a slightly more 'light' version.
+*/
+.buttons.border-shadow {background-color: rgba(69,69,69,0.5); border: solid 1px rgba(69,69,69,0.7); border-radius: 5px;}  /* Padding (not margin) to ensure that the background of the containing div is visible and encompasses the buttons. */
+.buttons.border-shadow li {background-color: #FF7367; border: solid 1px black; border-radius: 5px; box-shadow: 1.5px 1.5px 5px black; margin: .5em; padding: .5em 1.5em;}  /* Margin between buttons and padding around text. */
+.buttons.border-shadow li.selected {background-color: #FC7064; box-shadow: -1px -1px 5px black;}  /* Styling for the selected button. */
+.buttons.border-shadow li:not(.selected):hover {background-color: #FF7D71;}  /* Hover styling for the non-selected button. */
+.buttons.border-shadow ul {font-weight: bold; margin: .25em;}  /* Bold the text in the list elements and set the spacing around the whole list. */
+
+/*
+_buttons_gradient
+
+Notes
+	rgba(255,115,103,-) is #FF7367
+*/
 
 /*
 _tabs
 */
 .tabs {cursor: default;}  /* Style information for the entire div containing the tabs. */
-.tabs a {text-decoration: none;}  /* Remove all text decoration from links in the tabs. */
 .tabs ul {list-style: none; margin: 0; padding: 0;}  /* No list marker, padding or margin. */
-.tabs.horizontal li {display: inline; padding: 0 1em;}  /* Make a list horizontal. */
+.tabs.horizontal li {display: inline; padding: 0 1em;}  /* Make list horizontal. */
 
 /*
 _navigation
