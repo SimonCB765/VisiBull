@@ -31,11 +31,25 @@ $(document).ready(function()
 			});
 
 	// Setup the behaviour for the second set of buttons.
-    $("#button-set-2 li").on("mousedown", function() { $(this).toggleClass("selected"); });
+	var selectedButtonSet2 = $("#button-set-2 li:first");
+	selectedButtonSet2.toggleClass("selected")
+    $("#button-set-2 li")
+		.on("mousedown", function()
+			{
+				// Undepress button.
+				selectedButtonSet2.toggleClass("selected");
+				
+				// Depress clicked button.
+				selectedButtonSet2 = $(this);
+				selectedButtonSet2.toggleClass("selected");
+			});
 
 	// Setup the behaviour for the third set of buttons.
     $("#button-set-3 li").on("mousedown", function() { $(this).toggleClass("selected"); });
 	
 	// Setup the behaviour for the fourth set of buttons.
     $("#button-set-4 li").on("mousedown", function() { $(this).toggleClass("selected"); });
+	
+	// Setup the behaviour for the fifth set of buttons.
+    $("#button-set-5 li").on("mousedown", function() { $(this).toggleClass("selected"); });
 });
