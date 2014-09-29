@@ -22,18 +22,20 @@ $(document).ready(function()
         });
 
 	// Setup the behaviour for the first set of buttons.
-	var selectedButton = $("#button-set-1 li:first");
-	selectedButton.toggleClass("selected")
-    $("#button-set-1 li").click(function()
-        {
-			// Undepress button.
-			selectedButton.toggleClass("selected");
-			
-			// Depress clicked button.
-			selectedButton = $(this);
-			selectedButton.toggleClass("selected");
-			
-			// change description color.
-			$("#button-description-1").css("color", selectedButton.attr("data-color"));
-        });
+    $("#button-set-1 li")
+		.on( "mousedown", function()
+			{
+				// Change button text color.
+				var selectedButton = $(this);
+				$("#button-set-1 li").css("color", selectedButton.attr("data-color"));
+			});
+
+	// Setup the behaviour for the second set of buttons.
+    $("#button-set-2 li").on("mousedown", function() { $(this).toggleClass("selected"); });
+
+	// Setup the behaviour for the third set of buttons.
+    $("#button-set-3 li").on("mousedown", function() { $(this).toggleClass("selected"); });
+	
+	// Setup the behaviour for the fourth set of buttons.
+    $("#button-set-4 li").on("mousedown", function() { $(this).toggleClass("selected"); });
 });

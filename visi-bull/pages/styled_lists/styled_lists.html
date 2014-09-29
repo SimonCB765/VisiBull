@@ -15,7 +15,7 @@
 
 {% block content %}
 <!--Block for including the content of the page within the div.content tag.-->
-<div class="horizontal navigation tabs upwards">
+<div class="horizontal navigation tab upwards">
     <ul>
         <li data-navLink="tabs">Tabs</li>
         <li data-navLink="buttons">Buttons</li>
@@ -26,21 +26,49 @@
     </ul>
 </div>
 <div id="tabs" class="navigation-panel">
-    <h2>Tabbed Lists</h2>
     <p>Should show differences (tabs of fixed size with text wrap, tabs that size to text with no wrap, tabs that size to text but have min and max size)</p>
     <p>Lists with tabs peeking above and hanging below</p>
     <p>4 Lists next to each other (each one taking up 25% of screen): 1) tabs on left horiozontal text 2) tabs on left vertical text 3) tabs right horiz text 4) tabs right vert text</p>
 </div>
 <div id="buttons" class="navigation-panel">
-    <h2>Buttons</h2>
 	<div class="centered">
-		<p id="button-description-1">Horizontal buttons that will each grow in width/height and wrap text as normal. 3D effect created using borders and shading.</p>
-		<div id="button-set-1" class="border-shadow buttons horizontal">
+		<h2>Buttons that expand to fit their text</h2>
+		<br>
+		<div id="button-set-1" class="border-shadow-theme-1 button horizontal">
+			<b>Temporarily Depressed Buttons</b>
 			<ul>
 				<li data-color="#000000">Black</li>
 				<li data-color="#39FF14">Some Sort Of Green</li>
 				<li data-color="#AE2DE3">A Shade Of Purple</li>
-				<li data-color="#FF4105">Orange</li>
+				<li data-color="#FFFFFF">White</li>
+			</ul>
+		</div>
+		<br><br><b>Buttons That Stay Depressed</b><br>
+		<div id="button-set-2" class="glossy-theme-1 button">
+			<ul>
+				<li class="rainbow">Rainbow</li>
+				<li class="plum">Plum</li>
+				<li class="hypnotise">Hypnotise</li>
+				<li class="setting-sun">Setting Sun</li>
+			</ul>
+		</div>
+		White on black
+		<div id="button-set-3" class="glossy-theme-2 button">
+			<ul>
+				<li>We</li>
+				<li>All</li>
+				<li>Depress</li>
+				<li>Independently</li>
+			</ul>
+		</div>
+		<br><br>
+		Glossy SOMETHING on SOMETHING background (round corners and big drop shadows directly below to make it look like they hover - http://admindaily.com/glossy-buttons-without-images-using-only-css3.html)
+		<div id="button-set-4" class="glossy-theme-3 button">
+			<ul>
+				<li>We're All Longer</li>
+				<li>Buttons That Can</li>
+				<li>Be Depressed Independently</li>
+				<li>Of One Another</li>
 			</ul>
 		</div>
 	</div>
@@ -51,29 +79,27 @@
 		<li>Fixed width unequal fitted heights</li>
 		<li>fixed height all equal (variable) width</li>
 		<li>fixed height uneqal fitted widths</li>
-		<li>show different spacing values (constant across a set though)</li>
 		<li>image buttons</li>
 		<li>image and text</li>
     </ul>
 </div>
 <div id="standard" class="navigation-panel">
-    <h2>Context Menus</h2>
-    <p>Windows style (including breaks between sections)</p>
-    <p>More stylised ones to fit themes</p>
-    <p>Hoizontal and vertical text</p>
-    <p>Ones with text wrapping, ones that cut off long text (i.e. cells in menu are fixed size and no wrapping), ones that extend length to max text field length</p>
+	<div class="centered">
+		<h2>Context Menus</h2>
+		<p>Windows style (including breaks between sections)</p>
+		<p>More stylised ones to fit themes</p>
+		<p>Hoizontal and vertical text</p>
+		<p>Ones with text wrapping, ones that cut off long text (i.e. cells in menu are fixed size and no wrapping), ones that extend length to max text field length</p>
+	</div>
 </div>
 <div id="thematic" class="navigation-panel">
-    <h2>Thematic Lists</h2>
     <p>One that looks like the sticky labels you get to mark places in documents (thin lng ones with color at top and long white translucent body</p>
     <p>Sign Here type ones</p>
 </div>
 <div id="inline" class="navigation-panel">
-    <h2>Inlined Lists</h2>
     <p>Lists inlined in text as simple text and as links</p>
 </div>
 <div id="breadcrumb" class="navigation-panel">
-    <h2>Breadcrumb Lists</h2>
     <p>Like :   Home >> Products >> Computers</p>
 </div>
 {% endblock %}
