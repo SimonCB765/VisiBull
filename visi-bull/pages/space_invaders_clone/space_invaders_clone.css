@@ -7,8 +7,14 @@ _classes    -> style declarations for specific classes.
 /*
 _element
 */
-svg {display: block; margin: 0 auto;}
+svg {background: black; display: block; margin: 0 auto;}
+svg {outline: thin solid #3A3A3B;}
 
 /*
 _classes
 */
+svg .eye {fill: black;}  /* Styling for the eyes. */
+svg .happyFace {fill: yellow;}  /* Styling for the happy face. */
+svg .mouth {fill: none; stroke: black; stroke-width: 2px;}  /* Styling for the mouth. */
+svg .pill {}  /* Styling for the pill projectile. */
+svg .sadFace {fill: skyblue;}  /* Styling for the sad face. */
