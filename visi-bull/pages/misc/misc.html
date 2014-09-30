@@ -2,9 +2,9 @@
 
 {% block head %}
 <!--Block for including page specific CSS and JS files within the <head> tag.-->
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styled_lists/styled_lists.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='misc/misc.css') }}">
 <script type="text/javascript" src="{{ url_for('static', filename='scripts/jQuery/jquery-1.11.1.min.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='styled_lists/styled_lists.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='misc/misc.js') }}"></script>
 {% endblock %}
 
 {% block header %}
@@ -32,8 +32,7 @@
 </div>
 <div id="buttons" class="navigation-panel">
 	<div class="centered">
-		<h2>Buttons that expand to fit their text</h2>
-		<br>
+		<h2>Buttons that all expand to fit the longest text</h2><br>
 		<div id="button-set-1" class="border-shadow-theme-1 button horizontal">
 			<b>Temporarily Depressed Buttons</b>
 			<ul>
@@ -58,26 +57,6 @@
 				<li>All</li>
 				<li>Depress</li>
 				<li>Independently</li>
-			</ul>
-		</div>
-		<br><br>
-		Glossy done with transparent backing layer, so can change background color on highlight
-		<div id="button-set-4" class="glossy-theme-3 button">
-			<ul>
-				<li>We're All Longer</li>
-				<li>Buttons That Can</li>
-				<li>Be Depressed Independently</li>
-				<li>Of One Another</li>
-			</ul>
-		</div>
-		<br><br>
-		Glossy SOMETHING on SOMETHING background (linear gradient highlight)
-		<div id="button-set-5" class="glossy-theme-4 button">
-			<ul>
-				<li>We're All Longer</li>
-				<li>Buttons That Can</li>
-				<li>Be Depressed Independently</li>
-				<li>Of One Another</li>
 			</ul>
 		</div>
 	</div>
