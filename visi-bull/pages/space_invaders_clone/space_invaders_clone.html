@@ -1,0 +1,17 @@
+{% extends "home.html" %}
+
+{% block head %}
+<!--Block for including page specific CSS and JS files within the <head> tag.-->
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='space_invaders_clone/space_invaders_clone.css') }}">
+{% endblock %}
+
+{% block header %}
+<!--Block for including page specific header information (e.g. page title) within the <header> tag.-->
+<h1 class="pageTitle">Happy Pill Invaders</h1>
+<span class="date">-- --, 2014</span>
+{% endblock %}
+
+{% block content %}
+<!--Block for including the content of the page within the div.content tag.-->
+<script type="text/javascript" src="{{ url_for('static', filename='space_invaders_clone/space_invaders_clone.js') }}"></script>
+{% endblock %}
