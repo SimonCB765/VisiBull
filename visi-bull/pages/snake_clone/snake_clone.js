@@ -1,6 +1,6 @@
 var tileSideLength = 30;  // The length of each side of the tiling squares. Must be a divisor of both the svg width and height.
-var svgWidth = 900  // The width of the SVG element.
-var svgHeight = 450  // The height of the SVG element.
+var svgWidth = 900;  // The width of the SVG element.
+var svgHeight = 450;  // The height of the SVG element.
 
 // Create the SVG g element.
 var svg = d3.select(".content")
