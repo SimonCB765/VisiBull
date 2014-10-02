@@ -6,6 +6,8 @@ _classes    -> style declarations for specific classes.
 
 /*
 _element
+
+svg:focus {outline: none;}  /* Remove the outline from the svg element when it gets focus.
 */
 svg {background: black; display: block; margin: 0 auto;}
 svg {outline: thin solid #3A3A3B;}
@@ -14,7 +16,11 @@ svg {outline: thin solid #3A3A3B;}
 _classes
 */
 svg .eye {fill: black;}  /* Styling for the eyes. */
+svg .gameOver {alignment-baseline: middle; fill: white; text-anchor: middle;}  /* Style for the game over text. */
 svg .happyFace {fill: yellow;}  /* Styling for the happy face. */
 svg .mouth {fill: none; stroke: black; stroke-width: 2px;}  /* Styling for the mouth. */
 svg .pill {}  /* Styling for the pill projectile. */
+svg .player {fill: white;}  /* Styling for the player. */
+svg .retry {fill: white;}  /* The retry button. */
+svg .retryText {alignment-baseline: middle; font-weight: bold; pointer-events: none; text-anchor: middle;}  /* Style for the retry text. */
 svg .sadFace {fill: skyblue;}  /* Styling for the sad face. */

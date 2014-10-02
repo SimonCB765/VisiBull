@@ -20,6 +20,30 @@ svg[0][0].focus();  // Set initial focus.
 // Create the definitions tag.
 var defs = svg.append("defs");
 
+// Define the pill gradient.
+var pillGradient = defs.append("linearGradient")
+	.attr("id", "pillGradient")
+	.attr("x1", "0%")
+	.attr("y1", "0%")
+	.attr("x2", "0%")
+	.attr("y2", "100%");
+pillGradient.append("stop")
+	.attr("offset", "0%")
+	.style("stop-color", "#F43E78")
+	.style("stop-opacity", 1);
+pillGradient.append("stop")
+	.attr("offset", "50%")
+	.style("stop-color", "#F43E78")
+	.style("stop-opacity", 1);
+pillGradient.append("stop")
+	.attr("offset", "51%")
+	.style("stop-color", "white")
+	.style("stop-opacity", 1);
+pillGradient.append("stop")
+	.attr("offset", "100%")
+	.style("stop-color", "white")
+	.style("stop-opacity", 1);
+
 // Define the happy face.
 var happyFaceContainer = defs.append("g")  // Container for the happy face.
 	.attr("id", "happyFace")
@@ -45,57 +69,32 @@ happyFaceContainer.append("path")  // Smile.
 	.classed("mouth", true)
 	.attr("d", "M" + (faceDiameter / 6) + "," + (faceDiameter * 5 / 8) + "A" + (faceRadius * 5 / 6) + "," + (faceRadius * 7 / 6) + ",0,0,0," + (faceDiameter * 5 / 6) + "," + (faceDiameter * 5 / 8));
 
-// Define the pill.
-var pillGradient = defs.append("linearGradient")
-	.attr("id", "pillGradient")
-	.attr("x1", "0%")
-	.attr("y1", "0%")
-	.attr("x2", "0%")
-	.attr("y2", "100%");
-pillGradient.append("stop")
-	.attr("offset", "0%")
-	.style("stop-color", "red")
-	.style("stop-opacity", 1);
-pillGradient.append("stop")
-	.attr("offset", "50%")
-	.style("stop-color", "red")
-	.style("stop-opacity", 1);
-pillGradient.append("stop")
-	.attr("offset", "51%")
-	.style("stop-color", "white")
-	.style("stop-opacity", 1);
-pillGradient.append("stop")
-	.attr("offset", "100%")
-	.style("stop-color", "white")
-	.style("stop-opacity", 1);
-var pillContainer = defs.append("g")  // The container for the pill.
-	.attr("id", "pill");
-var pill = pillContainer.append("rect")
-	.classed("pill", true)
-	.attr("height", pillHeight)
-	.attr("width", pillWidth)
-	.attr("rx", 3)
-	.attr("ry", 3)
-	.attr("fill", "url(#pillGradient)");
-
 // Initialise the game.
 initialise_game();
 
 function initialise_game()
 {
-	// Remove all remaining faces and projectiles.
-	d3.selectAll("face").remove();
+	// Remove faces, projectiles and the player icon.
+	svg.selectAll("face").remove();
+	svg.select(".pillContainer").remove();
+	svg.select(".playerContainer").remove();
 	
 	// Define needed values.
+	var playerSpeed = 2;  // The speed at which the player's icon moves when a key is pressed.
+	var playerWidth = 30;  // The width of the player rectangle.
+	var playerHeight = 10;  // The height of the player rectangle.
+	var pillSpeed = 4;  // The speed at which the pills shot by the player travel.
+	var enemyProjectileSpeed = 3;  // The speed at which the nemy projectiles fire.
 	var faceGap = pillWidth * 2;  // The gap between sad faces.
 	var facesPerLine = 11;  // Number of sad faces on each line.
 	var numberOfLines = 5;  // Number of lines of faces.
-	var movementSpeed = 1;  // Horizontal distance moved each time step.
-	var currentDirection = 1;  // Horizontal direction being moved (1 for right and -1 for left).
+	var faceMovementSpeed = 0.5;  // Horizontal distance moved each time step.
+	var currentDirection = 1;  // Horizontal direction being moved by the faces (1 for right and -1 for left).
 	var alreadyDescending = false;  // Whether the faces are moving in the Y direction.
 	var bottomEdgeOfFaces;  // The Y position of the lowest face.
 	var leftEdgeOfFaces;  // The X position of the leftmost face.
 	var rightEdgeOfFaces;  // The X position of the rightmost face.
+	var gameOverHeight = svgHeight - ((faceDiameter + faceGap) * 3);  // The distance from the bottom of the play area at which game over occurs.
 	
 	// Create the data to record each face's position.
 	var facePositions = [];
@@ -141,11 +140,120 @@ function initialise_game()
 		.classed("mouth", true)
 		.attr("d", "M" + (faceDiameter * 2 / 6) + "," + (faceDiameter * 6 / 8) + "A" + (faceRadius * 5 / 6) + "," + (faceRadius * 5 / 6) + ",0,0,1," + (faceDiameter * 4 / 6) + "," + (faceDiameter * 6 / 8));
 	
+	// Add the players icon.
+	var playerContainer = svg.append("g")
+		.datum({"transX" : Math.floor((svgWidth / 2) - (playerWidth / 2)), "transY" : svgHeight - playerHeight})
+		.classed("playerContainer", true)
+		.attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+	var player = playerContainer.append("rect")
+		.classed("player", true)
+		.attr("height", playerHeight)
+		.attr("width", playerWidth)
+	svg.on("keydown", function()
+		{
+			var keyCode = d3.event.keyCode;
+			var playerPosition = playerContainer.datum();
+			if (keyCode === 37)
+			{
+				// Move left.
+				d3.event.preventDefault();  // Prevent default to stop screen scrolling when pressing the key.
+				playerContainer
+					.attr("transform", function(d) { d.transX = Math.max(0, d.transX - playerSpeed); return "translate(" + d.transX + "," + d.transY + ")"; });
+			}
+			else if (keyCode === 39)
+			{
+				// Move right.
+				d3.event.preventDefault();  // Prevent default to stop screen scrolling when pressing the key.
+				playerContainer
+					.attr("transform", function(d) { d.transX = Math.min(svgWidth - playerWidth, d.transX + playerSpeed); return "translate(" + d.transX + "," + d.transY + ")"; });
+			}
+			else if (keyCode === 32)
+			{
+				// Space pressed to shoot, so shoot if there is no shot already on the screen.
+				d3.event.preventDefault();  // Prevent default to stop screen scrolling when pressing the key.
+				if (svg.select(".pill").empty()) shoot(playerPosition.transX + (playerWidth / 2) - (pillWidth / 2), playerPosition.transY);
+			}
+		});
 	
-    // Setup the timer for the face movement.
-	var gameStep = d3.timer(move_faces);
+    // Setup the timer for game loop.
+	d3.timer(step_game);
 	
-	function move_faces()
+	function game_over()
+	{
+		var retryButtonHeight = 50;
+		var retryButtonWidth = 100;
+		var gameOverTop = svg.append("text")
+			.text("Game")
+			.classed("gameOver", true)
+			.attr("x", svgWidth / 2)
+			.attr("y", svgHeight / 4)
+			.style("font-size", "0px");
+		var gameOverBottom = svg.append("text")
+			.text("Over")
+			.classed("gameOver", true)
+			.attr("x", svgWidth / 2)
+			.attr("y", svgHeight * 2 / 4)
+			.style("font-size", "0px");
+		var retryG = svg.append("g")
+			.attr("transform", "translate(" + ((svgWidth / 2) - (retryButtonWidth / 2)) + ", " + (svgHeight * 2 / 3) + ")");
+		var retryButton = retryG.append("rect")
+			.classed("retry", true)
+			.attr("x", retryButtonWidth / 2)
+			.attr("y", retryButtonHeight / 2)
+			.attr("width", 0)
+			.attr("height", 0);
+		var retryText = retryG.append("text")
+			.text("Retry")
+			.classed("retryText", true)
+			.attr("x", retryButtonWidth / 2)
+			.attr("y", retryButtonHeight / 2)
+			.style("font-size", "0px");
+		gameOverTop
+			.transition()
+			.duration(1000)
+			.style("font-size", "150px")
+			.each(function()
+				{
+					gameOverBottom
+						.transition()
+						.style("font-size", "150px")
+				})
+			.each(function()
+				{
+					retryButton
+						.transition()
+						.attr("x", 0)
+						.attr("y", 0)
+						.attr("width", retryButtonWidth)
+						.attr("height", retryButtonHeight);
+				})
+			.each(function()
+				{
+					retryText
+						.transition()
+						.style("font-size", "30px");
+				});
+		retryButton
+			.on("click", function() { gameOverTop.remove(); gameOverBottom.remove(); retryG.remove(); initialise_game(); })
+	}
+	
+	function shoot(startX, startY)
+	{
+		// Create a pill.
+		var pillContainer = svg.append("g")
+			.datum({"transX" : startX, "transY" : startY - pillHeight})
+			.classed("pillContainer", true)
+			.attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+		var pill = pillContainer.append("rect")
+			.classed("pill", true)
+			.attr("height", pillHeight)
+			.attr("width", pillWidth)
+			.attr("rx", 3)
+			.attr("ry", 3)
+			.attr("fill", "url(#pillGradient)");
+	}
+	
+	function step_game()
 	{
 		// Determine how to move the faces.
 		var changeInY = 0;
@@ -156,7 +264,7 @@ function initialise_game()
 			if (bottomEdgeOfFaces % (faceDiameter + faceGap))
 			{
 				// Not reached new row for faces so drop down Y.
-				changeInY = movementSpeed;
+				changeInY = faceMovementSpeed;
 			}
 			else
 			{
@@ -170,9 +278,9 @@ function initialise_game()
 		{
 			// Faces are not descending and have just reached the left or right edge of the screen.
 			alreadyDescending = true;
-			changeInY = movementSpeed;
+			changeInY = faceMovementSpeed;
 		}
-		var changeInX = changeInY ? 0 : currentDirection * movementSpeed;
+		var changeInX = changeInY ? 0 : currentDirection * faceMovementSpeed;
 		
 		// Update the extreme edges of the set of faces.
 		bottomEdgeOfFaces += changeInY;
@@ -182,6 +290,30 @@ function initialise_game()
 		// Move the faces.
 		svg.selectAll(".sadFace")
 			.attr("transform", function(d) { d.transX += changeInX; d.transY += changeInY; return "translate(" + d.transX + "," + d.transY + ")"; });
+		
+		// Move the pill if one has been shot.
+		var currentPill = svg.select(".pillContainer");
+		if (!currentPill.empty())
+		{
+			currentPill.attr("transform", function(d) { d.transY -= pillSpeed; return "translate(" + d.transX + "," + d.transY + ")"; });
+			var pillPosition = currentPill.datum();
+			if (pillPosition.transY <= 0)
+			{
+				// Pill has reached top of play area, so destroy it.
+				currentPill.remove();
+			}
+		}
+
+		// Check if game over has occurred from the faces reaching too low.
+		if (bottomEdgeOfFaces >= gameOverHeight)
+		{
+			// Game over has occurred.
+			// Display game over message.
+			game_over();
+			
+			// Kill the timer.
+			return true;
+		}
 	}
 }
 
@@ -191,9 +323,4 @@ svg.append("use")
 	.datum({"transX" : 0, "transY" : 0})
 	.attr("xlink:href", "#happyFace")
 	.attr("x", 200)
-	.attr("y", 400);
-svg.append("use")
-	.datum({"transX" : 0, "transY" : 0})
-	.attr("xlink:href", "#pill")
-	.attr("x", 300)
 	.attr("y", 400);
