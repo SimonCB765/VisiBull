@@ -90,24 +90,30 @@ function initialise_game()
 	var faceGap = pillWidth * 2;  // The gap between sad faces.
 	var facesPerLine = 11;  // Number of sad faces on each line.
 	var numberOfLines = 5;  // Number of lines of faces.
-	var timeBetweenSteps = 750;  // Milliseconds between redraws.
-	var movementSpeed = 10;  // Horizontal distance moved each time step.
-	var stepsBeforeDrop = (svgWidth - (facesPerLine * faceDiameter) - ((facesPerLine - 1) * faceGap)) / movementSpeed;  // Number of sideways time steps before dropping down a level.
-	var sidewaysStepsTaken = 0;  // The number of sideways steps taken since the last vertical drop.
-	var lowestFace;  // The Y position of the lowest face (used to determine game over by reaching the bottom).
+	var movementSpeed = 1;  // Horizontal distance moved each time step.
+	var currentDirection = 1;  // Horizontal direction being moved (1 for right and -1 for left).
+	var alreadyDescending = false;  // Whether the faces are moving in the Y direction.
+	var bottomEdgeOfFaces;  // The Y position of the lowest face.
+	var leftEdgeOfFaces;  // The X position of the leftmost face.
+	var rightEdgeOfFaces;  // The X position of the rightmost face.
 	
-	// Add all the blue faces starting from the upper left.
+	// Create the data to record each face's position.
 	var facePositions = [];
 	for (var i = 2; i < 2 + numberOfLines; i++)
 	{
 		var transY = (faceDiameter + faceGap) * i;
-		lowestFace = transY;
-		for (var j = 0; j < facesPerLine; j++)
+		bottomEdgeOfFaces = transY;
+		for (var j = 1; j <= facesPerLine; j++)
 		{
 			var transX = (faceDiameter + faceGap) * j;
 			facePositions.push({"transX" : transX, "transY" : transY});
 		}
 	}
+	bottomEdgeOfFaces = d3.max(facePositions, function(d) { return d.transY; });
+	leftEdgeOfFaces = d3.min(facePositions, function(d) { return d.transX; });
+	rightEdgeOfFaces = d3.max(facePositions, function(d) { return d.transX + faceDiameter; });
+	
+	// Add all the blue faces starting from the upper left.
 	var faceContainer = svg.selectAll(".sadFace")  // g element that contains all the moving faces.
 		.data(facePositions)
 		.enter()
@@ -137,31 +143,44 @@ function initialise_game()
 	
 	
     // Setup the timer for the face movement.
-    var gameStep = setInterval(move_faces, timeBetweenSteps);
+	var gameStep = d3.timer(move_faces);
 	
 	function move_faces()
 	{
 		// Determine how to move the faces.
-		var changeInX, changeInY;
-		if (sidewaysStepsTaken === stepsBeforeDrop)
+		var changeInY = 0;
+		
+		if (alreadyDescending)
 		{
-			changeInX = 0;
-			changeInY = faceDiameter + faceGap;
-			movementSpeed *= -1;
-			sidewaysStepsTaken = 0;
+			// Faces are already moving in the Y directions, so see if they should continue to do so.
+			if (bottomEdgeOfFaces % (faceDiameter + faceGap))
+			{
+				// Not reached new row for faces so drop down Y.
+				changeInY = movementSpeed;
+			}
+			else
+			{
+				// Reached new resting Y value.
+				alreadyDescending = false;
+				changeInY = 0;
+				currentDirection *= -1;  // Reverse direction.
+			}
 		}
-		else
+		else if (leftEdgeOfFaces === 0 || rightEdgeOfFaces === svgWidth)
 		{
-			changeInX = movementSpeed;
-			changeInY = 0;
-			sidewaysStepsTaken++;
+			// Faces are not descending and have just reached the left or right edge of the screen.
+			alreadyDescending = true;
+			changeInY = movementSpeed;
 		}
+		var changeInX = changeInY ? 0 : currentDirection * movementSpeed;
+		
+		// Update the extreme edges of the set of faces.
+		bottomEdgeOfFaces += changeInY;
+		leftEdgeOfFaces += changeInX;
+		rightEdgeOfFaces += changeInX;
 		
 		// Move the faces.
 		svg.selectAll(".sadFace")
-			.transition()
-			.duration(timeBetweenSteps)
-			.ease("linear")
 			.attr("transform", function(d) { d.transX += changeInX; d.transY += changeInY; return "translate(" + d.transX + "," + d.transY + ")"; });
 	}
 }
