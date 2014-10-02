@@ -60,27 +60,28 @@ function initialise_game()
 	var playerHeight = 10;  // The height of the player rectangle.
 	var pillSpeed = 4;  // The speed at which the pills shot by the player travel.
 	var enemyProjectileSpeed = 3;  // The speed at which the nemy projectiles fire.
-	var faceGap = pillWidth * 2;  // The gap between sad faces.
-	var facesPerLine = 11;  // Number of sad faces on each line.
+	var faceGapHorizontal = pillWidth * 3.5;  // The horizontal gap between sad faces.
+	var faceGapVertical = pillWidth * 1.5;  // The vertical gap between sad faces.
+	var facesPerLine = 10;  // Number of sad faces on each line.
 	var numberOfLines = 5;  // Number of lines of faces.
-	var faceMovementSpeed = 0.5;  // Horizontal distance moved each time step.
+	var faceMovementSpeed = 0.25;  // Horizontal distance moved each time step.
 	var currentDirection = 1;  // Horizontal direction being moved by the faces (1 for right and -1 for left).
 	var alreadyDescending = false;  // Whether the faces are moving in the Y direction.
 	var bottomEdgeOfFaces;  // The Y position of the lowest face.
 	var topEdgeOfFaces;  // The Y position of the highest face.
 	var leftEdgeOfFaces;  // The X position of the leftmost face.
 	var rightEdgeOfFaces;  // The X position of the rightmost face.
-	var gameOverHeight = svgHeight - ((faceDiameter + faceGap) * 3);  // The distance from the bottom of the play area at which game over occurs.
+	var gameOverHeight = svgHeight - ((faceDiameter + faceGapVertical) * 3);  // The distance from the bottom of the play area at which game over occurs.
 	
 	// Create the data to record each face's position.
 	var facePositions = [];
 	for (var i = 2; i < 2 + numberOfLines; i++)
 	{
-		var transY = (faceDiameter + faceGap) * i;
+		var transY = (faceDiameter + faceGapVertical) * i;
 		bottomEdgeOfFaces = transY;
 		for (var j = 1; j <= facesPerLine; j++)
 		{
-			var transX = (faceDiameter + faceGap) * j;
+			var transX = (faceDiameter + faceGapHorizontal) * j;
 			facePositions.push({"transX" : transX, "transY" : transY});
 		}
 	}
@@ -275,7 +276,7 @@ function initialise_game()
 		if (alreadyDescending)
 		{
 			// Faces are already moving in the Y directions, so see if they should continue to do so.
-			if (bottomEdgeOfFaces % (faceDiameter + faceGap))
+			if (bottomEdgeOfFaces % (faceDiameter + faceGapVertical))
 			{
 				// Not reached new row for faces so drop down Y.
 				changeInY = faceMovementSpeed;
