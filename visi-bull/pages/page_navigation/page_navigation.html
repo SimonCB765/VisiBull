@@ -15,50 +15,51 @@
 
 {% block content %}
 <!--Block for including the content of the page within the div.content tag.-->
-<div class="horizontal navigation tab upwards">
-    <ul>
-        <li data-navLink="tabs">Tabs</li>
-        <li data-navLink="buttons">Buttons</li>
-        <li data-navLink="standard">Standard</li>
-        <li data-navLink="thematic">Thematic</li>
-        <li data-navLink="inline">Inline</li>
-        <li data-navLink="breadcrumb">Breadcrumb</li>
-    </ul>
+<div class="button-container button-theme-1 horizontal navigation">
+	<div data-navLink="tabs" class="button"><div class="button-content">Tabs</div></div>
+	<div data-navLink="buttons" class="button"><div class="button-content">Buttons</div></div>
+	<div data-navLink="standard" class="button"><div class="button-content">Standard</div></div>
+	<div data-navLink="breadcrumb" class="button"><div class="button-content">Breadcrumb</div></div>
 </div>
 <div id="tabs" class="navigation-panel">
     <p>Should show differences (tabs of fixed size with text wrap, tabs that size to text with no wrap, tabs that size to text but have min and max size)</p>
     <p>Lists with tabs peeking above and hanging below</p>
     <p>4 Lists next to each other (each one taking up 25% of screen): 1) tabs on left horiozontal text 2) tabs on left vertical text 3) tabs right horiz text 4) tabs right vert text</p>
+	<p>Vertical list of tabs that slide out on hover</p>
+	<p>text-overflow: ellipsis;</p>
 </div>
 <div id="buttons" class="navigation-panel">
+	<br><br>
+	<div id="button-set-1" class="button-container button-theme-2 horizontal">
+		<div class="button"><div class="button-content">Button 1</div></div>
+		<div class="button"><div class="button-content">Button 2</div></div>
+		<div class="button"><div class="button-content">Button 3</div></div>
+		<div class="button"><div class="button-content">Button 4</div></div>
+	</div>
+	<br><br>
+	<div id="button-set-2" class="button-container button-theme-3 horizontal">
+		<div class="button"><div class="button-content">Button 1</div></div>
+		<div class="button"><div class="button-content">Button 2</div></div>
+		<div class="button"><div class="button-content">Button 3</div></div>
+		<div class="button"><div class="button-content">Button 4</div></div>
+	</div>
+	<br><br>
+	<div id="button-set-3" class="button-container button-theme-4 horizontal">
+		<div class="button"><div class="button-content">Button 1</div></div>
+		<div class="button"><div class="button-content">Button 2</div></div>
+		<div class="button"><div class="button-content">Button 3</div></div>
+		<div class="button"><div class="button-content">Button 4</div></div>
+	</div>
+	<br><br>
+	<div id="button-set-4" class="button-container button-theme-5 horizontal">
+		<div class="button"><div class="button-content">Button 1</div></div>
+		<div class="button"><div class="button-content">Button 2</div></div>
+		<div class="button"><div class="button-content">Button 3</div></div>
+		<div class="button"><div class="button-content">Button 4</div></div>
+	</div>
+	<br><br>
 	<div class="centered">
-		<h2>Buttons that all expand to fit the longest text</h2><br>
-		<div id="button-set-1" class="border-shadow-theme-1 button horizontal">
-			<b>Temporarily Depressed Buttons</b>
-			<ul>
-				<li data-color="#000000">Black</li>
-				<li data-color="#39FF14">Some Sort Of Green</li>
-				<li data-color="#AE2DE3">A Shade Of Purple</li>
-				<li data-color="#FFFFFF">White</li>
-			</ul>
-		</div>
-		<br><br><b>Buttons That Stay Depressed</b><br>
-		<div id="button-set-2" class="glossy-theme-1 button">
-			<ul>
-				<li class="rainbow">Rainbow</li>
-				<li class="plum">Plum</li>
-				<li class="hypnotise">Hypnotise</li>
-				<li class="setting-sun">Setting Sun</li>
-			</ul>
-		</div>
-		<div id="button-set-3" class="glossy-theme-2 button">
-			<ul>
-				<li>We</li>
-				<li>All</li>
-				<li>Depress</li>
-				<li>Independently</li>
-			</ul>
-		</div>
+		<h2>Buttons that all expand to fit the longest text</h2>
 	</div>
 	<br>
 	<p>For each of horizontal and vertical need to:</p>
@@ -85,13 +86,6 @@
 		<p>Hoizontal and vertical text</p>
 		<p>Ones with text wrapping, ones that cut off long text (i.e. cells in menu are fixed size and no wrapping), ones that extend length to max text field length</p>
 	</div>
-</div>
-<div id="thematic" class="navigation-panel">
-    <p>One that looks like the sticky labels you get to mark places in documents (thin lng ones with color at top and long white translucent body</p>
-    <p>Sign Here type ones</p>
-</div>
-<div id="inline" class="navigation-panel">
-    <p>Lists inlined in text as simple text and as links</p>
 </div>
 <div id="breadcrumb" class="navigation-panel">
     <p>Like :   Home >> Products >> Computers</p>
