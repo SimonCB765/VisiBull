@@ -44,31 +44,6 @@ pillGradient.append("stop")
 	.style("stop-color", "white")
 	.style("stop-opacity", 1);
 
-// Define the happy face.
-var happyFaceContainer = defs.append("g")  // Container for the happy face.
-	.attr("id", "happyFace")
-	.classed("happyFace", true);
-happyFaceContainer.append("circle")  // Circle for the face.
-	.classed("face", true)
-	.attr("cx", faceRadius)
-	.attr("cy", faceRadius)
-	.attr("r", faceRadius);
-happyFaceContainer.append("ellipse")  // Left eye.
-	.classed("eye", true)
-	.attr("cx", faceDiameter / 3)
-	.attr("cy", faceDiameter / 3)
-	.attr("rx", eyeMinorRadius)
-	.attr("ry", eyeMajorRadius);
-happyFaceContainer.append("ellipse")  // Right eye.
-	.classed("eye", true)
-	.attr("cx", faceDiameter * 2 / 3)
-	.attr("cy", faceDiameter / 3)
-	.attr("rx", eyeMinorRadius)
-	.attr("ry", eyeMajorRadius);
-happyFaceContainer.append("path")  // Smile.
-	.classed("mouth", true)
-	.attr("d", "M" + (faceDiameter / 6) + "," + (faceDiameter * 5 / 8) + "A" + (faceRadius * 5 / 6) + "," + (faceRadius * 7 / 6) + ",0,0,0," + (faceDiameter * 5 / 6) + "," + (faceDiameter * 5 / 8));
-
 // Initialise the game.
 initialise_game();
 
@@ -92,6 +67,7 @@ function initialise_game()
 	var currentDirection = 1;  // Horizontal direction being moved by the faces (1 for right and -1 for left).
 	var alreadyDescending = false;  // Whether the faces are moving in the Y direction.
 	var bottomEdgeOfFaces;  // The Y position of the lowest face.
+	var topEdgeOfFaces;  // The Y position of the highest face.
 	var leftEdgeOfFaces;  // The X position of the leftmost face.
 	var rightEdgeOfFaces;  // The X position of the rightmost face.
 	var gameOverHeight = svgHeight - ((faceDiameter + faceGap) * 3);  // The distance from the bottom of the play area at which game over occurs.
@@ -109,6 +85,7 @@ function initialise_game()
 		}
 	}
 	bottomEdgeOfFaces = d3.max(facePositions, function(d) { return d.transY; });
+	topEdgeOfFaces = d3.min(facePositions, function(d) { return d.transY; });
 	leftEdgeOfFaces = d3.min(facePositions, function(d) { return d.transX; });
 	rightEdgeOfFaces = d3.max(facePositions, function(d) { return d.transX + faceDiameter; });
 	
@@ -125,13 +102,13 @@ function initialise_game()
 		.attr("cy", faceRadius)
 		.attr("r", faceRadius);
 	faceContainer.append("ellipse")  // Left eye.
-		.classed("eye", true)
+		.classed({"eye" : true, "left" : true})
 		.attr("cx", faceDiameter / 3)
 		.attr("cy", (faceDiameter / 3) + (faceRadius / 4))
 		.attr("rx", eyeMinorRadius)
 		.attr("ry", eyeMajorRadius);
 	faceContainer.append("ellipse")  // Right eye.
-		.classed("eye", true)
+		.classed({"eye" : true, "right" : true})
 		.attr("cx", faceDiameter * 2 / 3)
 		.attr("cy", (faceDiameter / 3) + (faceRadius / 4))
 		.attr("rx", eyeMinorRadius)
@@ -177,6 +154,43 @@ function initialise_game()
 	
     // Setup the timer for game loop.
 	d3.timer(step_game);
+	
+	function check_face_collision(sadFaces, pill, pillHeight, pillWidth)
+	{
+		var pillPosition = pill.datum();
+		var pillCenterX = pillPosition.transX + (pillWidth / 2);
+		var pillCenterY = pillPosition.transY + (pillHeight / 2);
+		sadFaces.each(function(d)
+			{
+				var faceCenterX = d.transX + faceRadius;
+				var faceCenterY = d.transY + faceRadius;
+				
+				var distanceBetweenCentersX = faceCenterX - pillCenterX;
+				var distanceBetweenCentersY = faceCenterY - pillCenterY;
+				
+				if (Math.sqrt((distanceBetweenCentersX * distanceBetweenCentersX) + (distanceBetweenCentersY * distanceBetweenCentersY)) < (faceRadius * 2))
+				{
+					// Collision occurred.
+					var currentFace = d3.select(this);
+					var leftEye = currentFace.select(".left");
+					var rightEye = currentFace.select(".right");
+					var mouth = currentFace.select(".mouth");
+					currentFace
+						.transition()
+						.duration(100)
+						.style("fill", "yellow")
+						.each(function() { leftEye.transition().attr("cy", faceDiameter / 3); })
+						.each(function() { rightEye.transition().attr("cy", faceDiameter / 3); })
+						.each(function() { mouth.attr("d", "M" + (faceDiameter / 6) + "," + (faceDiameter * 5 / 8) + "A" + (faceRadius * 5 / 6) + "," + (faceRadius * 7 / 6) + ",0,0,0," + (faceDiameter * 5 / 6) + "," + (faceDiameter * 5 / 8)); });
+					currentFace
+						.transition()
+						.delay(500)
+						.duration(0)
+						.remove();
+					pill.remove();
+				}
+			});
+	}
 	
 	function game_over()
 	{
@@ -284,20 +298,29 @@ function initialise_game()
 		
 		// Update the extreme edges of the set of faces.
 		bottomEdgeOfFaces += changeInY;
+		topEdgeOfFaces += changeInY;
 		leftEdgeOfFaces += changeInX;
 		rightEdgeOfFaces += changeInX;
 		
 		// Move the faces.
-		svg.selectAll(".sadFace")
-			.attr("transform", function(d) { d.transX += changeInX; d.transY += changeInY; return "translate(" + d.transX + "," + d.transY + ")"; });
+		var sadFaces = svg.selectAll(".sadFace");
+		sadFaces.attr("transform", function(d) { d.transX += changeInX; d.transY += changeInY; return "translate(" + d.transX + "," + d.transY + ")"; });
 		
-		// Move the pill if one has been shot.
+		// Update the pill if one has been shot.
 		var currentPill = svg.select(".pillContainer");
 		if (!currentPill.empty())
 		{
+			// Move the pill.
 			currentPill.attr("transform", function(d) { d.transY -= pillSpeed; return "translate(" + d.transX + "," + d.transY + ")"; });
+			
+			// Check if the pill has collided with a face.
 			var pillPosition = currentPill.datum();
-			if (pillPosition.transY <= 0)
+			if (pillPosition.transY <= bottomEdgeOfFaces && pillPosition.transY >= topEdgeOfFaces)
+			{
+				// Check whether pill has collided with a face.
+				check_face_collision(sadFaces, currentPill, pillHeight, pillWidth);
+			}
+			else if (pillPosition.transY <= 0)
 			{
 				// Pill has reached top of play area, so destroy it.
 				currentPill.remove();
@@ -316,11 +339,3 @@ function initialise_game()
 		}
 	}
 }
-
-
-
-svg.append("use")
-	.datum({"transX" : 0, "transY" : 0})
-	.attr("xlink:href", "#happyFace")
-	.attr("x", 200)
-	.attr("y", 400);
