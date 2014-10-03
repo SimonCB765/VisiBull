@@ -15,7 +15,7 @@
 
 {% block content %}
 <!--Block for including the content of the page within the div.content tag.-->
-<div class="button-container button-theme-1 horizontal navigation">
+<div id="navigation-buttons">
 	<div data-navLink="tabs" class="button"><div class="button-content">Tabs</div></div>
 	<div data-navLink="buttons" class="button"><div class="button-content">Buttons</div></div>
 	<div data-navLink="standard" class="button"><div class="button-content">Standard</div></div>
@@ -30,53 +30,117 @@
 </div>
 <div id="buttons" class="navigation-panel">
 	<br><br>
-	<div id="button-set-1" class="button-container button-theme-2 horizontal">
+	<h2 class="centered">Fixed Width and Height Buttons</h2>
+	<br>
+	<div id="button-set-1">
 		<div class="button"><div class="button-content">Button 1</div></div>
 		<div class="button"><div class="button-content">Button 2</div></div>
 		<div class="button"><div class="button-content">Button 3</div></div>
 		<div class="button"><div class="button-content">Button 4</div></div>
-	</div>
-	<br><br>
-	<div id="button-set-2" class="button-container button-theme-3 horizontal">
-		<div class="button"><div class="button-content">Button 1</div></div>
-		<div class="button"><div class="button-content">Button 2</div></div>
-		<div class="button"><div class="button-content">Button 3</div></div>
-		<div class="button"><div class="button-content">Button 4</div></div>
-	</div>
-	<br><br>
-	<div id="button-set-3" class="button-container button-theme-4 horizontal">
-		<div class="button"><div class="button-content">Button 1</div></div>
-		<div class="button"><div class="button-content">Button 2</div></div>
-		<div class="button"><div class="button-content">Button 3</div></div>
-		<div class="button"><div class="button-content">Button 4</div></div>
-	</div>
-	<br><br>
-	<div id="button-set-4" class="button-container button-theme-5 horizontal">
-		<div class="button"><div class="button-content">Button 1</div></div>
-		<div class="button"><div class="button-content">Button 2</div></div>
-		<div class="button"><div class="button-content">Button 3</div></div>
-		<div class="button"><div class="button-content">Button 4</div></div>
-	</div>
-	<br><br>
-	<div class="centered">
-		<h2>Buttons that all expand to fit the longest text</h2>
 	</div>
 	<br>
-	<p>For each of horizontal and vertical need to:</p>
-	<ul>
-		<li>Fixed width all equal height determined by highest buttons</li>
-		<li>Fixed width unequal fitted heights</li>
-		<li>fixed height all equal width determined by widest button</li>
-		<li>fixed height unequal fitted widths</li>
-		<li>Set of buttons is given max width and
-			<ul>
-				<li>Buttons all have same height</li>
-				<li>buttons each have fitted height</li>
-			</ul>
-		</li>
-    </ul>
-	<p>image buttons</p>
-	<p>image and text buttons</p>
+	<div class="shrinkwrap-flex">
+		<div id="button-set-2">
+			<div class="button"><div class="button-content">Button 1</div></div>
+			<div class="button"><div class="button-content">Button 2</div></div>
+			<div class="button"><div class="button-content">Button 3</div></div>
+			<div class="button"><div class="button-content">Button 4</div></div>
+		</div>
+	</div>
+	<br>
+	<div class="shrinkwrap-flex">
+		<div id="button-set-3">
+			<div class="button"><div class="button-content">Button 1</div></div>
+			<div class="button"><div class="button-content">Button 2</div></div>
+			<div class="button"><div class="button-content">Button 3</div></div>
+			<div class="button"><div class="button-content">Button 4</div></div>
+		</div>
+		<div id="button-set-4">
+			<div class="button"><div class="button-content">Button 1</div></div>
+			<div class="button"><div class="button-content">Button 2</div></div>
+			<div class="button"><div class="button-content">Button 3</div></div>
+			<div class="button"><div class="button-content">I Am Really Way To Big To Fit In This Tiny Little Button</div></div>
+		</div>
+	</div>
+	<br><br>
+	<h2 class="centered">Flexi Buttons</h2>
+	<br>
+	<div id="button-set-5">
+		<div class="button"><div class="button-content">Tiny</div></div>
+		<div class="button"><div class="button-content">Larger</div></div>
+		<div class="button"><div class="button-content">Double<br>Height</div></div>
+		<div class="button"><div class="button-content">Really Very Very Long Button</div></div>
+	</div>
+	<br><br>
+	<h2 class="centered">Buttons With Individual Fitted Widths And Heights</h2>
+	<br>
+	<div class="shrinkwrap-flex">
+		<div id="button-set-6">
+			<div class="button"><div class="button-content">Tiny</div></div>
+			<div class="button"><div class="button-content">Slightly Larger</div></div>
+			<div class="button"><div class="button-content">Double<br>Height</div></div>
+			<div class="button"><div class="button-content">Really Very Very Long Button</div></div>
+		</div>
+	</div>
+	<br>
+	<div class="shrinkwrap-flex">
+		<div id="button-set-7">
+			<div class="button"><div class="button-content">Tiny</div></div>
+			<div class="button"><div class="button-content">Slightly Larger</div></div>
+			<div class="button"><div class="button-content">Double<br>Height</div></div>
+			<div class="button"><div class="button-content">Really Very Very Long Button</div></div>
+		</div>
+		<div id="button-set-8">
+			<div class="button"><div class="button-content">Tiny</div></div>
+			<div class="button"><div class="button-content">Slightly Larger</div></div>
+			<div class="button"><div class="button-content">Double<br>Height</div></div>
+			<div class="button"><div class="button-content">Really Very Very Long Button</div></div>
+		</div>
+	</div>
+	<br><br>
+	<h2 class="centered">Buttons With Fixed Widths And Dynamic Equal Heights</h2>
+	<br>
+	<div class="shrinkwrap-flex">
+		<div id="button-set-9">
+			<div class="button"><div class="button-content">Tiny</div></div>
+			<div class="button"><div class="button-content">Slightly Larger</div></div>
+			<div class="button"><div class="button-content">Double<br>Height</div></div>
+			<div class="button"><div class="button-content">Really Very Very Long Button</div></div>
+		</div>
+	</div>
+	<br><br>
+	<h2 class="centered">Buttons With Fixed Widths And Individual Fitted Heights</h2>
+	<br>
+	<div class="shrinkwrap-flex">
+		<div id="button-set-12">
+			<div class="button"><div class="button-content">Tiny</div></div>
+			<div class="button"><div class="button-content">Slightly Larger</div></div>
+			<div class="button"><div class="button-content">Double<br>Height</div></div>
+			<div class="button"><div class="button-content">Really Very Very Long Button</div></div>
+		</div>
+	</div>
+	<br><br>
+	<h2 class="centered">Buttons With Fixed Heights and Dynamic Equal Widths</h2>
+	<br>
+	<div class="shrinkwrap-flex">
+		<div id="button-set-15">
+			<div class="button"><div class="button-content">Tiny</div></div>
+			<div class="button"><div class="button-content">Slightly Larger</div></div>
+			<div class="button"><div class="button-content">Double<br>Height</div></div>
+			<div class="button"><div class="button-content">Really Very Very Long Button</div></div>
+		</div>
+	</div>
+	<br><br>
+	<h2 class="centered">Buttons With Fixed Heights and Individual Fitted Widths</h2>
+	<br>
+	<div class="shrinkwrap-flex">
+		<div id="button-set-17">
+			<div class="button"><div class="button-content">Tiny</div></div>
+			<div class="button"><div class="button-content">Slightly Larger</div></div>
+			<div class="button"><div class="button-content">Double<br>Height</div></div>
+			<div class="button"><div class="button-content">Really Very Very Long Button</div></div>
+		</div>
+	</div>
 </div>
 <div id="standard" class="navigation-panel">
 	<div class="centered">
