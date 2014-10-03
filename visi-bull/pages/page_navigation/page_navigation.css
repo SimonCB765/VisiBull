@@ -9,6 +9,7 @@ _tabs     		-> style declarations for tabs.
 _classes
 */
 .centered {text-align: center;}
+.divider {background-color: grey; border: 0; height: 1px;}  /* Style for the divider line below the navigation buttons. */
 .navigation-panel {margin: 1em 0 0;}  /* The div of content for each navigation tab. */
 .shrinkwrap-flex {align-items: center; display: flex; justify-content: center;}  /* Style to shrinkwrap the background to the contents. */
 
@@ -118,7 +119,10 @@ Notes
 #button-set-8 .button:hover {background-color: rgb(255,0,140); box-shadow: 0px 2px 4px 0 rgba(255,255,255,1), -1px 0px 4px 0 rgba(255,255,255,1), 1px 0px 4px 0 rgba(255,255,255,1), 0px -2px 4px 0 rgba(255,255,255,1); color: white; font-weight: bold;}  /* Style the buttons when hovered over. */
 #button-set-8 .button.selected {background-color: rgb(255,0,140); box-shadow: 0px 2px 1px 0 rgba(255,255,255,1), -1px 0px 1px 0 rgba(255,255,255,1), 1px 0px 1px 0 rgba(255,255,255,1), 0px -2px 1px 0 rgba(255,255,255,1); color: white; font-weight: bold;}  /* Style the selected button. */
 
-/* Fixed Width and Dynamic Equal Height Buttons. */
+/* Fixed Width and Dynamic Equal Height Buttons.
+Notes
+	Only works nicely for horizontal buttons.
+*/
 /* First button set. */
 #button-set-9 {display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: stretch; align-content: space-around;}
 #button-set-9 {background-color: black; padding: 1em;}  /* Use black background that surrounds the buttons completely. */
@@ -138,25 +142,63 @@ Notes
 #button-set-12 .button:hover {background-color: rgb(255,0,140); box-shadow: 0px 2px 4px 0 rgba(255,255,255,1), -1px 0px 4px 0 rgba(255,255,255,1), 1px 0px 4px 0 rgba(255,255,255,1), 0px -2px 4px 0 rgba(255,255,255,1); color: white; font-weight: bold;}  /* Style the buttons when hovered over. */
 #button-set-12 .button.selected {background-color: rgb(255,0,140); box-shadow: 0px 2px 1px 0 rgba(255,255,255,1), -1px 0px 1px 0 rgba(255,255,255,1), 1px 0px 1px 0 rgba(255,255,255,1), 0px -2px 1px 0 rgba(255,255,255,1); color: white; font-weight: bold;}  /* Style the selected button. */
 
+#button-set-13 {display: flex; flex-direction: column; flex-wrap: nowrap; justify-content: center; align-items: center; align-content: space-around;}
+#button-set-13{background-color: black; padding: 1em;}  /* Use black background that surrounds the buttons completely. */
+#button-set-13 {margin: 0 1em;}  /* Margin to separate button-set-13 from button-set-14. Not need for the style of the buttons. */
+#button-set-13 .button {display: inline-flex; flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center; align-content: space-around;}
+#button-set-13 .button {background-color: rgb(255,0,140); color: black; margin: .5em 0; padding: 1em; text-align: center; width: 100px;}  /* Style the buttons. */
+#button-set-13 .button {transition: .25s linear transform; transition-property: background-color, box-shadow, color, font-weight;}
+#button-set-13 .button:hover {background-color: rgb(255,0,140); box-shadow: 0px 2px 4px 0 rgba(255,255,255,1), -1px 0px 4px 0 rgba(255,255,255,1), 1px 0px 4px 0 rgba(255,255,255,1), 0px -2px 4px 0 rgba(255,255,255,1); color: white; font-weight: bold;}  /* Style the buttons when hovered over. */
+#button-set-13 .button.selected {background-color: rgb(255,0,140); box-shadow: 0px 2px 1px 0 rgba(255,255,255,1), -1px 0px 1px 0 rgba(255,255,255,1), 1px 0px 1px 0 rgba(255,255,255,1), 0px -2px 1px 0 rgba(255,255,255,1); color: white; font-weight: bold;}  /* Style the selected button. */
+
+#button-set-14 {display: flex; flex-direction: column; flex-wrap: nowrap; justify-content: center; align-items: center; align-content: space-around;}
+#button-set-14{background-color: black; padding: 1em;}  /* Use black background that surrounds the buttons completely. */
+#button-set-14 {margin: 0 1em;}  /* Margin to separate button-set-13 from button-set-14. Not need for the style of the buttons. */
+#button-set-14 .button {display: inline-flex; flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center; align-content: space-around;}
+#button-set-14 .button {background-color: rgb(255,0,140); color: black; margin: .5em 0; padding: 1em; text-align: center; width: 100px;}  /* Style the buttons. */
+#button-set-14 .button {transition: .25s linear transform; transition-property: background-color, box-shadow, color, font-weight;}
+#button-set-14 .button:hover {background-color: rgb(255,0,140); box-shadow: 0px 2px 4px 0 rgba(255,255,255,1), -1px 0px 4px 0 rgba(255,255,255,1), 1px 0px 4px 0 rgba(255,255,255,1), 0px -2px 4px 0 rgba(255,255,255,1); color: white; font-weight: bold;}  /* Style the buttons when hovered over. */
+#button-set-14 .button.selected {background-color: rgb(255,0,140); box-shadow: 0px 2px 1px 0 rgba(255,255,255,1), -1px 0px 1px 0 rgba(255,255,255,1), 1px 0px 1px 0 rgba(255,255,255,1), 0px -2px 1px 0 rgba(255,255,255,1); color: white; font-weight: bold;}  /* Style the selected button. */
+
 /* Fixed Height and Dynamic Equal Width Buttons. */
 /* First button set. */
 #button-set-15 {display: flex; flex-direction: column; flex-wrap: nowrap; justify-content: center; align-items: stretch; align-content: space-around;}
 #button-set-15 {background-color: black; padding: 1em;}  /* Use black background that surrounds the buttons completely. */
+#button-set-15 {margin: 0 1em;}  /* Margin to separate button-set-15 from button-set-16. Not need for the style of the buttons. */
 #button-set-15 .button {display: inline-flex; flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center; align-content: space-around;}
 #button-set-15 .button {background-color: rgb(255,0,140); color: black; height: 50px; margin: .5em 0; padding: 1em; text-align: center;}  /* Style the buttons. */
 #button-set-15 .button {transition: .25s linear transform; transition-property: background-color, box-shadow, color, font-weight;}
 #button-set-15 .button:hover {background-color: rgb(255,0,140); box-shadow: 0px 2px 4px 0 rgba(255,255,255,1), -1px 0px 4px 0 rgba(255,255,255,1), 1px 0px 4px 0 rgba(255,255,255,1), 0px -2px 4px 0 rgba(255,255,255,1); color: white; font-weight: bold;}  /* Style the buttons when hovered over. */
 #button-set-15 .button.selected {background-color: rgb(255,0,140); box-shadow: 0px 2px 1px 0 rgba(255,255,255,1), -1px 0px 1px 0 rgba(255,255,255,1), 1px 0px 1px 0 rgba(255,255,255,1), 0px -2px 1px 0 rgba(255,255,255,1); color: white; font-weight: bold;}  /* Style the selected button. */
 
+#button-set-16 {display: flex; flex-direction: column; flex-wrap: nowrap; justify-content: center; align-items: stretch; align-content: space-around;}
+#button-set-16 {background-color: black; padding: 1em;}  /* Use black background that surrounds the buttons completely. */
+#button-set-16 {margin: 0 1em;}  /* Margin to separate button-set-15 from button-set-16. Not need for the style of the buttons. */
+#button-set-16 .button {display: inline-flex; flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center; align-content: space-around;}
+#button-set-16 .button {background-color: rgb(255,0,140); color: black; height: 50px; margin: .5em 0; padding: 1em; text-align: center;}  /* Style the buttons. */
+#button-set-16 .button {transition: .25s linear transform; transition-property: background-color, box-shadow, color, font-weight;}
+#button-set-16 .button:hover {background-color: rgb(255,0,140); box-shadow: 0px 2px 4px 0 rgba(255,255,255,1), -1px 0px 4px 0 rgba(255,255,255,1), 1px 0px 4px 0 rgba(255,255,255,1), 0px -2px 4px 0 rgba(255,255,255,1); color: white; font-weight: bold;}  /* Style the buttons when hovered over. */
+#button-set-16 .button.selected {background-color: rgb(255,0,140); box-shadow: 0px 2px 1px 0 rgba(255,255,255,1), -1px 0px 1px 0 rgba(255,255,255,1), 1px 0px 1px 0 rgba(255,255,255,1), 0px -2px 1px 0 rgba(255,255,255,1); color: white; font-weight: bold;}  /* Style the selected button. */
+
 /* Fixed Height and Individual Fitted Width Buttons. */
 /* First button set. */
 #button-set-17 {display: flex; flex-direction: column; flex-wrap: nowrap; justify-content: center; align-items: center; align-content: space-around;}
 #button-set-17 {background-color: black; padding: 1em;}  /* Use black background that surrounds the buttons completely. */
+#button-set-17 {margin: 0 1em;}  /* Margin to separate button-set-17 from button-set-18. Not need for the style of the buttons. */
 #button-set-17 .button {display: inline-flex; flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center; align-content: space-around;}
 #button-set-17 .button {background-color: rgb(255,0,140); color: black; height: 50px; margin: .5em 0; padding: 1em; text-align: center;}  /* Style the buttons. */
 #button-set-17 .button {transition: .25s linear transform; transition-property: background-color, box-shadow, color, font-weight;}
 #button-set-17 .button:hover {background-color: rgb(255,0,140); box-shadow: 0px 2px 4px 0 rgba(255,255,255,1), -1px 0px 4px 0 rgba(255,255,255,1), 1px 0px 4px 0 rgba(255,255,255,1), 0px -2px 4px 0 rgba(255,255,255,1); color: white; font-weight: bold;}  /* Style the buttons when hovered over. */
 #button-set-17 .button.selected {background-color: rgb(255,0,140); box-shadow: 0px 2px 1px 0 rgba(255,255,255,1), -1px 0px 1px 0 rgba(255,255,255,1), 1px 0px 1px 0 rgba(255,255,255,1), 0px -2px 1px 0 rgba(255,255,255,1); color: white; font-weight: bold;}  /* Style the selected button. */
+
+#button-set-18 {display: flex; flex-direction: column; flex-wrap: nowrap; justify-content: center; align-items: center; align-content: space-around;}
+#button-set-18 {background-color: black; padding: 1em;}  /* Use black background that surrounds the buttons completely. */
+#button-set-18 {margin: 0 1em;}  /* Margin to separate button-set-17 from button-set-18. Not need for the style of the buttons. */
+#button-set-18 .button {display: inline-flex; flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center; align-content: space-around;}
+#button-set-18 .button {background-color: rgb(255,0,140); color: black; height: 50px; margin: .5em 0; padding: 1em; text-align: center;}  /* Style the buttons. */
+#button-set-18 .button {transition: .25s linear transform; transition-property: background-color, box-shadow, color, font-weight;}
+#button-set-18 .button:hover {background-color: rgb(255,0,140); box-shadow: 0px 2px 4px 0 rgba(255,255,255,1), -1px 0px 4px 0 rgba(255,255,255,1), 1px 0px 4px 0 rgba(255,255,255,1), 0px -2px 4px 0 rgba(255,255,255,1); color: white; font-weight: bold;}  /* Style the buttons when hovered over. */
+#button-set-18 .button.selected {background-color: rgb(255,0,140); box-shadow: 0px 2px 1px 0 rgba(255,255,255,1), -1px 0px 1px 0 rgba(255,255,255,1), 1px 0px 1px 0 rgba(255,255,255,1), 0px -2px 1px 0 rgba(255,255,255,1); color: white; font-weight: bold;}  /* Style the selected button. */
 
 /*
 _tabs
