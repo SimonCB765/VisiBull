@@ -23,6 +23,6 @@ svg .retryText {alignment-baseline: middle; font-weight: bold; pointer-events: n
 _grid
 */
 svg .tile {fill: black; stroke: white; stroke-width: 1;}  /* The borders of the grid tiles. */
-svg .food {fill: #39FF14;}  /* The tile containing snake food. */
-svg .snake {fill: #EA594D;}  /* The tiles containing the snake. */
-svg .head {fill: #FFA500;}  /* The tile containing the snake's head. */
+svg .food {fill: #00FF7B;}  /* The tile containing snake food. */
+svg .snake {fill: #AE2DE3;}  /* The tiles containing the snake. */
+svg .head {fill: #FFAF1A;}  /* The tile containing the snake's head. */
