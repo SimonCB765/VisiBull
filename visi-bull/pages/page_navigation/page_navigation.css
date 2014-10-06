@@ -216,7 +216,7 @@ z-index: 1;
 }  /* Using pseudo-element after allow us to put a bottom border on the tab container without affecting the position of the tabs themselves. */
 #tab-set-1 .tab {display: inline-flex; flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center; align-content: space-around;}
 #tab-set-1 .tab {
-background-color: white;
+background-color: orange;
 border: 1px solid black;
 color: black;
 margin: 0 10px;
@@ -226,9 +226,16 @@ position: relative;  /* To enable :after and :before rounded outside edges to be
 border-top-left-radius: 6px;
 border-top-right-radius: 6px;
 }
-#tab-set-1 .tab:hover {background-color: orange;}
+#tab-set-1 .tab:hover {background-color: red;}
 #tab-set-1 .tab.selected {
-background-color: pink;
+background-color: #F8F8F8;
 border-bottom: none;
 z-index: 2;  /* To bring the tab out in front of the bottom border of the tab container. */
 }
+
+
+
+
+#tab-set-2 {background: black;}
+#tab-set-2 .backing {fill: #FFAF1A; stroke-width: 0;}  /* Bottom backing border for the tab set. */
+#tab-set-2 .tab {fill: purple; stroke: white; stroke-width: 1px;}

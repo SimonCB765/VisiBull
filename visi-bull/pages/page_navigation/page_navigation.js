@@ -28,6 +28,7 @@ $(document).ready(function()
 	{
 		// Setup behaviour for tab set 1.
 		var selectedTabSet1 = $("#tab-set-1 .tab:eq(0)");
+		selectedTabSet1.addClass("selected");
 		$("#tab-set-1 .tab").click(function()
 			{
 				// Clear old selected tab information.
@@ -37,6 +38,52 @@ $(document).ready(function()
 				selectedTabSet1 = $(this);
 				selectedTabSet1.addClass("selected");
 			});
+		
+		
+		
+		/*******************
+		* Create Tab Set 2 *
+		*******************/
+		// Definitions.
+		var numberOfTabs = 4;
+		var tabWidth = 100;
+		var tabHeight = 35;
+		var tabMargin = 5;
+		var backingBorderHeight = 5;
+		
+		var tabSet2 = d3.select("#tab-set-2");  // The SVG element.
+		
+		// Create the tabs.
+		var currentTabX = 0;
+		var tabY = parseInt(tabSet2.attr("height"), 10) - backingBorderHeight - tabHeight;
+		var tabLocations = [];
+		for (var i = 0; i < numberOfTabs; i++)
+		{
+			tabLocations.push({"x" : currentTabX + tabMargin, "y" : tabY});
+			currentTabX += tabMargin + tabWidth + tabMargin;
+		}
+		tabSet2.selectAll(".tabs")
+			.data(tabLocations)
+			.enter()
+			.append("rect")
+			.attr("width", tabWidth)
+			.attr("height", tabHeight)
+			.attr("x", function(d) { return d.x; })
+			.attr("y", function(d) { return d.y; })
+			.classed("tab", true);
+		
+		// Add a bottom border that the tabs will rest on.
+		tabSet2.append("rect")
+			.attr("width", tabSet2.attr("width"))
+			.attr("height", backingBorderHeight + "px")
+			.attr("x", 0)
+			.attr("y", parseInt(tabSet2.attr("height"), 10) - backingBorderHeight)
+			.classed("backing", true);
+		
+		console.log(tabLocations);
+		
+		
+		var selectedTabSet2 = $("#tab-set-12 .tab:eq(0)");
 	}
 
 	/**************

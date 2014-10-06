@@ -9,8 +9,8 @@
 
 {% block header %}
 <!--Block for including page specific header information (e.g. page title) within the <header> tag.-->
-<h1 class="pageTitle">Styling HTML Lists</h1>
-<span class="date">-- --, 2014</span>
+<h1 class="pageTitle">--</h1>
+<span class="date">-- --, --</span>
 {% endblock %}
 
 {% block content %}
@@ -19,31 +19,25 @@
 	<div data-navLink="buttons" class="button"><div class="button-content">Buttons</div></div>
 	<div data-navLink="tabs" class="button"><div class="button-content">Tabs</div></div>
 	<div data-navLink="standard" class="button"><div class="button-content">Standard</div></div>
-	<div data-navLink="breadcrumb" class="button"><div class="button-content">Breadcrumb</div></div>
+	<div data-navLink="breadcrumb" class="button"><div class="button-content">Breadcrumbs</div></div>
 </div>
-<br><hr class="divider"><br>
+<br><hr class="divider"><br><br>
 <div id="tabs" class="navigation-panel">
 	<div id="tab-set-1">
 		<div class="tab"><div class="tab-content">Tab 1</div></div>
-		<div class="tab"><div class="tab-content">Tab 2</div></div>
-		<div class="tab"><div class="tab-content">Tab 3</div></div>
-		<div class="tab"><div class="tab-content">Tab 4</div></div>
-	</div>
-	<br>
-	<div id="tab-set-2">
-		<div class="tab"><div class="tab-content">Tabby 1</div></div>
-		<div class="tab"><div class="tab-content">Tab 2</div></div>
-		<div class="tab"><div class="tab-content">Tabbbby 3</div></div>
+		<div class="tab"><div class="tab-content">Tabbby 2</div></div>
+		<div class="tab"><div class="tab-content">Tab Tab Tab 3</div></div>
 		<div class="tab"><div class="tab-content">T 4</div></div>
 	</div>
+	<br><br>
+	Stick like two tabs on the left two in the middle and two on the right
+	<svg id="tab-set-2" width=100% height=50px></svg>
 
 	<br><br>
-	<p>http://css-tricks.com/better-tabs-with-round-out-borders/</p>
-	<br>
     <p>With a little picture on the left/right and some text next to it (e.g. https://github.com/SimonCB765)</p>
-    <p>Option for slight transiton animation on selecting a different one (http://codepen.io/wallaceerick/pen/ojtal)</p>
-    <p>Change tab (like tab grows sightly) when you click on tab (http://www.elated.com/res/File/articles/development/javascript/document-object-model/javascript-tabs/javascript-tabs.html)</p>
-    <p>Tabs that are closeable (and the div they contain is lost forever on closing)</p>
+    <p>Option for slight transition animation on selecting a different one (http://codepen.io/wallaceerick/pen/ojtal)</p>
+	<p>containers where you can add tabs</p>
+    <p>Tabs that are closeable</p>
     <p>Multirow or multicolumn tabs</p>
 	<p>Tabs that slide out on hover</p>
     <ul>Chrome style ones (draggable, clickable, closeable)
