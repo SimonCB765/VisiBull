@@ -21,7 +21,9 @@ $(document).ready(function()
 	{
 		// Definitions.
 		var tabContainerWidth = 800;
-		var tabContainerHeight = 50;
+		var tabContainerHeight = 105;
+		var topHalfEnds = 50;
+		var bottomHalfStarts = 55;
 		var numberOfTabs = 3;
 		var tabWidth = 50;
 		var tabHeight = 25;
@@ -34,19 +36,22 @@ $(document).ready(function()
 		
 		// Create the tabs.
 		var currentTabX = 0;
-		var tabY = tabContainerHeight - backingBorderHeight - tabHeight;
+		var tabYTop = topHalfEnds - backingBorderHeight - tabHeight;
+		var tabYBottom = bottomHalfStarts + backingBorderHeight;
 		var tabLocations = [];
 		// Left aligned tabs.
 		for (var i = 0; i < numberOfTabs; i++)
 		{
-			tabLocations.push({"x" : currentTabX + tabMargin, "y" : tabY});
+			tabLocations.push({"x" : currentTabX + tabMargin, "y" : tabYTop});
+			tabLocations.push({"x" : currentTabX + tabMargin, "y" : tabYBottom});
 			currentTabX += (tabMargin + tabWidth + tabMargin);
 		}
 		// Right aligned tabs.
 		var currentTabX = tabContainerWidth;
 		for (var i = 0; i < numberOfTabs; i++)
 		{
-			tabLocations.push({"x" : currentTabX - tabMargin - tabWidth, "y" : tabY});
+			tabLocations.push({"x" : currentTabX - tabMargin - tabWidth, "y" : tabYTop});
+			tabLocations.push({"x" : currentTabX - tabMargin - tabWidth, "y" : tabYBottom});
 			currentTabX -= (tabMargin + tabWidth + tabMargin);
 		}
 		// Center aligned tabs.
@@ -54,7 +59,8 @@ $(document).ready(function()
 		var currentTabX = (tabContainerWidth / 2) - (numberOfTabsLeftOfCenter * tabWidth) - (Math.floor(numberOfTabsLeftOfCenter) * tabMargin);
 		for (var i = 0; i < numberOfTabs; i++)
 		{
-			tabLocations.push({"x" : currentTabX + tabMargin, "y" : tabY});
+			tabLocations.push({"x" : currentTabX + tabMargin, "y" : tabYTop});
+			tabLocations.push({"x" : currentTabX + tabMargin, "y" : tabYBottom});
 			currentTabX += (tabMargin + tabWidth + tabMargin);
 		}
 		var tabs = tabSet2.selectAll(".tab")
@@ -67,12 +73,18 @@ $(document).ready(function()
 			.attr("y", function(d) { return d.y; })
 			.classed("tab", true);
 		
-		// Add a bottom border that the tabs will rest on.
+		// Add a bottom and top border that the tabs will rest on.
 		tabSet2.append("rect")
 			.attr("width", tabContainerWidth)
-			.attr("height", backingBorderHeight + "px")
+			.attr("height", backingBorderHeight)
 			.attr("x", 0)
-			.attr("y", tabContainerHeight - backingBorderHeight)
+			.attr("y", topHalfEnds - backingBorderHeight)
+			.classed("backing", true);
+		tabSet2.append("rect")
+			.attr("width", tabContainerWidth)
+			.attr("height", backingBorderHeight)
+			.attr("x", 0)
+			.attr("y", bottomHalfStarts)
 			.classed("backing", true);
 		
 		// Setup the behaviour of the tabs.
@@ -103,14 +115,21 @@ $(document).ready(function()
 					.duration(100)
 					.ease("linear")
 					.attr("height", tabHeight + 2)
-					.attr("y", function(d) { return d.y - 2; });
+					.attr("y", function(d) { if (d.y < topHalfEnds) { return d.y - 2; } else { return d.y; }});
 			});
 	}
-
-
+	
+	
 	/*******************
 	* Create Tab Set 3 *
 	*******************/
 	{
+		// Definitions.
+		var tabContainerWidth = 800;
+		var tabContainerHeight = 50;
+		
+		var tabSet3 = d3.select("#tab-set-3")  // The SVG element.
+			.attr("width", tabContainerWidth)
+			.attr("height", tabContainerHeight);
 	}
 });

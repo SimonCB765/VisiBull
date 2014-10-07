@@ -25,7 +25,8 @@
 </div>
 <br><hr class="divider"><br><br>
 <div id="tabs" class="navigation-panel">
-	Basic HTML tabs
+	<h2 class="centered">Basic HTML Tabs</h2>
+	<br>
 	<div id="tab-set-1">
 		<div class="tab"><div class="tab-content">Tab 1</div></div>
 		<div class="tab"><div class="tab-content">Tabbby 2</div></div>
@@ -33,25 +34,33 @@
 		<div class="tab"><div class="tab-content">T 4</div></div>
 	</div>
 	<br><br>
-	Basic SVG tabs
+	<h2 class="centered">Basic SVG Tabs</h2>
+	<br>
 	<svg id="tab-set-2"></svg>
-	<br><br>
+	<br>
+	<br>This one needs to have a minimum width and no maximum. Short text will have lots of space and long text will have wide buttons.
 	<svg id="tab-set-3"></svg>
+	<br>
+	<br>This one needs to have a minimum and a maximum width (also a defined height). Short text will have lots of space and long text will text wrap to be multi-line. Maybe overflow: hidden for anything too high.
+	<br>
+	<br>This one needs to have a minimum and a maximum width. Short text will have lots of space and long text will get cut off at the maximum.
+	<br>
+	<br>This one needs to have a minimum and a maximum width. One line of text per tab, short text will have lots of space and long text will fade out.
+	
+	<br><br>
+	<h2 class="centered">Advanced SVG Tabs</h2>
+	<br>
+	These ones will have added features, like multirow (when too many for one row), being closeable and having the ability to add tabs
 
 	<br><br>
+	<p>Vertical tabs that slide out on hover, and stay slightly out on selection</p>
     <p>With a little picture on the left/right and some text next to it (e.g. https://github.com/SimonCB765)</p>
-	<p>containers where you can add tabs</p>
-    <p>Tabs that are closeable</p>
-    <p>Multirow or multicolumn tabs</p>
-	<p>Tabs that slide out on hover</p>
 	<p>Chrome style tabs</p>
-	<ul>Text with ellipsis when long
+	<ul>
 		<li>Text can be done with SVG or with foreign objects</li>
-		<li>Foreign objects styled with CSS (don't work in IE) - http://bl.ocks.org/mbostock/1424037</li>
+		<li>Foreign objects styled with CSS (don't work in IE) can be used to get ellipsis for long text - http://bl.ocks.org/mbostock/1424037</li>
+		<li>alternatively long text could be faded out (like in chrome tabs) - http://css-tricks.com/text-fade-read-more/</li>
 	</ul>
-
-    <p>Should show differences (tabs of fixed size with text wrap, tabs that size to text with no wrap, tabs that size to text but have min and max size)</p>
-    <p>Lists with tabs peeking above and hanging below</p>
 </div>
 <div id="buttons" class="navigation-panel">
 	<h2 class="centered">Fixed Width and Height Buttons</h2>
