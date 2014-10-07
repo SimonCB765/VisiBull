@@ -5,6 +5,8 @@
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='page_navigation/page_navigation.css') }}">
 <script type="text/javascript" src="{{ url_for('static', filename='scripts/jQuery/jquery-1.11.1.min.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='page_navigation/page_navigation.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='page_navigation/button_control.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='page_navigation/tab_control.js') }}"></script>
 {% endblock %}
 
 {% block header %}
@@ -23,6 +25,7 @@
 </div>
 <br><hr class="divider"><br><br>
 <div id="tabs" class="navigation-panel">
+	Basic HTML tabs
 	<div id="tab-set-1">
 		<div class="tab"><div class="tab-content">Tab 1</div></div>
 		<div class="tab"><div class="tab-content">Tabbby 2</div></div>
@@ -30,19 +33,21 @@
 		<div class="tab"><div class="tab-content">T 4</div></div>
 	</div>
 	<br><br>
-	Stick like two tabs on the left two in the middle and two on the right
-	<svg id="tab-set-2" width=100% height=50px></svg>
+	Basic SVG tabs
+	<svg id="tab-set-2"></svg>
+	<br><br>
+	<svg id="tab-set-3"></svg>
 
 	<br><br>
     <p>With a little picture on the left/right and some text next to it (e.g. https://github.com/SimonCB765)</p>
-    <p>Option for slight transition animation on selecting a different one (http://codepen.io/wallaceerick/pen/ojtal)</p>
 	<p>containers where you can add tabs</p>
     <p>Tabs that are closeable</p>
     <p>Multirow or multicolumn tabs</p>
 	<p>Tabs that slide out on hover</p>
-    <ul>Chrome style ones (draggable, clickable, closeable)
-		<li>could do it easily with d3, duno if can drag with other (seems like drag, dragstart etc are standard javascript events)</li>
-		<li>text turns to ellipsis if it is too long</li>
+	<p>Chrome style tabs</p>
+	<ul>Text with ellipsis when long
+		<li>Text can be done with SVG or with foreign objects</li>
+		<li>Foreign objects styled with CSS (don't work in IE) - http://bl.ocks.org/mbostock/1424037</li>
 	</ul>
 
     <p>Should show differences (tabs of fixed size with text wrap, tabs that size to text with no wrap, tabs that size to text but have min and max size)</p>
