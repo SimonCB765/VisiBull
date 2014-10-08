@@ -145,9 +145,9 @@ function initialise_game()
 				playerContainer
 					.attr("transform", function(d) { d.transX = Math.min(svgWidth - playerWidth, d.transX + playerSpeed); return "translate(" + d.transX + "," + d.transY + ")"; });
 			}
-			else if (keyCode === 32)
+			else if (keyCode === 32 || keyCode === 38)
 			{
-				// Space pressed to shoot, so shoot if there is no shot already on the screen.
+				// Space or up pressed to shoot, so shoot if there is no shot already on the screen.
 				d3.event.preventDefault();  // Prevent default to stop screen scrolling when pressing the key.
 				if (svg.select(".pill").empty()) shoot(playerPosition.transX + (playerWidth / 2) - (pillWidth / 2), playerPosition.transY);
 			}
