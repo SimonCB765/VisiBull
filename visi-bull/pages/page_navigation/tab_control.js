@@ -24,7 +24,7 @@ $(document).ready(function()
 		var tabContainerHeight = 105;
 		var numberOfTabs = 3;
 		var tabWidth = 50;
-		var tabHeight = 25;
+		var tabHeightSet2 = 25;
 		var tabMargin = 5;
 		var backingBorderStart = 50;
 		var backingBorderHeight = 5;
@@ -35,7 +35,7 @@ $(document).ready(function()
 		
 		// Create the tabs.
 		var currentTabX = 0;
-		var tabYTop = backingBorderStart - tabHeight;
+		var tabYTop = backingBorderStart - tabHeightSet2;
 		var tabYBottom = backingBorderStart + backingBorderHeight;
 		var tabLocations = [];
 		// Left aligned tabs going upwards.
@@ -64,7 +64,7 @@ $(document).ready(function()
 			.enter()
 			.append("rect")
 			.attr("width", tabWidth)
-			.attr("height", tabHeight)
+			.attr("height", tabHeightSet2)
 			.attr("x", function(d) { return d.x; })
 			.attr("y", function(d) { return d.y; })
 			.classed("tab", true);
@@ -84,28 +84,32 @@ $(document).ready(function()
 			.transition()
 			.duration(100)
 			.ease("linear")
-			.attr("height", tabHeight + 2)
+			.attr("height", tabHeightSet2 + 2)
 			.attr("y", function(d) { return d.y - 2; });
 		tabs.on("mousedown", function()
 			{
-				// Clear old selected tab information.
-				selectedTabSet2
-					.classed("selected", false)
-					.transition()
-					.duration(100)
-					.ease("linear")
-					.attr("height", tabHeight)
-					.attr("y", function(d) { return d.y; });
-				
-				// Record new selected tab information.
-				selectedTabSet2 = d3.select(this);
-				selectedTabSet2
-					.classed("selected", true)
-					.transition()
-					.duration(100)
-					.ease("linear")
-					.attr("height", tabHeight + 2)
-					.attr("y", function(d) { if (d.y < backingBorderStart) { return d.y - 2; } else { return d.y; }});
+				if (d3.event.button == 0)
+				{
+					// Left click.
+					// Clear old selected tab information.
+					selectedTabSet2
+						.classed("selected", false)
+						.transition()
+						.duration(100)
+						.ease("linear")
+						.attr("height", tabHeightSet2)
+						.attr("y", function(d) { return d.y; });
+					
+					// Record new selected tab information.
+					selectedTabSet2 = d3.select(this);
+					selectedTabSet2
+						.classed("selected", true)
+						.transition()
+						.duration(100)
+						.ease("linear")
+						.attr("height", tabHeightSet2 + 2)
+						.attr("y", function(d) { if (d.y < backingBorderStart) { return d.y - 2; } else { return d.y; }});
+				}
 			});
 	}
 	
@@ -117,8 +121,9 @@ $(document).ready(function()
 		// Definitions.
 		var tabContainerWidth = 800;
 		var tabContainerHeight = 50;
-		var tabText = ["T1", "Tab 2", "Tab Three", "Big Long Fourth Tab"]
-		var minTabWidth = 20;
+		var tabText = ["T1", "T 2", "Tab Three", "Big Long Fourth Tab"]
+		var minTabWidth = 40;
+		var tabHeight = 35;
 		var tabPadding = 2;  // Padding around the tab text content.
 		var backingBorderHeight = 5;
 		
@@ -127,49 +132,58 @@ $(document).ready(function()
 			.attr("height", tabContainerHeight);
 		
 		// Create the tabs.
-		
-
-		// Create the text elements for the tabs.
-		var tabTextElements = [];
+		var currentTabX = 0;
+		var tabY = backingBorderStart - tabHeight;
 		for (var i = 0; i < tabText.length; i++)
 		{
 			var currentTabText = tabText[i];
-		}
-		var foreignObject = tabSet3.append("foreignObject")
-			.attr("width", 300)
-			.attr("height", 50)
-			.attr("x", 0)
-			.attr("y", 0)
-		var tabContent = foreignObject.append("xhtml:div")
-			.classed("tab-content", true)
-			.html("<span>OMG OMG OMG OMG................ pasdpapsd apsf paf pa sfpa pf apsf apsf paiwpfjapwfjp afj</span>");
-		foreignObject
-			.attr("width", $(tabContent.node()).width())
-			.attr("height", $(tabContent.node()).height())
-		console.log($(tabContent.node()).width(), $(tabContent.node()).height());
-		
-		// Create the tabs.
-		var currentTabX = 0;
-		var tabYTop = backingBorderStart - tabHeight;
-		var tabYBottom = backingBorderStart + backingBorderHeight;
-		var tabLocations = [];
-		for (var i = 0; i < tabText.length; i++)
-		{
-			var currentTabTextEle = tabTextElements[i];
-			var currentTabWidth = currentTabTextEle.getBBox().width;
-			console.log(currentTabWidth, currentTabTextEle.getComputedTextLength());
-			tabLocations.push({"x" : currentTabX + tabMargin, "y" : tabYTop, "width" : currentTabWidth});
+
+			// Create the container for the current tab.
+			var tabContainer = tabSet3.append("g")
+				.datum({"transX" : currentTabX + tabMargin, "transY" : tabY, "tabX" : 0, "tabY" : 0})
+				.attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; })
+				.classed("tab-container", true);
+			
+			// Create the current tab.
+			var currentTab = tabContainer.append("rect")
+				.attr("width", minTabWidth)
+				.attr("height", tabHeight)
+				.attr("x", function(d) { return d.tabX; })
+				.attr("y", function(d) { return d.tabY; })
+				.classed("tab", true);
+			
+			// Create the text for the current tab.
+			var foreignObject = tabContainer.append("foreignObject")
+				.attr("width", tabContainerWidth)
+				.attr("height", tabHeight - tabPadding)
+				.attr("x", 0)
+				.attr("y", 0)
+			var tabContent = foreignObject.append("xhtml:div")
+				.classed("tab-content", true)
+				.html("<span>" + currentTabText + "</span>");
+			
+			// Resize the tabs as needed.
+			var currentTabContent = $(tabContent.node());
+			var currentTabWidth = currentTabContent.width() + 1;  // + 1 to make text fit properly after resizing the foreign object div.
+			var currentTabHeight = currentTabContent.height();
+			foreignObject
+				.attr("x", tabPadding)
+				.attr("y", tabPadding)
+				.attr("width", currentTabWidth);
+			if (minTabWidth >= currentTabWidth + (2 * tabPadding))
+			{
+				// Minimum width is greater than or equal to the padded text size, so use the minimum tab size.
+				currentTabWidth = minTabWidth;
+			}
+			else
+			{
+				currentTabWidth += (2 * tabPadding);
+			}
+			currentTab.attr("width", currentTabWidth);
+
+			// Update the end position of the last tab.
 			currentTabX += (tabMargin + currentTabWidth + tabMargin);
 		}
-		var tabs = tabSet3.selectAll(".tab")
-			.data(tabLocations)
-			.enter()
-			.append("rect")
-			.attr("width", tabWidth)
-			.attr("height", tabHeight)
-			.attr("x", function(d) { return d.x; })
-			.attr("y", function(d) { return d.y; })
-			.classed("tab", true);
 		
 		// Add a border that the tabs will rest on.
 		tabSet3.append("rect")
@@ -180,34 +194,43 @@ $(document).ready(function()
 			.classed("backing", true);
 		
 		// Setup the behaviour of the tabs.
-		var selectedTabSet3 = tabSet3.select(".tab");
+		var tabs = tabSet3.selectAll(".tab-container");
+		tabs.on("mouseover", function() { d3.select(this).classed("hover", true); });
+		tabs.on("mouseout", function() { d3.select(this).classed("hover", false); });
+		var selectedTabSet3 = tabSet3.select(".tab-container").select(".tab");
 		selectedTabSet3
 			.classed("selected", true)
 			.transition()
 			.duration(100)
 			.ease("linear")
 			.attr("height", tabHeight + 2)
-			.attr("y", function(d) { return d.y - 2; });
+			.attr("y", function(d) { return d.tabY - 2; });
 		tabs.on("mousedown", function()
 			{
-				// Clear old selected tab information.
-				selectedTabSet3
-					.classed("selected", false)
-					.transition()
-					.duration(100)
-					.ease("linear")
-					.attr("height", tabHeight)
-					.attr("y", function(d) { return d.y; });
-				
-				// Record new selected tab information.
-				selectedTabSet3 = d3.select(this);
-				selectedTabSet3
-					.classed("selected", true)
-					.transition()
-					.duration(100)
-					.ease("linear")
-					.attr("height", tabHeight + 2)
-					.attr("y", function(d) { if (d.y < backingBorderStart) { return d.y - 2; } else { return d.y; }});
+				console.log(d3.event, d3.select(this).select(".tab").node());
+				if (d3.event.button == 0)
+				{
+					// Left click.
+					
+					// Clear old selected tab information.
+					selectedTabSet3
+						.classed("selected", false)
+						.transition()
+						.duration(100)
+						.ease("linear")
+						.attr("height", tabHeight)
+						.attr("y", function(d) { return d.tabY; });
+					
+					// Record new selected tab information.
+					selectedTabSet3 = d3.select(this).select(".tab");
+					selectedTabSet3
+						.classed("selected", true)
+						.transition()
+						.duration(100)
+						.ease("linear")
+						.attr("height", tabHeight + 2)
+						.attr("y", function(d) { return d.tabY - 2; });
+				}
 			});
 	}
 	
