@@ -207,7 +207,6 @@ $(document).ready(function()
 			.attr("y", function(d) { return d.tabY - 2; });
 		tabs.on("mousedown", function()
 			{
-				console.log(d3.event, d3.select(this).select(".tab").node());
 				if (d3.event.button == 0)
 				{
 					// Left click.
@@ -242,11 +241,76 @@ $(document).ready(function()
 		// Definitions.
 		var tabContainerWidth = 800;
 		var tabContainerHeight = 50;
+		var tabText = ["T1", "T 2", "Tab Three", "Big Long Fourth Tab"]
+		var minTabWidth = 40;
+		var maxTabWidth = 100;
+		var tabHeight = 35;
+		var tabPadding = 2;  // Padding around the tab text content.
 		var backingBorderHeight = 5;
 		
 		var tabSet4 = d3.select("#tab-set-4")  // The SVG element.
 			.attr("width", tabContainerWidth)
 			.attr("height", tabContainerHeight);
+		
+		// Create the tabs.
+		var currentTabX = 0;
+		var tabY = backingBorderStart - tabHeight;
+		for (var i = 0; i < tabText.length; i++)
+		{
+			var currentTabText = tabText[i];
+
+			// Create the container for the current tab.
+			var tabContainer = tabSet4.append("g")
+				.datum({"transX" : currentTabX + tabMargin, "transY" : tabY, "tabX" : 0, "tabY" : 0})
+				.attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; })
+				.classed("tab-container", true);
+			
+			// Create the current tab.
+			var currentTab = tabContainer.append("rect")
+				.attr("width", maxTabWidth)
+				.attr("height", tabHeight)
+				.attr("x", function(d) { return d.tabX; })
+				.attr("y", function(d) { return d.tabY; })
+				.classed("tab", true);
+			
+			// Create the text for the current tab.
+			var foreignObject = tabContainer.append("foreignObject")
+				.attr("width", maxTabWidth - (2 * tabPadding))
+				.attr("height", tabHeight - tabPadding)
+				.attr("x", 0)
+				.attr("y", 0)
+			var tabContent = foreignObject.append("xhtml:div")
+				.classed("tab-content", true)
+				.html("<span>" + currentTabText + "</span>");
+			
+			// Resize the tabs as needed.
+			var currentTabContent = $(tabContent.node());
+			var currentTabWidth = currentTabContent.width();
+			var currentTabHeight = currentTabContent.height();
+			if (minTabWidth >= currentTabWidth + (2 * tabPadding))
+			{
+				// Minimum width is greater than or equal to the padded text size, so use the minimum tab size.
+				currentTabWidth = minTabWidth;
+				currentTab.attr("width", minTabWidth);
+			}
+			else if (currentTabWidth + (2 * tabPadding) <= maxTabWidth - (2 * tabPadding))
+			{
+				currentTabWidth += (2 * tabPadding);
+				currentTab.attr("width", currentTabWidth);
+			}
+			else
+			{
+				currentTabWidth = maxTabWidth - (2 * tabPadding);
+				currentTab.attr("width", maxTabWidth);
+			}
+			foreignObject
+				.attr("x", tabPadding)
+				.attr("y", tabPadding)
+				.attr("width", currentTabWidth);
+
+			// Update the end position of the last tab.
+			currentTabX += (tabMargin + currentTabWidth + tabMargin);
+		}
 		
 		// Add a border that the tabs will rest on.
 		tabSet4.append("rect")
@@ -255,6 +319,45 @@ $(document).ready(function()
 			.attr("x", 0)
 			.attr("y", tabContainerHeight - backingBorderHeight)
 			.classed("backing", true);
+		
+		// Setup the behaviour of the tabs.
+		var tabs = tabSet4.selectAll(".tab-container");
+		tabs.on("mouseover", function() { d3.select(this).classed("hover", true); });
+		tabs.on("mouseout", function() { d3.select(this).classed("hover", false); });
+		var selectedTabSet4 = tabSet4.select(".tab-container").select(".tab");
+		selectedTabSet4
+			.classed("selected", true)
+			.transition()
+			.duration(100)
+			.ease("linear")
+			.attr("height", tabHeight + 2)
+			.attr("y", function(d) { return d.tabY - 2; });
+		tabs.on("mousedown", function()
+			{
+				if (d3.event.button == 0)
+				{
+					// Left click.
+					
+					// Clear old selected tab information.
+					selectedTabSet4
+						.classed("selected", false)
+						.transition()
+						.duration(100)
+						.ease("linear")
+						.attr("height", tabHeight)
+						.attr("y", function(d) { return d.tabY; });
+					
+					// Record new selected tab information.
+					selectedTabSet4 = d3.select(this).select(".tab");
+					selectedTabSet4
+						.classed("selected", true)
+						.transition()
+						.duration(100)
+						.ease("linear")
+						.attr("height", tabHeight + 2)
+						.attr("y", function(d) { return d.tabY - 2; });
+				}
+			});
 	}
 	
 	
