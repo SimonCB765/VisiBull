@@ -1,0 +1,72 @@
+.tab {cursor: default;}  /* No changing of the cursor when over tab content. */
+
+#tab-set-1 {display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center; align-content: space-around;
+position: relative;  /* To enable :after bottom border of tab container to be positioned absolutely. */
+}
+#tab-set-1:after {
+position: absolute;
+content: "";
+width: 100%;
+bottom: 0;  /* Place the bottom border of the container below the container (rather than starting at the top of the container). */
+left: 0;  /* Start the bottom border of the container on the left of the screen (rather than starting at the right of the container). */
+border-bottom: 1px solid black;
+z-index: 1;
+}  /* Using pseudo-element after allow us to put a bottom border on the tab container without affecting the position of the tabs themselves. */
+#tab-set-1 .tab {display: inline-flex; flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center; align-content: space-around;}
+#tab-set-1 .tab {
+background-color: orange;
+border: 1px solid black;
+color: black;
+margin: 0 10px;
+padding: 0 10px;
+text-align: center;
+position: relative;  /* To enable :after and :before rounded outside edges to be positioned absolutely. */
+border-top-left-radius: 6px;
+border-top-right-radius: 6px;
+}
+#tab-set-1 .tab:hover {background-color: red;}
+#tab-set-1 .tab.selected {
+background-color: #F8F8F8;
+border-bottom: none;
+z-index: 2;  /* To bring the tab out in front of the bottom border of the tab container. */
+}
+
+
+
+
+#tab-set-2 {background: black; border:1px solid black; display: block; margin: 0 auto;}
+#tab-set-2 .backing {fill: white; stroke-width: 0;}  /* Bottom backing border for the tab set. */
+#tab-set-2 .tab {fill: #707070 ; stroke-width: 0;}
+#tab-set-2 .tab:hover {fill: #A0A0A0; stroke-width: 0;}
+#tab-set-2 .tab.selected {fill: white; stroke-width: 0;}
+
+#tab-set-3 {background: black; border:1px solid black; display: block; margin: 0 auto;}
+#tab-set-3 .backing {fill: white; stroke-width: 0;}  /* Bottom backing border for the tab set. */
+#tab-set-3 .tab {fill: #707070 ; stroke-width: 0;}
+#tab-set-3 .tab:hover {fill: #A0A0A0; stroke-width: 0;}
+#tab-set-3 .tab.selected {fill: white; stroke-width: 0;}
+#tab-set-3 .tab-content {color: white; cursor: default;}
+
+#tab-set-4 {background: black; border:1px solid black; display: block; margin: 0 auto;}
+#tab-set-4 .backing {fill: white; stroke-width: 0;}  /* Bottom backing border for the tab set. */
+#tab-set-4 .tab {fill: #707070 ; stroke-width: 0;}
+#tab-set-4 .tab:hover {fill: #A0A0A0; stroke-width: 0;}
+#tab-set-4 .tab.selected {fill: white; stroke-width: 0;}
+
+#tab-set-5 {background: black; border:1px solid black; display: block; margin: 0 auto;}
+#tab-set-5 .backing {fill: white; stroke-width: 0;}  /* Bottom backing border for the tab set. */
+#tab-set-5 .tab {fill: #707070 ; stroke-width: 0;}
+#tab-set-5 .tab:hover {fill: #A0A0A0; stroke-width: 0;}
+#tab-set-5 .tab.selected {fill: white; stroke-width: 0;}
+
+#tab-set-6 {background: black; border:1px solid black; display: block; margin: 0 auto;}
+#tab-set-6 .backing {fill: white; stroke-width: 0;}  /* Bottom backing border for the tab set. */
+#tab-set-6 .tab {fill: #707070 ; stroke-width: 0;}
+#tab-set-6 .tab:hover {fill: #A0A0A0; stroke-width: 0;}
+#tab-set-6 .tab.selected {fill: white; stroke-width: 0;}
+
+#tab-set-7 {background: black; border:1px solid black; display: block; margin: 0 auto;}
+#tab-set-7 .backing {fill: white; stroke-width: 0;}  /* Bottom backing border for the tab set. */
+#tab-set-7 .tab {fill: #707070 ; stroke-width: 0;}
+#tab-set-7 .tab:hover {fill: #A0A0A0; stroke-width: 0;}
+#tab-set-7 .tab.selected {fill: white; stroke-width: 0;}
