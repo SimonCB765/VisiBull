@@ -164,7 +164,7 @@ $(document).ready(function()
 			
 			// Resize the tabs as needed.
 			var currentTabContent = $(tabContent.node());
-			var currentTabWidth = currentTabContent.width() + 1;  // + 1 to make text fit properly after resizing the foreign object div.
+			var currentTabWidth = currentTabContent.width();  // Would need to increment the width by something like 1 in order to prevent wrapping, unless nowrap is specified in CSS.
 			var currentTabHeight = currentTabContent.height();
 			foreignObject
 				.attr("x", tabPadding)
