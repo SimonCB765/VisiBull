@@ -53,8 +53,6 @@ $(document).ready(function()
 		}
 		// Center aligned tabs going down.
 		var numberOfTabsLeftOfCenter = numberOfTabs / 2;
-		console.log(numberOfTabsLeftOfCenter, tabWidth, tabMargin);
-		console.log((numberOfTabsLeftOfCenter * tabWidth), (Math.floor(numberOfTabsLeftOfCenter) * tabMargin));
 		var currentTabX = (tabContainerWidth / 2) - (numberOfTabsLeftOfCenter * tabWidth) - (Math.floor(numberOfTabsLeftOfCenter) * tabMargin);
 		for (var i = 0; i < numberOfTabs; i++)
 		{
@@ -118,7 +116,7 @@ $(document).ready(function()
 		var tabContainerWidth = 800;
 		var tabContainerHeight = 50;
 		var tabText = ["T1", "T 2", "Tab Three", "Big Long Fourth Tab"]
-		var minTabWidth = 40;
+		var minTabWidth = 50;
 		var tabHeight = 35;
 		var tabPadding = 2;  // Padding around the tab text content.
 		var backingBorderHeight = 5;
@@ -129,23 +127,20 @@ $(document).ready(function()
 		
 		// Create the tabs.
 		var currentTabX = 0;
-		var tabY = backingBorderStart - tabHeight;
+		var tabYBottom = tabContainerHeight - backingBorderHeight
+		var tabYTop = tabYBottom - tabHeight;
 		for (var i = 0; i < tabText.length; i++)
 		{
 			var currentTabText = tabText[i];
-
 			// Create the container for the current tab.
 			var tabContainer = tabSet3.append("g")
-				.datum({"transX" : currentTabX + tabMargin, "transY" : tabY, "tabX" : 0, "tabY" : 0})
+				.datum({"transX" : currentTabX + tabMargin, "transY" : tabYTop, "x" : 0, "y" : tabHeight, "tabWidth" : minTabWidth, "tabHeight" : tabHeight, "direction" : "up"})
 				.attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; })
 				.classed("tab-container", true);
 			
 			// Create the current tab.
-			var currentTab = tabContainer.append("rect")
-				.attr("width", minTabWidth)
-				.attr("height", tabHeight)
-				.attr("x", function(d) { return d.tabX; })
-				.attr("y", function(d) { return d.tabY; })
+			var currentTab = tabContainer.append("path")
+				.attr("d", function(d) { return top_rounded_rect_tab(d, d.tabWidth, d.tabHeight, {"direction" : d.direction}); })
 				.classed("tab", true);
 			
 			// Create the text for the current tab.
@@ -175,7 +170,8 @@ $(document).ready(function()
 			{
 				currentTabWidth += (2 * tabPadding);
 			}
-			currentTab.attr("width", currentTabWidth);
+			currentTab.attr("d", function(d) { d.tabWidth = currentTabWidth; return top_rounded_rect_tab(d, d.tabWidth, d.tabHeight, {"direction" : d.direction}); });
+				//.attr("width", currentTabWidth);
 
 			// Update the end position of the last tab.
 			currentTabX += (tabMargin + currentTabWidth + tabMargin);
@@ -199,8 +195,7 @@ $(document).ready(function()
 			.transition()
 			.duration(100)
 			.ease("linear")
-			.attr("height", tabHeight + 2)
-			.attr("y", function(d) { return d.tabY - 2; });
+			.attr("d", function(d) { return top_rounded_rect_tab(d, d.tabWidth, d.tabHeight + 3, {"direction" : d.direction}); });
 		tabs.on("mousedown", function()
 			{
 				if (d3.event.button == 0)
@@ -213,8 +208,7 @@ $(document).ready(function()
 						.transition()
 						.duration(100)
 						.ease("linear")
-						.attr("height", tabHeight)
-						.attr("y", function(d) { return d.tabY; });
+						.attr("d", function(d) { return top_rounded_rect_tab(d, d.tabWidth, d.tabHeight, {"direction" : d.direction}); });
 					
 					// Record new selected tab information.
 					selectedTabSet3 = d3.select(this).select(".tab");
@@ -223,8 +217,7 @@ $(document).ready(function()
 						.transition()
 						.duration(100)
 						.ease("linear")
-						.attr("height", tabHeight + 2)
-						.attr("y", function(d) { return d.tabY - 2; });
+						.attr("d", function(d) { return top_rounded_rect_tab(d, d.tabWidth, d.tabHeight + 3, {"direction" : d.direction}); });
 				}
 			});
 	}
