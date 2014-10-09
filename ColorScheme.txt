@@ -1,0 +1,16 @@
+Non-page Specific Colors
+	Standard Background - #F8F8F8 (off white)
+	Standard Text Color - #222222 (soft black)
+	Heading Dates       - #0099FF (lightish blue)
+	Links               - #FF0066 (darkish pink)
+
+Color Palette For Visualisations etc.
+	Black           - #000000
+	Blue (Sky)		- #00FFFF
+	Green			- #00FF00
+	Grey            - #585858
+	Orange          - #FFAF1A
+	Pink            - #FF008C
+	Purple          - #AE2DE3
+	White           - #FFFFFF
+	Yellow			- #FFFF00
