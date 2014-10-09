@@ -367,12 +367,34 @@ $(document).ready(function()
 	{
 		// Definitions.
 		var tabContainerWidth = 800;
-		var tabContainerHeight = 50;
+		var tabContainerHeight = 500;
 		var backingBorderHeight = 5;
 		
 		var tabSet5 = d3.select("#tab-set-5")  // The SVG element.
 			.attr("width", tabContainerWidth)
 			.attr("height", tabContainerHeight);
+		
+		// Create the tabs.
+		tabSet5.append("path")
+			.attr("d", top_rounded_rect({"x" : 100, "y" : 80}, 160, 40, 80, 12.5, "up"))
+			.style("fill", "none")
+			.style("stroke", "white")
+			.style("stroke-width", 2);
+		tabSet5.append("path")
+			.attr("d", top_rounded_rect({"x" : 260, "y" : 80}, 160, 40, 80, 12.5, "right"))
+			.style("fill", "none")
+			.style("stroke", "white")
+			.style("stroke-width", 2);
+		tabSet5.append("path")
+			.attr("d", top_rounded_rect({"x" : 260, "y" : 240}, 160, 40, 80, 12.5, "down"))
+			.style("fill", "none")
+			.style("stroke", "white")
+			.style("stroke-width", 2);
+		tabSet5.append("path")
+			.attr("d", top_rounded_rect({"x" : 100, "y" : 240}, 160, 40, 80, 12.5, "left"))
+			.style("fill", "none")
+			.style("stroke", "white")
+			.style("stroke-width", 2);
 		
 		// Add a border that the tabs will rest on.
 		tabSet5.append("rect")
@@ -430,24 +452,73 @@ $(document).ready(function()
 	}
 
 
-	/******************
-	* Useful Snippets *
-	******************/
-	
-	// Adding a foreign element with a max width, and then wrapping its bounding foreign element to the width of the text.
-	/*
-		var foreignObject = tabSet3.append("foreignObject")
-			.attr("width", 300)
-			.attr("height", 50)
-			.attr("x", 0)
-			.attr("y", 0)
-		var tabContent = foreignObject.append("xhtml:div")
-			.classed("tab-content", true)
-			.html("<span>OMG OMG OMG OMG................ pasdpapsd apsf paf pa sfpa pf apsf apsf paiwpfjapwfjp afj</span>");
-		foreignObject
-			.attr("width", $(tabContent.node()).width())
-			.attr("height", $(tabContent.node()).height())
-		console.log($(tabContent.node()).width(), $(tabContent.node()).height());
-	*/
+	/*******************
+	* Helper Functions *
+	*******************/
+	function top_rounded_rect(initialPoint, width, height, radiusX, radiusY, direction)
+	{
+		// initialPoint - initialPoint.x x coord of initial coord initialPoint.y is y coord of it
+		// width - width of the tab, height - height of the tab
+		// radiusX - x direction radius for corner arcs
+		// radiusY - y direction radius for corner arcs
+		
+		// Determine initial coordinates.
+		var initialX = typeof initialPoint.x !== undefined ? initialPoint.x : 0;
+		var initialY = typeof initialPoint.y !== undefined ? initialPoint.y : 0;
+
+		// Determine the width and height of the tab to be created.
+		width = typeof width !== 'undefined' ? width : 160;
+		height = typeof height !== 'undefined' ? height : (width / 4);
+
+		// Determine the width and height of the tab to be created.
+		radiusX = typeof radiusX !== 'undefined' ? radiusX : (width / 2);
+		radiusY = typeof radiusY !== 'undefined' ? radiusY : (height / 4);
+		
+		// Determine the direction that the tab should go.
+		direction = typeof direction !== 'undefined' ? direction : "up";
+		direction = (direction === "up") || (direction === "right") || (direction === "down") || (direction === "left") ? direction : "up";
+
+		// Create path.
+		var path = "M" + initialX + "," + initialY;
+		switch(direction)
+		{
+			case "up":
+				// Up is the same as a messed up direction.
+			default:
+				path += "v" + (radiusY - height) +
+						"a" + radiusX + "," + radiusY + " 0 0 1 " + radiusX + "," + -radiusY +
+						"h" + (width - (2 * radiusX)) +
+						"a" + radiusX + "," + radiusY + " 0 0 1 " + radiusX + "," + radiusY +
+						"v" + (height - radiusY) +
+						"z";
+				break;
+			case "right":
+				path += "h" + (height - radiusY) +
+						"a" + radiusY + "," + radiusX + " 0 0 1 " + radiusY + "," + radiusX +
+						"v" + (width - (2 * radiusX)) +
+						"a" + radiusY + "," + radiusX + " 0 0 1 " + -radiusY + "," + radiusX +
+						"h" + (radiusY - height) +
+						"z";
+				break;
+			case "down":
+				path += "v" + (height - radiusY) +
+						"a" + radiusX + "," + radiusY + " 0 0 1 " + -radiusX + "," + radiusY +
+						"h" + ((2 * radiusX) - width) +
+						"a" + radiusX + "," + radiusY + " 0 0 1 " + -radiusX + "," + -radiusY +
+						"v" + (radiusY - height) +
+						"z";
+				break;
+			case "left":
+				path += "h" + (radiusY - height) +
+						"a" + radiusY + "," + radiusX + " 0 0 1 " + -radiusY + "," + -radiusX +
+						"v" + ((2 * radiusX) - width) +
+						"a" + radiusY + "," + radiusX + " 0 0 1 " + radiusY + "," + -radiusX +
+						"h" + (height - radiusY) +
+						"z";
+				break;
+		}
+		return path;
+	  return 
+	}
 
 });
