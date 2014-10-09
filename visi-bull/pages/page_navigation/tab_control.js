@@ -12,6 +12,9 @@ $(document).ready(function()
 			selectedTabSet1 = $(this);
 			selectedTabSet1.addClass("selected");
 		});
+	
+	
+	var tabText = ["A", "A B", "A B C", "A B C D", "A B C D E", "A B C D E F", "A B C D E F G", "A B C D E F G H", "A B C D E F G H I"]
 
 
 
@@ -122,7 +125,6 @@ $(document).ready(function()
 		// Definitions.
 		var tabContainerWidth = 800;
 		var tabContainerHeight = 50;
-		var tabText = ["T1", "T 2", "Tab Three", "Big Long Fourth Tab"]
 		var minTabWidth = 50;
 		var tabHeight = 35;
 		var tabPadding = 2;  // Padding around the tab text content.
@@ -236,9 +238,8 @@ $(document).ready(function()
 		// Definitions.
 		var tabContainerWidth = 800;
 		var tabContainerHeight = 50;
-		var tabText = ["T1", "T 2", "Tab Three", "Big Long Fourth Tab"]
 		var minTabWidth = 40;
-		var maxTabWidth = 100;
+		var maxTabWidth = 90;
 		var tabHeight = 35;
 		var tabPadding = 2;  // Padding around the tab text content.
 		var backingBorderHeight = 5;
@@ -256,16 +257,13 @@ $(document).ready(function()
 
 			// Create the container for the current tab.
 			var tabContainer = tabSet4.append("g")
-				.datum({"transX" : currentTabX + tabMargin, "transY" : tabY, "tabX" : 0, "tabY" : 0})
+				.datum({"transX" : currentTabX + tabMargin, "transY" : tabYTop, "x" : 0, "y" : tabHeight, "width" : minTabWidth, "height" : tabHeight, "direction" : "up"})
 				.attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; })
 				.classed("tab-container", true);
 			
 			// Create the current tab.
-			var currentTab = tabContainer.append("rect")
-				.attr("width", maxTabWidth)
-				.attr("height", tabHeight)
-				.attr("x", function(d) { return d.tabX; })
-				.attr("y", function(d) { return d.tabY; })
+			var currentTab = tabContainer.append("path")
+				.attr("d", function(d) { return top_rounded_rect_tab(d); })
 				.classed("tab", true);
 			
 			// Create the text for the current tab.
@@ -291,12 +289,12 @@ $(document).ready(function()
 			else if (currentTabWidth + (2 * tabPadding) <= maxTabWidth - (2 * tabPadding))
 			{
 				currentTabWidth += (2 * tabPadding);
-				currentTab.attr("width", currentTabWidth);
+				currentTab.attr("d", function(d) { d.width = currentTabWidth; return top_rounded_rect_tab(d); });
 			}
 			else
 			{
 				currentTabWidth = maxTabWidth - (2 * tabPadding);
-				currentTab.attr("width", maxTabWidth);
+				currentTab.attr("d", function(d) { d.width = maxTabWidth; return top_rounded_rect_tab(d); });
 			}
 			foreignObject
 				.attr("x", tabPadding)
@@ -325,8 +323,7 @@ $(document).ready(function()
 			.transition()
 			.duration(100)
 			.ease("linear")
-			.attr("height", tabHeight + 2)
-			.attr("y", function(d) { return d.tabY - 2; });
+			.attr("d", function(d) { return top_rounded_rect_tab(d, {"height" : 3}); });
 		tabs.on("mousedown", function()
 			{
 				if (d3.event.button == 0)
@@ -339,8 +336,7 @@ $(document).ready(function()
 						.transition()
 						.duration(100)
 						.ease("linear")
-						.attr("height", tabHeight)
-						.attr("y", function(d) { return d.tabY; });
+						.attr("d", function(d) { return top_rounded_rect_tab(d); });
 					
 					// Record new selected tab information.
 					selectedTabSet4 = d3.select(this).select(".tab");
@@ -349,8 +345,7 @@ $(document).ready(function()
 						.transition()
 						.duration(100)
 						.ease("linear")
-						.attr("height", tabHeight + 2)
-						.attr("y", function(d) { return d.tabY - 2; });
+						.attr("d", function(d) { return top_rounded_rect_tab(d, {"height" : 3}); });
 				}
 			});
 	}
@@ -379,52 +374,6 @@ $(document).ready(function()
 	}
 	
 	
-	/*******************
-	* Create Tab Set 6 *
-	*******************/
-	{
-		// Definitions.
-		var tabContainerWidth = 800;
-		var tabContainerHeight = 50;
-		var backingBorderHeight = 5;
-		
-		var tabSet6 = d3.select("#tab-set-6")  // The SVG element.
-			.attr("width", tabContainerWidth)
-			.attr("height", tabContainerHeight);
-		
-		// Add a border that the tabs will rest on.
-		tabSet6.append("rect")
-			.attr("width", tabContainerWidth)
-			.attr("height", backingBorderHeight)
-			.attr("x", 0)
-			.attr("y", tabContainerHeight - backingBorderHeight)
-			.classed("backing", true);
-	}
-	
-	
-	/*******************
-	* Create Tab Set 7 *
-	*******************/
-	{
-		// Definitions.
-		var tabContainerWidth = 800;
-		var tabContainerHeight = 50;
-		var backingBorderHeight = 5;
-		
-		var tabSet7 = d3.select("#tab-set-7")  // The SVG element.
-			.attr("width", tabContainerWidth)
-			.attr("height", tabContainerHeight);
-		
-		// Add a border that the tabs will rest on.
-		tabSet7.append("rect")
-			.attr("width", tabContainerWidth)
-			.attr("height", backingBorderHeight)
-			.attr("x", 0)
-			.attr("y", tabContainerHeight - backingBorderHeight)
-			.classed("backing", true);
-	}
-
-
 	/*******************
 	* Helper Functions *
 	*******************/
