@@ -8,6 +8,7 @@ Color Palette For Visualisations etc.
 	Black           - #000000
 	Blue (Sky)		- #00FFFF
 	Green			- #00FF00
+	Green (Seafoam)	- #00FF7B
 	Grey            - #585858
 	Orange          - #FFAF1A
 	Pink            - #FF008C
