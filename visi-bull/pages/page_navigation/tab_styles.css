@@ -40,6 +40,7 @@ z-index: 2;  /* To bring the tab out in front of the bottom border of the tab co
 #tab-set-2 .tab-container {cursor: default; white-space: nowrap;}
 #tab-set-2 .tab-container.hover .tab {}
 #tab-set-2 .tab-container .tab.selected {fill: white; stroke: white; stroke-width: 2;}
+#tab-set-2 .tab-content {}
 
 #tab-set-3 {background: black; border:1px solid black; display: block; margin: 0 auto;}
 #tab-set-3 .backing {fill: white; stroke-width: 0;}  /* Bottom backing border for the tab set. */
@@ -52,25 +53,39 @@ z-index: 2;  /* To bring the tab out in front of the bottom border of the tab co
 #tab-set-4 {background: black; border:1px solid black; display: block; margin: 0 auto;}
 #tab-set-4 .backing {fill: white; stroke-width: 0;}  /* Bottom backing border for the tab set. */
 #tab-set-4 .tab {fill: #707070 ; stroke-width: 0;}
-#tab-set-4 .tab-container {color: orange; cursor: default; text-overflow: hidden; white-space: nowrap;}
+#tab-set-4 .tab-container {color: orange; cursor: default;}
 #tab-set-4 .tab-container.hover .tab {fill: #A0A0A0; stroke-width: 0;}
 #tab-set-4 .tab-container .tab.selected {fill: white; stroke-width: 0;}
-#tab-set-4 .tab-content {display: inline-block;}
+#tab-set-4 .tab-content {display: inline-block; overflow: hidden; white-space: nowrap;}
 
 #tab-set-5 {background: black; border:1px solid black; display: block; margin: 0 auto;}
 #tab-set-5 .backing {fill: white; stroke-width: 0;}  /* Bottom backing border for the tab set. */
 #tab-set-5 .tab {fill: #707070 ; stroke-width: 0;}
-#tab-set-5 .tab:hover {fill: #A0A0A0; stroke-width: 0;}
-#tab-set-5 .tab.selected {fill: white; stroke-width: 0;}
+#tab-set-5 .tab-container {color: orange; cursor: default;}
+#tab-set-5 .tab-container.hover .tab {fill: #A0A0A0; stroke-width: 0;}
+#tab-set-5 .tab-container .tab.selected {fill: white; stroke-width: 0;}
+#tab-set-5 .tab-content {display: inline-block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
 
 #tab-set-6 {background: black; border:1px solid black; display: block; margin: 0 auto;}
 #tab-set-6 .backing {fill: white; stroke-width: 0;}  /* Bottom backing border for the tab set. */
 #tab-set-6 .tab {fill: #707070 ; stroke-width: 0;}
-#tab-set-6 .tab:hover {fill: #A0A0A0; stroke-width: 0;}
-#tab-set-6 .tab.selected {fill: white; stroke-width: 0;}
+#tab-set-6 .tab-container {color: orange; cursor: default;}
+#tab-set-6 .tab-container.hover .tab {fill: #A0A0A0; stroke-width: 0;}
+#tab-set-6 .tab-container .tab.selected {fill: white; stroke-width: 0;}
+#tab-set-6 .tab-content {display: inline-block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
 
-#tab-set-7 {background: black; border:1px solid black; display: block; margin: 0 auto;}
-#tab-set-7 .backing {fill: white; stroke-width: 0;}  /* Bottom backing border for the tab set. */
-#tab-set-7 .tab {fill: #707070 ; stroke-width: 0;}
-#tab-set-7 .tab:hover {fill: #A0A0A0; stroke-width: 0;}
-#tab-set-7 .tab.selected {fill: white; stroke-width: 0;}
+/*
+#tab-set-6 .tab-content {
+position: relative;
+}
+#tab-set-6 .tab-content:before {
+content: "....";
+position: absolute;
+left: 0;
+top: 0;
+color: red;
+height: 100%;
+width: 20px;
+background-image: linear-gradient(to right, rgba(112,112,112,0) , rgba(112,112,112,1));
+}
+*/

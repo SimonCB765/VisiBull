@@ -358,11 +358,73 @@ $(document).ready(function()
 		// Definitions.
 		var tabContainerWidth = 800;
 		var tabContainerHeight = 50;
+		var minTabWidth = 40;
+		var maxTabWidth = 90;
+		var tabHeight = 35;
+		var tabPadding = 2;  // Padding around the tab text content.
 		var backingBorderHeight = 5;
 		
 		var tabSet5 = d3.select("#tab-set-5")  // The SVG element.
 			.attr("width", tabContainerWidth)
 			.attr("height", tabContainerHeight);
+		
+		// Create the tabs.
+		var currentTabX = 0;
+		var tabY = backingBorderStart - tabHeight;
+		for (var i = 0; i < tabText.length; i++)
+		{
+			var currentTabText = tabText[i];
+
+			// Create the container for the current tab.
+			var tabContainer = tabSet5.append("g")
+				.datum({"transX" : currentTabX + tabMargin, "transY" : tabYTop, "x" : 0, "y" : tabHeight, "width" : minTabWidth, "height" : tabHeight, "direction" : "up"})
+				.attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; })
+				.classed("tab-container", true);
+			
+			// Create the current tab.
+			var currentTab = tabContainer.append("path")
+				.attr("d", function(d) { return top_rounded_rect_tab(d); })
+				.classed("tab", true);
+			
+			// Create the text for the current tab.
+			var foreignObject = tabContainer.append("foreignObject")
+				.attr("width", maxTabWidth - (2 * tabPadding))
+				.attr("height", tabHeight - tabPadding)
+				.attr("x", 0)
+				.attr("y", 0);
+			var tabContent = foreignObject.append("xhtml:div")
+				.classed("tab-content", true)
+				.html("<span>" + currentTabText + "</span>");
+			
+			// Resize the tabs as needed.
+			var currentTabContent = $(tabContent.node());
+			var currentTabWidth = currentTabContent.width();
+			var currentTabHeight = currentTabContent.height();
+			if (minTabWidth >= currentTabWidth + (2 * tabPadding))
+			{
+				// Minimum width is greater than or equal to the padded text size, so use the minimum tab size.
+				currentTabWidth = minTabWidth;
+				currentTab.attr("width", minTabWidth);
+			}
+			else if ((currentTabWidth + (2 * tabPadding)) <= (maxTabWidth - (2 * tabPadding)))
+			{
+				currentTabWidth += (2 * tabPadding);
+				currentTab.attr("d", function(d) { d.width = currentTabWidth; return top_rounded_rect_tab(d); });
+			}
+			else
+			{
+				currentTabWidth = maxTabWidth - (2 * tabPadding);
+				currentTab.attr("d", function(d) { d.width = maxTabWidth; return top_rounded_rect_tab(d); });
+			}
+			foreignObject
+				.attr("x", tabPadding)
+				.attr("y", tabPadding)
+				.attr("width", currentTabWidth);
+			tabContent.style("width", currentTabWidth + "px")  // Resize the div containing the content to enable fading or ellipsis.
+
+			// Update the end position of the last tab.
+			currentTabX += (tabMargin + currentTabWidth + tabMargin);
+		}
 		
 		// Add a border that the tabs will rest on.
 		tabSet5.append("rect")
@@ -371,6 +433,165 @@ $(document).ready(function()
 			.attr("x", 0)
 			.attr("y", tabContainerHeight - backingBorderHeight)
 			.classed("backing", true);
+		
+		// Setup the behaviour of the tabs.
+		var tabs = tabSet5.selectAll(".tab-container");
+		tabs.on("mouseover", function() { d3.select(this).classed("hover", true); });
+		tabs.on("mouseout", function() { d3.select(this).classed("hover", false); });
+		var selectedTabSet5 = tabSet5.select(".tab-container").select(".tab");
+		selectedTabSet5
+			.classed("selected", true)
+			.transition()
+			.duration(100)
+			.ease("linear")
+			.attr("d", function(d) { return top_rounded_rect_tab(d, {"height" : 3}); });
+		tabs.on("mousedown", function()
+			{
+				if (d3.event.button == 0)
+				{
+					// Left click.
+					
+					// Clear old selected tab information.
+					selectedTabSet5
+						.classed("selected", false)
+						.transition()
+						.duration(100)
+						.ease("linear")
+						.attr("d", function(d) { return top_rounded_rect_tab(d); });
+					
+					// Record new selected tab information.
+					selectedTabSet5 = d3.select(this).select(".tab");
+					selectedTabSet5
+						.classed("selected", true)
+						.transition()
+						.duration(100)
+						.ease("linear")
+						.attr("d", function(d) { return top_rounded_rect_tab(d, {"height" : 3}); });
+				}
+			});
+	}
+	
+	
+	
+	
+	/*******************
+	* Create Tab Set 6 *
+	*******************/
+	{
+		// Definitions.
+		var tabContainerWidth = 800;
+		var tabContainerHeight = 50;
+		var minTabWidth = 40;
+		var maxTabWidth = 90;
+		var tabHeight = 35;
+		var tabPadding = 2;  // Padding around the tab text content.
+		var backingBorderHeight = 5;
+		
+		var tabSet6 = d3.select("#tab-set-6")  // The SVG element.
+			.attr("width", tabContainerWidth)
+			.attr("height", tabContainerHeight);
+		
+		// Create the tabs.
+		var currentTabX = 0;
+		var tabY = backingBorderStart - tabHeight;
+		for (var i = 0; i < tabText.length; i++)
+		{
+			var currentTabText = tabText[i];
+
+			// Create the container for the current tab.
+			var tabContainer = tabSet6.append("g")
+				.datum({"transX" : currentTabX + tabMargin, "transY" : tabYTop, "x" : 0, "y" : tabHeight, "width" : minTabWidth, "height" : tabHeight, "direction" : "up"})
+				.attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; })
+				.classed("tab-container", true);
+			
+			// Create the current tab.
+			var currentTab = tabContainer.append("path")
+				.attr("d", function(d) { return top_rounded_rect_tab(d); })
+				.classed("tab", true);
+			
+			// Create the text for the current tab.
+			var foreignObject = tabContainer.append("foreignObject")
+				.attr("width", maxTabWidth - (2 * tabPadding))
+				.attr("height", tabHeight - tabPadding)
+				.attr("x", 0)
+				.attr("y", 0);
+			var tabContent = foreignObject.append("xhtml:div")
+				.classed("tab-content", true)
+				.html("<span>" + currentTabText + "</span>");
+			
+			// Resize the tabs as needed.
+			var currentTabContent = $(tabContent.node());
+			var currentTabWidth = currentTabContent.width();
+			var currentTabHeight = currentTabContent.height();
+			if (minTabWidth >= currentTabWidth + (2 * tabPadding))
+			{
+				// Minimum width is greater than or equal to the padded text size, so use the minimum tab size.
+				currentTabWidth = minTabWidth;
+				currentTab.attr("width", minTabWidth);
+			}
+			else if ((currentTabWidth + (2 * tabPadding)) <= (maxTabWidth - (2 * tabPadding)))
+			{
+				currentTabWidth += (2 * tabPadding);
+				currentTab.attr("d", function(d) { d.width = currentTabWidth; return top_rounded_rect_tab(d); });
+			}
+			else
+			{
+				currentTabWidth = maxTabWidth - (2 * tabPadding);
+				currentTab.attr("d", function(d) { d.width = maxTabWidth; return top_rounded_rect_tab(d); });
+			}
+			foreignObject
+				.attr("x", tabPadding)
+				.attr("y", tabPadding)
+				.attr("width", currentTabWidth);
+			tabContent.style("width", currentTabWidth + "px")  // Resize the div containing the content to enable fading or ellipsis.
+
+			// Update the end position of the last tab.
+			currentTabX += (tabMargin + currentTabWidth + tabMargin);
+		}
+		
+		// Add a border that the tabs will rest on.
+		tabSet6.append("rect")
+			.attr("width", tabContainerWidth)
+			.attr("height", backingBorderHeight)
+			.attr("x", 0)
+			.attr("y", tabContainerHeight - backingBorderHeight)
+			.classed("backing", true);
+		
+		// Setup the behaviour of the tabs.
+		var tabs = tabSet6.selectAll(".tab-container");
+		tabs.on("mouseover", function() { d3.select(this).classed("hover", true); });
+		tabs.on("mouseout", function() { d3.select(this).classed("hover", false); });
+		var selectedTabSet6 = tabSet6.select(".tab-container").select(".tab");
+		selectedTabSet6
+			.classed("selected", true)
+			.transition()
+			.duration(100)
+			.ease("linear")
+			.attr("d", function(d) { return top_rounded_rect_tab(d, {"height" : 3}); });
+		tabs.on("mousedown", function()
+			{
+				if (d3.event.button == 0)
+				{
+					// Left click.
+					
+					// Clear old selected tab information.
+					selectedTabSet6
+						.classed("selected", false)
+						.transition()
+						.duration(100)
+						.ease("linear")
+						.attr("d", function(d) { return top_rounded_rect_tab(d); });
+					
+					// Record new selected tab information.
+					selectedTabSet6 = d3.select(this).select(".tab");
+					selectedTabSet6
+						.classed("selected", true)
+						.transition()
+						.duration(100)
+						.ease("linear")
+						.attr("d", function(d) { return top_rounded_rect_tab(d, {"height" : 3}); });
+				}
+			});
 	}
 	
 	
