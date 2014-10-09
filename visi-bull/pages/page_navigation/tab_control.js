@@ -41,14 +41,14 @@ $(document).ready(function()
 		// Left aligned tabs going upwards.
 		for (var i = 0; i < numberOfTabs; i++)
 		{
-			tabLocations.push({"x" : currentTabX + tabMargin, "y" : tabYTop, "tabWidth" : tabWidth, "tabHeight" : tabHeightSet2, "direction" : "up"});
+			tabLocations.push({"x" : currentTabX + tabMargin, "y" : tabYTop, "width" : tabWidth, "height" : tabHeightSet2, "direction" : "up"});
 			currentTabX += (tabMargin + tabWidth + tabMargin);
 		}
 		// Right aligned tabs going upwards.
 		var currentTabX = tabContainerWidth;
 		for (var i = 0; i < numberOfTabs; i++)
 		{
-			tabLocations.push({"x" : currentTabX - tabMargin - tabWidth, "y" : tabYTop, "tabWidth" : tabWidth, "tabHeight" : tabHeightSet2, "direction" : "up"});
+			tabLocations.push({"x" : currentTabX - tabMargin - tabWidth, "y" : tabYTop, "width" : tabWidth, "height" : tabHeightSet2, "direction" : "up"});
 			currentTabX -= (tabMargin + tabWidth + tabMargin);
 		}
 		// Center aligned tabs going down.
@@ -56,14 +56,14 @@ $(document).ready(function()
 		var currentTabX = (tabContainerWidth / 2) - (numberOfTabsLeftOfCenter * tabWidth) - (Math.floor(numberOfTabsLeftOfCenter) * tabMargin);
 		for (var i = 0; i < numberOfTabs; i++)
 		{
-			tabLocations.push({"x" : currentTabX, "y" : tabYBottom, "tabWidth" : tabWidth, "tabHeight" : tabHeightSet2, "direction" : "down"});
+			tabLocations.push({"x" : currentTabX, "y" : tabYBottom, "width" : tabWidth, "height" : tabHeightSet2, "direction" : "down"});
 			currentTabX += (tabMargin + tabWidth + tabMargin);
 		}
 		var tabs = tabSet2.selectAll(".tab")
 			.data(tabLocations)
 			.enter()
 			.append("path")
-			.attr("d", function(d) { return top_rounded_rect_tab(d, d.tabWidth, d.tabHeight, {"direction" : d.direction}); })
+			.attr("d", function(d) { return top_rounded_rect_tab(d); })
 			.classed("tab", true);
 		
 		// Add a border that the tabs will rest on.
@@ -81,7 +81,7 @@ $(document).ready(function()
 			.transition()
 			.duration(100)
 			.ease("linear")
-			.attr("d", function(d) { return top_rounded_rect_tab(d, d.tabWidth, d.tabHeight + 3, {"direction" : d.direction}); });
+			.attr("d", function(d) { return top_rounded_rect_tab(d, {"height" : 3}); });
 		tabs.on("mousedown", function()
 			{
 				if (d3.event.button == 0)
@@ -93,7 +93,7 @@ $(document).ready(function()
 						.transition()
 						.duration(100)
 						.ease("linear")
-						.attr("d", function(d) { return top_rounded_rect_tab(d, d.tabWidth, d.tabHeight, {"direction" : d.direction}); });
+						.attr("d", function(d) { return top_rounded_rect_tab(d); });
 					
 					// Record new selected tab information.
 					selectedTabSet2 = d3.select(this);
@@ -102,7 +102,7 @@ $(document).ready(function()
 						.transition()
 						.duration(100)
 						.ease("linear")
-						.attr("d", function(d) { return top_rounded_rect_tab(d, d.tabWidth, d.tabHeight + 3, {"direction" : d.direction}); });
+						.attr("d", function(d) { return top_rounded_rect_tab(d, {"height" : 3}); });
 				}
 			});
 	}
@@ -134,13 +134,13 @@ $(document).ready(function()
 			var currentTabText = tabText[i];
 			// Create the container for the current tab.
 			var tabContainer = tabSet3.append("g")
-				.datum({"transX" : currentTabX + tabMargin, "transY" : tabYTop, "x" : 0, "y" : tabHeight, "tabWidth" : minTabWidth, "tabHeight" : tabHeight, "direction" : "up"})
+				.datum({"transX" : currentTabX + tabMargin, "transY" : tabYTop, "x" : 0, "y" : tabHeight, "width" : minTabWidth, "height" : tabHeight, "direction" : "up"})
 				.attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; })
 				.classed("tab-container", true);
 			
 			// Create the current tab.
 			var currentTab = tabContainer.append("path")
-				.attr("d", function(d) { return top_rounded_rect_tab(d, d.tabWidth, d.tabHeight, {"direction" : d.direction}); })
+				.attr("d", function(d) { return top_rounded_rect_tab(d); })
 				.classed("tab", true);
 			
 			// Create the text for the current tab.
@@ -170,8 +170,7 @@ $(document).ready(function()
 			{
 				currentTabWidth += (2 * tabPadding);
 			}
-			currentTab.attr("d", function(d) { d.tabWidth = currentTabWidth; return top_rounded_rect_tab(d, d.tabWidth, d.tabHeight, {"direction" : d.direction}); });
-				//.attr("width", currentTabWidth);
+			currentTab.attr("d", function(d) { d.width = currentTabWidth; return top_rounded_rect_tab(d); });
 
 			// Update the end position of the last tab.
 			currentTabX += (tabMargin + currentTabWidth + tabMargin);
@@ -195,7 +194,7 @@ $(document).ready(function()
 			.transition()
 			.duration(100)
 			.ease("linear")
-			.attr("d", function(d) { return top_rounded_rect_tab(d, d.tabWidth, d.tabHeight + 3, {"direction" : d.direction}); });
+			.attr("d", function(d) { return top_rounded_rect_tab(d, {"height" : 3}); });
 		tabs.on("mousedown", function()
 			{
 				if (d3.event.button == 0)
@@ -208,7 +207,7 @@ $(document).ready(function()
 						.transition()
 						.duration(100)
 						.ease("linear")
-						.attr("d", function(d) { return top_rounded_rect_tab(d, d.tabWidth, d.tabHeight, {"direction" : d.direction}); });
+						.attr("d", function(d) { return top_rounded_rect_tab(d); });
 					
 					// Record new selected tab information.
 					selectedTabSet3 = d3.select(this).select(".tab");
@@ -217,7 +216,7 @@ $(document).ready(function()
 						.transition()
 						.duration(100)
 						.ease("linear")
-						.attr("d", function(d) { return top_rounded_rect_tab(d, d.tabWidth, d.tabHeight + 3, {"direction" : d.direction}); });
+						.attr("d", function(d) { return top_rounded_rect_tab(d, {"height" : 3}); });
 				}
 			});
 	}
@@ -444,7 +443,7 @@ $(document).ready(function()
 	/*******************
 	* Helper Functions *
 	*******************/
-	function top_rounded_rect_tab(initialPoint, width, height, additionalArguments)
+	function top_rounded_rect_tab(config, extend)
 	{
 		// For left and right tabs, the width is the vertical sides
 		// initialPoint - initialPoint.x x coord of initial coord initialPoint.y is y coord of it
@@ -454,20 +453,29 @@ $(document).ready(function()
 		// radiusY - y direction radius for corner arcs (always refers to the radius along the height side , so horizontal in left and right tabs)
 		// direction - direction tabs should point
 		
+		// extend takes width and height and allows you to add a little bit to the path
+		
 		// Determine initial coordinates.
-		var initialX = typeof initialPoint.x !== undefined ? initialPoint.x : 0;
-		var initialY = typeof initialPoint.y !== undefined ? initialPoint.y : 0;
+		var initialX = typeof config.x !== undefined ? config.x : 0;
+		var initialY = typeof config.y !== undefined ? config.y : 0;
 
 		// Determine the width and height of the tab to be created.
-		width = typeof width !== 'undefined' ? width : 160;
-		height = typeof height !== 'undefined' ? height : (width / 4);
+		var width = typeof config.width !== 'undefined' ? config.width : 160;
+		var height = typeof config.height !== 'undefined' ? config.height : (width / 4);
+		
+		// Determine whether to extend the width or height
+		if (typeof extend !== 'undefined')
+		{
+			width = typeof extend.width !== 'undefined' ? width + extend.width : width;
+			height = typeof extend.height !== 'undefined' ? height + extend.height : height;
+		}
 
 		// Determine the width and height of the tab to be created.
-		var radiusX = typeof additionalArguments.radiusX !== 'undefined' ? additionalArguments.radiusX : (width / 2);
-		var radiusY = typeof additionalArguments.radiusY !== 'undefined' ? additionalArguments.radiusY : (height / 4);
+		var radiusX = typeof config.radiusX !== 'undefined' ? config.radiusX : (width / 2);
+		var radiusY = typeof config.radiusY !== 'undefined' ? config.radiusY : (height / 4);
 		
 		// Determine the direction that the tab should go.
-		var direction = typeof additionalArguments.direction !== 'undefined' ? additionalArguments.direction : "up";
+		var direction = typeof config.direction !== 'undefined' ? config.direction : "up";
 		direction = (direction === "up") || (direction === "right") || (direction === "down") || (direction === "left") ? direction : "up";
 
 		// Create path.
