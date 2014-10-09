@@ -35,38 +35,37 @@ $(document).ready(function()
 		
 		// Create the tabs.
 		var currentTabX = 0;
-		var tabYTop = backingBorderStart - tabHeightSet2;
+		var tabYTop = backingBorderStart;
 		var tabYBottom = backingBorderStart + backingBorderHeight;
 		var tabLocations = [];
 		// Left aligned tabs going upwards.
 		for (var i = 0; i < numberOfTabs; i++)
 		{
-			tabLocations.push({"x" : currentTabX + tabMargin, "y" : tabYTop});
+			tabLocations.push({"x" : currentTabX + tabMargin, "y" : tabYTop, "tabWidth" : tabWidth, "tabHeight" : tabHeightSet2, "direction" : "up"});
 			currentTabX += (tabMargin + tabWidth + tabMargin);
 		}
 		// Right aligned tabs going upwards.
 		var currentTabX = tabContainerWidth;
 		for (var i = 0; i < numberOfTabs; i++)
 		{
-			tabLocations.push({"x" : currentTabX - tabMargin - tabWidth, "y" : tabYTop});
+			tabLocations.push({"x" : currentTabX - tabMargin - tabWidth, "y" : tabYTop, "tabWidth" : tabWidth, "tabHeight" : tabHeightSet2, "direction" : "up"});
 			currentTabX -= (tabMargin + tabWidth + tabMargin);
 		}
 		// Center aligned tabs going down.
 		var numberOfTabsLeftOfCenter = numberOfTabs / 2;
+		console.log(numberOfTabsLeftOfCenter, tabWidth, tabMargin);
+		console.log((numberOfTabsLeftOfCenter * tabWidth), (Math.floor(numberOfTabsLeftOfCenter) * tabMargin));
 		var currentTabX = (tabContainerWidth / 2) - (numberOfTabsLeftOfCenter * tabWidth) - (Math.floor(numberOfTabsLeftOfCenter) * tabMargin);
 		for (var i = 0; i < numberOfTabs; i++)
 		{
-			tabLocations.push({"x" : currentTabX + tabMargin, "y" : tabYBottom});
+			tabLocations.push({"x" : currentTabX, "y" : tabYBottom, "tabWidth" : tabWidth, "tabHeight" : tabHeightSet2, "direction" : "down"});
 			currentTabX += (tabMargin + tabWidth + tabMargin);
 		}
 		var tabs = tabSet2.selectAll(".tab")
 			.data(tabLocations)
 			.enter()
-			.append("rect")
-			.attr("width", tabWidth)
-			.attr("height", tabHeightSet2)
-			.attr("x", function(d) { return d.x; })
-			.attr("y", function(d) { return d.y; })
+			.append("path")
+			.attr("d", function(d) { return top_rounded_rect_tab(d, d.tabWidth, d.tabHeight, {"direction" : d.direction}); })
 			.classed("tab", true);
 		
 		// Add a border that the tabs will rest on.
@@ -84,8 +83,7 @@ $(document).ready(function()
 			.transition()
 			.duration(100)
 			.ease("linear")
-			.attr("height", tabHeightSet2 + 2)
-			.attr("y", function(d) { return d.y - 2; });
+			.attr("d", function(d) { return top_rounded_rect_tab(d, d.tabWidth, d.tabHeight + 3, {"direction" : d.direction}); });
 		tabs.on("mousedown", function()
 			{
 				if (d3.event.button == 0)
@@ -97,8 +95,7 @@ $(document).ready(function()
 						.transition()
 						.duration(100)
 						.ease("linear")
-						.attr("height", tabHeightSet2)
-						.attr("y", function(d) { return d.y; });
+						.attr("d", function(d) { return top_rounded_rect_tab(d, d.tabWidth, d.tabHeight, {"direction" : d.direction}); });
 					
 					// Record new selected tab information.
 					selectedTabSet2 = d3.select(this);
@@ -107,8 +104,7 @@ $(document).ready(function()
 						.transition()
 						.duration(100)
 						.ease("linear")
-						.attr("height", tabHeightSet2 + 2)
-						.attr("y", function(d) { if (d.y < backingBorderStart) { return d.y - 2; } else { return d.y; }});
+						.attr("d", function(d) { return top_rounded_rect_tab(d, d.tabWidth, d.tabHeight + 3, {"direction" : d.direction}); });
 				}
 			});
 	}
@@ -376,22 +372,22 @@ $(document).ready(function()
 		
 		// Create the tabs.
 		tabSet5.append("path")
-			.attr("d", top_rounded_rect({"x" : 100, "y" : 80}, 160, 40, 80, 12.5, "up"))
+			.attr("d", top_rounded_rect_tab({"x" : 100, "y" : 80}, 160, 40, {"radiusX" : 80, "radiusY" : 12.5, "direction" : "up"}))
 			.style("fill", "none")
 			.style("stroke", "white")
 			.style("stroke-width", 2);
 		tabSet5.append("path")
-			.attr("d", top_rounded_rect({"x" : 260, "y" : 80}, 160, 40, 80, 12.5, "right"))
+			.attr("d", top_rounded_rect_tab({"x" : 260, "y" : 80}, 160, 40, {"radiusX" : 80, "radiusY" : 12.5, "direction" : "right"}))
 			.style("fill", "none")
 			.style("stroke", "white")
 			.style("stroke-width", 2);
 		tabSet5.append("path")
-			.attr("d", top_rounded_rect({"x" : 260, "y" : 240}, 160, 40, 80, 12.5, "down"))
+			.attr("d", top_rounded_rect_tab({"x" : 260, "y" : 240}, 160, 40,{"radiusX" : 80, "radiusY" : 12.5, "direction" : "down"}))
 			.style("fill", "none")
 			.style("stroke", "white")
 			.style("stroke-width", 2);
 		tabSet5.append("path")
-			.attr("d", top_rounded_rect({"x" : 100, "y" : 240}, 160, 40, 80, 12.5, "left"))
+			.attr("d", top_rounded_rect_tab({"x" : 100, "y" : 240}, 160, 40, {"radiusX" : 80, "radiusY" : 12.5, "direction" : "left"}))
 			.style("fill", "none")
 			.style("stroke", "white")
 			.style("stroke-width", 2);
@@ -455,12 +451,15 @@ $(document).ready(function()
 	/*******************
 	* Helper Functions *
 	*******************/
-	function top_rounded_rect(initialPoint, width, height, radiusX, radiusY, direction)
+	function top_rounded_rect_tab(initialPoint, width, height, additionalArguments)
 	{
+		// For left and right tabs, the width is the vertical sides
 		// initialPoint - initialPoint.x x coord of initial coord initialPoint.y is y coord of it
+		//		bottom left for up tabs, top left for right tabs, top right for down tabs and bottom right for left tabs
 		// width - width of the tab, height - height of the tab
-		// radiusX - x direction radius for corner arcs
-		// radiusY - y direction radius for corner arcs
+		// radiusX - x direction radius for corner arcs (always refers to the radius along the width side , so vertical in left and right tabs)
+		// radiusY - y direction radius for corner arcs (always refers to the radius along the height side , so horizontal in left and right tabs)
+		// direction - direction tabs should point
 		
 		// Determine initial coordinates.
 		var initialX = typeof initialPoint.x !== undefined ? initialPoint.x : 0;
@@ -471,11 +470,11 @@ $(document).ready(function()
 		height = typeof height !== 'undefined' ? height : (width / 4);
 
 		// Determine the width and height of the tab to be created.
-		radiusX = typeof radiusX !== 'undefined' ? radiusX : (width / 2);
-		radiusY = typeof radiusY !== 'undefined' ? radiusY : (height / 4);
+		var radiusX = typeof additionalArguments.radiusX !== 'undefined' ? additionalArguments.radiusX : (width / 2);
+		var radiusY = typeof additionalArguments.radiusY !== 'undefined' ? additionalArguments.radiusY : (height / 4);
 		
 		// Determine the direction that the tab should go.
-		direction = typeof direction !== 'undefined' ? direction : "up";
+		var direction = typeof additionalArguments.direction !== 'undefined' ? additionalArguments.direction : "up";
 		direction = (direction === "up") || (direction === "right") || (direction === "down") || (direction === "left") ? direction : "up";
 
 		// Create path.
@@ -518,7 +517,11 @@ $(document).ready(function()
 				break;
 		}
 		return path;
-	  return 
+	}
+	
+	function move_tab_path(path, shift)
+	{
+		// Shifts a tab in some direction.
 	}
 
 });
