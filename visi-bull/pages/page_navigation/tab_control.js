@@ -24,7 +24,7 @@ $(document).ready(function()
 		var tabContainerHeight = 105;
 		var numberOfTabs = 3;
 		var tabWidth = 50;
-		var tabHeightSet2 = 25;
+		var tabHeight = 25;
 		var tabMargin = 5;
 		var backingBorderStart = 50;
 		var backingBorderHeight = 5;
@@ -41,14 +41,14 @@ $(document).ready(function()
 		// Left aligned tabs going upwards.
 		for (var i = 0; i < numberOfTabs; i++)
 		{
-			tabLocations.push({"x" : currentTabX + tabMargin, "y" : tabYTop, "width" : tabWidth, "height" : tabHeightSet2, "direction" : "up"});
+			tabLocations.push({"transX" : currentTabX + tabMargin, "transY" : tabYTop - tabHeight, "x" : 0, "y" : tabHeight, "width" : tabWidth, "height" : tabHeight, "direction" : "up"});
 			currentTabX += (tabMargin + tabWidth + tabMargin);
 		}
 		// Right aligned tabs going upwards.
 		var currentTabX = tabContainerWidth;
 		for (var i = 0; i < numberOfTabs; i++)
 		{
-			tabLocations.push({"x" : currentTabX - tabMargin - tabWidth, "y" : tabYTop, "width" : tabWidth, "height" : tabHeightSet2, "direction" : "up"});
+			tabLocations.push({"transX" : currentTabX - tabMargin - tabWidth, "transY" : tabYTop - tabHeight, "x" : 0, "y" : tabHeight, "width" : tabWidth, "height" : tabHeight, "direction" : "up"});
 			currentTabX -= (tabMargin + tabWidth + tabMargin);
 		}
 		// Center aligned tabs going down.
@@ -56,12 +56,16 @@ $(document).ready(function()
 		var currentTabX = (tabContainerWidth / 2) - (numberOfTabsLeftOfCenter * tabWidth) - (Math.floor(numberOfTabsLeftOfCenter) * tabMargin);
 		for (var i = 0; i < numberOfTabs; i++)
 		{
-			tabLocations.push({"x" : currentTabX, "y" : tabYBottom, "width" : tabWidth, "height" : tabHeightSet2, "direction" : "down"});
+			tabLocations.push({"transX" : currentTabX, "transY" : tabYBottom, "x" : 0, "y" : 0, "width" : tabWidth, "height" : tabHeight, "direction" : "down"});
 			currentTabX += (tabMargin + tabWidth + tabMargin);
 		}
-		var tabs = tabSet2.selectAll(".tab")
+		var tabContainer = tabSet2.selectAll(".tab-container")
 			.data(tabLocations)
 			.enter()
+			.append("g")
+			.attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; })
+			.classed("tab-container", true);
+		var tabs = tabContainer
 			.append("path")
 			.attr("d", function(d) { return top_rounded_rect_tab(d); })
 			.classed("tab", true);
@@ -75,7 +79,10 @@ $(document).ready(function()
 			.classed("backing", true);
 		
 		// Setup the behaviour of the tabs.
-		var selectedTabSet2 = tabSet2.select(".tab");
+		var tabs = tabSet2.selectAll(".tab-container");
+		tabs.on("mouseover", function() { d3.select(this).classed("hover", true); });
+		tabs.on("mouseout", function() { d3.select(this).classed("hover", false); });
+		var selectedTabSet2 = tabSet2.select(".tab-container").select(".tab");
 		selectedTabSet2
 			.classed("selected", true)
 			.transition()
@@ -96,7 +103,7 @@ $(document).ready(function()
 						.attr("d", function(d) { return top_rounded_rect_tab(d); });
 					
 					// Record new selected tab information.
-					selectedTabSet2 = d3.select(this);
+					selectedTabSet2 = d3.select(this).select(".tab");
 					selectedTabSet2
 						.classed("selected", true)
 						.transition()
@@ -355,34 +362,12 @@ $(document).ready(function()
 	{
 		// Definitions.
 		var tabContainerWidth = 800;
-		var tabContainerHeight = 500;
+		var tabContainerHeight = 50;
 		var backingBorderHeight = 5;
 		
 		var tabSet5 = d3.select("#tab-set-5")  // The SVG element.
 			.attr("width", tabContainerWidth)
 			.attr("height", tabContainerHeight);
-		
-		// Create the tabs.
-		tabSet5.append("path")
-			.attr("d", top_rounded_rect_tab({"x" : 100, "y" : 80}, 160, 40, {"radiusX" : 80, "radiusY" : 12.5, "direction" : "up"}))
-			.style("fill", "none")
-			.style("stroke", "white")
-			.style("stroke-width", 2);
-		tabSet5.append("path")
-			.attr("d", top_rounded_rect_tab({"x" : 260, "y" : 80}, 160, 40, {"radiusX" : 80, "radiusY" : 12.5, "direction" : "right"}))
-			.style("fill", "none")
-			.style("stroke", "white")
-			.style("stroke-width", 2);
-		tabSet5.append("path")
-			.attr("d", top_rounded_rect_tab({"x" : 260, "y" : 240}, 160, 40,{"radiusX" : 80, "radiusY" : 12.5, "direction" : "down"}))
-			.style("fill", "none")
-			.style("stroke", "white")
-			.style("stroke-width", 2);
-		tabSet5.append("path")
-			.attr("d", top_rounded_rect_tab({"x" : 100, "y" : 240}, 160, 40, {"radiusX" : 80, "radiusY" : 12.5, "direction" : "left"}))
-			.style("fill", "none")
-			.style("stroke", "white")
-			.style("stroke-width", 2);
 		
 		// Add a border that the tabs will rest on.
 		tabSet5.append("rect")
@@ -518,11 +503,6 @@ $(document).ready(function()
 				break;
 		}
 		return path;
-	}
-	
-	function move_tab_path(path, shift)
-	{
-		// Shifts a tab in some direction.
 	}
 
 });

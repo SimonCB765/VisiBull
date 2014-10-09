@@ -36,9 +36,10 @@ z-index: 2;  /* To bring the tab out in front of the bottom border of the tab co
 
 #tab-set-2 {background: black; border:1px solid black; display: block; margin: 0 auto;}
 #tab-set-2 .backing {fill: white; stroke-width: 0;}  /* Bottom backing border for the tab set. */
-#tab-set-2 .tab {fill: #707070 ; stroke-width: 0;}
-#tab-set-2 .tab:hover {fill: #A0A0A0; stroke-width: 0;}
-#tab-set-2 .tab.selected {fill: white; stroke-width: 0;}
+#tab-set-2 .tab {fill: black; stroke: white; stroke-width: 2;}  /* Setting fill to the background color is the same as setting to none, but lets hovering work correctly. */
+#tab-set-2 .tab-container {cursor: default; white-space: nowrap;}
+#tab-set-2 .tab-container.hover .tab {}
+#tab-set-2 .tab-container .tab.selected {fill: white; stroke: white; stroke-width: 2;}
 
 #tab-set-3 {background: black; border:1px solid black; display: block; margin: 0 auto;}
 #tab-set-3 .backing {fill: white; stroke-width: 0;}  /* Bottom backing border for the tab set. */
