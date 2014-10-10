@@ -6,7 +6,7 @@ var ballRadius = 10;
 
 var paddleWidth = 10;
 var paddleHeight = 70;
-var aiSpeed = 0.5;
+var aiSpeed = 3;
 
 // Create the SVG g element.
 var svg = d3.select(".content")
@@ -53,7 +53,7 @@ initialise_game();
 function initialise_game()
 {
 	// Reset ball velocity.
-	ballVelocity = {"x" : 4, "y" : 4};
+	ballVelocity = {"x" : -2, "y" : 4};
 
 	// Put the ball in the center.
 	ball
@@ -78,8 +78,8 @@ function move_ball()
 	var aiPos = aiPaddle.datum();
 
 	// Determine coordinates of the corner of the two paddles that are not touching the walls.
-	var playerPaddleCoordinates = {"top" : {"x" : playerPos.x + paddleWidth, "y" : playerPos.y}, "bottom" : {"x" : playerPos.x + paddleHeight + paddleWidth, "y" : playerPos.y + paddleHeight}};
-	var aiPaddleCoordinates = {"top" : {"x" : aiPos.x + paddleWidth, "y" : aiPos.y}, "bottom" : {"x" : aiPos.x + paddleHeight + paddleWidth, "y" : aiPos.y + paddleHeight}};
+	var playerPaddleCoordinates = {"top" : {"x" : playerPos.x + paddleWidth, "y" : playerPos.y}, "bottom" : {"x" : playerPos.x + paddleWidth, "y" : playerPos.y + paddleHeight}};
+	var aiPaddleCoordinates = {"top" : {"x" : aiPos.x + paddleWidth, "y" : aiPos.y}, "bottom" : {"x" : aiPos.x + paddleWidth, "y" : aiPos.y + paddleHeight}};
 
 	// Determine distances from the ball to the corners of the player's paddle.
 	var distanceToPlayerTopX = playerPaddleCoordinates.top.x - ballPos.x;
@@ -114,7 +114,7 @@ function move_ball()
 		}
 		else
 		{
-			// The ball has hit the corner from the top or bottom, so change y direction.
+			// The ball has hit the corner from the top, so change y direction.
 			ballVelocity.y *= -1;
 		}
 	}
@@ -128,7 +128,7 @@ function move_ball()
 		}
 		else
 		{
-			// The ball has hit the corner from the top or bottom, so change y direction.
+			// The ball has hit the corner from the bottom, so change y direction.
 			ballVelocity.y *= -1;
 		}
 	}
@@ -148,7 +148,7 @@ function move_ball()
 		}
 		else
 		{
-			// The ball has hit the corner from the top or bottom, so change y direction.
+			// The ball has hit the corner from the top, so change y direction.
 			ballVelocity.y *= -1;
 		}
 	}
@@ -162,7 +162,7 @@ function move_ball()
 		}
 		else
 		{
-			// The ball has hit the corner from the top or bottom, so change y direction.
+			// The ball has hit the corner from the bottom, so change y direction.
 			ballVelocity.y *= -1;
 		}
 	}
@@ -194,32 +194,8 @@ function move_ball()
 	aiPaddle
 		.attr("y", function(d)
 			{
-				d.y += (ballVelocity.y * aiSpeed);
-				if (ballVelocity.y < 0)
-				{
-					d.y = Math.min(Math.max(ballPos.y - (paddleHeight / 2), d.y, 0), svgHeight - paddleHeight);
-				}
-				else
-				{
-					d.y = Math.max(Math.min(ballPos.y - (paddleHeight / 2), d.y, svgHeight - paddleHeight), 0);
-				}
-				return d.y;
-			});
-	
-	
-	playerPaddle
-		.attr("y", function(d)
-			{
-				d.y += (ballVelocity.y * aiSpeed);
-				if (ballVelocity.y < 0)
-				{
-					//(d.y + (paddleHeight / 2)) < ballPos.y ? 
-					d.y = Math.min(Math.max(ballPos.y - (paddleHeight / 2), d.y, 0), svgHeight - paddleHeight);
-				}
-				else
-				{
-					d.y = Math.max(Math.min(ballPos.y - (paddleHeight / 2), d.y, svgHeight - paddleHeight), 0);
-				}
+				d.y += (d.y - (paddleHeight / 2)) > ballPos.y ? -aiSpeed : aiSpeed;
+				d.y = Math.max(0 + paddleHeight, Math.min(svgHeight - paddleHeight, d.y));
 				return d.y;
 			});
 }
