@@ -267,7 +267,7 @@ $(document).ready(function()
 	
 	
 	/*******************
-	* Create Tab Set 6 *
+	* Create Tab Set 4 *
 	*******************/
 	{
 		// Definitions.
@@ -281,7 +281,7 @@ $(document).ready(function()
 		var backingBorderHeight = 2;
 		var backingBorderOffset = 5;  // Pixels by which the backing border is raise from the bottom of the SVG element.
 		
-		var tabSet6 = d3.select("#tab-set-6")  // The SVG element.
+		var tabSet6 = d3.select("#tab-set-4")  // The SVG element.
 			.attr("width", svgWidth)
 			.attr("height", svgHeight);
 		
@@ -339,10 +339,10 @@ $(document).ready(function()
 				currentTabWidth = minTabWidth;
 				currentTabTextEle.attr("x", function(d) { return d.x + tabPadding; });
 			}
-			else if ((currentTabWidth + tabPadding) <= maxTabWidth)
+			else if ((currentTabWidth + (2* tabPadding)) <= maxTabWidth)
 			{
 				// Tab width is not greater than max.
-				currentTabWidth += tabPadding;
+				currentTabWidth += (2 * tabPadding);
 				currentTab.attr("d", function(d) { d.width = currentTabWidth; currentTabPath = top_rounded_rect_tab(d); return currentTabPath; });
 				currentTabTextEle.attr("x", function(d) { return d.x + tabPadding; });
 			}
@@ -405,7 +405,7 @@ $(document).ready(function()
 	
 	
 	/*******************
-	* Create Tab Set 7 *
+	* Create Tab Set 5 *
 	*******************/
 	{
 		// Definitions.
@@ -419,12 +419,21 @@ $(document).ready(function()
 		var backingBorderHeight = 2;
 		var backingBorderOffset = 5;  // Pixels by which the backing border is raise from the bottom of the SVG element.
 		
-		var tabSet7 = d3.select("#tab-set-7")  // The SVG element.
+		var tabSet7 = d3.select("#tab-set-5")  // The SVG element.
 			.attr("width", svgWidth)
 			.attr("height", svgHeight);
 		
-		// Create the <defs> to hold the clip paths.
+		// Create the <defs> to hold the clip paths and gradients.
 		var defs = tabSet7.append("defs");
+		
+		// Setup the clip path.defs.append("clipPath")
+		defs.append("clipPath")
+			.attr("id", "clip")
+			.append("rect")
+				.attr("x", 0)
+				.attr("y", 0)
+				.attr("width", maxTabWidth - tabPadding)
+				.attr("height", tabHeight - (tabHeight / 4));
 		
 		// Create the tabs.
 		var currentTabX = 0;
@@ -457,15 +466,7 @@ $(document).ready(function()
 				.text(currentTabText);
 
 			// Setup the clip path.
-			var currentClipPath = defs.append("clipPath")
-				.attr("id", "clip" + i)
-				.append("rect")
-					.attr("x", 0)
-					.attr("y", 0)
-					.attr("width", maxTabWidth)
-					.attr("height", tabHeight - (tabHeight / 4));
-			tabContentContainer
-				.attr("clip-path", "url(#clip" + i + ")");
+			tabContentContainer.attr("clip-path", "url(#clip)");
 
 			// Resize the tabs as needed.
 			var currentTabBBox = currentTabTextEle.node().getBBox()
@@ -477,10 +478,10 @@ $(document).ready(function()
 				currentTabWidth = minTabWidth;
 				currentTabTextEle.attr("x", function(d) { return d.x + tabPadding; });
 			}
-			else if ((currentTabWidth + tabPadding) <= maxTabWidth)
+			else if ((currentTabWidth + (2 * tabPadding)) <= (maxTabWidth))
 			{
-				// Tab width is not greater than max.
-				currentTabWidth += tabPadding;
+				// Tab width is not large enough to need to start fading.
+				currentTabWidth += (2 * tabPadding);
 				currentTab.attr("d", function(d) { d.width = currentTabWidth; currentTabPath = top_rounded_rect_tab(d); return currentTabPath; });
 				currentTabTextEle.attr("x", function(d) { return d.x + tabPadding; });
 			}
@@ -502,10 +503,10 @@ $(document).ready(function()
 					.attr("y2", "0%");
 				gradient.append("stop")
 					.attr("offset", fadeStart)
-					.style("stop-color", "rgba(0,0,0,1)");
+					.style("stop-color", "rgba(255,255,255,1)");
 				gradient.append("stop")
 					.attr("offset", fadeEnd)
-					.style("stop-color", "rgba(0,0,0," + finalOpacity + ")");
+					.style("stop-color", "rgba(255,255,255," + finalOpacity + ")");
 				currentTabTextEle
 					.style("fill", "url(#fadeGradient" + i + ")")
 					.attr("x", function(d) { return d.x + tabPadding; });

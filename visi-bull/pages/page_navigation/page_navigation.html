@@ -42,14 +42,15 @@
 	<svg id="tab-set-2"></svg>
 	<br>
 	<p>Although foreign objects can be used with SVG in order to style text (and other things) within the tabs, cross-browser support for foreign objects isn't great (no IE version as of 2014 supports it). There are also bugs that prevent things like absolute positioning working properly, which is problematic for approaches to fading out text that rely on absolutely positioned ::before or ::after pseudo-elements.</p>
-	<br>Tabs with a width that expands to fit their content, but also have a set minimum width. Text is padded at both sides of the tab.
+	<br>Tabs with a width that expands to fit their content, but also have a set minimum width.
 	<svg id="tab-set-3"></svg>
 	<br>
-	<br>Hard clipping using SVG text elements and clip-path. Text is only padded on the left.
-	<svg id="tab-set-6"></svg>
+	<p>Instead, SVG text elements can be used, and can be clipped to only the area of the tab. Although you can't easily turn overflowing text into ellipses, fading out and/or clipping text is relatively straightforward.</p>
+	<br>Hard clipping using SVG text elements and clip-path.
+	<svg id="tab-set-4"></svg>
 	<br>
-	<br>Text that fades out if it extends beyond the tab. Text is only padded on the left.
-	<svg id="tab-set-7"></svg>
+	<br>Text that fades out if it extends beyond the tab.
+	<svg id="tab-set-5"></svg>
 	
 	<br><br>
 	<h2 class="centered">Advanced SVG Tabs</h2>
