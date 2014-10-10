@@ -496,14 +496,14 @@ $(document).ready(function()
 		
 		// Create the tabs.
 		var currentTabX = 0;
-		var tabY = backingBorderStart - tabHeight;
+		var tabY = tabContainerHeight - backingBorderHeight - tabHeight;
 		for (var i = 0; i < tabText.length; i++)
 		{
 			var currentTabText = tabText[i];
 
 			// Create the container for the current tab.
 			var tabContainer = tabSet6.append("g")
-				.datum({"transX" : currentTabX + tabMargin, "transY" : tabYTop, "x" : 0, "y" : tabHeight, "width" : minTabWidth, "height" : tabHeight, "direction" : "up"})
+				.datum({"transX" : currentTabX + tabMargin, "transY" : tabY, "x" : 0, "y" : tabHeight, "width" : minTabWidth, "height" : tabHeight, "direction" : "up"})
 				.attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; })
 				.classed("tab-container", true);
 			
@@ -512,23 +512,30 @@ $(document).ready(function()
 			var currentTab = tabContainer.append("path")
 				.attr("d", function(d) { currentTabPath = top_rounded_rect_tab(d); return currentTabPath;})
 				.classed("tab", true);
-
-			// Setup the clip path.
-			var currentClipPath = defs.append("clipPath")
-				.attr("id", "clip" + i)
-				.append("path")
-					.attr("d", currentTabPath);
-			tabContainer
-				.attr("clip-path", "url(#clip" + i + ")");
+			
+			// Create the text containing g element.
+			var tabContentContainer = tabContainer.append("g")
+				.attr("transform", function(d) { return "translate(0," + (d.height / 4) + ")"; });
 
 			// Create the text for the current tab.
-			var currentTabTextEle = tabContainer.append("text")
+			var currentTabTextEle = tabContentContainer.append("text")
 				.attr("x", 0)
-				.attr("y", function(d) { return (d.height + (d.height / 4)) / 2; })  // d.height / 4 is the default value for the y radius used to round the tab borders, and is therefore added to the tab height in order to get the middle of the straight edge of the tab.
+				.attr("y", function(d) { return (d.height - (d.height / 4)) / 2; })  // d.height / 4 is the default value for the y radius used to round the tab borders, and is therefore added to the tab height in order to get the middle of the straight edge of the tab.
 				.text(currentTabText)
 				.style("fill", "orange")
 				.style("stroke-width", 0)
 				.style("dominant-baseline", "middle");
+
+			// Setup the clip path.
+			var currentClipPath = defs.append("clipPath")
+				.attr("id", "clip" + i)
+				.append("rect")
+					.attr("x", 0)
+					.attr("y", 0)
+					.attr("width", maxTabWidth)
+					.attr("height", tabHeight - (tabHeight / 4));
+			tabContentContainer
+				.attr("clip-path", "url(#clip" + i + ")");
 
 			// Resize the tabs as needed.
 			console.log(currentTabTextEle.node().getBBox(), i)
@@ -545,14 +552,12 @@ $(document).ready(function()
 				// Tab width is not greater than max.
 				currentTabWidth += (2 * tabPadding);
 				currentTab.attr("d", function(d) { d.width = currentTabWidth; currentTabPath = top_rounded_rect_tab(d); return currentTabPath; });
-				currentClipPath.attr("d", currentTabPath);
 			}
 			else
 			{
 				// Tab width is greater than max.
 				currentTabWidth = maxTabWidth - (2 * tabPadding);
 				currentTab.attr("d", function(d) { d.width = maxTabWidth; currentTabPath = top_rounded_rect_tab(d); return currentTabPath; });
-				currentClipPath.attr("d", currentTabPath);
 			}
 
 			// Update the end position of the last tab.
