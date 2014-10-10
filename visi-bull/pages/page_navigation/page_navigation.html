@@ -38,11 +38,14 @@
 	<br><br>
 	<h2 class="centered">Basic SVG Tabs</h2>
 	<br>
+	<p>Basic tabs can be made using SVG paths, and can be made to have similar effects as pure HTML tabs on hover and selection.</p>
 	<svg id="tab-set-2"></svg>
 	<br>
-	<br>Left aligned tabs and text in tabs. Tabs have a fixed minimum width that they can not be smaller than, but can grow to any width. Therefore, tabs with a small amount of text will have large amounts of space on the right, while tabs with more text than fits in the minimum width will have none. No wrapping of text is allowed.
+	<p>Although foreign objects can be used with SVG in order to style text (and other things) within the tabs, cross-browser support for foreign objects isn't great (no IE version as of 2014 supports it). There are also bugs that prevent things like absolute positioning working properly, which is problematic for approaches to fading out text that rely on absolutely positioned ::before or ::after pseudo-elements.</p>
+	<br>Tabs with a width that expands to fit their content, but also have a set minimum width.
 	<svg id="tab-set-3"></svg>
 	<br>
+	<p>Instead, SVG text elements can be used, and can be clipped to only the area of the tab. Although you can't easily turn overflowing text into ellipses, fading out and/or clipping text is relatively straightforward.</p>
 	<br>Tab labels are the same as above, orange text is used to highlight the text being clipped. Left aligned tabs and text in tabs. Tabs have a fixed minimum width that they can not be smaller than, and a fixed maximum width that they can not be larger than. Any text that extends beyond the end of the tab is cut off. No wrapping of text is allowed. Tabs have left, right and top padding, so the text gets clipped at slightly less than the tab width.
 	<svg id="tab-set-4"></svg>
 	<br>

@@ -17,12 +17,13 @@ $(document).ready(function()
 	// Create the tabs.
 	var tabText = ["A", "AB", "ABC", "ABCD", "ABCDE", "ABCDEF", "ABCDEFG", "ABCDEFGH", "ABCDEFGHI", "ABCDEFGHIJ", "ABCDEFGHIJK"]
 	create_no_text_tab_set("#tab-set-2");
+	create_growing_tabs("#tab-set-3");
 	
 	
 	function create_no_text_tab_set(tabSetID)
 	{
 		// Definitions.
-		var svgWidth = 900;  // width of the SVG element containing the tabs.
+		var svgWidth = 900;  // Width of the SVG element containing the tabs.
 		var svgHeight = 150;  // Height of the SVG element containing the tabs.
 		var numberOfTabs = 3;  // The number of tabs to have in each set of tabs.
 		var tabWidth = 50;  // The width of each tab.
@@ -150,77 +151,76 @@ $(document).ready(function()
 			});
 	}
 	
-	
-	/*******************
-	* Create Tab Set 3 *
-	*******************/
+	function create_growing_tabs(tabSetID)
 	{
 		// Definitions.
-		var svgWidth = 900;
-		var svgHeight = 50;
-		var minTabWidth = 50;
-		var tabHeight = 35;
+		var svgWidth = 900;  // Width of the SVG element containing the tabs.
+		var svgHeight = 50;  // Height of the SVG element containing the tabs.
+		var numberOfTabs = 3;  // The number of tabs to have in each set of tabs.
+		var minTabWidth = 50;  // The minimum width of each tab.
+		var tabHeight = 35;  // The height of each tab.
 		var tabPadding = 2;  // Padding around the tab text content.
-		var tabMargin = 5;
-		var backingBorderHeight = 5;
+		var tabMargin = 5;  // The margin between adjacent tabs.
+		var backingBorderHeight = 2;  // The thickness of the border that the tabs rest on.
+		var tabData = [];  // The data for creating the tabs
 		
-		var tabSet3 = d3.select("#tab-set-3")  // The SVG element.
+		// Select the SVG element.
+		var tabSet = d3.select(tabSetID)
 			.attr("width", svgWidth)
 			.attr("height", svgHeight);
-		
+	
 		// Create the tabs.
-		var currentTabX = 0;
-		var tabYBottom = svgHeight - backingBorderHeight
-		var tabYTop = tabYBottom - tabHeight;
+		var currentTabX = 0;  // X coordinate of the tab currently being created.
+		var tabTop = svgHeight - backingBorderHeight - tabHeight;  // The Y coordinate of the top of the tabs.
 		for (var i = 0; i < tabText.length; i++)
 		{
 			var currentTabText = tabText[i];
+
 			// Create the container for the current tab.
-			var tabContainer = tabSet3.append("g")
-				.datum({"transX" : currentTabX + tabMargin, "transY" : tabYTop, "x" : 0, "y" : tabHeight, "width" : minTabWidth, "height" : tabHeight, "direction" : "up"})
+			var tabContainer = tabSet.append("g")
+				.datum({"transX" : currentTabX + tabMargin, "transY" : tabTop, "x" : 0, "y" : tabHeight, "width" : minTabWidth, "height" : tabHeight, "direction" : "up"})
 				.attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; })
 				.classed("tab-container", true);
 			
 			// Create the current tab.
+			var currentTabPath;
 			var currentTab = tabContainer.append("path")
-				.attr("d", function(d) { return top_rounded_rect_tab(d); })
+				.attr("d", function(d) { currentTabPath = top_rounded_rect_tab(d); return currentTabPath;})
 				.classed("tab", true);
 			
-			// Create the text for the current tab.
-			var foreignObject = tabContainer.append("foreignObject")
-				.attr("width", svgWidth)
-				.attr("height", tabHeight - tabPadding)
-				.attr("x", 0)
-				.attr("y", 0)
-			var tabContent = foreignObject.append("xhtml:div")
+			// Create the text containing g element.
+			var tabContentContainer = tabContainer.append("g")
 				.classed("tab-content", true)
-				.html("<span>" + currentTabText + "</span>");
-			
+				.attr("transform", function(d) { return "translate(0," + (d.height / 4) + ")"; });
+
+			// Create the text for the current tab.
+			var currentTabTextEle = tabContentContainer.append("text")
+				.attr("x", 0)
+				.attr("y", function(d) { return (d.height - (d.height / 4)) / 2; })  // d.height / 4 is the default value for the y radius used to round the tab borders, and is therefore added to the tab height in order to get the middle of the straight edge of the tab.
+				.text(currentTabText);
+
 			// Resize the tabs as needed.
-			var currentTabContent = $(tabContent.node());
-			var currentTabWidth = currentTabContent.width();  // Would need to increment the width by something like 1 in order to prevent wrapping, unless nowrap is specified in CSS.
-			var currentTabHeight = currentTabContent.height();
-			foreignObject
-				.attr("x", tabPadding)
-				.attr("y", tabPadding)
-				.attr("width", currentTabWidth);
-			if (minTabWidth >= currentTabWidth + (2 * tabPadding))
+			var currentTabBBox = currentTabTextEle.node().getBBox()
+			var currentTabWidth = currentTabBBox.width;
+			if (minTabWidth >= currentTabWidth + tabPadding)
 			{
 				// Minimum width is greater than or equal to the padded text size, so use the minimum tab size.
 				currentTabWidth = minTabWidth;
 			}
 			else
 			{
+				// Tab width is not greater than max.
 				currentTabWidth += (2 * tabPadding);
 			}
-			currentTab.attr("d", function(d) { d.width = currentTabWidth; return top_rounded_rect_tab(d); });
+			currentTab.attr("d", function(d) { d.width = currentTabWidth; currentTabPath = top_rounded_rect_tab(d); return currentTabPath; });
+			currentTabTextEle.attr("x", function(d) { return d.x + tabPadding; });
 
 			// Update the end position of the last tab.
 			currentTabX += (tabMargin + currentTabWidth + tabMargin);
 		}
 		
 		// Add a border that the tabs will rest on.
-		tabSet3.append("rect")
+		tabSet.append("rect")
 			.attr("width", svgWidth)
 			.attr("height", backingBorderHeight)
 			.attr("x", 0)
@@ -228,11 +228,11 @@ $(document).ready(function()
 			.classed("backing", true);
 		
 		// Setup the behaviour of the tabs.
-		var tabs = tabSet3.selectAll(".tab-container");
+		var tabs = tabSet.selectAll(".tab-container");
 		tabs.on("mouseover", function() { d3.select(this).classed("hover", true); });
 		tabs.on("mouseout", function() { d3.select(this).classed("hover", false); });
-		var selectedTabSet3 = tabSet3.select(".tab-container").select(".tab");
-		selectedTabSet3
+		var selectedTabSet = tabSet.select(".tab-container").select(".tab");
+		selectedTabSet
 			.classed("selected", true)
 			.transition()
 			.duration(100)
@@ -245,7 +245,7 @@ $(document).ready(function()
 					// Left click.
 					
 					// Clear old selected tab information.
-					selectedTabSet3
+					selectedTabSet
 						.classed("selected", false)
 						.transition()
 						.duration(100)
@@ -253,8 +253,8 @@ $(document).ready(function()
 						.attr("d", function(d) { return top_rounded_rect_tab(d); });
 					
 					// Record new selected tab information.
-					selectedTabSet3 = d3.select(this).select(".tab");
-					selectedTabSet3
+					selectedTabSet = d3.select(this).select(".tab");
+					selectedTabSet
 						.classed("selected", true)
 						.transition()
 						.duration(100)
@@ -725,7 +725,7 @@ $(document).ready(function()
 			else if ((currentTabWidth + tabPadding) <= maxTabWidth)
 			{
 				// Tab width is not greater than max.
-				currentTabWidth += (2 * tabPadding);
+				currentTabWidth += tabPadding;
 				currentTab.attr("d", function(d) { d.width = currentTabWidth; currentTabPath = top_rounded_rect_tab(d); return currentTabPath; });
 				currentTabTextEle.attr("x", function(d) { return d.x + tabPadding; });
 			}
