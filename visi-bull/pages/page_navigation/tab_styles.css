@@ -72,4 +72,12 @@ z-index: 2;  /* To bring the tab out in front of the bottom border of the tab co
 #tab-set-6 .tab-container {color: orange; cursor: default;}
 #tab-set-6 .tab-container.hover .tab {fill: #A0A0A0; stroke-width: 0;}
 #tab-set-6 .tab-container .tab.selected {fill: white; stroke-width: 0;}
-#tab-set-6 .tab-content {display: inline-block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
+#tab-set-6 .tab-content {display: inline-block; overflow: hidden; white-space: nowrap;}
+
+#tab-set-7{background: black; border:1px solid black; display: block; margin: 0 auto;}
+#tab-set-7 .backing {fill: white; stroke-width: 0;}  /* Bottom backing border for the tab set. */
+#tab-set-7 .tab {fill: #707070 ; stroke-width: 0;}
+#tab-set-7 .tab-container {color: orange; cursor: default;}
+#tab-set-7 .tab-container.hover .tab {fill: #A0A0A0; stroke-width: 0;}
+#tab-set-7 .tab-container .tab.selected {fill: white; stroke-width: 0;}
+#tab-set-7 .tab-content {display: inline-block; overflow: hidden; white-space: nowrap;}

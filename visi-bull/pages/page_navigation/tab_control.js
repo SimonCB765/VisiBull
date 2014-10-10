@@ -14,7 +14,7 @@ $(document).ready(function()
 		});
 	
 	
-	var tabText = ["A", "A B", "A B C", "A B C D", "A B C D E", "A B C D E F", "A B C D E F G", "A B C D E F G H", "A B C D E F G H I"]
+	var tabText = ["A", "AB", "ABC", "ABCD", "ABCDE", "ABCDEF", "ABCDEFG", "ABCDEFGH", "ABCDEFGHI", "ABCDEFGHIJ", "ABCDEFGHIJK"]
 
 
 
@@ -23,7 +23,7 @@ $(document).ready(function()
 	*******************/
 	{
 		// Definitions.
-		var tabContainerWidth = 800;
+		var tabContainerWidth = 900;
 		var tabContainerHeight = 105;
 		var numberOfTabs = 3;
 		var tabWidth = 50;
@@ -123,7 +123,7 @@ $(document).ready(function()
 	*******************/
 	{
 		// Definitions.
-		var tabContainerWidth = 800;
+		var tabContainerWidth = 900;
 		var tabContainerHeight = 50;
 		var minTabWidth = 50;
 		var tabHeight = 35;
@@ -236,7 +236,7 @@ $(document).ready(function()
 	*******************/
 	{
 		// Definitions.
-		var tabContainerWidth = 800;
+		var tabContainerWidth = 900;
 		var tabContainerHeight = 50;
 		var minTabWidth = 40;
 		var maxTabWidth = 90;
@@ -356,7 +356,7 @@ $(document).ready(function()
 	*******************/
 	{
 		// Definitions.
-		var tabContainerWidth = 800;
+		var tabContainerWidth = 900;
 		var tabContainerHeight = 50;
 		var minTabWidth = 40;
 		var maxTabWidth = 90;
@@ -479,7 +479,7 @@ $(document).ready(function()
 	*******************/
 	{
 		// Definitions.
-		var tabContainerWidth = 800;
+		var tabContainerWidth = 900;
 		var tabContainerHeight = 50;
 		var minTabWidth = 40;
 		var maxTabWidth = 90;
@@ -538,7 +538,6 @@ $(document).ready(function()
 				.attr("clip-path", "url(#clip" + i + ")");
 
 			// Resize the tabs as needed.
-			console.log(currentTabTextEle.node().getBBox(), i)
 			var currentTabBBox = currentTabTextEle.node().getBBox()
 			var currentTabWidth = currentTabBBox.width;
 			var currentTabHeight = currentTabBBox.height;
@@ -556,8 +555,8 @@ $(document).ready(function()
 			else
 			{
 				// Tab width is greater than max.
-				currentTabWidth = maxTabWidth - (2 * tabPadding);
-				currentTab.attr("d", function(d) { d.width = maxTabWidth; currentTabPath = top_rounded_rect_tab(d); return currentTabPath; });
+				currentTabWidth = maxTabWidth;
+				currentTab.attr("d", function(d) { d.width = currentTabWidth; currentTabPath = top_rounded_rect_tab(d); return currentTabPath; });
 			}
 
 			// Update the end position of the last tab.
@@ -600,6 +599,168 @@ $(document).ready(function()
 					// Record new selected tab information.
 					selectedTabSet6 = d3.select(this).select(".tab");
 					selectedTabSet6
+						.classed("selected", true)
+						.transition()
+						.duration(100)
+						.ease("linear")
+						.attr("d", function(d) { return top_rounded_rect_tab(d, {"height" : 3}); });
+				}
+			});
+	}
+	
+	
+	/*******************
+	* Create Tab Set 7 *
+	*******************/
+	{
+		// Definitions.
+		var tabContainerWidth = 900;
+		var tabContainerHeight = 50;
+		var minTabWidth = 40;
+		var maxTabWidth = 90;
+		var tabHeight = 35;
+		var tabPadding = 2;  // Padding around the tab text content.
+		var backingBorderHeight = 5;
+		
+		var tabSet7 = d3.select("#tab-set-7")  // The SVG element.
+			.attr("width", tabContainerWidth)
+			.attr("height", tabContainerHeight);
+		
+		// Create the <defs> to hold the clip paths.
+		var defs = tabSet7.append("defs");
+		
+		// Create the tabs.
+		var currentTabX = 0;
+		var tabY = tabContainerHeight - backingBorderHeight - tabHeight;
+		for (var i = 0; i < tabText.length; i++)
+		{
+			var currentTabText = tabText[i];
+
+			// Create the container for the current tab.
+			var tabContainer = tabSet7.append("g")
+				.datum({"transX" : currentTabX + tabMargin, "transY" : tabY, "x" : 0, "y" : tabHeight, "width" : minTabWidth, "height" : tabHeight, "direction" : "up"})
+				.attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; })
+				.classed("tab-container", true);
+			
+			// Create the current tab.
+			var currentTabPath;
+			var currentTab = tabContainer.append("path")
+				.attr("d", function(d) { currentTabPath = top_rounded_rect_tab(d); return currentTabPath;})
+				.classed("tab", true);
+			
+			// Create the text containing g element.
+			var tabContentContainer = tabContainer.append("g")
+				.attr("transform", function(d) { return "translate(0," + (d.height / 4) + ")"; });
+
+			// Create the text for the current tab.
+			var currentTabTextEle = tabContentContainer.append("text")
+				.attr("x", 0)
+				.attr("y", function(d) { return (d.height - (d.height / 4)) / 2; })  // d.height / 4 is the default value for the y radius used to round the tab borders, and is therefore added to the tab height in order to get the middle of the straight edge of the tab.
+				.text(currentTabText)
+				.style("fill", "orange")
+				.style("stroke-width", 0)
+				.style("dominant-baseline", "middle");
+
+			// Setup the clip path.
+			var currentClipPath = defs.append("clipPath")
+				.attr("id", "clip" + i)
+				.append("rect")
+					.attr("x", 0)
+					.attr("y", 0)
+					.attr("width", maxTabWidth)
+					.attr("height", tabHeight - (tabHeight / 4));
+			tabContentContainer
+				.attr("clip-path", "url(#clip" + i + ")");
+
+			// Resize the tabs as needed.
+			var currentTabBBox = currentTabTextEle.node().getBBox()
+			var currentTabWidth = currentTabBBox.width;
+			var currentTabHeight = currentTabBBox.height;
+			if (minTabWidth >= currentTabWidth + tabPadding)
+			{
+				// Minimum width is greater than or equal to the padded text size, so use the minimum tab size.
+				currentTabWidth = minTabWidth;
+				currentTabTextEle.attr("x", function(d) { return d.x + tabPadding; });
+			}
+			else if ((currentTabWidth + tabPadding) <= maxTabWidth)
+			{
+				// Tab width is not greater than max.
+				currentTabWidth += (2 * tabPadding);
+				currentTab.attr("d", function(d) { d.width = currentTabWidth; currentTabPath = top_rounded_rect_tab(d); return currentTabPath; });
+				currentTabTextEle.attr("x", function(d) { return d.x + tabPadding; });
+			}
+			else
+			{
+				// Tab width is greater than max.
+
+				// Create the gradient for this tab. Only want to fade out the last 30%-ish of the text that is visible on the tab (if you just made
+				// the gradient start fading at 70% then it would be fading at 70% of the unclipped text, and the fade would therefore be
+				// invisible for most long text tabs).
+				var fadeStart = (maxTabWidth * 0.7) / currentTabWidth;
+				var fadeEnd = (maxTabWidth * 1.2) / currentTabWidth;
+				var finalOpacity = 0 + (((maxTabWidth * 1.2) - currentTabWidth) / currentTabWidth);  // The less text that overflows the end of the tab the more gradual the fade out. This helps to normalise all fadeouts so that they look similar irrespective of text amount in the tab.
+				console.log(maxTabWidth, currentTabWidth, (maxTabWidth * 0.5), fadeStart, finalOpacity);
+				var gradient = defs.append("linearGradient")
+					.attr("id", "fadeGradient" + i)
+					.attr("x1", "0%")
+					.attr("y1", "0%")
+					.attr("x2", "100%")
+					.attr("y2", "0%");
+				gradient.append("stop")
+					.attr("offset", fadeStart)
+					.style("stop-color", "rgba(0,0,0,1)");
+				gradient.append("stop")
+					.attr("offset", fadeEnd)
+					.style("stop-color", "rgba(0,0,0," + finalOpacity + ")");
+				currentTabTextEle
+					.style("fill", "url(#fadeGradient" + i + ")")
+					.attr("x", function(d) { return d.x + tabPadding; });
+				
+				// Create the new smaller tab.
+				currentTabWidth = maxTabWidth;
+				currentTab.attr("d", function(d) { d.width = currentTabWidth; currentTabPath = top_rounded_rect_tab(d); return currentTabPath; });
+			}
+
+			// Update the end position of the last tab.
+			currentTabX += (tabMargin + currentTabWidth + tabMargin);
+		}
+		
+		// Add a border that the tabs will rest on.
+		tabSet7.append("rect")
+			.attr("width", tabContainerWidth)
+			.attr("height", backingBorderHeight)
+			.attr("x", 0)
+			.attr("y", tabContainerHeight - backingBorderHeight)
+			.classed("backing", true);
+		
+		// Setup the behaviour of the tabs.
+		var tabs = tabSet7.selectAll(".tab-container");
+		tabs.on("mouseover", function() { d3.select(this).classed("hover", true); });
+		tabs.on("mouseout", function() { d3.select(this).classed("hover", false); });
+		var selectedTabSet7 = tabSet7.select(".tab-container").select(".tab");
+		selectedTabSet7
+			.classed("selected", true)
+			.transition()
+			.duration(100)
+			.ease("linear")
+			.attr("d", function(d) { return top_rounded_rect_tab(d, {"height" : 3}); });
+		tabs.on("mousedown", function()
+			{
+				if (d3.event.button == 0)
+				{
+					// Left click.
+					
+					// Clear old selected tab information.
+					selectedTabSet7
+						.classed("selected", false)
+						.transition()
+						.duration(100)
+						.ease("linear")
+						.attr("d", function(d) { return top_rounded_rect_tab(d); });
+					
+					// Record new selected tab information.
+					selectedTabSet7 = d3.select(this).select(".tab");
+					selectedTabSet7
 						.classed("selected", true)
 						.transition()
 						.duration(100)
