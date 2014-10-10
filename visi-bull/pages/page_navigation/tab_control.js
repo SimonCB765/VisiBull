@@ -14,56 +14,97 @@ $(document).ready(function()
 		});
 	
 	
+	// Create the tabs.
 	var tabText = ["A", "AB", "ABC", "ABCD", "ABCDE", "ABCDEF", "ABCDEFG", "ABCDEFGH", "ABCDEFGHI", "ABCDEFGHIJ", "ABCDEFGHIJK"]
-
-
-
-	/*******************
-	* Create Tab Set 2 *
-	*******************/
+	create_no_text_tab_set("#tab-set-2");
+	
+	
+	function create_no_text_tab_set(tabSetID)
 	{
 		// Definitions.
-		var tabContainerWidth = 900;
-		var tabContainerHeight = 105;
-		var numberOfTabs = 3;
-		var tabWidth = 50;
-		var tabHeight = 25;
-		var tabMargin = 5;
-		var backingBorderStart = 50;
-		var backingBorderHeight = 5;
+		var svgWidth = 900;  // width of the SVG element containing the tabs.
+		var svgHeight = 150;  // Height of the SVG element containing the tabs.
+		var numberOfTabs = 3;  // The number of tabs to have in each set of tabs.
+		var tabWidth = 50;  // The width of each tab.
+		var tabHeight = 25;  // The height of each tab.
+		var tabMargin = 5;  // The margin between adjacent tabs.
+		var backingBorderHeight = 2;  // The thickness of the border that the tabs rest on.
+		var tabData = [];  // The data for creating the tabs
 		
-		var tabSet2 = d3.select("#tab-set-2")  // The SVG element.
-			.attr("width", tabContainerWidth)
-			.attr("height", tabContainerHeight);
+		// Select the SVG element.
+		var tabSet = d3.select(tabSetID)
+			.attr("width", svgWidth)
+			.attr("height", svgHeight);
 		
+		/******************
+		* Top Row Of Tabs *
+		******************/
+		{
+			// Determine tab locations.
+			var currentTabX = 0;  // X coordinate of the tab currently being created.
+			var tabTop = (svgHeight / 3) - backingBorderHeight - tabHeight;  // The Y coordinate of the top of the tabs.
+			for (var i = 0; i < numberOfTabs; i++)
+			{
+				tabData.push({"transX" : currentTabX + tabMargin, "transY" : tabTop, "x" : 0, "y" : tabHeight, "width" : tabWidth, "height" : tabHeight, "direction" : "up"});
+				currentTabX += (tabMargin + tabWidth + tabMargin);
+			}
+			
+			// Add the border that the tabs will rest on.
+			tabSet.append("rect")
+				.attr("width", svgWidth)
+				.attr("height", backingBorderHeight)
+				.attr("x", 0)
+				.attr("y", (svgHeight / 3) - backingBorderHeight)
+				.classed("backing", true);
+		}
+		
+		/*********************
+		* Middle Row Of Tabs *
+		*********************/
+		{			
+			var tabBottom = (svgHeight / 3) + 30;  // The Y coordinate of the bottom of the tabs.
+			var numberOfTabsLeftOfCenter = numberOfTabs / 2;  // Fraction of the tabs (doesn't have to be an integer) of the tabs that are left of the mid point.
+			var currentTabX = (svgWidth / 2) - (numberOfTabsLeftOfCenter * tabWidth) - (Math.floor(numberOfTabsLeftOfCenter) * tabMargin);  // X coordinate of the tab currently being created.
+			for (var i = 0; i < numberOfTabs; i++)
+			{
+				tabData.push({"transX" : currentTabX, "transY" : tabBottom, "x" : 0, "y" : 0, "width" : tabWidth, "height" : tabHeight, "direction" : "down"});
+				currentTabX += (tabMargin + tabWidth + tabMargin);
+			}
+			
+			// Add the border that the tabs will rest on.
+			tabSet.append("rect")
+				.attr("width", svgWidth)
+				.attr("height", backingBorderHeight)
+				.attr("x", 0)
+				.attr("y", (svgHeight / 3) + 30 - backingBorderHeight)
+				.classed("backing", true);
+		}
+		
+		/******************
+		* Top Row Of Tabs *
+		******************/
+		{
+			// Determine tab locations.
+			var currentTabX = svgWidth;  // X coordinate of the tab currently being created.
+			var tabTop = svgHeight - backingBorderHeight - tabHeight - 10;  // The Y coordinate of the top of the tabs.
+			for (var i = 0; i < numberOfTabs; i++)
+			{
+				tabData.push({"transX" : currentTabX - tabMargin - tabWidth, "transY" : tabTop, "x" : 0, "y" : tabHeight, "width" : tabWidth, "height" : tabHeight, "direction" : "up"});
+				currentTabX -= (tabMargin + tabWidth + tabMargin);
+			}
+			
+			// Add the border that the tabs will rest on.
+			tabSet.append("rect")
+				.attr("width", svgWidth)
+				.attr("height", backingBorderHeight)
+				.attr("x", 0)
+				.attr("y", svgHeight - backingBorderHeight - 10)
+				.classed("backing", true);
+		}
+
 		// Create the tabs.
-		var currentTabX = 0;
-		var tabYTop = backingBorderStart;
-		var tabYBottom = backingBorderStart + backingBorderHeight;
-		var tabLocations = [];
-		// Left aligned tabs going upwards.
-		for (var i = 0; i < numberOfTabs; i++)
-		{
-			tabLocations.push({"transX" : currentTabX + tabMargin, "transY" : tabYTop - tabHeight, "x" : 0, "y" : tabHeight, "width" : tabWidth, "height" : tabHeight, "direction" : "up"});
-			currentTabX += (tabMargin + tabWidth + tabMargin);
-		}
-		// Right aligned tabs going upwards.
-		var currentTabX = tabContainerWidth;
-		for (var i = 0; i < numberOfTabs; i++)
-		{
-			tabLocations.push({"transX" : currentTabX - tabMargin - tabWidth, "transY" : tabYTop - tabHeight, "x" : 0, "y" : tabHeight, "width" : tabWidth, "height" : tabHeight, "direction" : "up"});
-			currentTabX -= (tabMargin + tabWidth + tabMargin);
-		}
-		// Center aligned tabs going down.
-		var numberOfTabsLeftOfCenter = numberOfTabs / 2;
-		var currentTabX = (tabContainerWidth / 2) - (numberOfTabsLeftOfCenter * tabWidth) - (Math.floor(numberOfTabsLeftOfCenter) * tabMargin);
-		for (var i = 0; i < numberOfTabs; i++)
-		{
-			tabLocations.push({"transX" : currentTabX, "transY" : tabYBottom, "x" : 0, "y" : 0, "width" : tabWidth, "height" : tabHeight, "direction" : "down"});
-			currentTabX += (tabMargin + tabWidth + tabMargin);
-		}
-		var tabContainer = tabSet2.selectAll(".tab-container")
-			.data(tabLocations)
+		var tabContainer = tabSet.selectAll(".tab-container")
+			.data(tabData)
 			.enter()
 			.append("g")
 			.attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; })
@@ -73,20 +114,12 @@ $(document).ready(function()
 			.attr("d", function(d) { return top_rounded_rect_tab(d); })
 			.classed("tab", true);
 		
-		// Add a border that the tabs will rest on.
-		tabSet2.append("rect")
-			.attr("width", tabContainerWidth)
-			.attr("height", backingBorderHeight)
-			.attr("x", 0)
-			.attr("y", backingBorderStart)
-			.classed("backing", true);
-		
 		// Setup the behaviour of the tabs.
-		var tabs = tabSet2.selectAll(".tab-container");
+		var tabs = tabSet.selectAll(".tab-container");
 		tabs.on("mouseover", function() { d3.select(this).classed("hover", true); });
 		tabs.on("mouseout", function() { d3.select(this).classed("hover", false); });
-		var selectedTabSet2 = tabSet2.select(".tab-container").select(".tab");
-		selectedTabSet2
+		var selectedTabSet = tabSet.select(".tab-container").select(".tab");
+		selectedTabSet
 			.classed("selected", true)
 			.transition()
 			.duration(100)
@@ -98,7 +131,7 @@ $(document).ready(function()
 				{
 					// Left click.
 					// Clear old selected tab information.
-					selectedTabSet2
+					selectedTabSet
 						.classed("selected", false)
 						.transition()
 						.duration(100)
@@ -106,8 +139,8 @@ $(document).ready(function()
 						.attr("d", function(d) { return top_rounded_rect_tab(d); });
 					
 					// Record new selected tab information.
-					selectedTabSet2 = d3.select(this).select(".tab");
-					selectedTabSet2
+					selectedTabSet = d3.select(this).select(".tab");
+					selectedTabSet
 						.classed("selected", true)
 						.transition()
 						.duration(100)
@@ -123,20 +156,21 @@ $(document).ready(function()
 	*******************/
 	{
 		// Definitions.
-		var tabContainerWidth = 900;
-		var tabContainerHeight = 50;
+		var svgWidth = 900;
+		var svgHeight = 50;
 		var minTabWidth = 50;
 		var tabHeight = 35;
 		var tabPadding = 2;  // Padding around the tab text content.
+		var tabMargin = 5;
 		var backingBorderHeight = 5;
 		
 		var tabSet3 = d3.select("#tab-set-3")  // The SVG element.
-			.attr("width", tabContainerWidth)
-			.attr("height", tabContainerHeight);
+			.attr("width", svgWidth)
+			.attr("height", svgHeight);
 		
 		// Create the tabs.
 		var currentTabX = 0;
-		var tabYBottom = tabContainerHeight - backingBorderHeight
+		var tabYBottom = svgHeight - backingBorderHeight
 		var tabYTop = tabYBottom - tabHeight;
 		for (var i = 0; i < tabText.length; i++)
 		{
@@ -154,7 +188,7 @@ $(document).ready(function()
 			
 			// Create the text for the current tab.
 			var foreignObject = tabContainer.append("foreignObject")
-				.attr("width", tabContainerWidth)
+				.attr("width", svgWidth)
 				.attr("height", tabHeight - tabPadding)
 				.attr("x", 0)
 				.attr("y", 0)
@@ -187,10 +221,10 @@ $(document).ready(function()
 		
 		// Add a border that the tabs will rest on.
 		tabSet3.append("rect")
-			.attr("width", tabContainerWidth)
+			.attr("width", svgWidth)
 			.attr("height", backingBorderHeight)
 			.attr("x", 0)
-			.attr("y", tabContainerHeight - backingBorderHeight)
+			.attr("y", svgHeight - backingBorderHeight)
 			.classed("backing", true);
 		
 		// Setup the behaviour of the tabs.
@@ -236,28 +270,29 @@ $(document).ready(function()
 	*******************/
 	{
 		// Definitions.
-		var tabContainerWidth = 900;
-		var tabContainerHeight = 50;
+		var svgWidth = 900;
+		var svgHeight = 50;
 		var minTabWidth = 40;
 		var maxTabWidth = 90;
 		var tabHeight = 35;
 		var tabPadding = 2;  // Padding around the tab text content.
+		var tabMargin = 5;
 		var backingBorderHeight = 5;
 		
 		var tabSet4 = d3.select("#tab-set-4")  // The SVG element.
-			.attr("width", tabContainerWidth)
-			.attr("height", tabContainerHeight);
+			.attr("width", svgWidth)
+			.attr("height", svgHeight);
 		
 		// Create the tabs.
 		var currentTabX = 0;
-		var tabY = backingBorderStart - tabHeight;
+		var tabY = svgHeight - backingBorderHeight - tabHeight;
 		for (var i = 0; i < tabText.length; i++)
 		{
 			var currentTabText = tabText[i];
 
 			// Create the container for the current tab.
 			var tabContainer = tabSet4.append("g")
-				.datum({"transX" : currentTabX + tabMargin, "transY" : tabYTop, "x" : 0, "y" : tabHeight, "width" : minTabWidth, "height" : tabHeight, "direction" : "up"})
+				.datum({"transX" : currentTabX + tabMargin, "transY" : tabY, "x" : 0, "y" : tabHeight, "width" : minTabWidth, "height" : tabHeight, "direction" : "up"})
 				.attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; })
 				.classed("tab-container", true);
 			
@@ -307,10 +342,10 @@ $(document).ready(function()
 		
 		// Add a border that the tabs will rest on.
 		tabSet4.append("rect")
-			.attr("width", tabContainerWidth)
+			.attr("width", svgWidth)
 			.attr("height", backingBorderHeight)
 			.attr("x", 0)
-			.attr("y", tabContainerHeight - backingBorderHeight)
+			.attr("y", svgHeight - backingBorderHeight)
 			.classed("backing", true);
 		
 		// Setup the behaviour of the tabs.
@@ -356,28 +391,29 @@ $(document).ready(function()
 	*******************/
 	{
 		// Definitions.
-		var tabContainerWidth = 900;
-		var tabContainerHeight = 50;
+		var svgWidth = 900;
+		var svgHeight = 50;
 		var minTabWidth = 40;
 		var maxTabWidth = 90;
 		var tabHeight = 35;
 		var tabPadding = 2;  // Padding around the tab text content.
+		var tabMargin = 5;
 		var backingBorderHeight = 5;
 		
 		var tabSet5 = d3.select("#tab-set-5")  // The SVG element.
-			.attr("width", tabContainerWidth)
-			.attr("height", tabContainerHeight);
+			.attr("width", svgWidth)
+			.attr("height", svgHeight);
 		
 		// Create the tabs.
 		var currentTabX = 0;
-		var tabY = backingBorderStart - tabHeight;
+		var tabY = svgHeight - backingBorderHeight - tabHeight;
 		for (var i = 0; i < tabText.length; i++)
 		{
 			var currentTabText = tabText[i];
 
 			// Create the container for the current tab.
 			var tabContainer = tabSet5.append("g")
-				.datum({"transX" : currentTabX + tabMargin, "transY" : tabYTop, "x" : 0, "y" : tabHeight, "width" : minTabWidth, "height" : tabHeight, "direction" : "up"})
+				.datum({"transX" : currentTabX + tabMargin, "transY" : tabY, "x" : 0, "y" : tabHeight, "width" : minTabWidth, "height" : tabHeight, "direction" : "up"})
 				.attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; })
 				.classed("tab-container", true);
 			
@@ -428,10 +464,10 @@ $(document).ready(function()
 		
 		// Add a border that the tabs will rest on.
 		tabSet5.append("rect")
-			.attr("width", tabContainerWidth)
+			.attr("width", svgWidth)
 			.attr("height", backingBorderHeight)
 			.attr("x", 0)
-			.attr("y", tabContainerHeight - backingBorderHeight)
+			.attr("y", svgHeight - backingBorderHeight)
 			.classed("backing", true);
 		
 		// Setup the behaviour of the tabs.
@@ -473,30 +509,30 @@ $(document).ready(function()
 	
 	
 	
-	
 	/*******************
 	* Create Tab Set 6 *
 	*******************/
 	{
 		// Definitions.
-		var tabContainerWidth = 900;
-		var tabContainerHeight = 50;
+		var svgWidth = 900;
+		var svgHeight = 50;
 		var minTabWidth = 40;
 		var maxTabWidth = 90;
 		var tabHeight = 35;
 		var tabPadding = 2;  // Padding around the tab text content.
+		var tabMargin = 5;
 		var backingBorderHeight = 5;
 		
 		var tabSet6 = d3.select("#tab-set-6")  // The SVG element.
-			.attr("width", tabContainerWidth)
-			.attr("height", tabContainerHeight);
+			.attr("width", svgWidth)
+			.attr("height", svgHeight);
 		
 		// Create the <defs> to hold the clip paths.
 		var defs = tabSet6.append("defs");
 		
 		// Create the tabs.
 		var currentTabX = 0;
-		var tabY = tabContainerHeight - backingBorderHeight - tabHeight;
+		var tabY = svgHeight - backingBorderHeight - tabHeight;
 		for (var i = 0; i < tabText.length; i++)
 		{
 			var currentTabText = tabText[i];
@@ -541,22 +577,25 @@ $(document).ready(function()
 			var currentTabBBox = currentTabTextEle.node().getBBox()
 			var currentTabWidth = currentTabBBox.width;
 			var currentTabHeight = currentTabBBox.height;
-			if (minTabWidth >= currentTabWidth + (2 * tabPadding))
+			if (minTabWidth >= currentTabWidth + tabPadding)
 			{
 				// Minimum width is greater than or equal to the padded text size, so use the minimum tab size.
 				currentTabWidth = minTabWidth;
+				currentTabTextEle.attr("x", function(d) { return d.x + tabPadding; });
 			}
-			else if ((currentTabWidth + (2 * tabPadding)) <= (maxTabWidth - (2 * tabPadding)))
+			else if ((currentTabWidth + tabPadding) <= maxTabWidth)
 			{
 				// Tab width is not greater than max.
-				currentTabWidth += (2 * tabPadding);
+				currentTabWidth += tabPadding;
 				currentTab.attr("d", function(d) { d.width = currentTabWidth; currentTabPath = top_rounded_rect_tab(d); return currentTabPath; });
+				currentTabTextEle.attr("x", function(d) { return d.x + tabPadding; });
 			}
 			else
 			{
 				// Tab width is greater than max.
 				currentTabWidth = maxTabWidth;
 				currentTab.attr("d", function(d) { d.width = currentTabWidth; currentTabPath = top_rounded_rect_tab(d); return currentTabPath; });
+				currentTabTextEle.attr("x", function(d) { return d.x + tabPadding; });
 			}
 
 			// Update the end position of the last tab.
@@ -565,10 +604,10 @@ $(document).ready(function()
 		
 		// Add a border that the tabs will rest on.
 		tabSet6.append("rect")
-			.attr("width", tabContainerWidth)
+			.attr("width", svgWidth)
 			.attr("height", backingBorderHeight)
 			.attr("x", 0)
-			.attr("y", tabContainerHeight - backingBorderHeight)
+			.attr("y", svgHeight - backingBorderHeight)
 			.classed("backing", true);
 		
 		// Setup the behaviour of the tabs.
@@ -614,24 +653,25 @@ $(document).ready(function()
 	*******************/
 	{
 		// Definitions.
-		var tabContainerWidth = 900;
-		var tabContainerHeight = 50;
+		var svgWidth = 900;
+		var svgHeight = 50;
 		var minTabWidth = 40;
 		var maxTabWidth = 90;
 		var tabHeight = 35;
 		var tabPadding = 2;  // Padding around the tab text content.
+		var tabMargin = 5;
 		var backingBorderHeight = 5;
 		
 		var tabSet7 = d3.select("#tab-set-7")  // The SVG element.
-			.attr("width", tabContainerWidth)
-			.attr("height", tabContainerHeight);
+			.attr("width", svgWidth)
+			.attr("height", svgHeight);
 		
 		// Create the <defs> to hold the clip paths.
 		var defs = tabSet7.append("defs");
 		
 		// Create the tabs.
 		var currentTabX = 0;
-		var tabY = tabContainerHeight - backingBorderHeight - tabHeight;
+		var tabY = svgHeight - backingBorderHeight - tabHeight;
 		for (var i = 0; i < tabText.length; i++)
 		{
 			var currentTabText = tabText[i];
@@ -699,7 +739,6 @@ $(document).ready(function()
 				var fadeStart = (maxTabWidth * 0.7) / currentTabWidth;
 				var fadeEnd = (maxTabWidth * 1.2) / currentTabWidth;
 				var finalOpacity = 0 + (((maxTabWidth * 1.2) - currentTabWidth) / currentTabWidth);  // The less text that overflows the end of the tab the more gradual the fade out. This helps to normalise all fadeouts so that they look similar irrespective of text amount in the tab.
-				console.log(maxTabWidth, currentTabWidth, (maxTabWidth * 0.5), fadeStart, finalOpacity);
 				var gradient = defs.append("linearGradient")
 					.attr("id", "fadeGradient" + i)
 					.attr("x1", "0%")
@@ -727,10 +766,10 @@ $(document).ready(function()
 		
 		// Add a border that the tabs will rest on.
 		tabSet7.append("rect")
-			.attr("width", tabContainerWidth)
+			.attr("width", svgWidth)
 			.attr("height", backingBorderHeight)
 			.attr("x", 0)
-			.attr("y", tabContainerHeight - backingBorderHeight)
+			.attr("y", svgHeight - backingBorderHeight)
 			.classed("backing", true);
 		
 		// Setup the behaviour of the tabs.
@@ -784,6 +823,8 @@ $(document).ready(function()
 		// radiusY - y direction radius for corner arcs (always refers to the radius along the height side , so horizontal in left and right tabs)
 		// direction - direction tabs should point
 		
+		// Tabs are designed to sit directly on a border.
+		
 		// extend takes width and height and allows you to add a little bit to the path
 		
 		// Determine initial coordinates.
@@ -820,32 +861,28 @@ $(document).ready(function()
 						"a" + radiusX + "," + radiusY + " 0 0 1 " + radiusX + "," + -radiusY +
 						"h" + (width - (2 * radiusX)) +
 						"a" + radiusX + "," + radiusY + " 0 0 1 " + radiusX + "," + radiusY +
-						"v" + (height - radiusY) +
-						"z";
+						"v" + (height - radiusY);
 				break;
 			case "right":
 				path += "h" + (height - radiusY) +
 						"a" + radiusY + "," + radiusX + " 0 0 1 " + radiusY + "," + radiusX +
 						"v" + (width - (2 * radiusX)) +
 						"a" + radiusY + "," + radiusX + " 0 0 1 " + -radiusY + "," + radiusX +
-						"h" + (radiusY - height) +
-						"z";
+						"h" + (radiusY - height);
 				break;
 			case "down":
 				path += "v" + (height - radiusY) +
 						"a" + radiusX + "," + radiusY + " 0 0 1 " + -radiusX + "," + radiusY +
 						"h" + ((2 * radiusX) - width) +
 						"a" + radiusX + "," + radiusY + " 0 0 1 " + -radiusX + "," + -radiusY +
-						"v" + (radiusY - height) +
-						"z";
+						"v" + (radiusY - height);
 				break;
 			case "left":
 				path += "h" + (radiusY - height) +
 						"a" + radiusY + "," + radiusX + " 0 0 1 " + -radiusY + "," + -radiusX +
 						"v" + ((2 * radiusX) - width) +
 						"a" + radiusY + "," + radiusX + " 0 0 1 " + radiusY + "," + -radiusX +
-						"h" + (height - radiusY) +
-						"z";
+						"h" + (height - radiusY);
 				break;
 		}
 		return path;
