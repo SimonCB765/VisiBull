@@ -491,6 +491,9 @@ $(document).ready(function()
 			.attr("width", tabContainerWidth)
 			.attr("height", tabContainerHeight);
 		
+		// Create the <defs> to hold the clip paths.
+		var defs = tabSet6.append("defs");
+		
 		// Create the tabs.
 		var currentTabX = 0;
 		var tabY = backingBorderStart - tabHeight;
@@ -505,45 +508,52 @@ $(document).ready(function()
 				.classed("tab-container", true);
 			
 			// Create the current tab.
+			var currentTabPath;
 			var currentTab = tabContainer.append("path")
-				.attr("d", function(d) { return top_rounded_rect_tab(d); })
+				.attr("d", function(d) { currentTabPath = top_rounded_rect_tab(d); return currentTabPath;})
 				.classed("tab", true);
-			
+
+			// Setup the clip path.
+			var currentClipPath = defs.append("clipPath")
+				.attr("id", "clip" + i)
+				.append("path")
+					.attr("d", currentTabPath);
+			tabContainer
+				.attr("clip-path", "url(#clip" + i + ")");
+
 			// Create the text for the current tab.
-			var foreignObject = tabContainer.append("foreignObject")
-				.attr("width", maxTabWidth - (2 * tabPadding))
-				.attr("height", tabHeight - tabPadding)
+			var currentTabTextEle = tabContainer.append("text")
 				.attr("x", 0)
-				.attr("y", 0);
-			var tabContent = foreignObject.append("xhtml:div")
-				.classed("tab-content", true)
-				.html("<span>" + currentTabText + "</span>");
-			
+				.attr("y", function(d) { return (d.height + (d.height / 4)) / 2; })  // d.height / 4 is the default value for the y radius used to round the tab borders, and is therefore added to the tab height in order to get the middle of the straight edge of the tab.
+				.text(currentTabText)
+				.style("fill", "orange")
+				.style("stroke-width", 0)
+				.style("dominant-baseline", "middle");
+
 			// Resize the tabs as needed.
-			var currentTabContent = $(tabContent.node());
-			var currentTabWidth = currentTabContent.width();
-			var currentTabHeight = currentTabContent.height();
+			console.log(currentTabTextEle.node().getBBox(), i)
+			var currentTabBBox = currentTabTextEle.node().getBBox()
+			var currentTabWidth = currentTabBBox.width;
+			var currentTabHeight = currentTabBBox.height;
 			if (minTabWidth >= currentTabWidth + (2 * tabPadding))
 			{
 				// Minimum width is greater than or equal to the padded text size, so use the minimum tab size.
 				currentTabWidth = minTabWidth;
-				currentTab.attr("width", minTabWidth);
 			}
 			else if ((currentTabWidth + (2 * tabPadding)) <= (maxTabWidth - (2 * tabPadding)))
 			{
+				// Tab width is not greater than max.
 				currentTabWidth += (2 * tabPadding);
-				currentTab.attr("d", function(d) { d.width = currentTabWidth; return top_rounded_rect_tab(d); });
+				currentTab.attr("d", function(d) { d.width = currentTabWidth; currentTabPath = top_rounded_rect_tab(d); return currentTabPath; });
+				currentClipPath.attr("d", currentTabPath);
 			}
 			else
 			{
+				// Tab width is greater than max.
 				currentTabWidth = maxTabWidth - (2 * tabPadding);
-				currentTab.attr("d", function(d) { d.width = maxTabWidth; return top_rounded_rect_tab(d); });
+				currentTab.attr("d", function(d) { d.width = maxTabWidth; currentTabPath = top_rounded_rect_tab(d); return currentTabPath; });
+				currentClipPath.attr("d", currentTabPath);
 			}
-			foreignObject
-				.attr("x", tabPadding)
-				.attr("y", tabPadding)
-				.attr("width", currentTabWidth);
-			tabContent.style("width", currentTabWidth + "px")  // Resize the div containing the content to enable fading or ellipsis.
 
 			// Update the end position of the last tab.
 			currentTabX += (tabMargin + currentTabWidth + tabMargin);
