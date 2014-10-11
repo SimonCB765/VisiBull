@@ -55,7 +55,6 @@ function initialise_game()
 	svg.select(".playerContainer").remove();
 	
 	// Define needed values.
-	var playerSpeed = 2;  // The speed at which the player's icon moves when a key is pressed.
 	var playerWidth = 30;  // The width of the player rectangle.
 	var playerHeight = 10;  // The height of the player rectangle.
 	var pillSpeed = 4;  // The speed at which the pills shot by the player travel.
@@ -131,24 +130,30 @@ function initialise_game()
 		{
 			var keyCode = d3.event.keyCode;
 			var playerPosition = playerContainer.datum();
-			if (keyCode === 37)
-			{
-				// Move left.
-				d3.event.preventDefault();  // Prevent default to stop screen scrolling when pressing the key.
-				playerContainer
-					.attr("transform", function(d) { d.transX = Math.max(0, d.transX - playerSpeed); return "translate(" + d.transX + "," + d.transY + ")"; });
-			}
-			else if (keyCode === 39)
-			{
-				// Move right.
-				d3.event.preventDefault();  // Prevent default to stop screen scrolling when pressing the key.
-				playerContainer
-					.attr("transform", function(d) { d.transX = Math.min(svgWidth - playerWidth, d.transX + playerSpeed); return "translate(" + d.transX + "," + d.transY + ")"; });
-			}
-			else if (keyCode === 32 || keyCode === 38)
+			if (keyCode === 32 || keyCode === 38)
 			{
 				// Space or up pressed to shoot, so shoot if there is no shot already on the screen.
 				d3.event.preventDefault();  // Prevent default to stop screen scrolling when pressing the key.
+				if (svg.select(".pill").empty()) shoot(playerPosition.transX + (playerWidth / 2) - (pillWidth / 2), playerPosition.transY);
+			}
+		});
+	svg.on("mousemove", function()
+		{
+			var mousePos = d3.mouse(this);
+			playerContainer
+				.attr("transform", function(d)
+					{
+						d.transX = mousePos[0];
+						d.transX = Math.min(svgWidth - playerWidth, Math.max(0, d.transX));
+						return "translate(" + d.transX + "," + d.transY + ")";
+					});
+		});
+	svg.on("mousedown", function()
+		{
+			if (d3.event.which === 1)
+			{
+				// Left mouse button pressed to shoot, so shoot if there s no shot alrady on the screen.
+				var playerPosition = playerContainer.datum();
 				if (svg.select(".pill").empty()) shoot(playerPosition.transX + (playerWidth / 2) - (pillWidth / 2), playerPosition.transY);
 			}
 		});
