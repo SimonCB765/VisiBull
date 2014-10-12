@@ -20,6 +20,51 @@ $(document).ready(function()
 	create_growing_tabs("#tab-set-3");
 	
 	
+	var svgWidth = 900;
+	var svgHeight = 600;
+	var tabWidth = 50;  // The width of each tab.
+	var tabHeight = 25;  // The height of each tab.
+	var tabMargin = 20;  // The margin between adjacent tabs.
+	var numberOfTabs = 4;
+	var backingBorderHeight = 2;  // The thickness of the border that the tabs rest on.
+	
+	var testTabSet = d3.select("#tab-set-6")  // The SVG element.
+		.attr("width", svgWidth)
+		.attr("height", svgHeight);
+	testTabSet.on("click", function() { console.log(d3.mouse(this)); })
+
+	var numberOfTabs = 2;
+	var config = {"x" : 450, "y" : tabHeight + 100, "width" : tabWidth, "height" : tabHeight, "curveWidth" : 20, "tabMargin" : tabMargin,
+				  "rotation" : 0, "clip" : "none", "alignment" : "center"};
+	var tabInfo = create_tabs_style_1(numberOfTabs, config);
+
+	// Create the tabs.
+	var testTabContainer = testTabSet.selectAll(".tab-container")
+		.data(tabInfo.data)
+		.enter()
+		.append("g")
+		.attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; })
+		.classed("tab-container", true);
+	var testTabs = testTabContainer
+		.append("path")
+		.attr("d", function(d, i) { return tabInfo.path; })
+		.classed("tab", true);
+			
+	// Add the border that the tabs will rest on.
+	testTabSet.append("rect")
+		.attr("width", svgWidth / 2)
+		.attr("height", backingBorderHeight)
+		.attr("x", 0)
+		.attr("y", tabHeight - (backingBorderHeight / 2) + 100)
+		.classed("backing", true);
+	testTabSet.append("rect")
+		.attr("width", backingBorderHeight)
+		.attr("height", svgHeight / 2)
+		.attr("x", (svgWidth / 2) - (backingBorderHeight / 2))
+		.attr("y", tabHeight - (backingBorderHeight / 2) + 100)
+		.classed("backing", true);
+	
+	
 	function create_no_text_tab_set(tabSetID)
 	{
 		// Definitions.
@@ -644,4 +689,125 @@ $(document).ready(function()
 		return path;
 	}
 
+	function create_tabs_style_1(numberOfTabs, config)
+	{
+		// numberOfTabs - the number of tabs to create
+		// Config contains
+		//		x (and y) - the x (y) position of the start of the set of tabs
+		//			for left aligned - this is the bottom left corner for up tabs, top left for right tabs, top right for down tabs and bottom right for left tabs
+		//			for center aligned - this is the mid point of the tabs
+		//			for right aligned - this is the bottom right corner for up tabs, bottom left for right tabs, top left for down tabs and top right for left tabs
+		//		width - the width of the tabs (excluding the curved ends)
+		//			for "left" and "right" tabs width is the length of the vertical sides of the tabs
+		//		height - the height of the tabs
+		//		curveWidth - the width of the curved portion on each end (each end has width curveWidth so total width is width + (2 * curveWidth))
+		//		tabMargin - the margin between adjacent tabs
+		//		rotation - angle in radians that the tabs should be rotated through. This can be used to get tabs pointing down, left and right.
+		//			must be between -1 and 1
+		//			the rotation is counter-clockwise with a value of 0 being taken to be the non-rotated upwards facing tabs position
+		//				therefore if a rotation of 0.5 is supplied, left aligned tabs will go down and point right, while right aligned will point left and go up
+		//		alignment - whether the tabs should be "left", "center" or "right" aigned
+		
+		// For left and center align, the leftmost tab is created first. The leftmost tab will therefore always appear to be 'stacked' on the bottom of the tabs if they overlap. Adding them
+		// to the DOM in reverse order will therefore make them appear to be 'stacked' with the leftmost tab on top.
+		// For right aligned tabs the rightmost tab is created fist, so the default stacking order is reversed.
+		
+		/***************************
+		* Define Helper Functions. *
+		***************************/
+		function create_tab(rotation)
+		{			
+			// Create the rotated path.
+			var path = "M0," + tabHeight +
+					   "q" + rotate_point(curveWidth / 4, 0, rotation).join(",") + "," + rotate_point(curveWidth / 2, -height / 2, rotation).join(",") +
+					   "t" + rotate_point(curveWidth / 2, -height / 2, rotation).join(",") +
+					   "l" + rotate_point(width, 0, rotation).join(",") +
+					   "q" + rotate_point(curveWidth / 4, 0, rotation).join(",") + "," + rotate_point(curveWidth / 2, height / 2, rotation).join(",") + 
+					   "t" + rotate_point(curveWidth / 2, height / 2, rotation).join(",");
+			return path;
+		}
+		
+		function rotate_point(x, y, rotation)
+		{
+			var result = [0, 0];
+			result[0] = x * Math.cos(Math.PI * rotation) - y * Math.sin(Math.PI * rotation);
+			result[1] = x * Math.sin(Math.PI * rotation) + y * Math.cos(Math.PI * rotation);
+			return result;
+		}
+		
+		/******************************
+		* Parse Configuration Inputs. *
+		******************************/
+		// Determine initial coordinates.
+		var initialX = typeof config.x !== undefined ? config.x : 0;
+		var initialY = typeof config.y !== undefined ? config.y : 0;
+
+		// Determine the width and height of the tab to be created.
+		var width = typeof config.width !== 'undefined' ? config.width : 160;
+		var curveWidth = typeof config.curveWidth !== 'undefined' ? config.curveWidth : 20;
+		var tabMargin = typeof config.tabMargin !== 'undefined' ? config.tabMargin : curveWidth;
+		var height = typeof config.height !== 'undefined' ? config.height : (width / 4);
+		
+		// Determine the angle that the tabs are to be rotated through.
+		var rotation = typeof config.rotation !== 'undefined' ? config.rotation : 0;
+		rotation = (rotation > 1) || (rotation < -1)? 0 : rotation;
+		
+		// Determine the tab alignment.
+		var alignment = typeof config.alignment !== 'undefined' ? config.alignment : "left";
+		alignment = (alignment === "left") || (alignment === "center") || (alignment === "right") ? alignment : "left";
+
+		// Determine the information needed to create the tabs.
+		var tabData = [];  // The data array that can be used to position each tab.
+		var tabPath;  // The path for each tab.
+		
+		// Determine the starting coordinates for the first tab.
+		var startX;  // The initial X coordinate.
+		var startY;  // The initial Y coordinate.
+		switch (alignment)
+		{
+			case "left":
+				startX = initialX;
+				startY = initialY - tabHeight;
+				break;
+			case "center":
+				var numberOfTabsLeftOfCenter = numberOfTabs / 2;  // Fraction of the tabs (doesn't have to be an integer) that are left of the mid point.
+				startX = initialX - (numberOfTabsLeftOfCenter * tabWidth) - ((numberOfTabsLeftOfCenter - 0.5) * tabMargin) - curveWidth;  // Bottom left corner of the left most tab.
+					// -0.5 as for example with 3 tabs you have an entire margin to the left of center, with 2 tabs you have half a margin, with 4 you have 1.5 margins, 5 you have 2
+					// # of margins is always 0.5 less than numer of tabs to the left
+				var rotatedStart = rotate_point(initialX - startX, 0, rotation);
+				startX = initialX - rotatedStart[0];
+				startY = initialY - rotatedStart[1] - tabHeight;
+				break;
+			case "right":
+				startX = initialX - (numberOfTabs * tabWidth) - ((numberOfTabs - 1) * tabMargin) - (2 * curveWidth);  // Bottom left corner of the left most tab.
+				var rotatedStart = rotate_point(initialX - startX, 0, rotation);
+				startX = initialX - rotatedStart[0];
+				startY = initialY - rotatedStart[1] - tabHeight;
+				break;
+		}
+		
+		// Determine the locations for each tab.
+		var currentTabY = startY;  // Y coordinate of the tab currently being created.
+		var currentTabX = startX;  // X coordinate of the tab currently being created.
+		var nonRotatedCoordX = 0;  // The X coordinate of the current tab if it had not been rotated.
+		for (var i = 0; i < numberOfTabs; i++)
+		{
+			var currentTabOffset = rotate_point(nonRotatedCoordX, 0, rotation);  // Amount to offset the current tab from the previous tab in both the X and Y directions.
+			nonRotatedCoordX += (width + tabMargin);
+			currentTabX = startX + currentTabOffset[0];
+			currentTabY = startY + currentTabOffset[1];
+			
+			// Generate the data for the current tab.
+			tabData.push({"transX" : currentTabX, "transY" : currentTabY});
+		}
+		
+		// Create the path for the tab.
+		tabPath = create_tab(rotation);
+
+		// Create the config object that was used.
+		var tabConfig = {"x" : initialX, "y" : initialY, "width" : width, "height" : height, "curveWidth" : curveWidth, "tabMargin" : tabMargin,
+						 "rotation" : rotation, "alignment" : alignment};
+		
+		return {"config" : tabConfig, "data" : tabData, "path" : tabPath};
+	}
 });
