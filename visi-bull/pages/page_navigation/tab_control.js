@@ -1,19 +1,5 @@
 $(document).ready(function()
 {
-	// Setup behaviour for tab set 1.
-	var selectedTabSet1 = $("#tab-set-1 .tab:eq(0)");
-	selectedTabSet1.addClass("selected");
-	$("#tab-set-1 .tab").click(function()
-		{
-			// Clear old selected tab information.
-			selectedTabSet1.removeClass("selected");
-			
-			// Record new selected tab information.
-			selectedTabSet1 = $(this);
-			selectedTabSet1.addClass("selected");
-		});
-	
-	
 	// Create the tabs.
 	var tabText = ["A", "AB", "ABC", "ABCD", "ABCDE", "ABCDEF", "ABCDEFG", "ABCDEFGH", "ABCDEFGHI", "ABCDEFGHIJ", "ABCDEFGHIJK"]
 	create_no_text_tab_set("#tab-set-2");
