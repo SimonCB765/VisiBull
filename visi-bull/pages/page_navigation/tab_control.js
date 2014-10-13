@@ -2,21 +2,277 @@ $(document).ready(function()
 {
 	// Create the tabs.
 	var tabText = ["A", "AB", "ABC", "ABCD", "ABCDE", "ABCDEF", "ABCDEFG", "ABCDEFGH", "ABCDEFGHI", "ABCDEFGHIJ", "ABCDEFGHIJK"]
+	create_empty_tabs("#tab-set-1")
+	create_twirling_tabs("#tab-set-6");
+	
 	create_no_text_tab_set("#tab-set-2");
 	create_growing_tabs("#tab-set-3");
-	create_twirling_tabs("#tab-set-6");
+	
+	function create_empty_tabs(tabSetID)
+	{
+		// Definitions needed.
+		var svgWidth = 900;  // Width of the SVG element.
+		var svgHeight = 150;  // Height of the SVG element.
+		var tabWidth = 50;  // The width of each tab.
+		var tabHeight = 25;  // The height of each tab.
+		var backingBorderHeight = 2;  // The thickness of the border that the tabs rest on.
+		var numberOfTabs = 4;  // The number of tabs to create.
+		var curveWidth = 30;  // The width of the curved region of the tabs.
+		var rotation = 0;  // The rotation of the sets of tabs.
+		
+		// Create the SVG element.
+		var tabSet = d3.select(tabSetID)
+			.attr("width", svgWidth)
+			.attr("height", svgHeight);
+		
+		/******************
+		* Top Row Of Tabs *
+		******************/
+		{
+			// Create the tabs.
+			var topTabBaselineY = 50 - backingBorderHeight;  // The Y coordinate of the horizontal baseline.
+			var topTabStartX = 0;  // The X coordinate where the tabs start.
+			var topTabConfig = {"x" : topTabStartX, "y" : topTabBaselineY, "width" : tabWidth, "height" : tabHeight, "curveWidth" : curveWidth,
+								"rotation" : rotation, "alignment" : "left"};
+			var topTabInfo = create_tabs_style_1(numberOfTabs, topTabConfig);
+			var topTabContainer = tabSet.selectAll(".new-tabs")
+				.data(topTabInfo.data)
+				.enter()
+				.append("g")
+				.attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; })
+				.classed("tab-container", true);
+			var topTabs = topTabContainer
+				.append("path")
+				.attr("d", function(d, i) { return (i === 0) ? topTabInfo.path : topTabInfo.pathMissingLeft; })
+				.classed("tab", true);
+		
+			// Setup the behaviour of the tabs.
+			topTabContainer.on("mouseover", function() { d3.select(this).classed("hover", true); });
+			topTabContainer.on("mouseout", function() { d3.select(this).classed("hover", false); });
+			var selectedTopTab = tabSet.select(".tab-container").select(".tab");
+			selectedTopTab.classed("selected", true);
+			topTabContainer.on("mousedown", function(d, i)
+				{
+					if (d3.event.button == 0)
+					{
+						// Left click.
+						// Clear old selected tab information.
+						selectedTopTab.classed("selected", false);
+						
+						// Make the appearance of the tabs fit with the choice of tab that should be on top (i.e. the one clicked).
+						topTabs
+							.attr("d", function(tabD, tabI)
+								{
+									var desiredTabPath;
+									if (tabI === i)
+									{
+										desiredTabPath = topTabInfo.path;
+									}
+									else if (tabI === 0)
+									{
+										// The 0th index tab is a bit special, as it can only be full or missing its right portion.
+										// If this branch is reached, then it was not the 0th index tab that was clicked on.
+										if (i === 1)
+										{
+											// The 1st index tab was clicked on.
+											desiredTabPath = topTabInfo.pathMissingRight;
+										}
+										else
+										{
+											desiredTabPath = topTabInfo.path;
+										}
+									}
+									else if (tabI === i - 1)
+									{
+										desiredTabPath = topTabInfo.pathMissingBoth;
+									}
+									else
+									{
+										desiredTabPath = topTabInfo.pathMissingLeft;
+									}
+									return desiredTabPath;
+								});
+						
+						// Record new selected tab information.
+						selectedTopTab = d3.select(this).select(".tab");
+						selectedTopTab.classed("selected", true);
+					}
+				});
+		}
+		
+		/*********************
+		* Middle Row Of Tabs *
+		*********************/
+		{
+			// Create the tabs.
+			var middleTabBaselineY = 100 - backingBorderHeight;  // The Y coordinate of the horizontal baseline.
+			var middleTabStartX = svgWidth / 2;  // The X coordinate where the tabs start.
+			var middleTabConfig = {"x" : middleTabStartX, "y" : middleTabBaselineY, "width" : tabWidth, "height" : tabHeight, "curveWidth" : curveWidth,
+								   "rotation" : rotation, "alignment" : "center"};
+			var middleTabInfo = create_tabs_style_1(numberOfTabs, middleTabConfig);
+			var middleTabContainer = tabSet.selectAll(".new-tabs")
+				.data(middleTabInfo.data)
+				.enter()
+				.append("g")
+				.attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; })
+				.classed("tab-container", true);
+			var middleTabs = middleTabContainer
+				.append("path")
+				.attr("d", function(d, i) { return (i === 0) ? middleTabInfo.path : middleTabInfo.pathMissingLeft; })
+				.classed("tab", true);
+		
+			// Setup the behaviour of the tabs.
+			middleTabContainer.on("mouseover", function() { d3.select(this).classed("hover", true); });
+			middleTabContainer.on("mouseout", function() { d3.select(this).classed("hover", false); });
+			var selectedMiddleTab = d3.select(middleTabContainer[0][0]).select(".tab");
+			selectedMiddleTab.classed("selected", true);
+			middleTabContainer.on("mousedown", function(d, i)
+				{
+					if (d3.event.button == 0)
+					{
+						// Left click.
+						// Clear old selected tab information.
+						selectedMiddleTab.classed("selected", false);
+						
+						// Make the appearance of the tabs fit with the choice of tab that should be on top (i.e. the one clicked).
+						middleTabs
+							.attr("d", function(tabD, tabI)
+								{
+									var desiredTabPath;
+									if (tabI === i)
+									{
+										desiredTabPath = middleTabInfo.path;
+									}
+									else if (tabI === 0)
+									{
+										// The 0th index tab is a bit special, as it can only be full or missing its right portion.
+										// If this branch is reached, then it was not the 0th index tab that was clicked on.
+										if (i === 1)
+										{
+											// The 1st index tab was clicked on.
+											desiredTabPath = middleTabInfo.pathMissingRight;
+										}
+										else
+										{
+											desiredTabPath = middleTabInfo.path;
+										}
+									}
+									else if (tabI === i - 1)
+									{
+										desiredTabPath = middleTabInfo.pathMissingBoth;
+									}
+									else
+									{
+										desiredTabPath = middleTabInfo.pathMissingLeft;
+									}
+									return desiredTabPath;
+								});
+						
+						// Record new selected tab information.
+						selectedMiddleTab = d3.select(this).select(".tab");
+						selectedMiddleTab.classed("selected", true);
+					}
+				});
+		}
+		
+		/*********************
+		* Bottom Row Of Tabs *
+		*********************/
+		{
+			// Create the tabs.
+			var bottomTabBaselineY = 150 - backingBorderHeight;  // The Y coordinate of the horizontal baseline.
+			var bottomTabStartX = svgWidth;  // The X coordinate where the tabs start.
+			var bottomTabConfig = {"x" : bottomTabStartX, "y" : bottomTabBaselineY, "width" : tabWidth, "height" : tabHeight, "curveWidth" : curveWidth,
+								   "rotation" : rotation, "alignment" : "right"};
+			var bottomTabInfo = create_tabs_style_1(numberOfTabs, bottomTabConfig);
+			var bottomTabContainer = tabSet.selectAll(".new-tabs")
+				.data(bottomTabInfo.data)
+				.enter()
+				.append("g")
+				.attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; })
+				.classed("tab-container", true);
+			var bottomTabs = bottomTabContainer
+				.append("path")
+				.attr("d", function(d, i) { return (i === numberOfTabs - 1) ? bottomTabInfo.path : bottomTabInfo.pathMissingRight; })
+				.classed("tab", true);
+		
+			// Setup the behaviour of the tabs.
+			bottomTabContainer.on("mouseover", function() { d3.select(this).classed("hover", true); });
+			bottomTabContainer.on("mouseout", function() { d3.select(this).classed("hover", false); });
+			var selectedbottomTab = d3.select(bottomTabContainer[0][numberOfTabs - 1]).select(".tab");
+			selectedbottomTab.classed("selected", true);
+			bottomTabContainer.on("mousedown", function(d, i)
+				{
+					if (d3.event.button == 0)
+					{
+						// Left click.
+						// Clear old selected tab information.
+						selectedbottomTab.classed("selected", false);
+						
+						// Make the appearance of the tabs fit with the choice of tab that should be on top (i.e. the one clicked).
+						bottomTabs
+							.attr("d", function(tabD, tabI)
+								{
+									var desiredTabPath;
+									if (tabI === i)
+									{
+										desiredTabPath = bottomTabInfo.path;
+									}
+									else if (tabI === numberOfTabs - 1)
+									{
+										// The rightmost tab is a bit special, as it can only be full or missing its left portion.
+										// If this branch is reached, then it was not the rightmost tab that was clicked on.
+										if (i === numberOfTabs - 2)
+										{
+											// The tab second from right was clicked on.
+											desiredTabPath = bottomTabInfo.pathMissingLeft;
+										}
+										else
+										{
+											desiredTabPath = bottomTabInfo.path;
+										}
+									}
+									else if (tabI === i + 1)
+									{
+										desiredTabPath = bottomTabInfo.pathMissingBoth;
+									}
+									else
+									{
+										desiredTabPath = bottomTabInfo.pathMissingRight;
+									}
+									return desiredTabPath;
+								});
+						
+						// Record new selected tab information.
+						selectedbottomTab = d3.select(this).select(".tab");
+						selectedbottomTab.classed("selected", true);
+					}
+				});
+		}
+		
+		// Add the baselines on which the tabs will sit.
+		for (var i = 1; i < 4; i++)
+		{
+			var baselineYCoord = (50 * i) - backingBorderHeight;
+			tabSet.append("rect")
+				.attr("width", svgWidth)
+				.attr("height", backingBorderHeight)
+				.attr("x", 0)
+				.attr("y", baselineYCoord)
+				.classed("backing", true);
+		}
+	}
 	
 	function create_twirling_tabs(tabSetID)
 	{
 		// Definitions needed.
 		var svgWidth = 900;  // Width of the SVG element.
 		var svgHeight = 450;  // Height of the SVG element.
-		var tabWidth = 50;  // The width of each tab.
+		var tabWidth = 45;  // The width of each tab.
 		var tabHeight = 25;  // The height of each tab.
-		var tabMargin = 20;  // The margin between adjacent tabs.
 		var backingBorderHeight = 2;  // The thickness of the border that the tabs rest on.
 		var numberOfTabs = 2;  // The number of tabs to create.
-		var curveWidth = 20;  // The width of the curved region of the tabs.
+		var curveWidth = 30;  // The width of the curved region of the tabs.
 		var currentRotation = 0;  // The current rotation of the sets of tabs.
 
 		// Create the SVG element.
@@ -24,7 +280,7 @@ $(document).ready(function()
 			.attr("width", svgWidth)
 			.attr("height", svgHeight);
 		
-		// Add the original baselines on which the tabs will sit.
+		// Add the baselines on which the tabs will sit.
 		for (var i = 0; i < 3; i++)
 		{
 			var baselineYCoord = 175 + (50 * i);
@@ -37,9 +293,9 @@ $(document).ready(function()
 		}
 		
 		// Create the top tabs.
-		var topTabBaslineY = 175;  // The Y coordinate of the horizontal baseline.
+		var topTabBaselineY = 175;  // The Y coordinate of the horizontal baseline.
 		var topTabStartX = 200;  // The X coordinate where the tabs start.
-		var topTabConfig = {"x" : topTabStartX, "y" : topTabBaslineY, "width" : tabWidth, "height" : tabHeight, "curveWidth" : curveWidth,
+		var topTabConfig = {"x" : topTabStartX, "y" : topTabBaselineY, "width" : tabWidth, "height" : tabHeight, "curveWidth" : curveWidth,
 							"tabMargin" : tabMargin, "rotation" : currentRotation, "alignment" : "left"};
 		var topTabInfo = create_tabs_style_1(numberOfTabs, topTabConfig);
 		topTabInfo.data.reverse();
@@ -55,9 +311,9 @@ $(document).ready(function()
 			.classed("tab", true);
 
 		// Create the middle tabs.
-		var middleTabBaslineY = 225;  // The Y coordinate of the horizontal baseline.
+		var middleTabBaselineY = 225;  // The Y coordinate of the horizontal baseline.
 		var middleTabStartX = 450;  // The X coordinate where the tabs start.
-		var middleTabConfig = {"x" : middleTabStartX, "y" : middleTabBaslineY, "width" : tabWidth, "height" : tabHeight, "curveWidth" : curveWidth,
+		var middleTabConfig = {"x" : middleTabStartX, "y" : middleTabBaselineY, "width" : tabWidth, "height" : tabHeight, "curveWidth" : curveWidth,
 							   "tabMargin" : tabMargin, "rotation" : currentRotation, "alignment" : "center"};
 		var middleTabInfo = create_tabs_style_1(numberOfTabs, middleTabConfig);
 		middleTabInfo.data.reverse();
@@ -73,17 +329,17 @@ $(document).ready(function()
 			.classed("tab", true);
 
 		// Create the bottom tabs.
-		var bottomTabBaslineY = 275;  // The Y coordinate of the horizontal baseline.
+		var bottomTabBaselineY = 275;  // The Y coordinate of the horizontal baseline.
 		var bottomTabStartX = 700;  // The X coordinate where the tabs start.
-		var bottomTabConfig = {"x" : bottomTabStartX, "y" : bottomTabBaslineY, "width" : tabWidth, "height" : tabHeight, "curveWidth" : curveWidth,
+		var bottomTabConfig = {"x" : bottomTabStartX, "y" : bottomTabBaselineY, "width" : tabWidth, "height" : tabHeight, "curveWidth" : curveWidth,
 							   "tabMargin" : tabMargin, "rotation" : currentRotation, "alignment" : "right"};
 		var bottomTabInfo = create_tabs_style_1(numberOfTabs, bottomTabConfig);
-		bottomTabInfo.data.reverse();
+		console.log(bottomTabInfo.data);
 		var bottomTabContainer = tabSet.selectAll(".new-tabs")
 			.data(bottomTabInfo.data)
 			.enter()
 			.append("g")
-			.attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; })
+			.attr("transform", function(d) { console.log(d); return "translate(" + d.transX + "," + d.transY + ")"; })
 			.classed("tab-container", true);
 		var bottomTabs = bottomTabContainer
 			.append("path")
@@ -122,7 +378,6 @@ $(document).ready(function()
 			
 			// Rotate bottom tabs.
 			bottomTabInfo = create_tabs_style_1(numberOfTabs, bottomTabConfig);
-			bottomTabInfo.data.reverse();
 			bottomTabContainer
 				.data(bottomTabInfo.data)
 				.attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; })
@@ -130,7 +385,6 @@ $(document).ready(function()
 				.attr("d", function(d, i) { return bottomTabInfo.path; })
 		}
 	}
-	
 	
 	function create_no_text_tab_set(tabSetID)
 	{
@@ -783,15 +1037,40 @@ $(document).ready(function()
 		* Define Helper Functions. *
 		***************************/
 		function create_tab(rotation)
-		{			
-			// Create the rotated path.
+		{
+			// Create the rotated path with no missing portions.
 			var path = "M0," + height +
 					   "q" + rotate_point(curveWidth / 4, 0, rotation).join(",") + "," + rotate_point(curveWidth / 2, -height / 2, rotation).join(",") +
 					   "t" + rotate_point(curveWidth / 2, -height / 2, rotation).join(",") +
 					   "l" + rotate_point(width, 0, rotation).join(",") +
 					   "q" + rotate_point(curveWidth / 4, 0, rotation).join(",") + "," + rotate_point(curveWidth / 2, height / 2, rotation).join(",") + 
 					   "t" + rotate_point(curveWidth / 2, height / 2, rotation).join(",");
-			return path;
+
+			// Create the rotated path with a missing right portion.
+			var pathRight = "M0," + height +
+							"q" + rotate_point(curveWidth / 4, 0, rotation).join(",") + "," + rotate_point(curveWidth / 2, -height / 2, rotation).join(",") +
+							"t" + rotate_point(curveWidth / 2, -height / 2, rotation).join(",") +
+							"l" + rotate_point(width, 0, rotation).join(",") +
+							"q" + rotate_point(curveWidth / 4, 0, rotation).join(",") + "," + rotate_point(curveWidth / 2, height / 2, rotation).join(",") + 
+							"q" + rotate_point(-curveWidth / 4, height / 2, rotation).join(",") + "," + rotate_point(-curveWidth / 2, height / 2, rotation).join(",");
+
+			// Create the rotated path with a missing left portion.
+			var pathLeft = "M" + rotate_point(curveWidth, height, rotation).join(",") +
+						   "q" + rotate_point(-curveWidth / 4, 0, rotation).join(",") + "," + rotate_point(-curveWidth / 2, -height / 2, rotation).join(",") +
+						   "q" + rotate_point(curveWidth / 4, -height / 2, rotation).join(",") + "," + rotate_point(curveWidth / 2, -height / 2, rotation).join(",") +
+						   "l" + rotate_point(width, 0, rotation).join(",") +
+						   "q" + rotate_point(curveWidth / 4, 0, rotation).join(",") + "," + rotate_point(curveWidth / 2, height / 2, rotation).join(",") + 
+						   "t" + rotate_point(curveWidth / 2, height / 2, rotation).join(",");
+
+			// Create the rotated path with both left and right missing portions.
+			var pathBoth = "M" + rotate_point(curveWidth, height, rotation).join(",") +
+						   "q" + rotate_point(-curveWidth / 4, 0, rotation).join(",") + "," + rotate_point(-curveWidth / 2, -height / 2, rotation).join(",") +
+						   "q" + rotate_point(curveWidth / 4, -height / 2, rotation).join(",") + "," + rotate_point(curveWidth / 2, -height / 2, rotation).join(",") +
+						   "l" + rotate_point(width, 0, rotation).join(",") +
+						   "q" + rotate_point(curveWidth / 4, 0, rotation).join(",") + "," + rotate_point(curveWidth / 2, height / 2, rotation).join(",") + 
+						   "q" + rotate_point(-curveWidth / 4, height / 2, rotation).join(",") + "," + rotate_point(-curveWidth / 2, height / 2, rotation).join(",");
+
+			return [path, pathRight, pathLeft, pathBoth];
 		}
 		
 		function rotate_point(x, y, rotation)
@@ -812,7 +1091,6 @@ $(document).ready(function()
 		// Determine the width and height of the tab to be created.
 		var width = typeof config.width !== 'undefined' ? config.width : 160;
 		var curveWidth = typeof config.curveWidth !== 'undefined' ? config.curveWidth : 20;
-		var tabMargin = typeof config.tabMargin !== 'undefined' ? config.tabMargin : curveWidth;
 		var height = typeof config.height !== 'undefined' ? config.height : (width / 4);
 		
 		// Determine the angle that the tabs are to be rotated through.
@@ -838,7 +1116,7 @@ $(document).ready(function()
 				break;
 			case "center":
 				var numberOfTabsLeftOfCenter = numberOfTabs / 2;  // Fraction of the tabs (doesn't have to be an integer) that are left of the mid point.
-				startX = initialX - (numberOfTabsLeftOfCenter * width) - ((numberOfTabsLeftOfCenter - 0.5) * tabMargin) - curveWidth;  // Bottom left corner of the left most tab.
+				startX = initialX - (numberOfTabsLeftOfCenter * width) - ((numberOfTabsLeftOfCenter - 0.5) * curveWidth) - curveWidth;  // Bottom left corner of the left most tab.
 					// -0.5 as for example with 3 tabs you have an entire margin to the left of center, with 2 tabs you have half a margin, with 4 you have 1.5 margins, 5 you have 2
 					// # of margins is always 0.5 less than numer of tabs to the left
 				var rotatedStart = rotate_point(initialX - startX, 0, rotation);
@@ -846,7 +1124,7 @@ $(document).ready(function()
 				startY = initialY - rotatedStart[1] - height;
 				break;
 			case "right":
-				startX = initialX - (numberOfTabs * width) - ((numberOfTabs - 1) * tabMargin) - (2 * curveWidth);  // Bottom left corner of the left most tab.
+				startX = initialX - (numberOfTabs * width) - ((numberOfTabs - 1) * curveWidth) - (2 * curveWidth);  // Bottom left corner of the left most tab.
 				var rotatedStart = rotate_point(initialX - startX, 0, rotation);
 				startX = initialX - rotatedStart[0];
 				startY = initialY - rotatedStart[1] - height;
@@ -860,21 +1138,22 @@ $(document).ready(function()
 		for (var i = 0; i < numberOfTabs; i++)
 		{
 			var currentTabOffset = rotate_point(nonRotatedCoordX, 0, rotation);  // Amount to offset the current tab from the previous tab in both the X and Y directions.
-			nonRotatedCoordX += (width + tabMargin);
+			nonRotatedCoordX += (width + curveWidth);
 			currentTabX = startX + currentTabOffset[0];
 			currentTabY = startY + currentTabOffset[1];
 			
 			// Generate the data for the current tab.
-			tabData.push({"transX" : currentTabX, "transY" : currentTabY});
+			tabData.push({"key" : i, "transX" : currentTabX, "transY" : currentTabY});
 		}
 		
 		// Create the path for the tab.
-		tabPath = create_tab(rotation);
+		tabPaths = create_tab(rotation);
 
 		// Create the config object that was used.
-		var tabConfig = {"x" : initialX, "y" : initialY, "width" : width, "height" : height, "curveWidth" : curveWidth, "tabMargin" : tabMargin,
+		var tabConfig = {"x" : initialX, "y" : initialY, "width" : width, "height" : height, "curveWidth" : curveWidth,
 						 "rotation" : rotation, "alignment" : alignment};
 		
-		return {"config" : tabConfig, "data" : tabData, "path" : tabPath};
+		return {"config" : tabConfig, "data" : tabData, "path" : tabPaths[0], "pathMissingRight" : tabPaths[1], "pathMissingLeft" : tabPaths[2],
+				"pathMissingBoth" : tabPaths[3]};
 	}
 });

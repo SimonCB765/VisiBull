@@ -1,35 +1,10 @@
-.tab {cursor: default;}  /* No changing of the cursor when over tab content. */
-
-#tab-set-1 {display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center; align-content: space-around;
-position: relative;  /* To enable :after bottom border of tab container to be positioned absolutely. */
-}
-#tab-set-1:after {
-position: absolute;
-content: "";
-width: 100%;
-bottom: 0;  /* Place the bottom border of the container below the container (rather than starting at the top of the container). */
-left: 0;  /* Start the bottom border of the container on the left of the screen (rather than starting at the right of the container). */
-border-bottom: 1px solid black;
-z-index: 1;
-}  /* Using pseudo-element after allow us to put a bottom border on the tab container without affecting the position of the tabs themselves. */
-#tab-set-1 .tab {display: inline-flex; flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center; align-content: space-around;}
-#tab-set-1 .tab {
-background-color: orange;
-border: 1px solid black;
-color: black;
-margin: 0 10px;
-padding: 0 10px;
-text-align: center;
-position: relative;  /* To enable :after and :before rounded outside edges to be positioned absolutely. */
-border-top-left-radius: 6px;
-border-top-right-radius: 6px;
-}
-#tab-set-1 .tab:hover {background-color: red;}
-#tab-set-1 .tab.selected {
-background-color: #F8F8F8;
-border-bottom: none;
-z-index: 2;  /* To bring the tab out in front of the bottom border of the tab container. */
-}
+#tab-set-1 {display: block; margin: 0 auto;}
+#tab-set-1 .backing {fill: black; stroke-width: 0;}  /* Bottom backing border for the tab set. */
+#tab-set-1 .tab {fill: #787878; stroke: black; stroke-width: 1;}  /* Style the tabs. */
+#tab-set-1 .tab-container {cursor: default;}  /* Prevent changing of the cursor when hovering over a tab. */
+#tab-set-1 .tab-container.hover .tab {fill: #989898;}
+#tab-set-1 .tab-container .tab.selected {fill: white;}
+#tab-set-1 .tab-content {}
 
 
 
