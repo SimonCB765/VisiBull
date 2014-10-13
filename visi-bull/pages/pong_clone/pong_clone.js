@@ -52,9 +52,6 @@ d3.timer(move_ball);  // Start the ball moving.
 
 function calculate_right_wall_collision(ballPos)
 {
-	console.log("Calculating Wall Collisions");
-	console.log(ballPos, ballVelocity)
-	
 	var currentX = ballPos.x;
 	var currentY = ballPos.y;
 	var currentVelocity = {"x" : ballVelocity.x, "y" : ballVelocity.y};
@@ -81,8 +78,6 @@ function calculate_right_wall_collision(ballPos)
 		currentY = Math.max(0 + ballRadius, Math.min(svgHeight - ballRadius, currentY));
 	}
 	collisionPositions.push([previousBallCollision, {"x" : currentX, "y" : currentY}]);
-	
-	console.log("Wall Collision Calculated");
 	
 	// Animate the line.
 	var totalDelayNeeded = 0;
@@ -183,17 +178,16 @@ function move_ball()
 	{
 		// Ball is touching the right wall, so a point is scored by the player.
 		console.log("PLAYER SCOOOORES");
-		console.log(ballPos);
 		initialise_game();
 	}
-	else if (ballPos.x <= (ballRadius + paddleWidth) && ballPos.y >= playerPos.y && ballPos.y <= playerPos.y + paddleHeight)
+	else if (ballPos.x <= (ballRadius + paddleWidth) && ballPos.y >= playerPos.y && ballPos.y <= playerPos.y + paddleHeight && ballVelocity.x < 0)
 	{
 		// Hit the player paddle head on if the center of the ball is between the top and bottom of the paddle, and is not farther away
 		// from the left wall than the radius of the ball plus the width of the paddle.
 		ballVelocity.x *= -1;
 		collisionPos = calculate_right_wall_collision(ballPos);
 	}
-	else if (distanceToPlayerTop <= ballRadius && ballVelocity.y > 0)
+	else if (distanceToPlayerTop <= ballRadius && ballVelocity.y > 0 && ballVelocity.x < 0)
 	{
 		// The ball has hit the player's paddle on the top corner.
 		if ((playerPaddleCoordinates.top.y - ballPos.y) < (ballPos.x - playerPaddleCoordinates.top.x))
@@ -208,7 +202,7 @@ function move_ball()
 			ballVelocity.y *= -1;
 		}
 	}
-	else if (distanceToPlayerBottom <= ballRadius && ballVelocity.y < 0)
+	else if (distanceToPlayerBottom <= ballRadius && ballVelocity.y < 0 && ballVelocity.x < 0)
 	{
 		// The ball has hit the player's paddle on the bottom corner.
 		if ((ballPos.y - playerPaddleCoordinates.bottom.y) < (ballPos.x - playerPaddleCoordinates.bottom.x))
@@ -223,7 +217,7 @@ function move_ball()
 			ballVelocity.y *= -1;
 		}
 	}
-	else if (ballPos.x >= (svgWidth - (ballRadius + paddleWidth)) && ballPos.y >= aiPos.y && ballPos.y <= aiPos.y + paddleHeight)
+	else if (ballPos.x >= (svgWidth - (ballRadius + paddleWidth)) && ballPos.y >= aiPos.y && ballPos.y <= aiPos.y + paddleHeight && ballVelocity.x > 0)
 	{
 		// Hit the AI paddle head on if the center of the ball is between the top and bottom of the paddle, and is not farther away
 		// from the right wall than the radius of the ball plus the width of the paddle.
@@ -237,7 +231,7 @@ function move_ball()
 		// Remove the trajectory.
 		svg.selectAll(".trajectory").remove();
 	}
-	else if (distanceToAITop <= ballRadius && ballVelocity.y > 0)
+	else if (distanceToAITop <= ballRadius && ballVelocity.y > 0 && ballVelocity.x > 0)
 	{
 		// The ball has hit the AI's paddle on the top corner.
 		if ((aiPaddleCoordinates.top.y - ballPos.y) < (aiPaddleCoordinates.top.x - ballPos.x))
@@ -259,7 +253,7 @@ function move_ball()
 		// Remove the trajectory.
 		svg.selectAll(".trajectory").remove();
 	}
-	else if (distanceToAIBottom <= ballRadius && ballVelocity.y < 0)
+	else if (distanceToAIBottom <= ballRadius && ballVelocity.y < 0 && ballVelocity.x > 0)
 	{
 		// The ball has hit the AI's paddle on the bottom corner.
 		if ((ballPos.y - aiPaddleCoordinates.bottom.y) < (aiPaddleCoordinates.bottom.x - ballPos.x))
