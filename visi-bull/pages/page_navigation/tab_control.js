@@ -3,9 +3,8 @@ $(document).ready(function()
 	// Create the tabs.
 	var tabText = ["A", "AB", "ABC", "ABCD", "ABCDE", "ABCDEF", "ABCDEFG", "ABCDEFGH", "ABCDEFGHI", "ABCDEFGHIJ", "ABCDEFGHIJK"]
 	create_empty_tabs("#tab-set-1")
-	create_twirling_tabs("#tab-set-6");
+	create_twirling_tabs("#tab-set-2");
 	
-	create_no_text_tab_set("#tab-set-2");
 	create_growing_tabs("#tab-set-3");
 	
 	function create_empty_tabs(tabSetID)
@@ -16,7 +15,7 @@ $(document).ready(function()
 		var tabWidth = 50;  // The width of each tab.
 		var tabHeight = 25;  // The height of each tab.
 		var backingBorderHeight = 2;  // The thickness of the border that the tabs rest on.
-		var numberOfTabs = 4;  // The number of tabs to create.
+		var numberOfTabs = 5;  // The number of tabs to create.
 		var curveWidth = 30;  // The width of the curved region of the tabs.
 		var rotation = 0;  // The rotation of the sets of tabs.
 		
@@ -267,83 +266,74 @@ $(document).ready(function()
 	{
 		// Definitions needed.
 		var svgWidth = 900;  // Width of the SVG element.
-		var svgHeight = 450;  // Height of the SVG element.
-		var tabWidth = 45;  // The width of each tab.
+		var svgHeight = 300;  // Height of the SVG element.
+		var tabWidth = 40;  // The width of each tab.
 		var tabHeight = 25;  // The height of each tab.
 		var backingBorderHeight = 2;  // The thickness of the border that the tabs rest on.
 		var numberOfTabs = 2;  // The number of tabs to create.
-		var curveWidth = 30;  // The width of the curved region of the tabs.
+		var curveWidth = 20;  // The width of the curved region of the tabs.
 		var currentRotation = 0;  // The current rotation of the sets of tabs.
 
 		// Create the SVG element.
-		var tabSet = d3.select("#tab-set-6")  // The SVG element.
+		var tabSet = d3.select(tabSetID)  // The SVG element.
 			.attr("width", svgWidth)
 			.attr("height", svgHeight);
 		
 		// Add the baselines on which the tabs will sit.
-		for (var i = 0; i < 3; i++)
-		{
-			var baselineYCoord = 175 + (50 * i);
-			tabSet.append("rect")
-				.attr("width", svgWidth - 400)
-				.attr("height", backingBorderHeight)
-				.attr("x", 200)
-				.attr("y", baselineYCoord)
-				.classed("backing", true);
-		}
+		var baselineYCoord = 150;
+		tabSet.append("rect")
+			.attr("width", svgWidth - 400)
+			.attr("height", backingBorderHeight)
+			.attr("x", 200)
+			.attr("y", baselineYCoord)
+			.classed("backing", true);
 		
-		// Create the top tabs.
-		var topTabBaselineY = 175;  // The Y coordinate of the horizontal baseline.
-		var topTabStartX = 200;  // The X coordinate where the tabs start.
-		var topTabConfig = {"x" : topTabStartX, "y" : topTabBaselineY, "width" : tabWidth, "height" : tabHeight, "curveWidth" : curveWidth,
+		// Create the left aligned tabs.
+		var leftTabStartX = 200;  // The X coordinate where the tabs start.
+		var leftTabConfig = {"x" : leftTabStartX, "y" : baselineYCoord, "width" : tabWidth, "height" : tabHeight, "curveWidth" : curveWidth,
 							"tabMargin" : tabMargin, "rotation" : currentRotation, "alignment" : "left"};
-		var topTabInfo = create_tabs_style_1(numberOfTabs, topTabConfig);
-		topTabInfo.data.reverse();
-		var topTabContainer = tabSet.selectAll(".new-tabs")
-			.data(topTabInfo.data)
+		var leftTabInfo = create_tabs_style_1(numberOfTabs, leftTabConfig);
+		var leftTabContainer = tabSet.selectAll(".new-tabs")
+			.data(leftTabInfo.data)
 			.enter()
 			.append("g")
 			.attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; })
 			.classed("tab-container", true);
-		var topTabs = topTabContainer
+		var leftTabs = leftTabContainer
 			.append("path")
-			.attr("d", function(d, i) { return topTabInfo.path; })
+			.attr("d", function(d, i) { return (i === 0) ? leftTabInfo.path : leftTabInfo.pathMissingLeft; })
 			.classed("tab", true);
 
-		// Create the middle tabs.
-		var middleTabBaselineY = 225;  // The Y coordinate of the horizontal baseline.
-		var middleTabStartX = 450;  // The X coordinate where the tabs start.
-		var middleTabConfig = {"x" : middleTabStartX, "y" : middleTabBaselineY, "width" : tabWidth, "height" : tabHeight, "curveWidth" : curveWidth,
+		// Create the center aligned tabs.
+		var centerTabStartX = 450;  // The X coordinate where the tabs start.
+		var centerTabConfig = {"x" : centerTabStartX, "y" : baselineYCoord, "width" : tabWidth, "height" : tabHeight, "curveWidth" : curveWidth,
 							   "tabMargin" : tabMargin, "rotation" : currentRotation, "alignment" : "center"};
-		var middleTabInfo = create_tabs_style_1(numberOfTabs, middleTabConfig);
-		middleTabInfo.data.reverse();
-		var middleTabContainer = tabSet.selectAll(".new-tabs")
-			.data(middleTabInfo.data)
+		var centerTabInfo = create_tabs_style_1(numberOfTabs, centerTabConfig);
+		var centerTabContainer = tabSet.selectAll(".new-tabs")
+			.data(centerTabInfo.data)
 			.enter()
 			.append("g")
 			.attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; })
 			.classed("tab-container", true);
-		var middleTabs = middleTabContainer
+		var centerTabs = centerTabContainer
 			.append("path")
-			.attr("d", function(d, i) { return middleTabInfo.path; })
+			.attr("d", function(d, i) { return (i === 0) ? centerTabInfo.path : centerTabInfo.pathMissingLeft; })
 			.classed("tab", true);
 
-		// Create the bottom tabs.
-		var bottomTabBaselineY = 275;  // The Y coordinate of the horizontal baseline.
-		var bottomTabStartX = 700;  // The X coordinate where the tabs start.
-		var bottomTabConfig = {"x" : bottomTabStartX, "y" : bottomTabBaselineY, "width" : tabWidth, "height" : tabHeight, "curveWidth" : curveWidth,
+		// Create the right aligned tabs.
+		var rightTabStartX = 700;  // The X coordinate where the tabs start.
+		var rightTabConfig = {"x" : rightTabStartX, "y" : baselineYCoord, "width" : tabWidth, "height" : tabHeight, "curveWidth" : curveWidth,
 							   "tabMargin" : tabMargin, "rotation" : currentRotation, "alignment" : "right"};
-		var bottomTabInfo = create_tabs_style_1(numberOfTabs, bottomTabConfig);
-		console.log(bottomTabInfo.data);
-		var bottomTabContainer = tabSet.selectAll(".new-tabs")
-			.data(bottomTabInfo.data)
+		var rightTabInfo = create_tabs_style_1(numberOfTabs, rightTabConfig);
+		var rightTabContainer = tabSet.selectAll(".new-tabs")
+			.data(rightTabInfo.data)
 			.enter()
 			.append("g")
-			.attr("transform", function(d) { console.log(d); return "translate(" + d.transX + "," + d.transY + ")"; })
+			.attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; })
 			.classed("tab-container", true);
-		var bottomTabs = bottomTabContainer
+		var rightTabs = rightTabContainer
 			.append("path")
-			.attr("d", function(d, i) { return bottomTabInfo.path; })
+			.attr("d", function(d, i) { return (i === numberOfTabs - 1) ? rightTabInfo.path : rightTabInfo.pathMissingRight; })
 			.classed("tab", true);
 		
 		// Add the rotating animation.
@@ -354,167 +344,34 @@ $(document).ready(function()
 			currentRotation += 0.0025;
 			if (currentRotation === 1) { currentRotation *= -1; }
 			else if (currentRotation > 1) { currentRotation = -1; }
-			topTabConfig.rotation = currentRotation;
-			middleTabConfig.rotation = currentRotation;
-			bottomTabConfig.rotation = currentRotation;
+			leftTabConfig.rotation = currentRotation;
+			centerTabConfig.rotation = currentRotation;
+			rightTabConfig.rotation = currentRotation;
 			
 			// Rotate top tabs.
-			topTabInfo = create_tabs_style_1(numberOfTabs, topTabConfig);
-			topTabInfo.data.reverse();
-			topTabContainer
-				.data(topTabInfo.data)
-				.attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; })
-			topTabs
-				.attr("d", function(d, i) { return topTabInfo.path; })
+			leftTabInfo = create_tabs_style_1(numberOfTabs, leftTabConfig);
+			leftTabContainer
+				.data(leftTabInfo.data)
+				.attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+			leftTabs
+				.attr("d", function(d, i) { return (i === 0) ? leftTabInfo.path : leftTabInfo.pathMissingLeft; });
 			
 			// Rotate middle tabs.
-			middleTabInfo = create_tabs_style_1(numberOfTabs, middleTabConfig);
-			middleTabInfo.data.reverse();
-			middleTabContainer
-				.data(middleTabInfo.data)
-				.attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; })
-			middleTabs
-				.attr("d", function(d, i) { return middleTabInfo.path; })
+			centerTabInfo = create_tabs_style_1(numberOfTabs, centerTabConfig);
+			centerTabContainer
+				.data(centerTabInfo.data)
+				.attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+			centerTabs
+				.attr("d", function(d, i) { return (i === 0) ? centerTabInfo.path : centerTabInfo.pathMissingLeft; });
 			
 			// Rotate bottom tabs.
-			bottomTabInfo = create_tabs_style_1(numberOfTabs, bottomTabConfig);
-			bottomTabContainer
-				.data(bottomTabInfo.data)
-				.attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; })
-			bottomTabs
-				.attr("d", function(d, i) { return bottomTabInfo.path; })
+			rightTabInfo = create_tabs_style_1(numberOfTabs, rightTabConfig);
+			rightTabContainer
+				.data(rightTabInfo.data)
+				.attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+			rightTabs
+				.attr("d", function(d, i) { return (i === numberOfTabs - 1) ? rightTabInfo.path : rightTabInfo.pathMissingRight; });
 		}
-	}
-	
-	function create_no_text_tab_set(tabSetID)
-	{
-		// Definitions.
-		var svgWidth = 900;  // Width of the SVG element containing the tabs.
-		var svgHeight = 150;  // Height of the SVG element containing the tabs.
-		var numberOfTabs = 3;  // The number of tabs to have in each set of tabs.
-		var tabWidth = 50;  // The width of each tab.
-		var tabHeight = 25;  // The height of each tab.
-		var tabMargin = 5;  // The margin between adjacent tabs.
-		var backingBorderHeight = 2;  // The thickness of the border that the tabs rest on.
-		var tabData = [];  // The data for creating the tabs
-		
-		// Select the SVG element.
-		var tabSet = d3.select(tabSetID)
-			.attr("width", svgWidth)
-			.attr("height", svgHeight);
-		
-		/******************
-		* Top Row Of Tabs *
-		******************/
-		{
-			// Determine tab locations.
-			var currentTabX = 0;  // X coordinate of the tab currently being created.
-			var tabTop = (svgHeight / 3) - backingBorderHeight - tabHeight;  // The Y coordinate of the top of the tabs.
-			for (var i = 0; i < numberOfTabs; i++)
-			{
-				tabData.push({"transX" : currentTabX + tabMargin, "transY" : tabTop, "x" : 0, "y" : tabHeight, "width" : tabWidth, "height" : tabHeight, "direction" : "up"});
-				currentTabX += (tabMargin + tabWidth + tabMargin);
-			}
-			
-			// Add the border that the tabs will rest on.
-			tabSet.append("rect")
-				.attr("width", svgWidth)
-				.attr("height", backingBorderHeight)
-				.attr("x", 0)
-				.attr("y", (svgHeight / 3) - backingBorderHeight)
-				.classed("backing", true);
-		}
-		
-		/*********************
-		* Middle Row Of Tabs *
-		*********************/
-		{			
-			var tabBottom = (svgHeight / 3) + 30;  // The Y coordinate of the bottom of the tabs.
-			var numberOfTabsLeftOfCenter = numberOfTabs / 2;  // Fraction of the tabs (doesn't have to be an integer) of the tabs that are left of the mid point.
-			var currentTabX = (svgWidth / 2) - (numberOfTabsLeftOfCenter * tabWidth) - (Math.floor(numberOfTabsLeftOfCenter) * tabMargin);  // X coordinate of the tab currently being created.
-			for (var i = 0; i < numberOfTabs; i++)
-			{
-				tabData.push({"transX" : currentTabX, "transY" : tabBottom, "x" : 0, "y" : 0, "width" : tabWidth, "height" : tabHeight, "direction" : "down"});
-				currentTabX += (tabMargin + tabWidth + tabMargin);
-			}
-			
-			// Add the border that the tabs will rest on.
-			tabSet.append("rect")
-				.attr("width", svgWidth)
-				.attr("height", backingBorderHeight)
-				.attr("x", 0)
-				.attr("y", (svgHeight / 3) + 30 - backingBorderHeight)
-				.classed("backing", true);
-		}
-		
-		/******************
-		* Top Row Of Tabs *
-		******************/
-		{
-			// Determine tab locations.
-			var currentTabX = svgWidth;  // X coordinate of the tab currently being created.
-			var tabTop = svgHeight - backingBorderHeight - tabHeight - 10;  // The Y coordinate of the top of the tabs.
-			for (var i = 0; i < numberOfTabs; i++)
-			{
-				tabData.push({"transX" : currentTabX - tabMargin - tabWidth, "transY" : tabTop, "x" : 0, "y" : tabHeight, "width" : tabWidth, "height" : tabHeight, "direction" : "up"});
-				currentTabX -= (tabMargin + tabWidth + tabMargin);
-			}
-			
-			// Add the border that the tabs will rest on.
-			tabSet.append("rect")
-				.attr("width", svgWidth)
-				.attr("height", backingBorderHeight)
-				.attr("x", 0)
-				.attr("y", svgHeight - backingBorderHeight - 10)
-				.classed("backing", true);
-		}
-
-		// Create the tabs.
-		var tabContainer = tabSet.selectAll(".tab-container")
-			.data(tabData)
-			.enter()
-			.append("g")
-			.attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; })
-			.classed("tab-container", true);
-		var tabs = tabContainer
-			.append("path")
-			.attr("d", function(d) { return top_rounded_rect_tab(d); })
-			.classed("tab", true);
-		
-		// Setup the behaviour of the tabs.
-		var tabs = tabSet.selectAll(".tab-container");
-		tabs.on("mouseover", function() { d3.select(this).classed("hover", true); });
-		tabs.on("mouseout", function() { d3.select(this).classed("hover", false); });
-		var selectedTabSet = tabSet.select(".tab-container").select(".tab");
-		selectedTabSet
-			.classed("selected", true)
-			.transition()
-			.duration(100)
-			.ease("linear")
-			.attr("d", function(d) { return top_rounded_rect_tab(d, {"height" : 3}); });
-		tabs.on("mousedown", function()
-			{
-				if (d3.event.button == 0)
-				{
-					// Left click.
-					// Clear old selected tab information.
-					selectedTabSet
-						.classed("selected", false)
-						.transition()
-						.duration(100)
-						.ease("linear")
-						.attr("d", function(d) { return top_rounded_rect_tab(d); });
-					
-					// Record new selected tab information.
-					selectedTabSet = d3.select(this).select(".tab");
-					selectedTabSet
-						.classed("selected", true)
-						.transition()
-						.duration(100)
-						.ease("linear")
-						.attr("d", function(d) { return top_rounded_rect_tab(d, {"height" : 3}); });
-				}
-			});
 	}
 	
 	function create_growing_tabs(tabSetID)

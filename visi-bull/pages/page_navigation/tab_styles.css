@@ -6,16 +6,17 @@
 #tab-set-1 .tab-container .tab.selected {fill: white;}
 #tab-set-1 .tab-content {}
 
-
-
-
-#tab-set-2 {background: black; border:1px solid black; display: block; margin: 0 auto;}
-#tab-set-2 .backing {fill: white; stroke-width: 0;}  /* Bottom backing border for the tab set. */
-#tab-set-2 .tab {fill: black; stroke: white; stroke-width: 2;}  /* Setting fill to the background color is the same as setting to none, but lets hovering work correctly. */
-#tab-set-2 .tab-container {cursor: default;}
-#tab-set-2 .tab-container.hover .tab {}
-#tab-set-2 .tab-container .tab.selected {fill: #AE2DE3; stroke: white; stroke-width: 0;}
+#tab-set-2 {display: block; margin: 0 auto;}
+#tab-set-2 .backing {fill: black; stroke-width: 0;}  /* Bottom backing border for the tab set. */
+#tab-set-2 .tab {fill: #787878; stroke: black; stroke-width: 1;}  /* Style the tabs. */
+#tab-set-2 .tab-container {cursor: default;}  /* Prevent changing of the cursor when hovering over a tab. */
+#tab-set-2 .tab-container.hover .tab {fill: #989898;}
+#tab-set-2 .tab-container .tab.selected {fill: white;}
 #tab-set-2 .tab-content {}
+
+
+
+
 
 #tab-set-3 {background: black; border:1px solid black; display: block; margin: 0 auto;}
 #tab-set-3 .backing {fill: white; stroke-width: 0;}  /* Bottom backing border for the tab set. */
@@ -40,20 +41,3 @@
 #tab-set-5 .tab-container.hover .tab {}
 #tab-set-5 .tab-container .tab.selected {fill: #AE2DE3; stroke: white; stroke-width: 0;}
 #tab-set-5 .tab-content text {fill: white; stroke-width: 0; dominant-baseline: middle;}
-
-
-
-
-
-
-
-
-
-
-#tab-set-6{background: black; border:1px solid black; display: block; margin: 0 auto;}
-#tab-set-6 .backing {fill: white; stroke-width: 0;}  /* Bottom backing border for the tab set. */
-#tab-set-6 .tab-container {cursor: default;}
-#tab-set-6 .tab-container.hover .tab {}
-#tab-set-6 .tab-container .tab {fill: grey; stroke: white; stroke-width: 1;}  /* Setting fill to the background color is the same as setting to none, but lets hovering work correctly. */
-#tab-set-6 .tab-container .tab.selected {fill: #AE2DE3; stroke: white; stroke-width: 0;}
-#tab-set-6 .tab-content text {fill: white; stroke-width: 0; dominant-baseline: middle;}
