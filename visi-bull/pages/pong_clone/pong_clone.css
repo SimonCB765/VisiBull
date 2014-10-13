@@ -13,5 +13,6 @@ svg {background: black; display: block; margin: 0 auto; outline: 1px solid black
 _classes
 */
 svg .ball {fill: #AE2DE3; stroke: none;}  /* Style for the ball. */
-svg .divider {stroke: white; stroke-width: 2px;}  /* Style for the half court line. */
+svg .divider {stroke: white; stroke-width: 2;}  /* Style for the half court line. */
 svg .paddle {fill: #FF008C; stroke: none;}  /* Style for the paddles. */
+svg .trajectory {stroke: #AE2DE3; stroke-width: 2;}  /* Style for the ball trajectory line. */

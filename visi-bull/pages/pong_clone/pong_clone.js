@@ -47,26 +47,76 @@ svg.on("mousemove", function()
 	});
 
 // Start the game.
-d3.timer(move_ball);  // Start the ball moving.
 initialise_game();
+d3.timer(move_ball);  // Start the ball moving.
 
 function calculate_right_wall_collision(ballPos)
 {
+	console.log("Calculating Wall Collisions");
+	console.log(ballPos, ballVelocity)
+	
 	var currentX = ballPos.x;
 	var currentY = ballPos.y;
 	var currentVelocity = {"x" : ballVelocity.x, "y" : ballVelocity.y};
 	var notCollided = true;  // Whether the ball has collided with a wall.
+	var previousBallCollision = {"x" : ballPos.x, "y" : ballPos.y};  // The position of the previous collision.
+	var collisionPositions = [];  // The coordinates of collisions between the ball and an object.
 	while (currentX !== (svgWidth - ballRadius - paddleWidth))
 	{
+		// A collision with the top or bottom wall has occurred.
 		if ((currentY === ballRadius) || (currentY === (svgHeight - ballRadius)))
 		{
+			// Update the collision record.
+			collisionPositions.push([previousBallCollision, {"x" : currentX, "y" : currentY}]);
+			previousBallCollision = {"x" : currentX, "y" : currentY};
+			
+			// Update the velocity of the ball to bounce off the wall.
 			currentVelocity.y *= -1;
 		}
+		
+		// Update the ball position.
 		currentX += currentVelocity.x;
 		currentX = Math.max(0 + ballRadius, Math.min(svgWidth - ballRadius, currentX));
 		currentY += currentVelocity.y;
 		currentY = Math.max(0 + ballRadius, Math.min(svgHeight - ballRadius, currentY));
 	}
+	collisionPositions.push([previousBallCollision, {"x" : currentX, "y" : currentY}]);
+	
+	console.log("Wall Collision Calculated");
+	
+	// Animate the line.
+	var totalDelayNeeded = 0;
+	var ballSpeed = Math.sqrt((ballVelocity.x * ballVelocity.x) + (ballVelocity.y * ballVelocity.y));
+	var trajectory = svg.selectAll(".trajectory")
+		.data(collisionPositions)
+		.enter()
+		.append("path")
+		.classed("trajectory", true)
+		.attr("d", function(d, i) { return "M" + d[0].x + "," + d[0].y + "L" + d[0].x + "," + d[0].y; });
+	trajectory.each(function(d, i)
+		{
+			var trajectorySegment = d3.select(this);
+			
+			// Determine trajectory segment length.
+			var xDist = d[0].x - d[1].x;
+			var yDist = d[0].y - d[1].y;
+			var trajectorySegmentLength = Math.sqrt((xDist * xDist) + (yDist * yDist));
+			
+			var animationSpeed = trajectorySegmentLength * 4 / ballSpeed;
+			trajectorySegment
+				.transition()
+				.delay(totalDelayNeeded)
+				.duration(animationSpeed)
+				.ease("linear")
+				.attr("d", function()
+					{
+						return "M" + d[0].x + "," + d[0].y + "L" + d[1].x + "," + d[1].y;
+					});
+			
+			// Update the delay.
+			totalDelayNeeded += (animationSpeed);
+		});
+	
 	return currentY;
 }
 
@@ -179,10 +229,13 @@ function move_ball()
 		// from the right wall than the radius of the ball plus the width of the paddle.
 		ballVelocity.x *= -1;
 		
-		// Stop any movements hat the AI paddle is currently undergoing.
+		// Stop any movements that the AI paddle is currently undergoing.
 		aiPaddle
 			.transition()
 			.duration(0);
+		
+		// Remove the trajectory.
+		svg.selectAll(".trajectory").remove();
 	}
 	else if (distanceToAITop <= ballRadius && ballVelocity.y > 0)
 	{
@@ -198,10 +251,13 @@ function move_ball()
 			ballVelocity.y *= -1;
 		}
 		
-		// Stop any movements hat the AI paddle is currently undergoing.
+		// Stop any movements that the AI paddle is currently undergoing.
 		aiPaddle
 			.transition()
 			.duration(0);
+		
+		// Remove the trajectory.
+		svg.selectAll(".trajectory").remove();
 	}
 	else if (distanceToAIBottom <= ballRadius && ballVelocity.y < 0)
 	{
@@ -217,10 +273,13 @@ function move_ball()
 			ballVelocity.y *= -1;
 		}
 		
-		// Stop any movements hat the AI paddle is currently undergoing.
+		// Stop any movements that the AI paddle is currently undergoing.
 		aiPaddle
 			.transition()
 			.duration(0);
+		
+		// Remove the trajectory.
+		svg.selectAll(".trajectory").remove();
 	}
 	else if ((ballPos.y === (svgHeight - ballRadius)) || (ballPos.y === ballRadius))
 	{
@@ -244,7 +303,7 @@ function move_ball()
 			.attr("y", function(d)
 				{
 					d.y = collisionPos - (paddleHeight / 2);
-					d.y = Math.max(0 + paddleHeight, Math.min(svgHeight - paddleHeight, d.y));
+					d.y = Math.max(0, Math.min(svgHeight - paddleHeight, d.y));
 					return d.y;
 				});
 	}
