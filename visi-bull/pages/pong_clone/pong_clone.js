@@ -43,7 +43,7 @@ var aiPaddle = svg.append("rect")
 // Add the ability to move the player paddle.
 svg.on("mousemove", function()
 	{
-		playerPaddle.attr("y", function(d) { d.y = d3.mouse(this)[1]; d.y = Math.min(Math.max(0, d.y), svgHeight - paddleHeight); return d.y; });
+		playerPaddle.attr("y", function(d) { d.y = d3.mouse(this)[1] - (paddleHeight / 2); d.y = Math.min(Math.max(0, d.y), svgHeight - paddleHeight); return d.y; });
 	});
 
 // Start the game.
