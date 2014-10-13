@@ -79,6 +79,6 @@ z-index: 2;  /* To bring the tab out in front of the bottom border of the tab co
 #tab-set-6 .backing {fill: white; stroke-width: 0;}  /* Bottom backing border for the tab set. */
 #tab-set-6 .tab-container {cursor: default;}
 #tab-set-6 .tab-container.hover .tab {}
-#tab-set-6 .tab-container .tab {fill: black; stroke: white; stroke-width: 2;}  /* Setting fill to the background color is the same as setting to none, but lets hovering work correctly. */
+#tab-set-6 .tab-container .tab {fill: grey; stroke: white; stroke-width: 1;}  /* Setting fill to the background color is the same as setting to none, but lets hovering work correctly. */
 #tab-set-6 .tab-container .tab.selected {fill: #AE2DE3; stroke: white; stroke-width: 0;}
 #tab-set-6 .tab-content text {fill: white; stroke-width: 0; dominant-baseline: middle;}
