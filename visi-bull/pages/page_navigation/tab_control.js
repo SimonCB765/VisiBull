@@ -616,7 +616,7 @@ $(document).ready(function()
             .classed("tab", true);
 
         // Add the rotating animation.
-        d3.timer(rotate_tabs);
+		setTimeout(rotate_tabs, 100);
         function rotate_tabs()
         {
             // Update rotation.
@@ -650,6 +650,8 @@ $(document).ready(function()
                 .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
             rightTabs
                 .attr("d", function(d, i) { return (i === numberOfTabs - 1) ? rightTabInfo.fullTab : rightTabInfo.tabMissingRight; });
+			
+			setTimeout(rotate_tabs, 100);
         }
     }
 
