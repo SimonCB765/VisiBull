@@ -2,11 +2,11 @@ $(document).ready(function()
 {
     // Create the tabs.
     var tabText = ["A", "AB", "ABC", "ABCD", "ABCDE", "ABCDEF", "ABCDEFG", "ABCDEFGH", "ABCDEFGHI", "ABCDEFGHIJ", "ABCDEFGHIJK"];
-    var textForTabs = ["ABCDEFG", "ABCDEFGH", "ABCDEFGHI", "ABCDEFGHIJ", "ABCDEFGHIJK", "ABCDEFGHIJKL", "ABCDEFGHIJKLM"];
-	var textForTabs = ["1,2,3,4", "1,2,3,4,5", "1,2,3,4,5,6", "1,2,3,4,5,6,7", "1,2,3,4,5,6,7,8", "1,2,3,4,5,6,7,8,9", "1,2,3,4,5,6,7,8,9,10"]
+    var textForTabs = ["Tab One", "Tab Two", "Needlessly Long Third Tab", "Tab Four", "Tab Five", "Very Long Tab", "Super Long Seventh Tab"]
     create_empty_tabs("#tab-set-1");
     create_twirling_tabs("#tab-set-2");
     create_hard_clipped_tabs("#tab-set-3");
+    create_fade_clipped_tabs("#tab-set-4");
 
     function create_empty_tabs(tabSetID)
     {
@@ -263,6 +263,161 @@ $(document).ready(function()
         }
     }
 
+    function create_fade_clipped_tabs(tabSetID)
+    {
+        // Definitions needed.
+        var svgWidth = 900;  // Width of the SVG element.
+        var svgHeight = 50;  // Height of the SVG element.
+        var tabWidth = 100;  // The width of each tab.
+        var tabHeight = 25;  // The height of each tab.
+        var backingBorderHeight = 2;  // The thickness of the border that the tabs rest on.
+        var numberOfTabs = textForTabs.length;  // The number of tabs to create.
+        var curveWidth = 20;  // The width of the curved region of the tabs.
+        var rotation = 0;  // The rotation of the sets of tabs.
+        var baselineY = svgHeight - backingBorderHeight;  // Y coordinate where the tabs and baselin should start.
+
+        // Create the SVG element.
+        var tabSet = d3.select(tabSetID)
+            .attr("width", svgWidth)
+            .attr("height", svgHeight);
+
+        // Create the <defs> to hold the clip paths and gradients.
+        var defs = tabSet.append("defs");
+
+        // Create the tabs.
+        var tabConfig = {"x" : 0, "y" : baselineY, "width" : tabWidth, "height" : tabHeight, "curveWidth" : curveWidth,
+                         "rotation" : rotation, "alignment" : "left"};
+        var tabInfo = create_tabs_style_1(numberOfTabs, tabConfig);
+        var tabContainer = tabSet.selectAll(".new-tabs")
+            .data(tabInfo.data)
+            .enter()
+            .append("g")
+            .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; })
+            .classed("tab-container", true);
+        var tabs = tabContainer
+            .append("path")
+            .attr("d", function(d, i) { return (i === 0) ? tabInfo.fullTab : tabInfo.tabMissingLeft; })
+            .classed("tab", true);
+
+        // Need to include the stroke width in the content positioning.
+        var tabBorderWidth = Math.ceil(parseInt(tabs.style("stroke-width"), 10));
+
+        // Create the clip path.
+        defs.append("clipPath")
+            .attr("id", "clip-fade")
+            .append("rect")
+                .attr("x", 0)
+                .attr("y", 0)
+                .attr("width", tabWidth)
+                .attr("height", tabHeight + tabBorderWidth);
+
+        // Add the tab content.
+        var tabContentContainer = tabContainer
+            .append("g")
+            .classed("tab-content", true)
+            .attr("transform", function(d) { return "translate(" + curveWidth + ",0)"; })
+            .attr("clip-path", "url(#clip-fade)");
+        var tabTextElements = tabContentContainer
+            .append("text")
+            .classed("tab-text", true)
+            .attr("x", 0)
+            .attr("y", (tabHeight + tabBorderWidth) / 2)
+            .text(function(d, i) { return textForTabs[i]; });
+
+        // Fade out text that is too long.
+        tabTextElements.each(function(d, i)
+            {
+                var currentTabBBox = this.getBBox()
+                var currentTabWidth = currentTabBBox.width;
+
+                if (currentTabWidth > tabWidth)
+                {
+                    // If the text is wider than the tab, then create the gradient for the fade.
+                    // The less text that overflows the end of the tab the more gradual the fade out. This helps to normalise all fadeouts so that they
+                    // look similar irrespective of text amount in the tab.
+                    var fadeStart = (tabWidth * 0.7) / currentTabWidth;
+                    var fadeEnd = (tabWidth * 1.0) / currentTabWidth;
+                    var gradient = defs.append("linearGradient")
+                        .attr("id", "fadeGradient-1" + i)
+                        .attr("x1", "0%")
+                        .attr("y1", "0%")
+                        .attr("x2", "100%")
+                        .attr("y2", "0%");
+                    gradient.append("stop")
+                        .classed("grad-start", true)
+                        .attr("offset", fadeStart);
+                    gradient.append("stop")
+                        .classed("grad-end", true)
+                        .attr("offset", fadeEnd);
+
+                    // Set the fade.
+                    d3.select(this)
+                        .style("fill", "url(#fadeGradient-1" + i + ")");
+                }
+            });
+
+        // Setup the behaviour of the tabs.
+        tabContainer.on("mouseover", function() { d3.select(this).classed("hover", true); });
+        tabContainer.on("mouseout", function() { d3.select(this).classed("hover", false); });
+        var selectedTab = tabSet.select(".tab-container").select(".tab");
+        selectedTab.classed("selected", true);
+        tabContainer.on("mousedown", function(d, i)
+            {
+                if (d3.event.button == 0)
+                {
+                    // Left click.
+                    // Clear old selected tab information.
+                    selectedTab.classed("selected", false);
+
+                    // Make the appearance of the tabs fit with the choice of tab that should be on top (i.e. the one clicked).
+                    tabs
+                        .attr("d", function(tabD, tabI)
+                            {
+                                var desiredTabPath;
+                                if (tabI === i)
+                                {
+                                    desiredTabPath = tabInfo.fullTab;
+                                }
+                                else if (tabI === 0)
+                                {
+                                    // The 0th index tab is a bit special, as it can only be full or missing its right portion.
+                                    // If this branch is reached, then it was not the 0th index tab that was clicked on.
+                                    if (i === 1)
+                                    {
+                                        // The 1st index tab was clicked on.
+                                        desiredTabPath = tabInfo.tabMissingRight;
+                                    }
+                                    else
+                                    {
+                                        desiredTabPath = tabInfo.fullTab;
+                                    }
+                                }
+                                else if (tabI === i - 1)
+                                {
+                                    desiredTabPath = tabInfo.tabMissingBoth;
+                                }
+                                else
+                                {
+                                    desiredTabPath = tabInfo.tabMissingLeft;
+                                }
+                                return desiredTabPath;
+                            });
+
+                    // Record new selected tab information.
+                    selectedTab = d3.select(this).select(".tab");
+                    selectedTab.classed("selected", true);
+                }
+            });
+
+        // Add the baselines on which the tabs will sit.
+        tabSet.append("rect")
+            .attr("width", svgWidth)
+            .attr("height", backingBorderHeight)
+            .attr("x", 0)
+            .attr("y", baselineY)
+            .classed("backing", true);
+    }
+
     function create_hard_clipped_tabs(tabSetID)
     {
         // Definitions needed.
@@ -298,11 +453,11 @@ $(document).ready(function()
             .append("path")
             .attr("d", function(d, i) { return (i === 0) ? tabInfo.fullTab : tabInfo.tabMissingLeft; })
             .classed("tab", true);
-		
-		// Need to include the stroke width in the content positioning.
-		var tabBorderWidth = Math.ceil(parseInt(tabs.style("stroke-width"), 10));
 
-		// Create the clip path.
+        // Need to include the stroke width in the content positioning.
+        var tabBorderWidth = Math.ceil(parseInt(tabs.style("stroke-width"), 10));
+
+        // Create the clip path.
         defs.append("clipPath")
             .attr("id", "clip")
             .append("rect")
@@ -311,18 +466,18 @@ $(document).ready(function()
                 .attr("width", tabWidth)
                 .attr("height", tabHeight + tabBorderWidth);
 
-		// Add the tab content.
-		var tabContentContainer = tabContainer
-			.append("g")
-			.classed("tab-content", true)
-			.attr("transform", function(d) { return "translate(" + curveWidth + ",0)"; })
-			.attr("clip-path", "url(#clip)");
-		var currentTabTextEle = tabContentContainer
-			.append("text")
-			.classed("tab-text", true)
-			.attr("x", 0)
-			.attr("y", (tabHeight + tabBorderWidth) / 2)
-			.text(function(d, i) { return textForTabs[i]; });
+        // Add the tab content.
+        var tabContentContainer = tabContainer
+            .append("g")
+            .classed("tab-content", true)
+            .attr("transform", function(d) { return "translate(" + curveWidth + ",0)"; })
+            .attr("clip-path", "url(#clip)");
+        var currentTabTextEle = tabContentContainer
+            .append("text")
+            .classed("tab-text", true)
+            .attr("x", 0)
+            .attr("y", (tabHeight + tabBorderWidth) / 2)
+            .text(function(d, i) { return textForTabs[i]; });
 
         // Setup the behaviour of the tabs.
         tabContainer.on("mouseover", function() { d3.select(this).classed("hover", true); });
@@ -415,7 +570,7 @@ $(document).ready(function()
         // Create the left aligned tabs.
         var leftTabStartX = 200;  // The X coordinate where the tabs start.
         var leftTabConfig = {"x" : leftTabStartX, "y" : baselineYCoord, "width" : tabWidth, "height" : tabHeight, "curveWidth" : curveWidth,
-                            "tabMargin" : tabMargin, "rotation" : currentRotation, "alignment" : "left"};
+                             "rotation" : currentRotation, "alignment" : "left"};
         var leftTabInfo = create_tabs_style_1(numberOfTabs, leftTabConfig);
         var leftTabContainer = tabSet.selectAll(".new-tabs")
             .data(leftTabInfo.data)
@@ -431,7 +586,7 @@ $(document).ready(function()
         // Create the center aligned tabs.
         var centerTabStartX = 450;  // The X coordinate where the tabs start.
         var centerTabConfig = {"x" : centerTabStartX, "y" : baselineYCoord, "width" : tabWidth, "height" : tabHeight, "curveWidth" : curveWidth,
-                               "tabMargin" : tabMargin, "rotation" : currentRotation, "alignment" : "center"};
+                               "rotation" : currentRotation, "alignment" : "center"};
         var centerTabInfo = create_tabs_style_1(numberOfTabs, centerTabConfig);
         var centerTabContainer = tabSet.selectAll(".new-tabs")
             .data(centerTabInfo.data)
@@ -447,7 +602,7 @@ $(document).ready(function()
         // Create the right aligned tabs.
         var rightTabStartX = 700;  // The X coordinate where the tabs start.
         var rightTabConfig = {"x" : rightTabStartX, "y" : baselineYCoord, "width" : tabWidth, "height" : tabHeight, "curveWidth" : curveWidth,
-                               "tabMargin" : tabMargin, "rotation" : currentRotation, "alignment" : "right"};
+                              "rotation" : currentRotation, "alignment" : "right"};
         var rightTabInfo = create_tabs_style_1(numberOfTabs, rightTabConfig);
         var rightTabContainer = tabSet.selectAll(".new-tabs")
             .data(rightTabInfo.data)
@@ -498,246 +653,9 @@ $(document).ready(function()
         }
     }
 
-    /*******************
-    * Create Tab Set 5 *
-    *******************/
-    {
-        // Definitions.
-        var svgWidth = 900;
-        var svgHeight = 50;
-        var minTabWidth = 40;
-        var maxTabWidth = 90;
-        var tabHeight = 35;
-        var tabPadding = 2;  // Padding around the tab text content.
-        var tabMargin = 5;
-        var backingBorderHeight = 2;
-        var backingBorderOffset = 5;  // Pixels by which the backing border is raise from the bottom of the SVG element.
-
-        var tabSet7 = d3.select("#tab-set-5")  // The SVG element.
-            .attr("width", svgWidth)
-            .attr("height", svgHeight);
-
-        // Create the <defs> to hold the clip paths and gradients.
-        var defs = tabSet7.append("defs");
-
-        // Setup the clip path.defs.append("clipPath")
-        defs.append("clipPath")
-            .attr("id", "clip")
-            .append("rect")
-                .attr("x", 0)
-                .attr("y", 0)
-                .attr("width", maxTabWidth - tabPadding)
-                .attr("height", tabHeight - (tabHeight / 4));
-
-        // Create the tabs.
-        var currentTabX = 0;
-        var tabY = svgHeight - backingBorderHeight - tabHeight - backingBorderOffset;
-        for (var i = 0; i < tabText.length; i++)
-        {
-            var currentTabText = tabText[i];
-
-            // Create the container for the current tab.
-            var tabContainer = tabSet7.append("g")
-                .datum({"transX" : currentTabX + tabMargin, "transY" : tabY, "x" : 0, "y" : tabHeight, "width" : minTabWidth, "height" : tabHeight, "direction" : "up"})
-                .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; })
-                .classed("tab-container", true);
-
-            // Create the current tab.
-            var currentTabPath;
-            var currentTab = tabContainer.append("path")
-                .attr("d", function(d) { currentTabPath = top_rounded_rect_tab(d); return currentTabPath;})
-                .classed("tab", true);
-
-            // Create the text containing g element.
-            var tabContentContainer = tabContainer.append("g")
-                .classed("tab-content", true)
-                .attr("transform", function(d) { return "translate(0," + (d.height / 4) + ")"; });
-
-            // Create the text for the current tab.
-            var currentTabTextEle = tabContentContainer.append("text")
-                .attr("x", 0)
-                .attr("y", function(d) { return (d.height - (d.height / 4)) / 2; })  // d.height / 4 is the default value for the y radius used to round the tab borders, and is therefore added to the tab height in order to get the middle of the straight edge of the tab.
-                .text(currentTabText);
-
-            // Setup the clip path.
-            tabContentContainer.attr("clip-path", "url(#clip)");
-
-            // Resize the tabs as needed.
-            var currentTabBBox = currentTabTextEle.node().getBBox()
-            var currentTabWidth = currentTabBBox.width;
-            var currentTabHeight = currentTabBBox.height;
-            if (minTabWidth >= currentTabWidth + tabPadding)
-            {
-                // Minimum width is greater than or equal to the padded text size, so use the minimum tab size.
-                currentTabWidth = minTabWidth;
-                currentTabTextEle.attr("x", function(d) { return d.x + tabPadding; });
-            }
-            else if ((currentTabWidth + (2 * tabPadding)) <= (maxTabWidth))
-            {
-                // Tab width is not large enough to need to start fading.
-                currentTabWidth += (2 * tabPadding);
-                currentTab.attr("d", function(d) { d.width = currentTabWidth; currentTabPath = top_rounded_rect_tab(d); return currentTabPath; });
-                currentTabTextEle.attr("x", function(d) { return d.x + tabPadding; });
-            }
-            else
-            {
-                // Tab width is greater than max.
-
-                // Create the gradient for this tab. Only want to fade out the last 30%-ish of the text that is visible on the tab (if you just made
-                // the gradient start fading at 70% then it would be fading at 70% of the unclipped text, and the fade would therefore be
-                // invisible for most long text tabs).
-                var fadeStart = (maxTabWidth * 0.7) / currentTabWidth;
-                var fadeEnd = (maxTabWidth * 1.2) / currentTabWidth;
-                var finalOpacity = 0 + (((maxTabWidth * 1.2) - currentTabWidth) / currentTabWidth);  // The less text that overflows the end of the tab the more gradual the fade out. This helps to normalise all fadeouts so that they look similar irrespective of text amount in the tab.
-                var gradient = defs.append("linearGradient")
-                    .attr("id", "fadeGradient" + i)
-                    .attr("x1", "0%")
-                    .attr("y1", "0%")
-                    .attr("x2", "100%")
-                    .attr("y2", "0%");
-                gradient.append("stop")
-                    .attr("offset", fadeStart)
-                    .style("stop-color", "rgba(255,255,255,1)");
-                gradient.append("stop")
-                    .attr("offset", fadeEnd)
-                    .style("stop-color", "rgba(255,255,255," + finalOpacity + ")");
-                currentTabTextEle
-                    .style("fill", "url(#fadeGradient" + i + ")")
-                    .attr("x", function(d) { return d.x + tabPadding; });
-
-                // Create the new smaller tab.
-                currentTabWidth = maxTabWidth;
-                currentTab.attr("d", function(d) { d.width = currentTabWidth; currentTabPath = top_rounded_rect_tab(d); return currentTabPath; });
-            }
-
-            // Update the end position of the last tab.
-            currentTabX += (tabMargin + currentTabWidth + tabMargin);
-        }
-
-        // Add a border that the tabs will rest on.
-        tabSet7.append("rect")
-            .attr("width", svgWidth)
-            .attr("height", backingBorderHeight)
-            .attr("x", 0)
-            .attr("y", svgHeight - backingBorderHeight - backingBorderOffset)
-            .classed("backing", true);
-
-        // Setup the behaviour of the tabs.
-        var tabs = tabSet7.selectAll(".tab-container");
-        tabs.on("mouseover", function() { d3.select(this).classed("hover", true); });
-        tabs.on("mouseout", function() { d3.select(this).classed("hover", false); });
-        var selectedTabSet7 = tabSet7.select(".tab-container").select(".tab");
-        selectedTabSet7
-            .classed("selected", true)
-            .transition()
-            .duration(100)
-            .ease("linear")
-            .attr("d", function(d) { return top_rounded_rect_tab(d, {"height" : 3}); });
-        tabs.on("mousedown", function()
-            {
-                if (d3.event.button == 0)
-                {
-                    // Left click.
-
-                    // Clear old selected tab information.
-                    selectedTabSet7
-                        .classed("selected", false)
-                        .transition()
-                        .duration(100)
-                        .ease("linear")
-                        .attr("d", function(d) { return top_rounded_rect_tab(d); });
-
-                    // Record new selected tab information.
-                    selectedTabSet7 = d3.select(this).select(".tab");
-                    selectedTabSet7
-                        .classed("selected", true)
-                        .transition()
-                        .duration(100)
-                        .ease("linear")
-                        .attr("d", function(d) { return top_rounded_rect_tab(d, {"height" : 3}); });
-                }
-            });
-    }
-
-
     /*************************
     * Tab Creation Functions *
     *************************/
-    function top_rounded_rect_tab(config, extend)
-    {
-        // For left and right tabs, the width is the vertical sides
-        // initialPoint - initialPoint.x x coord of initial coord initialPoint.y is y coord of it
-        //      bottom left for up tabs, top left for right tabs, top right for down tabs and bottom right for left tabs
-        // width - width of the tab, height - height of the tab
-        // radiusX - x direction radius for corner arcs (always refers to the radius along the width side , so vertical in left and right tabs)
-        // radiusY - y direction radius for corner arcs (always refers to the radius along the height side , so horizontal in left and right tabs)
-        // direction - direction tabs should point
-
-        // Tabs are designed to sit directly on a border.
-
-        // extend takes width and height and allows you to add a little bit to the path
-
-        // Determine initial coordinates.
-        var initialX = typeof config.x !== undefined ? config.x : 0;
-        var initialY = typeof config.y !== undefined ? config.y : 0;
-
-        // Determine the width and height of the tab to be created.
-        var width = typeof config.width !== 'undefined' ? config.width : 160;
-        var height = typeof config.height !== 'undefined' ? config.height : (width / 4);
-
-        // Determine whether to extend the width or height
-        if (typeof extend !== 'undefined')
-        {
-            width = typeof extend.width !== 'undefined' ? width + extend.width : width;
-            height = typeof extend.height !== 'undefined' ? height + extend.height : height;
-        }
-
-        // Determine the width and height of the tab to be created.
-        var radiusX = typeof config.radiusX !== 'undefined' ? config.radiusX : (width / 2);
-        var radiusY = typeof config.radiusY !== 'undefined' ? config.radiusY : (height / 4);
-
-        // Determine the direction that the tab should go.
-        var direction = typeof config.direction !== 'undefined' ? config.direction : "up";
-        direction = (direction === "up") || (direction === "right") || (direction === "down") || (direction === "left") ? direction : "up";
-
-        // Create path.
-        var path = "M" + initialX + "," + initialY;
-        switch(direction)
-        {
-            case "up":
-                // Up is the same as a messed up direction.
-            default:
-                path += "v" + (radiusY - height) +
-                        "a" + radiusX + "," + radiusY + " 0 0 1 " + radiusX + "," + -radiusY +
-                        "h" + (width - (2 * radiusX)) +
-                        "a" + radiusX + "," + radiusY + " 0 0 1 " + radiusX + "," + radiusY +
-                        "v" + (height - radiusY);
-                break;
-            case "right":
-                path += "h" + (height - radiusY) +
-                        "a" + radiusY + "," + radiusX + " 0 0 1 " + radiusY + "," + radiusX +
-                        "v" + (width - (2 * radiusX)) +
-                        "a" + radiusY + "," + radiusX + " 0 0 1 " + -radiusY + "," + radiusX +
-                        "h" + (radiusY - height);
-                break;
-            case "down":
-                path += "v" + (height - radiusY) +
-                        "a" + radiusX + "," + radiusY + " 0 0 1 " + -radiusX + "," + radiusY +
-                        "h" + ((2 * radiusX) - width) +
-                        "a" + radiusX + "," + radiusY + " 0 0 1 " + -radiusX + "," + -radiusY +
-                        "v" + (radiusY - height);
-                break;
-            case "left":
-                path += "h" + (radiusY - height) +
-                        "a" + radiusY + "," + radiusX + " 0 0 1 " + -radiusY + "," + -radiusX +
-                        "v" + ((2 * radiusX) - width) +
-                        "a" + radiusY + "," + radiusX + " 0 0 1 " + radiusY + "," + -radiusX +
-                        "h" + (height - radiusY);
-                break;
-        }
-        return path;
-    }
-
     function create_tabs_style_1(numberOfTabs, config)
     {
         // numberOfTabs - the number of tabs to create
@@ -750,7 +668,6 @@ $(document).ready(function()
         //          for "left" and "right" tabs width is the length of the vertical sides of the tabs
         //      height - the height of the tabs
         //      curveWidth - the width of the curved portion on each end (each end has width curveWidth so total width is width + (2 * curveWidth))
-        //      tabMargin - the margin between adjacent tabs
         //      rotation - angle in radians that the tabs should be rotated through. This can be used to get tabs pointing down, left and right.
         //          must be between -1 and 1
         //          the rotation is counter-clockwise with a value of 0 being taken to be the non-rotated upwards facing tabs position
