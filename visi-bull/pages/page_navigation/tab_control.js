@@ -912,7 +912,8 @@ $(document).ready(function()
 							"q" + rotate_point(-curveWidth / 4, height / 2, rotation).join(",") + "," + rotate_point(-curveWidth / 2, height / 2, rotation).join(",");
 
 			// Create the rotated path with a missing left portion.
-			var pathLeft = "M" + rotate_point(curveWidth, height, rotation).join(",") +
+			var pathLeft = "M0," + height +
+						   "m" + rotate_point(curveWidth, 0, rotation).join(",") +
 						   "q" + rotate_point(-curveWidth / 4, 0, rotation).join(",") + "," + rotate_point(-curveWidth / 2, -height / 2, rotation).join(",") +
 						   "q" + rotate_point(curveWidth / 4, -height / 2, rotation).join(",") + "," + rotate_point(curveWidth / 2, -height / 2, rotation).join(",") +
 						   "l" + rotate_point(width, 0, rotation).join(",") +
@@ -920,7 +921,8 @@ $(document).ready(function()
 						   "t" + rotate_point(curveWidth / 2, height / 2, rotation).join(",");
 
 			// Create the rotated path with both left and right missing portions.
-			var pathBoth = "M" + rotate_point(curveWidth, height, rotation).join(",") +
+			var pathBoth = "M0," + height +
+						   "m" + rotate_point(curveWidth, 0, rotation).join(",") +
 						   "q" + rotate_point(-curveWidth / 4, 0, rotation).join(",") + "," + rotate_point(-curveWidth / 2, -height / 2, rotation).join(",") +
 						   "q" + rotate_point(curveWidth / 4, -height / 2, rotation).join(",") + "," + rotate_point(curveWidth / 2, -height / 2, rotation).join(",") +
 						   "l" + rotate_point(width, 0, rotation).join(",") +
