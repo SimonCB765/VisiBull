@@ -14,25 +14,27 @@
 #tab-set-2 .tab-container .tab.selected {fill: white;}
 #tab-set-2 .tab-content {}
 
+#tab-set-3 {display: block; margin: 0 auto;}
+#tab-set-3 .backing {fill: black; stroke: none;}  /* Bottom backing border for the tab set. */
+#tab-set-3 .tab {fill: #787878; stroke: black; stroke-width: 2;}  /* Style the tabs. */
+#tab-set-3 .tab-container {cursor: default;}  /* Prevent changing of the cursor when hovering over a tab. */
+#tab-set-3 .tab-container.hover .tab {fill: #989898;}
+#tab-set-3 .tab-container .tab.selected {fill: white;}
+#tab-set-3 .tab-text {dominant-baseline: middle; fill: black; stroke: none;}
+
+#tab-set-4 {display: block; margin: 0 auto;}
+#tab-set-4 .backing {fill: black; stroke: none;}  /* Bottom backing border for the tab set. */
+#tab-set-4 .tab {fill: #787878; stroke: black; stroke-width: 2;}  /* Style the tabs. */
+#tab-set-4 .tab-container {cursor: default;}  /* Prevent changing of the cursor when hovering over a tab. */
+#tab-set-4 .tab-container.hover .tab {fill: #989898;}
+#tab-set-4 .tab-container .tab.selected {fill: white;}
+#tab-set-4 .tab-text {dominant-baseline: middle; fill: black; stroke: none;}
 
 
 
 
-#tab-set-3 {background: black; border:1px solid black; display: block; margin: 0 auto;}
-#tab-set-3 .backing {fill: white; stroke-width: 0;}  /* Bottom backing border for the tab set. */
-#tab-set-3 .tab {fill: black; stroke: white; stroke-width: 2;}  /* Setting fill to the background color is the same as setting to none, but lets hovering work correctly. */
-#tab-set-3 .tab-container {cursor: default;}
-#tab-set-3 .tab-container.hover .tab {}
-#tab-set-3 .tab-container .tab.selected {fill: #AE2DE3; stroke: white; stroke-width: 0;}
-#tab-set-3 .tab-content text {fill: white; stroke-width: 0; dominant-baseline: middle;}
 
-#tab-set-4 {background: black; border:1px solid black; display: block; margin: 0 auto;}
-#tab-set-4 .backing {fill: white; stroke-width: 0;}  /* Bottom backing border for the tab set. */
-#tab-set-4 .tab {fill: black; stroke: white; stroke-width: 2;}  /* Setting fill to the background color is the same as setting to none, but lets hovering work correctly. */
-#tab-set-4 .tab-container {cursor: default;}
-#tab-set-4 .tab-container.hover .tab {}
-#tab-set-4 .tab-container .tab.selected {fill: #AE2DE3; stroke: white; stroke-width: 0;}
-#tab-set-4 .tab-content text {fill: white; stroke-width: 0; dominant-baseline: middle;}
+
 
 #tab-set-5{background: black; border:1px solid black; display: block; margin: 0 auto;}
 #tab-set-5 .backing {fill: white; stroke-width: 0;}  /* Bottom backing border for the tab set. */
