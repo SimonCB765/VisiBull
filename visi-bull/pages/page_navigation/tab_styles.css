@@ -1,5 +1,5 @@
 #tab-set-1 {display: block; margin: 0 auto;}
-#tab-set-1 .backing {fill: black; stroke-width: 0;}  /* Bottom backing border for the tab set. */
+#tab-set-1 .backing {fill: black; stroke: none;}  /* Bottom backing border for the tab set. */
 #tab-set-1 .tab {fill: #787878; stroke: black; stroke-width: 1;}  /* Style the tabs. */
 #tab-set-1 .tab-container {cursor: default;}  /* Prevent changing of the cursor when hovering over a tab. */
 #tab-set-1 .tab-container.hover .tab {fill: #989898;}
@@ -7,7 +7,7 @@
 #tab-set-1 .tab-content {}
 
 #tab-set-2 {display: block; margin: 0 auto;}
-#tab-set-2 .backing {fill: black; stroke-width: 0;}  /* Bottom backing border for the tab set. */
+#tab-set-2 .backing {fill: black; stroke: none;}  /* Bottom backing border for the tab set. */
 #tab-set-2 .tab {fill: #787878; stroke: black; stroke-width: 1;}  /* Style the tabs. */
 #tab-set-2 .tab-container {cursor: default;}  /* Prevent changing of the cursor when hovering over a tab. */
 #tab-set-2 .tab-container.hover .tab {fill: #989898;}
