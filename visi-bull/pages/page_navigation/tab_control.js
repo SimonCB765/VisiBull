@@ -1252,60 +1252,6 @@ $(document).ready(function()
         // to the DOM in reverse order will therefore make them appear to be 'stacked' with the leftmost tab on top.
         // For right aligned tabs the rightmost tab is created fist, so the default stacking order is reversed.
 
-        /***************************
-        * Define Helper Functions. *
-        ***************************/
-        function create_tab(rotation)
-        {
-            // Create the rotated path with no missing portions.
-            var fullTab =
-                "M0," + height +
-                "q" + rotate_point(curveWidth / 4, 0, rotation).join(",") + "," + rotate_point(curveWidth / 2, -height / 2, rotation).join(",") +
-                "t" + rotate_point(curveWidth / 2, -height / 2, rotation).join(",") +
-                "l" + rotate_point(width, 0, rotation).join(",") +
-                "q" + rotate_point(curveWidth / 4, 0, rotation).join(",") + "," + rotate_point(curveWidth / 2, height / 2, rotation).join(",") +
-                "t" + rotate_point(curveWidth / 2, height / 2, rotation).join(",");
-
-            // Create the rotated path with a missing right portion.
-            var tabMissingRight =
-                "M0," + height +
-                "q" + rotate_point(curveWidth / 4, 0, rotation).join(",") + "," + rotate_point(curveWidth / 2, -height / 2, rotation).join(",") +
-                "t" + rotate_point(curveWidth / 2, -height / 2, rotation).join(",") +
-                "l" + rotate_point(width, 0, rotation).join(",") +
-                "q" + rotate_point(curveWidth / 4, 0, rotation).join(",") + "," + rotate_point(curveWidth / 2, height / 2, rotation).join(",") +
-                "q" + rotate_point(-curveWidth / 4, height / 2, rotation).join(",") + "," + rotate_point(-curveWidth / 2, height / 2, rotation).join(",");
-
-            // Create the rotated path with a missing left portion.
-            var tabMissingLeft =
-                "M0," + height +
-                "m" + rotate_point(curveWidth, 0, rotation).join(",") +
-                "q" + rotate_point(-curveWidth / 4, 0, rotation).join(",") + "," + rotate_point(-curveWidth / 2, -height / 2, rotation).join(",") +
-                "q" + rotate_point(curveWidth / 4, -height / 2, rotation).join(",") + "," + rotate_point(curveWidth / 2, -height / 2, rotation).join(",") +
-                "l" + rotate_point(width, 0, rotation).join(",") +
-                "q" + rotate_point(curveWidth / 4, 0, rotation).join(",") + "," + rotate_point(curveWidth / 2, height / 2, rotation).join(",") +
-                "t" + rotate_point(curveWidth / 2, height / 2, rotation).join(",");
-
-            // Create the rotated path with both left and right missing portions.
-            var tabMissingBoth =
-                "M0," + height +
-                "m" + rotate_point(curveWidth, 0, rotation).join(",") +
-                "q" + rotate_point(-curveWidth / 4, 0, rotation).join(",") + "," + rotate_point(-curveWidth / 2, -height / 2, rotation).join(",") +
-                "q" + rotate_point(curveWidth / 4, -height / 2, rotation).join(",") + "," + rotate_point(curveWidth / 2, -height / 2, rotation).join(",") +
-                "l" + rotate_point(width, 0, rotation).join(",") +
-                "q" + rotate_point(curveWidth / 4, 0, rotation).join(",") + "," + rotate_point(curveWidth / 2, height / 2, rotation).join(",") +
-                "q" + rotate_point(-curveWidth / 4, height / 2, rotation).join(",") + "," + rotate_point(-curveWidth / 2, height / 2, rotation).join(",");
-
-            return [fullTab, tabMissingRight, tabMissingLeft, tabMissingBoth];
-        }
-
-        function rotate_point(x, y, rotation)
-        {
-            var result = [0, 0];
-            result[0] = x * Math.cos(Math.PI * rotation) - y * Math.sin(Math.PI * rotation);
-            result[1] = x * Math.sin(Math.PI * rotation) + y * Math.cos(Math.PI * rotation);
-            return result;
-        }
-
         /******************************
         * Parse Configuration Inputs. *
         ******************************/
@@ -1372,13 +1318,65 @@ $(document).ready(function()
         }
 
         // Create the path for the tab.
-        tabPaths = create_tab(rotation);
+        tabPaths = create_tab_paths(width, height, curveWidth, rotation);
 
         // Create the config object that was used.
         var tabConfig = {"x" : initialX, "y" : initialY, "width" : width, "height" : height, "curveWidth" : curveWidth,
                          "rotation" : rotation, "alignment" : alignment};
 
-        return {"config" : tabConfig, "data" : tabData, "fullTab" : tabPaths[0], "tabMissingRight" : tabPaths[1],
-                "tabMissingLeft" : tabPaths[2], "tabMissingBoth" : tabPaths[3]};
+        return {"config" : tabConfig, "data" : tabData, "fullTab" : tabPaths.whole, "tabMissingRight" : tabPaths.rightMissing,
+                "tabMissingLeft" : tabPaths.leftMissing, "tabMissingBoth" : tabPaths.tabMissingBoth};
+    }
+
+    function create_tab_paths(tabWidth, tabHeight, curveWidth, rotation)
+    {
+        // Create the rotated path with no missing portions.
+        var fullTab =
+            "M0," + tabHeight +
+            "q" + rotate_point(curveWidth / 4, 0, rotation).join(",") + "," + rotate_point(curveWidth / 2, -tabHeight / 2, rotation).join(",") +
+            "t" + rotate_point(curveWidth / 2, -tabHeight / 2, rotation).join(",") +
+            "l" + rotate_point(tabWidth, 0, rotation).join(",") +
+            "q" + rotate_point(curveWidth / 4, 0, rotation).join(",") + "," + rotate_point(curveWidth / 2, tabHeight / 2, rotation).join(",") +
+            "t" + rotate_point(curveWidth / 2, tabHeight / 2, rotation).join(",");
+
+        // Create the rotated path with a missing right portion.
+        var tabMissingRight =
+            "M0," + tabHeight +
+            "q" + rotate_point(curveWidth / 4, 0, rotation).join(",") + "," + rotate_point(curveWidth / 2, -tabHeight / 2, rotation).join(",") +
+            "t" + rotate_point(curveWidth / 2, -tabHeight / 2, rotation).join(",") +
+            "l" + rotate_point(tabWidth, 0, rotation).join(",") +
+            "q" + rotate_point(curveWidth / 4, 0, rotation).join(",") + "," + rotate_point(curveWidth / 2, tabHeight / 2, rotation).join(",") +
+            "q" + rotate_point(-curveWidth / 4, tabHeight / 2, rotation).join(",") + "," + rotate_point(-curveWidth / 2, tabHeight / 2, rotation).join(",");
+
+        // Create the rotated path with a missing left portion.
+        var tabMissingLeft =
+            "M0," + tabHeight +
+            "m" + rotate_point(curveWidth, 0, rotation).join(",") +
+            "q" + rotate_point(-curveWidth / 4, 0, rotation).join(",") + "," + rotate_point(-curveWidth / 2, -tabHeight / 2, rotation).join(",") +
+            "q" + rotate_point(curveWidth / 4, -tabHeight / 2, rotation).join(",") + "," + rotate_point(curveWidth / 2, -tabHeight / 2, rotation).join(",") +
+            "l" + rotate_point(tabWidth, 0, rotation).join(",") +
+            "q" + rotate_point(curveWidth / 4, 0, rotation).join(",") + "," + rotate_point(curveWidth / 2, tabHeight / 2, rotation).join(",") +
+            "t" + rotate_point(curveWidth / 2, tabHeight / 2, rotation).join(",");
+
+        // Create the rotated path with both left and right missing portions.
+        var tabMissingBoth =
+            "M0," + tabHeight +
+            "m" + rotate_point(curveWidth, 0, rotation).join(",") +
+            "q" + rotate_point(-curveWidth / 4, 0, rotation).join(",") + "," + rotate_point(-curveWidth / 2, -tabHeight / 2, rotation).join(",") +
+            "q" + rotate_point(curveWidth / 4, -tabHeight / 2, rotation).join(",") + "," + rotate_point(curveWidth / 2, -tabHeight / 2, rotation).join(",") +
+            "l" + rotate_point(tabWidth, 0, rotation).join(",") +
+            "q" + rotate_point(curveWidth / 4, 0, rotation).join(",") + "," + rotate_point(curveWidth / 2, tabHeight / 2, rotation).join(",") +
+            "q" + rotate_point(-curveWidth / 4, tabHeight / 2, rotation).join(",") + "," + rotate_point(-curveWidth / 2, tabHeight / 2, rotation).join(",");
+
+        return {"whole" : fullTab, "rightMissing" : tabMissingRight, "leftMissing" : tabMissingLeft, "bothMissing" : tabMissingBoth};
+    }
+
+    function rotate_point(x, y, rotation)
+    {
+        // Rotate the point (x, y) around the (0, 0) origin.
+        var result = [0, 0];
+        result[0] = x * Math.cos(Math.PI * rotation) - y * Math.sin(Math.PI * rotation);
+        result[1] = x * Math.sin(Math.PI * rotation) + y * Math.cos(Math.PI * rotation);
+        return result;
     }
 });
