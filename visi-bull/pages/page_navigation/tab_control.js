@@ -2,7 +2,10 @@ $(document).ready(function()
 {
     // Create the tabs.
     var textForTabs = ["Tab One", "Tab Two", "Needlessly Long Third Tab", "Tab Four", "Tab Five", "Very Long Tab", "Super Long Seventh Tab"]
-	var textForTallTabs = ["", "", ""]
+	var textForTallTabs = ["Oh, I don't have time for this. I have to go and buy a single piece of fruit with a coupon and then return it, making people wait behind me while I complain.",
+						   "Hello, little man. I will destroy you! It's just like the story of the grasshopper and the octopus.",
+						   "All year long, the grasshopper kept burying acorns for winter, while the octopus mooched off his girlfriend and watched TV.",
+						   "But then the winter came, and the grasshopper died, and the octopus ate all his acorns."];
     create_empty_tabs("#tab-set-1");
     //create_twirling_tabs("#tab-set-2");
     create_hard_clipped_tabs("#tab-set-3");
@@ -548,11 +551,11 @@ $(document).ready(function()
         var svgWidth = 900;  // Width of the SVG element.
         var svgHeight = 180;  // Height of the SVG element.
         var tabWidth = 125;  // The width of each tab.
-        var tabHeightTopRow = 25;  // The height of each tab on the top row.
-        var tabHeightMiddleRow = 40;  // The height of each tab on the middle row.
-        var tabHeightBottomRow = 60;  // The height of each tab on the bottom row.
+        var topTabHeight = 25;  // The height of each tab on the top row.
+        var middleTabHeight = 40;  // The height of each tab on the middle row.
+        var bottomTabHeight = 60;  // The height of each tab on the bottom row.
         var backingBorderHeight = 2;  // The thickness of the border that the tabs rest on.
-        var numberOfTabs = 3;  // The number of tabs to create.
+        var numberOfTabs = textForTallTabs.length;  // The number of tabs to create.
         var curveWidth = 30;  // The width of the curved region of the tabs.
         var rotation = 0;  // The rotation of the sets of tabs.
 
@@ -561,6 +564,9 @@ $(document).ready(function()
             .attr("width", svgWidth)
             .attr("height", svgHeight);
 
+        // Create the <defs> to hold the clip paths and gradients.
+        var defs = tabSet.append("defs");
+
         /******************
         * Top Row Of Tabs *
         ******************/
@@ -568,7 +574,7 @@ $(document).ready(function()
             // Create the tabs.
             var topTabBaselineY = 40 - backingBorderHeight;  // The Y coordinate of the horizontal baseline.
             var topTabStartX = 0;  // The X coordinate where the tabs start.
-            var topTabConfig = {"x" : topTabStartX, "y" : topTabBaselineY, "width" : tabWidth, "height" : tabHeightTopRow, "curveWidth" : curveWidth,
+            var topTabConfig = {"x" : topTabStartX, "y" : topTabBaselineY, "width" : tabWidth, "height" : topTabHeight, "curveWidth" : curveWidth,
                                 "rotation" : rotation, "alignment" : "left"};
             var topTabInfo = create_tabs_style_1(numberOfTabs, topTabConfig);
             var topTabContainer = tabSet.selectAll(".new-tabs")
@@ -581,6 +587,31 @@ $(document).ready(function()
                 .append("path")
                 .attr("d", function(d, i) { return (i === 0) ? topTabInfo.fullTab : topTabInfo.tabMissingLeft; })
                 .classed("tab", true);
+
+			// Need to include the stroke width in the content positioning.
+			var tabBorderWidth = Math.ceil(parseInt(topTabs.style("stroke-width"), 10));
+
+			// Create the clip path.
+			defs.append("clipPath")
+				.attr("id", "clip-short-tab")
+				.append("rect")
+					.attr("x", 0)
+					.attr("y", 0)
+					.attr("width", tabWidth)
+					.attr("height", topTabHeight + tabBorderWidth);
+
+			// Add the tab content.
+			var topTabContentContainer = topTabContainer
+				.append("g")
+				.classed("tab-content", true)
+				.attr("transform", function(d) { return "translate(" + curveWidth + ",0)"; })
+				.attr("clip-path", "url(#clip-short-tab)");
+			var topTabTextElements = topTabContentContainer
+				.append("text")
+				.classed("tab-text", true)
+				.attr("x", 0)
+				.attr("y", (topTabHeight + tabBorderWidth) / 2)
+				.text(function(d, i) { return textForTallTabs[i]; });
 
             // Setup the behaviour of the tabs.
             topTabContainer.on("mouseover", function() { d3.select(this).classed("hover", true); });
@@ -643,7 +674,7 @@ $(document).ready(function()
             // Create the tabs.
             var middleTabBaselineY = 100 - backingBorderHeight;  // The Y coordinate of the horizontal baseline.
             var middleTabStartX = svgWidth / 2;  // The X coordinate where the tabs start.
-            var middleTabConfig = {"x" : middleTabStartX, "y" : middleTabBaselineY, "width" : tabWidth, "height" : tabHeightMiddleRow, "curveWidth" : curveWidth,
+            var middleTabConfig = {"x" : middleTabStartX, "y" : middleTabBaselineY, "width" : tabWidth, "height" : middleTabHeight, "curveWidth" : curveWidth,
                                    "rotation" : rotation, "alignment" : "center"};
             var middleTabInfo = create_tabs_style_1(numberOfTabs, middleTabConfig);
             var middleTabContainer = tabSet.selectAll(".new-tabs")
@@ -656,6 +687,31 @@ $(document).ready(function()
                 .append("path")
                 .attr("d", function(d, i) { return (i === 0) ? middleTabInfo.fullTab : middleTabInfo.tabMissingLeft; })
                 .classed("tab", true);
+
+			// Need to include the stroke width in the content positioning.
+			var tabBorderWidth = Math.ceil(parseInt(middleTabs.style("stroke-width"), 10));
+
+			// Create the clip path.
+			defs.append("clipPath")
+				.attr("id", "clip-medium-tab")
+				.append("rect")
+					.attr("x", 0)
+					.attr("y", 0)
+					.attr("width", tabWidth)
+					.attr("height", middleTabHeight + tabBorderWidth);
+
+			// Add the tab content.
+			var middleTabContentContainer = middleTabContainer
+				.append("g")
+				.classed("tab-content", true)
+				.attr("transform", function(d) { return "translate(" + curveWidth + ",0)"; })
+				.attr("clip-path", "url(#clip-medium-tab)");
+			var middleTabTextElements = middleTabContentContainer
+				.append("text")
+				.classed("tab-text", true)
+				.attr("x", 0)
+				.attr("y", (middleTabHeight + tabBorderWidth) / 2)
+				.text(function(d, i) { return textForTallTabs[i]; });
 
             // Setup the behaviour of the tabs.
             middleTabContainer.on("mouseover", function() { d3.select(this).classed("hover", true); });
@@ -718,7 +774,7 @@ $(document).ready(function()
             // Create the tabs.
             var bottomTabBaselineY = 180 - backingBorderHeight;  // The Y coordinate of the horizontal baseline.
             var bottomTabStartX = svgWidth;  // The X coordinate where the tabs start.
-            var bottomTabConfig = {"x" : bottomTabStartX, "y" : bottomTabBaselineY, "width" : tabWidth, "height" : tabHeightBottomRow, "curveWidth" : curveWidth,
+            var bottomTabConfig = {"x" : bottomTabStartX, "y" : bottomTabBaselineY, "width" : tabWidth, "height" : bottomTabHeight, "curveWidth" : curveWidth,
                                    "rotation" : rotation, "alignment" : "right"};
             var bottomTabInfo = create_tabs_style_1(numberOfTabs, bottomTabConfig);
             var bottomTabContainer = tabSet.selectAll(".new-tabs")
@@ -731,6 +787,31 @@ $(document).ready(function()
                 .append("path")
                 .attr("d", function(d, i) { return (i === numberOfTabs - 1) ? bottomTabInfo.fullTab : bottomTabInfo.tabMissingRight; })
                 .classed("tab", true);
+
+			// Need to include the stroke width in the content positioning.
+			var tabBorderWidth = Math.ceil(parseInt(bottomTabs.style("stroke-width"), 10));
+
+			// Create the clip path.
+			defs.append("clipPath")
+				.attr("id", "clip-tall-tab")
+				.append("rect")
+					.attr("x", 0)
+					.attr("y", 0)
+					.attr("width", tabWidth)
+					.attr("height", bottomTabHeight + tabBorderWidth);
+
+			// Add the tab content.
+			var bottomTabContentContainer = bottomTabContainer
+				.append("g")
+				.classed("tab-content", true)
+				.attr("transform", function(d) { return "translate(" + curveWidth + ",0)"; })
+				.attr("clip-path", "url(#clip-tall-tab)");
+			var bottomTabTextElements = bottomTabContentContainer
+				.append("text")
+				.classed("tab-text", true)
+				.attr("x", 0)
+				.attr("y", (bottomTabHeight + tabBorderWidth) / 2)
+				.text(function(d, i) { return textForTallTabs[i]; });
 
             // Setup the behaviour of the tabs.
             bottomTabContainer.on("mouseover", function() { d3.select(this).classed("hover", true); });
