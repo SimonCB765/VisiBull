@@ -1,12 +1,13 @@
 $(document).ready(function()
 {
     // Create the tabs.
-    var tabText = ["A", "AB", "ABC", "ABCD", "ABCDE", "ABCDEF", "ABCDEFG", "ABCDEFGH", "ABCDEFGHI", "ABCDEFGHIJ", "ABCDEFGHIJK"];
     var textForTabs = ["Tab One", "Tab Two", "Needlessly Long Third Tab", "Tab Four", "Tab Five", "Very Long Tab", "Super Long Seventh Tab"]
+	var textForTallTabs = ["", "", ""]
     create_empty_tabs("#tab-set-1");
-    create_twirling_tabs("#tab-set-2");
+    //create_twirling_tabs("#tab-set-2");
     create_hard_clipped_tabs("#tab-set-3");
     create_fade_clipped_tabs("#tab-set-4");
+	create_tall_tabs("#tab-set-5");
 
     function create_empty_tabs(tabSetID)
     {
@@ -539,6 +540,271 @@ $(document).ready(function()
             .attr("x", 0)
             .attr("y", baselineY)
             .classed("backing", true);
+    }
+
+    function create_tall_tabs(tabSetID)
+    {
+        // Definitions needed.
+        var svgWidth = 900;  // Width of the SVG element.
+        var svgHeight = 180;  // Height of the SVG element.
+        var tabWidth = 125;  // The width of each tab.
+        var tabHeightTopRow = 25;  // The height of each tab on the top row.
+        var tabHeightMiddleRow = 40;  // The height of each tab on the middle row.
+        var tabHeightBottomRow = 60;  // The height of each tab on the bottom row.
+        var backingBorderHeight = 2;  // The thickness of the border that the tabs rest on.
+        var numberOfTabs = 3;  // The number of tabs to create.
+        var curveWidth = 30;  // The width of the curved region of the tabs.
+        var rotation = 0;  // The rotation of the sets of tabs.
+
+        // Create the SVG element.
+        var tabSet = d3.select(tabSetID)
+            .attr("width", svgWidth)
+            .attr("height", svgHeight);
+
+        /******************
+        * Top Row Of Tabs *
+        ******************/
+        {
+            // Create the tabs.
+            var topTabBaselineY = 40 - backingBorderHeight;  // The Y coordinate of the horizontal baseline.
+            var topTabStartX = 0;  // The X coordinate where the tabs start.
+            var topTabConfig = {"x" : topTabStartX, "y" : topTabBaselineY, "width" : tabWidth, "height" : tabHeightTopRow, "curveWidth" : curveWidth,
+                                "rotation" : rotation, "alignment" : "left"};
+            var topTabInfo = create_tabs_style_1(numberOfTabs, topTabConfig);
+            var topTabContainer = tabSet.selectAll(".new-tabs")
+                .data(topTabInfo.data)
+                .enter()
+                .append("g")
+                .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; })
+                .classed("tab-container", true);
+            var topTabs = topTabContainer
+                .append("path")
+                .attr("d", function(d, i) { return (i === 0) ? topTabInfo.fullTab : topTabInfo.tabMissingLeft; })
+                .classed("tab", true);
+
+            // Setup the behaviour of the tabs.
+            topTabContainer.on("mouseover", function() { d3.select(this).classed("hover", true); });
+            topTabContainer.on("mouseout", function() { d3.select(this).classed("hover", false); });
+            var selectedTopTab = tabSet.select(".tab-container").select(".tab");
+            selectedTopTab.classed("selected", true);
+            topTabContainer.on("mousedown", function(d, i)
+                {
+                    if (d3.event.button == 0)
+                    {
+                        // Left click.
+                        // Clear old selected tab information.
+                        selectedTopTab.classed("selected", false);
+
+                        // Make the appearance of the tabs fit with the choice of tab that should be on top (i.e. the one clicked).
+                        topTabs
+                            .attr("d", function(tabD, tabI)
+                                {
+                                    var desiredTabPath;
+                                    if (tabI === i)
+                                    {
+                                        desiredTabPath = topTabInfo.fullTab;
+                                    }
+                                    else if (tabI === 0)
+                                    {
+                                        // The 0th index tab is a bit special, as it can only be full or missing its right portion.
+                                        // If this branch is reached, then it was not the 0th index tab that was clicked on.
+                                        if (i === 1)
+                                        {
+                                            // The 1st index tab was clicked on.
+                                            desiredTabPath = topTabInfo.tabMissingRight;
+                                        }
+                                        else
+                                        {
+                                            desiredTabPath = topTabInfo.fullTab;
+                                        }
+                                    }
+                                    else if (tabI === i - 1)
+                                    {
+                                        desiredTabPath = topTabInfo.tabMissingBoth;
+                                    }
+                                    else
+                                    {
+                                        desiredTabPath = topTabInfo.tabMissingLeft;
+                                    }
+                                    return desiredTabPath;
+                                });
+
+                        // Record new selected tab information.
+                        selectedTopTab = d3.select(this).select(".tab");
+                        selectedTopTab.classed("selected", true);
+                    }
+                });
+        }
+
+        /*********************
+        * Middle Row Of Tabs *
+        *********************/
+        {
+            // Create the tabs.
+            var middleTabBaselineY = 100 - backingBorderHeight;  // The Y coordinate of the horizontal baseline.
+            var middleTabStartX = svgWidth / 2;  // The X coordinate where the tabs start.
+            var middleTabConfig = {"x" : middleTabStartX, "y" : middleTabBaselineY, "width" : tabWidth, "height" : tabHeightMiddleRow, "curveWidth" : curveWidth,
+                                   "rotation" : rotation, "alignment" : "center"};
+            var middleTabInfo = create_tabs_style_1(numberOfTabs, middleTabConfig);
+            var middleTabContainer = tabSet.selectAll(".new-tabs")
+                .data(middleTabInfo.data)
+                .enter()
+                .append("g")
+                .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; })
+                .classed("tab-container", true);
+            var middleTabs = middleTabContainer
+                .append("path")
+                .attr("d", function(d, i) { return (i === 0) ? middleTabInfo.fullTab : middleTabInfo.tabMissingLeft; })
+                .classed("tab", true);
+
+            // Setup the behaviour of the tabs.
+            middleTabContainer.on("mouseover", function() { d3.select(this).classed("hover", true); });
+            middleTabContainer.on("mouseout", function() { d3.select(this).classed("hover", false); });
+            var selectedMiddleTab = d3.select(middleTabContainer[0][0]).select(".tab");
+            selectedMiddleTab.classed("selected", true);
+            middleTabContainer.on("mousedown", function(d, i)
+                {
+                    if (d3.event.button == 0)
+                    {
+                        // Left click.
+                        // Clear old selected tab information.
+                        selectedMiddleTab.classed("selected", false);
+
+                        // Make the appearance of the tabs fit with the choice of tab that should be on top (i.e. the one clicked).
+                        middleTabs
+                            .attr("d", function(tabD, tabI)
+                                {
+                                    var desiredTabPath;
+                                    if (tabI === i)
+                                    {
+                                        desiredTabPath = middleTabInfo.fullTab;
+                                    }
+                                    else if (tabI === 0)
+                                    {
+                                        // The 0th index tab is a bit special, as it can only be full or missing its right portion.
+                                        // If this branch is reached, then it was not the 0th index tab that was clicked on.
+                                        if (i === 1)
+                                        {
+                                            // The 1st index tab was clicked on.
+                                            desiredTabPath = middleTabInfo.tabMissingRight;
+                                        }
+                                        else
+                                        {
+                                            desiredTabPath = middleTabInfo.fullTab;
+                                        }
+                                    }
+                                    else if (tabI === i - 1)
+                                    {
+                                        desiredTabPath = middleTabInfo.tabMissingBoth;
+                                    }
+                                    else
+                                    {
+                                        desiredTabPath = middleTabInfo.tabMissingLeft;
+                                    }
+                                    return desiredTabPath;
+                                });
+
+                        // Record new selected tab information.
+                        selectedMiddleTab = d3.select(this).select(".tab");
+                        selectedMiddleTab.classed("selected", true);
+                    }
+                });
+        }
+
+        /*********************
+        * Bottom Row Of Tabs *
+        *********************/
+        {
+            // Create the tabs.
+            var bottomTabBaselineY = 180 - backingBorderHeight;  // The Y coordinate of the horizontal baseline.
+            var bottomTabStartX = svgWidth;  // The X coordinate where the tabs start.
+            var bottomTabConfig = {"x" : bottomTabStartX, "y" : bottomTabBaselineY, "width" : tabWidth, "height" : tabHeightBottomRow, "curveWidth" : curveWidth,
+                                   "rotation" : rotation, "alignment" : "right"};
+            var bottomTabInfo = create_tabs_style_1(numberOfTabs, bottomTabConfig);
+            var bottomTabContainer = tabSet.selectAll(".new-tabs")
+                .data(bottomTabInfo.data)
+                .enter()
+                .append("g")
+                .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; })
+                .classed("tab-container", true);
+            var bottomTabs = bottomTabContainer
+                .append("path")
+                .attr("d", function(d, i) { return (i === numberOfTabs - 1) ? bottomTabInfo.fullTab : bottomTabInfo.tabMissingRight; })
+                .classed("tab", true);
+
+            // Setup the behaviour of the tabs.
+            bottomTabContainer.on("mouseover", function() { d3.select(this).classed("hover", true); });
+            bottomTabContainer.on("mouseout", function() { d3.select(this).classed("hover", false); });
+            var selectedbottomTab = d3.select(bottomTabContainer[0][numberOfTabs - 1]).select(".tab");
+            selectedbottomTab.classed("selected", true);
+            bottomTabContainer.on("mousedown", function(d, i)
+                {
+                    if (d3.event.button == 0)
+                    {
+                        // Left click.
+                        // Clear old selected tab information.
+                        selectedbottomTab.classed("selected", false);
+
+                        // Make the appearance of the tabs fit with the choice of tab that should be on top (i.e. the one clicked).
+                        bottomTabs
+                            .attr("d", function(tabD, tabI)
+                                {
+                                    var desiredTabPath;
+                                    if (tabI === i)
+                                    {
+                                        desiredTabPath = bottomTabInfo.fullTab;
+                                    }
+                                    else if (tabI === numberOfTabs - 1)
+                                    {
+                                        // The rightmost tab is a bit special, as it can only be full or missing its left portion.
+                                        // If this branch is reached, then it was not the rightmost tab that was clicked on.
+                                        if (i === numberOfTabs - 2)
+                                        {
+                                            // The tab second from right was clicked on.
+                                            desiredTabPath = bottomTabInfo.tabMissingLeft;
+                                        }
+                                        else
+                                        {
+                                            desiredTabPath = bottomTabInfo.fullTab;
+                                        }
+                                    }
+                                    else if (tabI === i + 1)
+                                    {
+                                        desiredTabPath = bottomTabInfo.tabMissingBoth;
+                                    }
+                                    else
+                                    {
+                                        desiredTabPath = bottomTabInfo.tabMissingRight;
+                                    }
+                                    return desiredTabPath;
+                                });
+
+                        // Record new selected tab information.
+                        selectedbottomTab = d3.select(this).select(".tab");
+                        selectedbottomTab.classed("selected", true);
+                    }
+                });
+        }
+
+        // Add the baselines on which the tabs will sit.
+		tabSet.append("rect")
+			.attr("width", svgWidth)
+			.attr("height", backingBorderHeight)
+			.attr("x", 0)
+			.attr("y", topTabBaselineY)
+			.classed("backing", true);
+		tabSet.append("rect")
+			.attr("width", svgWidth)
+			.attr("height", backingBorderHeight)
+			.attr("x", 0)
+			.attr("y", middleTabBaselineY)
+			.classed("backing", true);
+		tabSet.append("rect")
+			.attr("width", svgWidth)
+			.attr("height", backingBorderHeight)
+			.attr("x", 0)
+			.attr("y", bottomTabBaselineY)
+			.classed("backing", true);
     }
 
     function create_twirling_tabs(tabSetID)

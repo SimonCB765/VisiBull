@@ -8,8 +8,7 @@ var bucketGap = 100;  // The gap at the right of the SVG element for the ball bu
 var sliderGap = 50;  // The gap at the bottom of the SVG element for the slider.
 var containerWidth = svgWidth - bucketGap;  // The width of the container that will contain the balls.
 var containerHeight = svgHeight - sliderGap;  // The height of the container that will contain the balls.
-var colors = ["rgb(102,194,165)", "rgb(252,141,98)", "rgb(141,160,203)", "rgb(231,138,195)", "rgb(166,216,84)", "rgb(255,217,47)", "rgb(229,196,148)", "rgb(179,179,179)"];
-    // colors are 8 color set2 from color brewer http://colorbrewer2.org/#
+var colors = ["#000000", "#00FFFF", "#00FF00", "#00FF7B", "#FFAF1A", "#FF008C", "#AE2DE3", "#FFFF00"];
 
 // Create the SVG element.
 var svg = create_SVG("div.content");

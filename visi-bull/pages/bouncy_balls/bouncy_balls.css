@@ -7,11 +7,11 @@ _classes    -> style declarations for specific classes.
 /*
 _classes
 */
-svg .ball {stroke-width : 0;}
+svg .ball {stroke: none;}
 svg .ballBoundingSquare {fill-opacity : 0; stroke : black; stroke-width : 1;}
 svg .bucket {fill-opacity : 0; stroke : black; stroke-width : 3;}
-svg .domain {fill : none; stroke : #EA594D; stroke-linecap : round; stroke-width : 13;}
-svg .halo {fill : none; stroke : #454545; stroke-linecap : round; stroke-width : 7;}
-svg .handle {fill : #F0F0F0; stroke : #3A3A3B; stroke-width : 2}
+svg .domain {fill : none; stroke : black; stroke-linecap : round; stroke-width : 13;}
+svg .halo {fill : none; stroke : #FF008C; stroke-linecap : round; stroke-width : 7;}
+svg .handle {fill : white; stroke : black; stroke-width : 2}
 svg .sliderBox {stroke : #3A3A3B;}
-svg .xAxis {stroke-width : 0;}  /* Set stroke width to 0 in order to make the text crisper. */
+svg .xAxis {stroke: none;}  /* Set stroke width to 0 in order to make the text crisper. */
