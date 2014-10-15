@@ -1,6 +1,6 @@
 #tab-set-1 {display: block; margin: 0 auto;}
 #tab-set-1 .backing {fill: black; stroke: none;}  /* Bottom backing border for the tab set. */
-#tab-set-1 .tab {fill: #787878; stroke: black; stroke-width: 1;}  /* Style the tabs. */
+#tab-set-1 .tab {fill: #888888; stroke: black; stroke-width: 1;}  /* Style the tabs. */
 #tab-set-1 .tab-container {cursor: default;}  /* Prevent changing of the cursor when hovering over a tab. */
 #tab-set-1 .tab-container.hover .tab {fill: #989898;}
 #tab-set-1 .tab-container .tab.selected {fill: white;}
@@ -8,7 +8,7 @@
 
 #tab-set-2 {display: block; margin: 0 auto;}
 #tab-set-2 .backing {fill: black; stroke: none;}  /* Bottom backing border for the tab set. */
-#tab-set-2 .tab {fill: #787878; stroke: black; stroke-width: 1;}  /* Style the tabs. */
+#tab-set-2 .tab {fill: #888888; stroke: black; stroke-width: 1;}  /* Style the tabs. */
 #tab-set-2 .tab-container {cursor: default;}  /* Prevent changing of the cursor when hovering over a tab. */
 #tab-set-2 .tab-container.hover .tab {fill: #989898;}
 #tab-set-2 .tab-container .tab.selected {fill: white;}
@@ -16,7 +16,7 @@
 
 #tab-set-3 {display: block; margin: 0 auto;}
 #tab-set-3 .backing {fill: black; stroke: none;}  /* Bottom backing border for the tab set. */
-#tab-set-3 .tab {fill: #787878; stroke: black; stroke-width: 2;}  /* Style the tabs. */
+#tab-set-3 .tab {fill: #888888; stroke: black; stroke-width: 2;}  /* Style the tabs. */
 #tab-set-3 .tab-container {cursor: default;}  /* Prevent changing of the cursor when hovering over a tab. */
 #tab-set-3 .tab-container.hover .tab {fill: #989898;}
 #tab-set-3 .tab-container .tab.selected {fill: white;}
@@ -26,7 +26,7 @@
 #tab-set-4 .backing {fill: black; stroke: none;}  /* Bottom backing border for the tab set. */
 #tab-set-4 .grad-end {stop-color : rgba(0,0,0,0.2)}  /* The stop color for the end of the gradient. */
 #tab-set-4 .grad-start {stop-color : rgba(0,0,0,1)}  /* The stop color for the start of the gradient. */
-#tab-set-4 .tab {fill: #787878; stroke: black; stroke-width: 2;}  /* Style the tabs. */
+#tab-set-4 .tab {fill: #888888; stroke: black; stroke-width: 2;}  /* Style the tabs. */
 #tab-set-4 .tab-container {cursor: default;}  /* Prevent changing of the cursor when hovering over a tab. */
 #tab-set-4 .tab-container.hover .tab {fill: #989898;}
 #tab-set-4 .tab-container .tab.selected {fill: white;}
@@ -34,10 +34,11 @@
 
 #tab-set-5 {display: block; margin: 0 auto;}
 #tab-set-5 .backing {fill: black; stroke: none;}  /* Bottom backing border for the tab set. */
-#tab-set-5 .grad-end {stop-color : rgba(0,0,0,0.2)}  /* The stop color for the end of the gradient. */
+#tab-set-5 .grad-end {stop-color : rgba(0,0,0,0)}  /* The stop color for the end of the gradient. */
 #tab-set-5 .grad-start {stop-color : rgba(0,0,0,1)}  /* The stop color for the start of the gradient. */
-#tab-set-5 .tab {fill: #787878; stroke: black; stroke-width: 2;}  /* Style the tabs. */
+#tab-set-5 .tab {fill: #888888; stroke: black; stroke-width: 2;}  /* Style the tabs. */
 #tab-set-5 .tab-container {cursor: default;}  /* Prevent changing of the cursor when hovering over a tab. */
 #tab-set-5 .tab-container.hover .tab {fill: #989898;}
 #tab-set-5 .tab-container .tab.selected {fill: white;}
 #tab-set-5 .tab-text {dominant-baseline: middle; fill: black; font-size: .75em; stroke: none;}
+#tab-set-5 .tab-text tspan {dominant-baseline: middle; font-size: 1em; stroke: none;}
