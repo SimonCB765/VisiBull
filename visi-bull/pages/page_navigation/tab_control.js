@@ -2,15 +2,15 @@ $(document).ready(function()
 {
     // Create the tabs.
     var textForTabs = ["Tab One", "Tab Two", "Needlessly Long Third Tab", "Tab Four", "Tab Five", "Very Long Tab", "Super Long Seventh Tab"]
-	var textForTallTabs = ["It's just like the story of the grasshopper and the octopus.",
-						   "All year long, the grasshopper kept burying acorns for winter, while the octopus mooched off his girlfriend and watched TV.",
-						   "But then the winter came, and the grasshopper died, and the octopus ate all his acorns.",
-						   "Oh, I don't have time for this. I have to go and buy a single piece of fruit with a coupon and then return it, making people wait behind me while I complain."];
+    var textForTallTabs = ["It's just like the story of the grasshopper and the octopus.",
+                           "All year long, the grasshopper kept burying acorns for winter, while the octopus mooched off his girlfriend and watched TV.",
+                           "But then the winter came, and the grasshopper died, and the octopus ate all his acorns.",
+                           "Oh, I don't have time for this. I have to go and buy a single piece of fruit with a coupon and then return it, making people wait behind me while I complain."];
     create_empty_tabs("#tab-set-1");
     //create_twirling_tabs("#tab-set-2");
     create_hard_clipped_tabs("#tab-set-3");
     create_fade_clipped_tabs("#tab-set-4");
-	create_tall_tabs("#tab-set-5");
+    create_tall_tabs("#tab-set-5");
 
     function create_empty_tabs(tabSetID)
     {
@@ -549,8 +549,8 @@ $(document).ready(function()
         var svgWidth = 900;  // Width of the SVG element.
         var svgHeight = 180;  // Height of the SVG element.
         var topTabWidth = 160;  // The width of each tab on the top row.
-		var middleTabWidth = 160;  // The width of each tab on the middle row.
-		var bottomTabWidth = 160;  // The width of each tab on the bottom row.
+        var middleTabWidth = 160;  // The width of each tab on the middle row.
+        var bottomTabWidth = 160;  // The width of each tab on the bottom row.
         var topTabHeight = 25;  // The height of each tab on the top row.
         var middleTabHeight = 40;  // The height of each tab on the middle row.
         var bottomTabHeight = 60;  // The height of each tab on the bottom row.
@@ -588,30 +588,105 @@ $(document).ready(function()
                 .attr("d", function(d, i) { return (i === 0) ? topTabInfo.fullTab : topTabInfo.tabMissingLeft; })
                 .classed("tab", true);
 
-			// Need to include the stroke width in the content positioning.
-			var tabBorderWidth = Math.ceil(parseInt(topTabs.style("stroke-width"), 10));
+            // Need to include the stroke width in the content positioning.
+            var tabBorderWidth = Math.ceil(parseInt(topTabs.style("stroke-width"), 10));
 
-			// Create the clip path.
-			defs.append("clipPath")
-				.attr("id", "clip-short-tab")
-				.append("rect")
-					.attr("x", 0)
-					.attr("y", 0)
-					.attr("width", topTabWidth)
-					.attr("height", topTabHeight + tabBorderWidth);
+            // Create the clip path.
+            defs.append("clipPath")
+                .attr("id", "clip-short-tab")
+                .append("rect")
+                    .attr("x", 0)
+                    .attr("y", 0)
+                    .attr("width", topTabWidth)
+                    .attr("height", topTabHeight + tabBorderWidth);
 
-			// Add the tab content.
-			var topTabContentContainer = topTabContainer
-				.append("g")
-				.classed("tab-content", true)
-				.attr("transform", function(d) { return "translate(" + curveWidth + ",0)"; })
-				.attr("clip-path", "url(#clip-short-tab)");
-			var topTabTextElements = topTabContentContainer
-				.append("text")
-				.classed("tab-text", true)
-				.attr("x", 0)
-				.attr("y", (topTabHeight + tabBorderWidth) / 2)
-				.text(function(d, i) { return textForTallTabs[i]; });
+            // Add the tab content.
+            var topTabContentContainer = topTabContainer
+                .append("g")
+                .classed("tab-content", true)
+                .attr("transform", function(d) { return "translate(" + curveWidth + "," + tabBorderWidth + ")"; })
+                .attr("clip-path", "url(#clip-short-tab)");
+            var topTabTextElements = topTabContentContainer
+                .append("text")
+                .classed("tab-text", true)
+                .attr("x", 0)
+                .attr("y", 0)
+                .text(function(d, i) { return textForTallTabs[i]; });
+
+            // Wrap and fade the text.
+            topTabTextElements.each(function(d, i)
+                {
+                    // Select the needed DOM nodes.
+                    var textElement = d3.select(this);
+
+                    // Get the text dimensions.
+                    var currentTextBBox = textElement.node().getBBox()
+                    var currentTextHeight = currentTextBBox.height;
+
+                    // Definitions for wrapping the text.
+                    var words = textElement.text().split(/\s+/);  // The words in the original text.
+                    var word;
+                    var line = [];  // The line of text currently being created.
+                    var linesAdded = 1;  // The number of lines of text added to the tab.
+
+                    // Determine the number of lines of text that will fit comfortably in the tab.
+                    var numberOfLinesFit = Math.floor(topTabHeight / currentTextHeight);
+
+                    var tspan = textElement.text(null).append("tspan").attr("x", 0).attr("y", 0);
+                    while (word = words.shift())
+                    {
+                        line.push(word);
+                        tspan.text(line.join(" "));
+                        if (tspan.node().getComputedTextLength() > topTabWidth)
+                        {
+                            // Finish of the current line of text.
+                            line.pop();
+                            tspan.text(line.join(" "));
+                            linesAdded++;
+
+                            // Start the next line of text. If the maximum displayable number of lines have already been created, then make this line
+                            // invisible. Making the line invisible, rather than just not adding it, ensures that all text is kept in the DOM, and that
+                            // the number of lines needed to display all the text is known.
+                            line = [word];
+                            tspan = textElement.append("tspan")
+                                .attr("x", 0)
+                                .attr("y", 0)
+                                .style("opacity", function() { if (linesAdded > numberOfLinesFit) return 0; });
+                        }
+                    }
+                    tspan.text(line.join(" "));  // Add any leftover text to the final tspan.
+
+                    // Reposition the text in the middle of the tab.
+                    var topOffset = (topTabHeight - (Math.min(linesAdded, numberOfLinesFit) * currentTextHeight)) / 2;
+                    var spans = textElement.selectAll("tspan")
+                        .attr("dy", function(d, i) { return ((i + 0.5) * currentTextHeight) + topOffset; });
+
+                    // Fade the bottom line if needed.
+                    if (linesAdded > numberOfLinesFit)
+                    {
+                        // Get the new text dimensions.
+                        var currentTextBBox = textElement.node().getBBox()
+                        var currentTextHeight = currentTextBBox.height;
+                        var fadeStart = (topTabHeight * 0.3) / currentTextHeight;
+                        var fadeEnd = (topTabHeight * 0.6) / currentTextHeight;
+                        var gradient = defs.append("linearGradient")
+                            .attr("id", "shortGradient" + i)
+                            .attr("x1", "0%")
+                            .attr("y1", "0%")
+                            .attr("x2", "0%")
+                            .attr("y2", "100%");
+                        gradient.append("stop")
+                            .classed("grad-start", true)
+                            .attr("offset", fadeStart);
+                        gradient.append("stop")
+                            .classed("grad-end", true)
+                            .attr("offset", fadeEnd);
+
+                        // Set the fade.
+                        textElement
+                            .style("fill", "url(#shortGradient" + i + ")");
+                    }
+                });
 
             // Setup the behaviour of the tabs.
             topTabContainer.on("mouseover", function() { d3.select(this).classed("hover", true); });
@@ -688,30 +763,105 @@ $(document).ready(function()
                 .attr("d", function(d, i) { return (i === 0) ? middleTabInfo.fullTab : middleTabInfo.tabMissingLeft; })
                 .classed("tab", true);
 
-			// Need to include the stroke width in the content positioning.
-			var tabBorderWidth = Math.ceil(parseInt(middleTabs.style("stroke-width"), 10));
+            // Need to include the stroke width in the content positioning.
+            var tabBorderWidth = Math.ceil(parseInt(middleTabs.style("stroke-width"), 10));
 
-			// Create the clip path.
-			defs.append("clipPath")
-				.attr("id", "clip-medium-tab")
-				.append("rect")
-					.attr("x", 0)
-					.attr("y", 0)
-					.attr("width", middleTabWidth)
-					.attr("height", middleTabHeight + tabBorderWidth);
+            // Create the clip path.
+            defs.append("clipPath")
+                .attr("id", "clip-medium-tab")
+                .append("rect")
+                    .attr("x", 0)
+                    .attr("y", 0)
+                    .attr("width", middleTabWidth)
+                    .attr("height", middleTabHeight + tabBorderWidth);
 
-			// Add the tab content.
-			var middleTabContentContainer = middleTabContainer
-				.append("g")
-				.classed("tab-content", true)
-				.attr("transform", function(d) { return "translate(" + curveWidth + ",0)"; })
-				.attr("clip-path", "url(#clip-medium-tab)");
-			var middleTabTextElements = middleTabContentContainer
-				.append("text")
-				.classed("tab-text", true)
-				.attr("x", 0)
-				.attr("y", (middleTabHeight + tabBorderWidth) / 2)
-				.text(function(d, i) { return textForTallTabs[i]; });
+            // Add the tab content.
+            var middleTabContentContainer = middleTabContainer
+                .append("g")
+                .classed("tab-content", true)
+                .attr("transform", function(d) { return "translate(" + curveWidth + "," + tabBorderWidth + ")"; })  // Offset y by the stroke-width of the tab border.
+                .attr("clip-path", "url(#clip-medium-tab)");
+            var middleTabTextElements = middleTabContentContainer
+                .append("text")
+                .classed("tab-text", true)
+                .attr("x", 0)
+                .attr("y", 0)
+                .text(function(d, i) { return textForTallTabs[i]; });
+
+            // Wrap and fade the text.
+            middleTabTextElements.each(function(d, i)
+                {
+                    // Select the needed DOM nodes.
+                    var textElement = d3.select(this);
+
+                    // Get the text dimensions.
+                    var currentTextBBox = textElement.node().getBBox()
+                    var currentTextHeight = currentTextBBox.height;
+
+                    // Definitions for wrapping the text.
+                    var words = textElement.text().split(/\s+/);  // The words in the original text.
+                    var word;
+                    var line = [];  // The line of text currently being created.
+                    var linesAdded = 1;  // The number of lines of text added to the tab.
+
+                    // Determine the number of lines of text that will fit comfortably in the tab.
+                    var numberOfLinesFit = Math.floor(middleTabHeight / currentTextHeight);
+
+                    var tspan = textElement.text(null).append("tspan").attr("x", 0).attr("y", 0);
+                    while (word = words.shift())
+                    {
+                        line.push(word);
+                        tspan.text(line.join(" "));
+                        if (tspan.node().getComputedTextLength() > middleTabWidth)
+                        {
+                            // Finish of the current line of text.
+                            line.pop();
+                            tspan.text(line.join(" "));
+                            linesAdded++;
+
+                            // Start the next line of text. If the maximum displayable number of lines have already been created, then make this line
+                            // invisible. Making the line invisible, rather than just not adding it, ensures that all text is kept in the DOM, and that
+                            // the number of lines needed to display all the text is known.
+                            line = [word];
+                            tspan = textElement.append("tspan")
+                                .attr("x", 0)
+                                .attr("y", 0)
+                                .style("opacity", function() { if (linesAdded > numberOfLinesFit) return 0; });
+                        }
+                    }
+                    tspan.text(line.join(" "));  // Add any leftover text to the final tspan.
+
+                    // Reposition the text in the middle of the tab.
+                    var topOffset = (middleTabHeight - (Math.min(linesAdded, numberOfLinesFit) * currentTextHeight)) / 2;
+                    var spans = textElement.selectAll("tspan")
+                        .attr("dy", function(d, i) { return ((i + 0.5) * currentTextHeight) + topOffset; });
+
+                    // Fade the bottom line if needed.
+                    if (linesAdded > numberOfLinesFit)
+                    {
+                        // Get the new text dimensions.
+                        var currentTextBBox = textElement.node().getBBox()
+                        var currentTextHeight = currentTextBBox.height;
+                        var fadeStart = (middleTabHeight * 0.5) / currentTextHeight;
+                        var fadeEnd = (middleTabHeight * 0.8) / currentTextHeight;
+                        var gradient = defs.append("linearGradient")
+                            .attr("id", "mediumGradient" + i)
+                            .attr("x1", "0%")
+                            .attr("y1", "0%")
+                            .attr("x2", "0%")
+                            .attr("y2", "100%");
+                        gradient.append("stop")
+                            .classed("grad-start", true)
+                            .attr("offset", fadeStart);
+                        gradient.append("stop")
+                            .classed("grad-end", true)
+                            .attr("offset", fadeEnd);
+
+                        // Set the fade.
+                        textElement
+                            .style("fill", "url(#mediumGradient" + i + ")");
+                    }
+                });
 
             // Setup the behaviour of the tabs.
             middleTabContainer.on("mouseover", function() { d3.select(this).classed("hover", true); });
@@ -788,105 +938,105 @@ $(document).ready(function()
                 .attr("d", function(d, i) { return (i === numberOfTabs - 1) ? bottomTabInfo.fullTab : bottomTabInfo.tabMissingRight; })
                 .classed("tab", true);
 
-			// Need to include the stroke width in the content positioning.
-			var tabBorderWidth = Math.ceil(parseInt(bottomTabs.style("stroke-width"), 10));
+            // Need to include the stroke width in the content positioning.
+            var tabBorderWidth = Math.ceil(parseInt(bottomTabs.style("stroke-width"), 10));
 
-			// Create the clip path.
-			defs.append("clipPath")
-				.attr("id", "clip-tall-tab")
-				.append("rect")
-					.attr("x", 0)
-					.attr("y", 0)
-					.attr("width", bottomTabWidth)
-					.attr("height", bottomTabHeight + tabBorderWidth);
+            // Create the clip path.
+            defs.append("clipPath")
+                .attr("id", "clip-tall-tab")
+                .append("rect")
+                    .attr("x", 0)
+                    .attr("y", 0)
+                    .attr("width", bottomTabWidth)
+                    .attr("height", bottomTabHeight + tabBorderWidth);
 
-			// Add the tab content.
-			var bottomTabContentContainer = bottomTabContainer
-				.append("g")
-				.classed("tab-content", true)
-				.attr("transform", function(d) { return "translate(" + curveWidth + ",0)"; })
-				.attr("clip-path", "url(#clip-tall-tab)");
-			var bottomTabTextElements = bottomTabContentContainer
-				.append("text")
-				.classed("tab-text", true)
-				.attr("x", 0)
-				.attr("y", (bottomTabHeight + tabBorderWidth) / 2)
-				.text(function(d, i) { return textForTallTabs[i]; });
-			
-			// Wrap and fade the text.
-			bottomTabTextElements.each(function(d, i)
-				{
-					// Select the needed DOM nodes.
-					var textElement = d3.select(this);
-					
-					// Get the text dimensions.
-					var currentTextBBox = textElement.node().getBBox()
-					var currentTextHeight = currentTextBBox.height;
-					
-					// Definitions for wrapping the text.
-					var words = textElement.text().split(/\s+/);  // The words in the original text.
-					var word;
-					var line = [];  // The line of text currently being created.
-					var linesAdded = 1;  // The number of lines of text added to the tab.
-					
-					// Determine the number of lines of text that will fit comfortably in the tab.
-					var numberOfLinesFit = Math.floor(bottomTabHeight / currentTextHeight);
-					
-					var tspan = textElement.text(null).append("tspan").attr("x", 0).attr("y", 0);
-					while (word = words.shift())
-					{
-						line.push(word);
-						tspan.text(line.join(" "));
-						if (tspan.node().getComputedTextLength() > bottomTabWidth)
-						{
-							// Finish of the current line of text.
-							line.pop();
-							tspan.text(line.join(" "));
-							linesAdded++;
-							
-							// Start the next line of text. If the maximum displayable number of lines have already been created, then make this line
-							// invisible. Making the line invisible, rather than just not adding it, ensures that all text is kept in the DOM, and that
-							// the number of lines needed to display all the text is known.
-							line = [word];
-							tspan = textElement.append("tspan")
-								.attr("x", 0)
-								.attr("y", 0)
-								.style("opacity", function() { if (linesAdded > numberOfLinesFit) return 0; });
-						}
-					}
-					tspan.text(line.join(" "));  // Add any leftover text to the final tspan.
-					
-					// Reposition the text in the middle of the tab.
-					var topOffset = (bottomTabHeight - (Math.min(linesAdded, numberOfLinesFit) * currentTextHeight)) / 2;
-					var spans = textElement.selectAll("tspan")
-						.attr("dy", function(d, i) { return ((i + 0.5) * currentTextHeight) + topOffset; });
-					
-					// Fade the bottom line if needed.
-					if (linesAdded > numberOfLinesFit)
-					{
-						// Get the new text dimensions.
-						var currentTextBBox = textElement.node().getBBox()
-						var currentTextHeight = currentTextBBox.height;
-						var fadeStart = (bottomTabHeight * 0.6) / currentTextHeight;
-						var fadeEnd = (bottomTabHeight * 0.8) / currentTextHeight;
-						var gradient = defs.append("linearGradient")
-							.attr("id", "tallGradient" + i)
-							.attr("x1", "0%")
-							.attr("y1", "0%")
-							.attr("x2", "0%")
-							.attr("y2", "100%");
-						gradient.append("stop")
-							.classed("grad-start", true)
-							.attr("offset", fadeStart);
-						gradient.append("stop")
-							.classed("grad-end", true)
-							.attr("offset", fadeEnd);
+            // Add the tab content.
+            var bottomTabContentContainer = bottomTabContainer
+                .append("g")
+                .classed("tab-content", true)
+                .attr("transform", function(d) { return "translate(" + curveWidth + "," + tabBorderWidth + ")"; })  // Offset y by the stroke-width of the tab border.
+                .attr("clip-path", "url(#clip-tall-tab)");
+            var bottomTabTextElements = bottomTabContentContainer
+                .append("text")
+                .classed("tab-text", true)
+                .attr("x", 0)
+                .attr("y", 0)
+                .text(function(d, i) { return textForTallTabs[i]; });
 
-						// Set the fade.
-						textElement
-							.style("fill", "url(#tallGradient" + i + ")");
-					}
-				});
+            // Wrap and fade the text.
+            bottomTabTextElements.each(function(d, i)
+                {
+                    // Select the needed DOM nodes.
+                    var textElement = d3.select(this);
+
+                    // Get the text dimensions.
+                    var currentTextBBox = textElement.node().getBBox()
+                    var currentTextHeight = currentTextBBox.height;
+
+                    // Definitions for wrapping the text.
+                    var words = textElement.text().split(/\s+/);  // The words in the original text.
+                    var word;
+                    var line = [];  // The line of text currently being created.
+                    var linesAdded = 1;  // The number of lines of text added to the tab.
+
+                    // Determine the number of lines of text that will fit comfortably in the tab.
+                    var numberOfLinesFit = Math.floor(bottomTabHeight / currentTextHeight);
+
+                    var tspan = textElement.text(null).append("tspan").attr("x", 0).attr("y", 0);
+                    while (word = words.shift())
+                    {
+                        line.push(word);
+                        tspan.text(line.join(" "));
+                        if (tspan.node().getComputedTextLength() > bottomTabWidth)
+                        {
+                            // Finish of the current line of text.
+                            line.pop();
+                            tspan.text(line.join(" "));
+                            linesAdded++;
+
+                            // Start the next line of text. If the maximum displayable number of lines have already been created, then make this line
+                            // invisible. Making the line invisible, rather than just not adding it, ensures that all text is kept in the DOM, and that
+                            // the number of lines needed to display all the text is known.
+                            line = [word];
+                            tspan = textElement.append("tspan")
+                                .attr("x", 0)
+                                .attr("y", 0)
+                                .style("opacity", function() { if (linesAdded > numberOfLinesFit) return 0; });
+                        }
+                    }
+                    tspan.text(line.join(" "));  // Add any leftover text to the final tspan.
+
+                    // Reposition the text in the middle of the tab.
+                    var topOffset = (bottomTabHeight - (Math.min(linesAdded, numberOfLinesFit) * currentTextHeight)) / 2;
+                    var spans = textElement.selectAll("tspan")
+                        .attr("dy", function(d, i) { return ((i + 0.5) * currentTextHeight) + topOffset; });
+
+                    // Fade the bottom line if needed.
+                    if (linesAdded > numberOfLinesFit)
+                    {
+                        // Get the new text dimensions.
+                        var currentTextBBox = textElement.node().getBBox()
+                        var currentTextHeight = currentTextBBox.height;
+                        var fadeStart = (bottomTabHeight * 0.6) / currentTextHeight;
+                        var fadeEnd = (bottomTabHeight * 0.8) / currentTextHeight;
+                        var gradient = defs.append("linearGradient")
+                            .attr("id", "tallGradient" + i)
+                            .attr("x1", "0%")
+                            .attr("y1", "0%")
+                            .attr("x2", "0%")
+                            .attr("y2", "100%");
+                        gradient.append("stop")
+                            .classed("grad-start", true)
+                            .attr("offset", fadeStart);
+                        gradient.append("stop")
+                            .classed("grad-end", true)
+                            .attr("offset", fadeEnd);
+
+                        // Set the fade.
+                        textElement
+                            .style("fill", "url(#tallGradient" + i + ")");
+                    }
+                });
 
             // Setup the behaviour of the tabs.
             bottomTabContainer.on("mouseover", function() { d3.select(this).classed("hover", true); });
@@ -943,24 +1093,24 @@ $(document).ready(function()
         }
 
         // Add the baselines on which the tabs will sit.
-		tabSet.append("rect")
-			.attr("width", svgWidth)
-			.attr("height", backingBorderHeight)
-			.attr("x", 0)
-			.attr("y", topTabBaselineY)
-			.classed("backing", true);
-		tabSet.append("rect")
-			.attr("width", svgWidth)
-			.attr("height", backingBorderHeight)
-			.attr("x", 0)
-			.attr("y", middleTabBaselineY)
-			.classed("backing", true);
-		tabSet.append("rect")
-			.attr("width", svgWidth)
-			.attr("height", backingBorderHeight)
-			.attr("x", 0)
-			.attr("y", bottomTabBaselineY)
-			.classed("backing", true);
+        tabSet.append("rect")
+            .attr("width", svgWidth)
+            .attr("height", backingBorderHeight)
+            .attr("x", 0)
+            .attr("y", topTabBaselineY)
+            .classed("backing", true);
+        tabSet.append("rect")
+            .attr("width", svgWidth)
+            .attr("height", backingBorderHeight)
+            .attr("x", 0)
+            .attr("y", middleTabBaselineY)
+            .classed("backing", true);
+        tabSet.append("rect")
+            .attr("width", svgWidth)
+            .attr("height", backingBorderHeight)
+            .attr("x", 0)
+            .attr("y", bottomTabBaselineY)
+            .classed("backing", true);
     }
 
     function create_twirling_tabs(tabSetID)
@@ -1038,7 +1188,7 @@ $(document).ready(function()
             .classed("tab", true);
 
         // Add the rotating animation.
-		setTimeout(rotate_tabs, 100);
+        setTimeout(rotate_tabs, 100);
         function rotate_tabs()
         {
             // Update rotation.
@@ -1072,8 +1222,8 @@ $(document).ready(function()
                 .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
             rightTabs
                 .attr("d", function(d, i) { return (i === numberOfTabs - 1) ? rightTabInfo.fullTab : rightTabInfo.tabMissingRight; });
-			
-			setTimeout(rotate_tabs, 100);
+
+            setTimeout(rotate_tabs, 100);
         }
     }
 
