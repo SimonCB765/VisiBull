@@ -72,8 +72,11 @@ $(document).ready(function()
         var selectedTabContainer = tabSet.select(".tab-container");  // Select the first tab.
 		var selectedTab = selectedTabContainer.select(".tab");
         selectedTab.classed("selected", true);
+		
+		// Setup the drag behaviour of the tabs. Have to set the origin properly, so that the x and y positions of the drag event are placed correctly
+		// within the whole svg element, rather than just in relation to the transformed coordinates of the <g> containing the tab.
 		var tabDrag = d3.behavior.drag()
-			.origin(function(d) {console.log(d); return d;})
+			.origin(function(d) { var mousePos = d3.mouse(this); return {"x" : d.transX + mousePos[0], "y" : d.transY + mousePos[1]}; })
 			.on("dragstart", drag_start)
 			.on("drag", drag_update)
 			.on("dragend", drag_end);
@@ -90,6 +93,7 @@ $(document).ready(function()
 		/*********************
 		* Tab Drag Functions *
 		*********************/
+		var startOfDragX;  // The x coordinate where the dragging started.
 		function drag_end(d)
 		{
 		}
@@ -114,7 +118,6 @@ $(document).ready(function()
 			// Switch up the masks to reflect the new selected tab.
 			var clickedContainer = d3.select(this);
 			var previousClickedTabPos = selectedTabContainer.datum().position;
-			console.log(selectedTabContainer.datum(), previousClickedTabPos);
 			if (previousClickedTabPos !== 0)
 			{
 				// If the previously clicked on tab was not the leftmost tab, then mask out its left side as it is being deselected.
@@ -132,10 +135,19 @@ $(document).ready(function()
 			selectedTabContainer = clickedContainer;
 			selectedTab = selectedTabContainer.select(".tab");
 			selectedTab.classed("selected", true);
+			
+			// Record where the drag started.
+			startOfDragX = d3.mouse(this)[0];
 		}
 		
 		function drag_update(d)
 		{
+			d3.select(this)
+				.attr("transform", function(d)
+					{
+						d.transX = Math.max(0, Math.min(svgWidth - (curveWidth * 2) - tabWidth, d3.event.x - startOfDragX));
+						return "translate(" + d.transX + "," + d.transY + ")";
+					});
 		}
     }
 	
