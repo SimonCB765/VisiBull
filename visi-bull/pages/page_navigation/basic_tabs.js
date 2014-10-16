@@ -1256,20 +1256,20 @@ $(document).ready(function()
         * Parse Configuration Inputs. *
         ******************************/
         // Determine initial coordinates.
-        var initialX = typeof config.x !== undefined ? config.x : 0;
-        var initialY = typeof config.y !== undefined ? config.y : 0;
+        var initialX = typeof config.x !== "undefined" ? config.x : 0;
+        var initialY = typeof config.y !== "undefined" ? config.y : 0;
 
         // Determine the width and height of the tab to be created.
-        var width = typeof config.width !== 'undefined' ? config.width : 160;
-        var curveWidth = typeof config.curveWidth !== 'undefined' ? config.curveWidth : 20;
-        var height = typeof config.height !== 'undefined' ? config.height : (width / 4);
+        var width = typeof config.width !== "undefined" ? config.width : 160;
+        var curveWidth = typeof config.curveWidth !== "undefined" ? config.curveWidth : 20;
+        var height = typeof config.height !== "undefined" ? config.height : (width / 4);
 
         // Determine the angle that the tabs are to be rotated through.
-        var rotation = typeof config.rotation !== 'undefined' ? config.rotation : 0;
+        var rotation = typeof config.rotation !== "undefined" ? config.rotation : 0;
         rotation = (rotation > 1) || (rotation < -1)? 0 : rotation;
 
         // Determine the tab alignment.
-        var alignment = typeof config.alignment !== 'undefined' ? config.alignment : "left";
+        var alignment = typeof config.alignment !== "undefined" ? config.alignment : "left";
         alignment = (alignment === "left") || (alignment === "center") || (alignment === "right") ? alignment : "left";
 
         // Determine the information needed to create the tabs.
