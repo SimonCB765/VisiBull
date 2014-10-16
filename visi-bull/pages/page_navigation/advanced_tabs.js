@@ -72,76 +72,12 @@ $(document).ready(function()
         var selectedTabContainer = tabSet.select(".tab-container");  // Select the first tab.
 		var selectedTab = selectedTabContainer.select(".tab");
         selectedTab.classed("selected", true);
-        tabContainer.on("mousedown", function(d)
-            {
-                if (d3.event.button == 0)
-                {
-                    // Left click.
-                    // Clear old selected tab information.
-                    selectedTab.classed("selected", false);
-
-                    // Make the appearance of the tabs fit with the choice of tab that should be on top (i.e. the one clicked).
-                    tabs
-                        .attr("d", function(tabD)
-                            {
-                                var desiredTabPath = pathsForTabs.deselectedPath;  // Default to the deselected tab appearance.
-                                if (tabD.position === d.position)
-                                {
-                                    desiredTabPath = pathsForTabs.selectedPath;  // Tab has been clicked on to select it.
-                                }
-                                return desiredTabPath;
-                            });
-					
-					// Switch up the masks to reflect the new selected tab.
-					var clickedContainer = d3.select(this);
-					var previousClickedTabPos = selectedTabContainer.datum().position;
-					console.log(selectedTabContainer.datum(), previousClickedTabPos);
-					if (previousClickedTabPos !== 0)
-					{
-						// If the previously clicked on tab was not the leftmost tab, then mask out its left side as it is being deselected.
-						selectedTabContainer.select(".left-mask").classed("on", true);
-						d3.select("#mask-" + (previousClickedTabPos - 1) + " .right-mask").classed("on", false);
-					}
-					clickedContainer.select(".clip-tab").classed("on", false);  // No masking for the tab that was just clicked on.
-					if (d.position !== 0)
-					{
-						// Mask out the right side of the tab to the left of the one click on, if the tab clicked on is not the leftmost tab.
-						clickedContainer.select("#mask-" + (d.position - 1) + " .right-mask").classed("on", true);
-					}
-					/*
-					masks.each(function(maskD)
-						{
-							if (maskD.position === d.position)
-							{
-								console.log(d3.select(this));
-							}
-							else if (maskD.position === 0)
-							{
-								// The 0th index tab is a bit special, as it can only be full or missing its right portion.
-								// If this branch is reached, then it was not the 0th index tab that was clicked on.
-								if (d.position === 1)
-								{
-									// The 1st index tab was clicked on.
-								}
-								else
-								{
-								}
-							}
-							else if (maskD.position === d.position - 1)
-							{
-							}
-							else
-							{
-							}
-						});
-					*/
-
-                    // Record new selected tab information.
-					selectedTabContainer = clickedContainer;
-                    selectedTab = selectedTabContainer.select(".tab");
-                    selectedTab.classed("selected", true);
-                }
-            });
+		var tabDrag = d3.behavior.drag()
+			.origin(function(d) {console.log(d); return d;})
+			.on("dragstart", drag_start)
+			.on("drag", drag_update)
+			.on("dragend", drag_end);
+		tabContainer.call(tabDrag);
 
         // Add the baselines on which the tabs will sit.
         tabSet.append("rect")
@@ -150,26 +86,76 @@ $(document).ready(function()
             .attr("x", 0)
             .attr("y", svgHeight - backingBorderHeight)
             .classed("backing", true);
+		
+		/*********************
+		* Tab Drag Functions *
+		*********************/
+		function drag_end(d)
+		{
+		}
+
+		function drag_start(d)
+		{
+			// Clear old selected tab information.
+			selectedTab.classed("selected", false);
+
+			// Make the appearance of the tabs fit with the choice of tab that should be on top (i.e. the one clicked).
+			tabs
+				.attr("d", function(tabD)
+					{
+						var desiredTabPath = pathsForTabs.deselectedPath;  // Default to the deselected tab appearance.
+						if (tabD.position === d.position)
+						{
+							desiredTabPath = pathsForTabs.selectedPath;  // Tab has been clicked on to select it.
+						}
+						return desiredTabPath;
+					});
+			
+			// Switch up the masks to reflect the new selected tab.
+			var clickedContainer = d3.select(this);
+			var previousClickedTabPos = selectedTabContainer.datum().position;
+			console.log(selectedTabContainer.datum(), previousClickedTabPos);
+			if (previousClickedTabPos !== 0)
+			{
+				// If the previously clicked on tab was not the leftmost tab, then mask out its left side as it is being deselected.
+				selectedTabContainer.select(".left-mask").classed("on", true);
+				d3.select("#mask-" + (previousClickedTabPos - 1) + " .right-mask").classed("on", false);
+			}
+			clickedContainer.select(".clip-tab").classed("on", false);  // No masking for the tab that was just clicked on.
+			if (d.position !== 0)
+			{
+				// Mask out the right side of the tab to the left of the one click on, if the tab clicked on is not the leftmost tab.
+				clickedContainer.select("#mask-" + (d.position - 1) + " .right-mask").classed("on", true);
+			}
+
+			// Record new selected tab information.
+			selectedTabContainer = clickedContainer;
+			selectedTab = selectedTabContainer.select(".tab");
+			selectedTab.classed("selected", true);
+		}
+		
+		function drag_update(d)
+		{
+		}
     }
-
-
+	
     /*************************
     * Tab Creation Functions *
     *************************/
     function create_tab_style_1(config)
     {
-        /******************************
-        * Parse Configuration Inputs. *
-        ******************************/
+        /*****************************
+        * Parse Configuration Inputs *
+        *****************************/
         // Determine initial coordinates.
         var tabWidth = typeof config.tabWidth !== "undefined" ? config.tabWidth : 100;
         var tabHeight = typeof config.tabHeight !== "undefined" ? config.tabHeight : 25;
         var curveWidth = typeof config.curveWidth !== "undefined" ? config.curveWidth : 30;
         var deselectedTabWidth = typeof config.deselectedTabWidth !== "undefined" ? config.deselectedTabWidth : tabWidth;
 
-        /************************
-        * Create the tab paths. *
-        ************************/
+        /***********************
+        * Create the tab paths *
+        ***********************/
         var selectedTabPath =
             "M0," + tabHeight +
             "q" + curveWidth / 4 + "," + 0 + "," + curveWidth / 2 + "," + -tabHeight / 2 +
