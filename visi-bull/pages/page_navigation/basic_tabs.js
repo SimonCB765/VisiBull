@@ -1325,7 +1325,7 @@ $(document).ready(function()
                          "rotation" : rotation, "alignment" : alignment};
 
         return {"config" : tabConfig, "data" : tabData, "fullTab" : tabPaths.whole, "tabMissingRight" : tabPaths.rightMissing,
-                "tabMissingLeft" : tabPaths.leftMissing, "tabMissingBoth" : tabPaths.tabMissingBoth};
+                "tabMissingLeft" : tabPaths.leftMissing, "tabMissingBoth" : tabPaths.bothMissing};
     }
 
     function create_tab_paths(tabWidth, tabHeight, curveWidth, rotation)
