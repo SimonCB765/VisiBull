@@ -1,7 +1,7 @@
 $(document).ready(function()
 {
     // Create the tabs.
-    var textForTabs = ["Iron Cook", "Zinc Saucier", "How come you always dress like you're doing your laundry?"];
+    var textForTabs = ["Iron Cook", "Zinc Saucier", "How come you always dress like you're doing your laundry?", "I have to go and buy a single piece of fruit with a coupon and then return it."];
     var newTabText = "New Tab";
     create_moveable_tabs("#tab-set-6");
 
@@ -26,7 +26,8 @@ $(document).ready(function()
 
         // Generate the data for the tabs.
         var tabInfo = []
-        var pathsForTabs = create_tab_style_1({"tabWidth" : tabWidth, "tabHeight" : tabHeight, "curveWidth" : curveWidth});
+		var tabConfig = {"tabWidth" : tabWidth, "tabHeight" : tabHeight, "curveWidth" : curveWidth};
+        var pathsForTabs = create_tab_style_1(tabConfig);
         for (var i = 0; i < numberOfTabs; i++)
         {
             tabInfo.push({"position" : i, "transX" : i * (curveWidth + tabWidth), "transY" : svgHeight - tabHeight, "text" : textForTabs[i]});
@@ -46,31 +47,28 @@ $(document).ready(function()
 		var tabBorderWidth = Math.ceil(parseInt(tabs.style("stroke-width"), 10));  // Get the width of the tab border.
 		
 		// Create the masks.
-		var masks = tabContainer.append("mask")
-			.attr("id", function(d) { return "mask-" + d.position; });
-		masks.append("rect")
-			.attr("x", function(d) { return -d.transX; })
-			.attr("y", -1)
-			.attr("width", svgWidth)
-			.attr("height", tabHeight + tabBorderWidth)
-			.classed("mask-rect", true);
-		masks.append("g")
-			.attr("transform", function() { return "translate(" + (-curveWidth - tabWidth + (tabBorderWidth / 2)) + ",0)"; })
-			.append("path")
-				.attr("d", pathsForTabs.deselectedPath)
-				.attr("class", function(d) { return "left-mask clip-tab" + ((d.position === 0) ? "" : " on"); });
-		masks.append("g")
-			.attr("transform", function() { return "translate(" + (curveWidth + tabWidth - (tabBorderWidth / 2)) + ",0)"; })
-			.append("path")
-				.attr("d", pathsForTabs.deselectedPath)
-				.classed({"clip-tab" : true, "on" : false, "right-mask" : true});
-		tabContainer.style("mask", function(d) { return "url(#mask-" + d.position + ")"; });
+		var clips = tabContainer.append("clipPath")
+			.attr("id", function(d) { return "clip-" + d.position; });
+		var clipPaths = clips.append("path")
+			.classed("clip-tab", true)
+			.attr("d", function(d)
+				{
+					// Set the configuration information for creating the clip path. Extend the width and and height by (tabBorderWidth / 2) to
+					// account for half the stroke of the tabs being outside the tab (as with all SVG elements).
+					var config = {"tabWidth" : tabWidth + (tabBorderWidth / 2), "tabHeight" : tabHeight, "curveWidth" : curveWidth,
+								  "heightExtension" : (tabBorderWidth / 2)};
+					if (d.position !== 0)
+					{
+						config.tabOnLeft = tabSet.select("#clip-" + (d.position - 1)).datum();
+					}
+					return create_clip_tab_style_1(config, d);
+				});
+		tabContainer.attr("clip-path", function(d) { return "url(#clip-" + d.position + ")"; });
 
         // Setup the behaviour of the tabs.
         tabContainer.on("mouseover", function() { d3.select(this).classed("hover", true); });
         tabContainer.on("mouseout", function() { d3.select(this).classed("hover", false); });
-        var selectedTabContainer = tabSet.select(".tab-container");  // Select the first tab.
-		var selectedTab = selectedTabContainer.select(".tab");
+        var selectedTab = tabSet.select(".tab-container").select(".tab");  // Select the first tab.
         selectedTab.classed("selected", true);
 		
 		// Setup the drag behaviour of the tabs. Have to set the origin properly, so that the x and y positions of the drag event are placed correctly
@@ -93,7 +91,7 @@ $(document).ready(function()
 		/*********************
 		* Tab Drag Functions *
 		*********************/
-		var startOfDragX;  // The x coordinate where the dragging started.
+		var startOfDragX;  // The x coordinate where the dragging started. Used to ensure that the mouse stays at the same point over the tab during the drag.
 		function drag_end(d)
 		{
 		}
@@ -115,25 +113,51 @@ $(document).ready(function()
 						return desiredTabPath;
 					});
 			
-			// Switch up the masks to reflect the new selected tab.
-			var clickedContainer = d3.select(this);
-			var previousClickedTabPos = selectedTabContainer.datum().position;
-			if (previousClickedTabPos !== 0)
-			{
-				// If the previously clicked on tab was not the leftmost tab, then mask out its left side as it is being deselected.
-				selectedTabContainer.select(".left-mask").classed("on", true);
-				d3.select("#mask-" + (previousClickedTabPos - 1) + " .right-mask").classed("on", false);
-			}
-			clickedContainer.select(".clip-tab").classed("on", false);  // No masking for the tab that was just clicked on.
-			if (d.position !== 0)
-			{
-				// Mask out the right side of the tab to the left of the one click on, if the tab clicked on is not the leftmost tab.
-				clickedContainer.select("#mask-" + (d.position - 1) + " .right-mask").classed("on", true);
-			}
+			/*********************************************
+			* Alter Clip Paths To Highlight Selected Tab *
+			*********************************************/
+			// Setup the clip paths for each tab.
+			clipPaths.attr("d", function(clipD)
+				{
+					// Set the configuration information for creating the clip path. Extend the width and and height by (tabBorderWidth / 2) to
+					// account for half the stroke of the tabs being outside the tab (as with all SVG elements).
+					var config = {"tabWidth" : tabWidth + (tabBorderWidth / 2), "tabHeight" : tabHeight, "curveWidth" : curveWidth,
+								  "heightExtension" : (tabBorderWidth / 2)};
+					if (clipD.position === d.position)
+					{
+						// The selected tab should have no clipping.
+					}
+					else if (clipD.position === 0)
+					{
+						// The leftmost tab can only ever be full or have its right portion clipped.
+						if (d.position === 1)
+						{
+							// The tab second from left was clicked on, so clip the right portion of the leftmost tab.
+							config.tabOnRight = d;
+						}
+					}
+					else if (clipD.position === numberOfTabs - 1)
+					{
+						// The rightmost tab needs its own condition as it can only ever be full or have its left portion clipped.
+						config.tabOnLeft = tabSet.select("#clip-" + (clipD.position - 1)).datum();
+					}
+					else if (clipD.position === d.position - 1)
+					{
+						// The tab currently being looked at is not the leftmost, rightmost or clicked on tab and is one position to the left of the
+						// tab clicked on. In this case the current tab should have both its left and right portions clipped.
+						config.tabOnLeft = tabSet.select("#clip-" + (clipD.position - 1)).datum();
+						config.tabOnRight = d;
+					}
+					else
+					{
+						// All other tabs should just have their left portion clipped.
+						config.tabOnLeft = tabSet.select("#clip-" + (clipD.position - 1)).datum();
+					}
+					return create_clip_tab_style_1(config, clipD);
+				});
 
 			// Record new selected tab information.
-			selectedTabContainer = clickedContainer;
-			selectedTab = selectedTabContainer.select(".tab");
+			selectedTab = d3.select(this).select(".tab");
 			selectedTab.classed("selected", true);
 			
 			// Record where the drag started.
@@ -154,7 +178,7 @@ $(document).ready(function()
     /*************************
     * Tab Creation Functions *
     *************************/
-    function create_tab_style_1(config)
+    function create_tab_style_1(config, startOffset)
     {
         /*****************************
         * Parse Configuration Inputs *
@@ -172,17 +196,82 @@ $(document).ready(function()
             "M0," + tabHeight +
             "q" + curveWidth / 4 + "," + 0 + "," + curveWidth / 2 + "," + -tabHeight / 2 +
             "t" + curveWidth / 2 + "," + -tabHeight / 2 +
-            "l" + tabWidth + "," + 0 +
+            "h" + tabWidth +
             "q" + curveWidth / 4 + "," + 0 + "," + curveWidth / 2 + "," + tabHeight / 2 +
             "t" + curveWidth / 2 + "," + tabHeight / 2;
         var deselectedTabPath =
             "M0," + tabHeight +
             "q" + curveWidth / 4 + "," + 0 + "," + curveWidth / 2 + "," + -tabHeight / 2 +
             "t" + curveWidth / 2 + "," + -tabHeight / 2 +
-            "l" + deselectedTabWidth + "," + 0 +
+            "h" + deselectedTabWidth +
             "q" + curveWidth / 4 + "," + 0 + "," + curveWidth / 2 + "," + tabHeight / 2 +
             "t" + curveWidth / 2 + "," + tabHeight / 2;
 
         return {"selectedPath" : selectedTabPath, "deselectedPath" : deselectedTabPath};
+    }
+	
+	function create_clip_tab_style_1(config, currentTabData)
+    {
+        /*****************************
+        * Parse Configuration Inputs *
+        *****************************/
+        // Determine initial coordinates.
+        var tabWidth = typeof config.tabWidth !== "undefined" ? config.tabWidth : 100;
+        var tabHeight = typeof config.tabHeight !== "undefined" ? config.tabHeight : 25;
+        var curveWidth = typeof config.curveWidth !== "undefined" ? config.curveWidth : 30;
+		var heightOffset = typeof config.heightOffset !== "undefined" ? config.heightOffset : 0;
+		var leftStartOffset = typeof config.tabOnLeft !== "undefined" ? config.tabOnLeft.transX - currentTabData.transX : undefined;
+		var rightStartOffset = typeof config.tabOnRight !== "undefined" ? config.tabOnRight.transX - currentTabData.transX : undefined;
+		var heightExtension = typeof config.heightExtension !== "undefined" ? config.heightExtension : 0;
+
+        /***********************
+        * Create the tab paths *
+        ***********************/
+        var clipTabPath = "";
+		var horizontalTravelled = 0;
+		
+		// Outline the left clipping tab (if needed).
+		if (leftStartOffset !== undefined)
+		{
+			var leftTabClip =
+				"M" + leftStartOffset + "," + tabHeight +
+				"q" + curveWidth / 4 + "," + 0 + "," + curveWidth / 2 + "," + -(tabHeight + heightExtension) / 2 +
+				"t" + curveWidth / 2 + "," + -(tabHeight + heightExtension) / 2 +
+				"h" + tabWidth +
+				"q" + curveWidth / 4 + "," + 0 + "," + curveWidth / 2 + "," + (tabHeight + heightExtension) / 2 +
+				"t" + curveWidth / 2 + "," + (tabHeight + heightExtension) / 2;
+			clipTabPath += leftTabClip;
+			horizontalTravelled += (curveWidth + tabWidth + curveWidth);
+		}
+		else
+		{
+			clipTabPath += ("M0," + tabHeight);
+			clipTabPath += ("h" + curveWidth);
+			horizontalTravelled += curveWidth;
+		}
+		
+		// Outline the right clip tab if needed.
+		if (rightStartOffset !== undefined)
+		{
+			var rightTabClip =
+				"l" + (rightStartOffset - curveWidth) + ",0" +
+				"q" + curveWidth / 4 + "," + 0 + "," + curveWidth / 2 + "," + -(tabHeight + heightExtension) / 2 +
+				"t" + curveWidth / 2 + "," + -(tabHeight + heightExtension) / 2 +
+				"h" + tabWidth +
+				"q" + curveWidth / 4 + "," + 0 + "," + curveWidth / 2 + "," + (tabHeight + heightExtension) / 2 +
+				"t" + curveWidth / 2 + "," + (tabHeight + heightExtension) / 2;
+			clipTabPath += rightTabClip;
+			horizontalTravelled += ((rightStartOffset - curveWidth) + curveWidth + tabWidth + curveWidth);
+		}
+		else
+		{
+			clipTabPath += ("h" + (tabWidth + curveWidth));
+			horizontalTravelled += (tabWidth + curveWidth);
+		}
+		
+		// Close up the clip outline.
+		clipTabPath += ("v" + -(tabHeight + heightExtension) + "h" + -horizontalTravelled + "z");
+
+        return clipTabPath;
     }
 });

@@ -51,6 +51,8 @@
 	<br><br>
 	<h2 class="centered">Advanced SVG Tabs</h2>
 	<br>
+	<p>In order to move tabs around, you need some method of changing the clipped area. This is difficult with fixed paths, and really needs to be done with clipping or masking rather than fixed paths.</p>
+	<p>Masking would work, except that masked out areas still receive pointer events even when completely transparent. Basically, clipping is required.</p>
 	<svg id="tab-set-6"></svg>
 	<br><br>
 	<br>

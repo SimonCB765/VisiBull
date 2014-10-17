@@ -47,8 +47,5 @@
 #tab-set-6 .backing {fill: black; stroke: none;}  /* Bottom backing border for the tab set. */
 #tab-set-6 .tab-container {cursor: default;}  /* Prevent changing of the cursor when hovering over a tab. */
 #tab-set-6 .tab-container.hover .tab {fill: #989898;}
-#tab-set-6 .tab-container .clip-tab {fill: white; stroke: none;}
-#tab-set-6 .tab-container .clip-tab.on {fill: black; stroke: none;}
-#tab-set-6 .tab-container .mask-rect {fill: white; stroke: none;}
 #tab-set-6 .tab-container .tab {fill: #888888; stroke: black; stroke-width: 2;}  /* Style the tabs. */
-#tab-set-6 .tab-container .tab.selected {fill: white;}
+#tab-set-6 .tab-container .tab.selected {fill: red;}
