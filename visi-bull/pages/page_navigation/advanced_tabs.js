@@ -172,6 +172,49 @@ $(document).ready(function()
                         d.transX = Math.max(0, Math.min(svgWidth - (curveWidth * 2) - tabWidth, d3.event.x - startOfDragX));
                         return "translate(" + d.transX + "," + d.transY + ")";
                     });
+
+            /*******************************************
+            * Alter Clip Paths To Reflect Tab Movement *
+            *******************************************/
+            // Setup the clip paths for each tab.
+            clipPaths.attr("d", function(clipD)
+                {
+                    // Set the configuration information for creating the clip path. Extend the width and and height by (tabBorderWidth / 2) to
+                    // account for half the stroke of the tabs being outside the tab (as with all SVG elements).
+                    var config = {"tabWidth" : tabWidth + (tabBorderWidth / 2), "tabHeight" : tabHeight, "curveWidth" : curveWidth,
+                                  "heightExtension" : (tabBorderWidth / 2)};
+                    if (clipD.position === d.position)
+                    {
+                        // The selected tab should have no clipping.
+                    }
+                    else if (clipD.position === 0)
+                    {
+                        // The leftmost tab can only ever be full or have its right portion clipped.
+                        if (d.position === 1)
+                        {
+                            // The tab second from left was clicked on, so clip the right portion of the leftmost tab.
+                            config.tabOnRight = d;
+                        }
+                    }
+                    else if (clipD.position === numberOfTabs - 1)
+                    {
+                        // The rightmost tab needs its own condition as it can only ever be full or have its left portion clipped.
+                        config.tabOnLeft = tabSet.select("#clip-" + (clipD.position - 1)).datum();
+                    }
+                    else if (clipD.position === d.position - 1)
+                    {
+                        // The tab currently being looked at is not the leftmost, rightmost or clicked on tab and is one position to the left of the
+                        // tab clicked on. In this case the current tab should have both its left and right portions clipped.
+                        config.tabOnLeft = tabSet.select("#clip-" + (clipD.position - 1)).datum();
+                        config.tabOnRight = d;
+                    }
+                    else
+                    {
+                        // All other tabs should just have their left portion clipped.
+                        config.tabOnLeft = tabSet.select("#clip-" + (clipD.position - 1)).datum();
+                    }
+                    return create_clip_tab_style_1(config, clipD);
+                });
         }
     }
 
