@@ -95,8 +95,54 @@ $(document).ready(function()
         * Tab Drag Functions *
         *********************/
         var startOfDragX;  // The x coordinate where the dragging started. Used to ensure that the mouse stays at the same point over the tab during the drag.
+        var snapToLocation;  // The x coordinate where the dragged tap will snap to on release.
         function drag_end(d)
         {
+            // Transition the dragged tab to its resting place.
+            d3.select(this)
+                .attr("transform", function(contD) { contD.transX = snapToLocation; return "translate(" + contD.transX + "," + contD.transY + ")"; });
+
+            // Set the clip paths.
+            var selectedTabPos = keyToPosition[d.key];
+            clipPaths.attr("d", function(clipD)
+                {
+                    // Set the configuration information for creating the clip path. Extend the width and and height by (tabBorderWidth / 2) to
+                    // account for half the stroke of the tabs being outside the tab (as with all SVG elements).
+                    var config = {"tabWidth" : tabWidth + (tabBorderWidth / 2), "tabHeight" : tabHeight, "curveWidth" : curveWidth,
+                                  "heightExtension" : (tabBorderWidth / 2), "containerWidth" : svgWidth};
+                    var currentTabPos = keyToPosition[clipD.key];
+                    if (clipD.key === d.key)
+                    {
+                        // The selected tab should have no clipping.
+                    }
+                    else if (currentTabPos === 0)
+                    {
+                        // The leftmost tab can only ever be full or have its right portion clipped.
+                        if (selectedTabPos === 1)
+                        {
+                            // The tab second from left was clicked on, so clip the right portion of the leftmost tab.
+                            config.tabOnRight = d;
+                        }
+                    }
+                    else if (currentTabPos === numberOfTabs - 1)
+                    {
+                        // The rightmost tab needs its own condition as it can only ever be full or have its left portion clipped.
+                        config.tabOnLeft = tabSet.select("#clip-" + positionToKey[currentTabPos - 1]).datum();
+                    }
+                    else if (currentTabPos === selectedTabPos - 1)
+                    {
+                        // The tab currently being looked at is not the leftmost, rightmost or clicked on tab and is one position to the left of the
+                        // tab clicked on. In this case the current tab should have both its left and right portions clipped.
+                        config.tabOnLeft = tabSet.select("#clip-" + positionToKey[currentTabPos - 1]).datum();
+                        config.tabOnRight = d;
+                    }
+                    else
+                    {
+                        // All other tabs should just have their left portion clipped.
+                        config.tabOnLeft = tabSet.select("#clip-" + positionToKey[currentTabPos - 1]).datum();
+                    }
+                    return create_clip_tab_style_1(config, clipD);
+                });
         }
 
         function drag_start(d)
@@ -165,8 +211,9 @@ $(document).ready(function()
             selectedTab = d3.select(this).select(".tab");
             selectedTab.classed("selected", true);
 
-            // Record where the drag started.
+            // Record where the drag started and where the tab will snap to.
             startOfDragX = d3.mouse(this)[0];
+            snapToLocation = d.transX;
         }
 
         function drag_update(d)
@@ -200,7 +247,7 @@ $(document).ready(function()
                                 positionToKey[selectedTabPos] = clipD.key;
                                 positionToKey[currentTabPos] = d.key;
                                 tabSet.select(".tab-container-" + clipD.key)
-                                    .attr("transform", function(contD) { contD.transX += tabWidth + curveWidth; return "translate(" + contD.transX + "," + contD.transY + ")"; });
+                                    .attr("transform", function(contD) { snapToLocation = contD.transX; contD.transX += tabWidth + curveWidth; return "translate(" + contD.transX + "," + contD.transY + ")"; });
                             }
                         }
                         else if (currentTabPos > selectedTabPos)
@@ -214,7 +261,7 @@ $(document).ready(function()
                                 positionToKey[selectedTabPos] = clipD.key;
                                 positionToKey[currentTabPos] = d.key;
                                 tabSet.select(".tab-container-" + clipD.key)
-                                    .attr("transform", function(contD) { contD.transX -= (tabWidth + curveWidth); return "translate(" + contD.transX + "," + contD.transY + ")"; });
+                                    .attr("transform", function(contD) { snapToLocation = contD.transX; contD.transX -= (tabWidth + curveWidth); return "translate(" + contD.transX + "," + contD.transY + ")"; });
                             }
                         }
                     }
