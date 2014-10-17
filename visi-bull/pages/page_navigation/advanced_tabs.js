@@ -56,7 +56,7 @@ $(document).ready(function()
                     // Set the configuration information for creating the clip path. Extend the width and and height by (tabBorderWidth / 2) to
                     // account for half the stroke of the tabs being outside the tab (as with all SVG elements).
                     var config = {"tabWidth" : tabWidth + (tabBorderWidth / 2), "tabHeight" : tabHeight, "curveWidth" : curveWidth,
-                                  "heightExtension" : (tabBorderWidth / 2)};
+                                  "heightExtension" : (tabBorderWidth / 2), "containerWidth" : svgWidth};
                     if (d.position !== 0)
                     {
                         config.tabOnLeft = tabSet.select("#clip-" + (d.position - 1)).datum();
@@ -122,7 +122,7 @@ $(document).ready(function()
                     // Set the configuration information for creating the clip path. Extend the width and and height by (tabBorderWidth / 2) to
                     // account for half the stroke of the tabs being outside the tab (as with all SVG elements).
                     var config = {"tabWidth" : tabWidth + (tabBorderWidth / 2), "tabHeight" : tabHeight, "curveWidth" : curveWidth,
-                                  "heightExtension" : (tabBorderWidth / 2)};
+                                  "heightExtension" : (tabBorderWidth / 2), "containerWidth" : svgWidth};
                     if (clipD.position === d.position)
                     {
                         // The selected tab should have no clipping.
@@ -172,6 +172,10 @@ $(document).ready(function()
                         d.transX = Math.max(0, Math.min(svgWidth - (curveWidth * 2) - tabWidth, d3.event.x - startOfDragX));
                         return "translate(" + d.transX + "," + d.transY + ")";
                     });
+			
+			/**********************************
+			* Reorder Tab Positions If Needed *
+			**********************************/
 
             /*******************************************
             * Alter Clip Paths To Reflect Tab Movement *
@@ -182,7 +186,7 @@ $(document).ready(function()
                     // Set the configuration information for creating the clip path. Extend the width and and height by (tabBorderWidth / 2) to
                     // account for half the stroke of the tabs being outside the tab (as with all SVG elements).
                     var config = {"tabWidth" : tabWidth + (tabBorderWidth / 2), "tabHeight" : tabHeight, "curveWidth" : curveWidth,
-                                  "heightExtension" : (tabBorderWidth / 2)};
+                                  "heightExtension" : (tabBorderWidth / 2), "containerWidth" : svgWidth};
                     if (clipD.position === d.position)
                     {
                         // The selected tab should have no clipping.
@@ -266,31 +270,28 @@ $(document).ready(function()
         var leftStartOffset = typeof config.tabOnLeft !== "undefined" ? config.tabOnLeft.transX - currentTabData.transX : undefined;
         var rightStartOffset = typeof config.tabOnRight !== "undefined" ? config.tabOnRight.transX - currentTabData.transX : undefined;
         var heightExtension = typeof config.heightExtension !== "undefined" ? config.heightExtension : 0;
+		var containerWidth = typeof config.containerWidth !== "undefined" ? config.containerWidth : 900;
 
         /***********************
         * Create the tab paths *
         ***********************/
-        var clipTabPath = "";
-        var horizontalTravelled = 0;
+        var clipTabPath = "M" + (-currentTabData.transX) + "," + tabHeight;
 
         // Outline the left clipping tab (if needed).
         if (leftStartOffset !== undefined)
         {
             var leftTabClip =
-                "M" + leftStartOffset + "," + tabHeight +
+                "H" + leftStartOffset +
                 "q" + curveWidth / 4 + "," + 0 + "," + curveWidth / 2 + "," + -(tabHeight + heightExtension) / 2 +
                 "t" + curveWidth / 2 + "," + -(tabHeight + heightExtension) / 2 +
                 "h" + tabWidth +
                 "q" + curveWidth / 4 + "," + 0 + "," + curveWidth / 2 + "," + (tabHeight + heightExtension) / 2 +
                 "t" + curveWidth / 2 + "," + (tabHeight + heightExtension) / 2;
             clipTabPath += leftTabClip;
-            horizontalTravelled += (curveWidth + tabWidth + curveWidth);
         }
         else
         {
-            clipTabPath += ("M0," + tabHeight);
-            clipTabPath += ("h" + curveWidth);
-            horizontalTravelled += curveWidth;
+            clipTabPath += ("H" + (curveWidth));
         }
 
         // Outline the right clip tab if needed.
@@ -304,16 +305,14 @@ $(document).ready(function()
                 "q" + curveWidth / 4 + "," + 0 + "," + curveWidth / 2 + "," + (tabHeight + heightExtension) / 2 +
                 "t" + curveWidth / 2 + "," + (tabHeight + heightExtension) / 2;
             clipTabPath += rightTabClip;
-            horizontalTravelled += ((rightStartOffset - curveWidth) + curveWidth + tabWidth + curveWidth);
         }
         else
         {
             clipTabPath += ("h" + (tabWidth + curveWidth));
-            horizontalTravelled += (tabWidth + curveWidth);
         }
 
         // Close up the clip outline.
-        clipTabPath += ("v" + -(tabHeight + heightExtension) + "h" + -horizontalTravelled + "z");
+        clipTabPath += ("H" + containerWidth + "v" + -(tabHeight + heightExtension) + "H" + (-currentTabData.transX) + "z");
 
         return clipTabPath;
     }
