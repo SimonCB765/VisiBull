@@ -15,8 +15,9 @@ $(document).ready(function()
         var backingBorderHeight = 2;  // The thickness of the border that the tabs rest on.
         var numberOfTabs = textForTabs.length;  // The number of tabs to create.
         var curveWidth = 30;  // The width of the curved region of the tabs.
-		var currentKey = 0;  // Counter to generate unique keys for identifying tabs.
-		var keyToPosition = {};  // Mapping from tab keys to the position that the tab is in.
+        var currentKey = 0;  // Counter to generate unique keys for identifying tabs.
+        var keyToPosition = {};  // Mapping from tab keys to the position that the tab is in.
+        var positionToKey = {};  // Mapping from positions to the key of the tab in that position.
 
         // Create the SVG element.
         var tabSet = d3.select(tabSetID)
@@ -30,8 +31,9 @@ $(document).ready(function()
         for (var i = 0; i < numberOfTabs; i++)
         {
             tabInfo.push({"key" : currentKey, "transX" : i * (curveWidth + tabWidth), "transY" : svgHeight - tabHeight, "text" : textForTabs[i]});
-			keyToPosition[currentKey] = i
-			currentKey++;
+            keyToPosition[currentKey] = i
+            positionToKey[i] = currentKey;
+            currentKey++;
         }
 
         // Create the tab containers.
@@ -40,7 +42,7 @@ $(document).ready(function()
             .enter()
             .append("g")
             .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; })
-            .classed("tab-container", true);
+            .attr("class", function(d) { return "tab-container " + ("tab-container-" + d.key); });
         var tabs = tabContainer
             .append("path")
             .attr("d", function(d) { return (keyToPosition[d.key] === 0) ? pathsForTabs.selectedPath : pathsForTabs.deselectedPath; })
@@ -118,14 +120,14 @@ $(document).ready(function()
             * Alter Clip Paths To Highlight Selected Tab *
             *********************************************/
             // Setup the clip paths for each tab.
-			var selectedTabPos = keyToPosition[d.key];
+            var selectedTabPos = keyToPosition[d.key];
             clipPaths.attr("d", function(clipD)
                 {
                     // Set the configuration information for creating the clip path. Extend the width and and height by (tabBorderWidth / 2) to
                     // account for half the stroke of the tabs being outside the tab (as with all SVG elements).
                     var config = {"tabWidth" : tabWidth + (tabBorderWidth / 2), "tabHeight" : tabHeight, "curveWidth" : curveWidth,
                                   "heightExtension" : (tabBorderWidth / 2), "containerWidth" : svgWidth};
-					var currentTabPos = keyToPosition[clipD.key];
+                    var currentTabPos = keyToPosition[clipD.key];
                     if (clipD.key === d.key)
                     {
                         // The selected tab should have no clipping.
@@ -142,19 +144,19 @@ $(document).ready(function()
                     else if (currentTabPos === numberOfTabs - 1)
                     {
                         // The rightmost tab needs its own condition as it can only ever be full or have its left portion clipped.
-                        config.tabOnLeft = tabSet.select("#clip-" + (currentTabPos - 1)).datum();
+                        config.tabOnLeft = tabSet.select("#clip-" + positionToKey[currentTabPos - 1]).datum();
                     }
                     else if (currentTabPos === selectedTabPos - 1)
                     {
                         // The tab currently being looked at is not the leftmost, rightmost or clicked on tab and is one position to the left of the
                         // tab clicked on. In this case the current tab should have both its left and right portions clipped.
-                        config.tabOnLeft = tabSet.select("#clip-" + (currentTabPos - 1)).datum();
+                        config.tabOnLeft = tabSet.select("#clip-" + positionToKey[currentTabPos - 1]).datum();
                         config.tabOnRight = d;
                     }
                     else
                     {
                         // All other tabs should just have their left portion clipped.
-                        config.tabOnLeft = tabSet.select("#clip-" + (currentTabPos - 1)).datum();
+                        config.tabOnLeft = tabSet.select("#clip-" + positionToKey[currentTabPos - 1]).datum();
                     }
                     return create_clip_tab_style_1(config, clipD);
                 });
@@ -169,29 +171,66 @@ $(document).ready(function()
 
         function drag_update(d)
         {
+            // Update tab location.
             d3.select(this)
                 .attr("transform", function(d)
                     {
                         d.transX = Math.max(0, Math.min(svgWidth - (curveWidth * 2) - tabWidth, d3.event.x - startOfDragX));
                         return "translate(" + d.transX + "," + d.transY + ")";
                     });
-			
-			/**********************************
-			* Reorder Tab Positions If Needed *
-			**********************************/
+
+            var selectedTabPos = keyToPosition[d.key];  // Position of selected tab in order.
+
+            /**********************************
+            * Reorder Tab Positions If Needed *
+            **********************************/
+            clipPaths.each(function(clipD)
+                {
+                    var currentTabPos = keyToPosition[clipD.key];
+                    if (d.key !== clipD.key)
+                    {
+                        if (currentTabPos < selectedTabPos)
+                        {
+                            // Current tab occurs to the left of the one being dragged.
+                            // Swap positions of tabs if the left end of the one being dragged has passed the mid point of this tab.
+                            if ((d.transX + curveWidth) <= (clipD.transX + curveWidth + (tabWidth / 2)))
+                            {
+                                keyToPosition[d.key] = currentTabPos;
+                                keyToPosition[clipD.key] = selectedTabPos;
+                                positionToKey[selectedTabPos] = clipD.key;
+                                positionToKey[currentTabPos] = d.key;
+                                tabSet.select(".tab-container-" + clipD.key)
+                                    .attr("transform", function(contD) { contD.transX += tabWidth + curveWidth; return "translate(" + contD.transX + "," + contD.transY + ")"; });
+                            }
+                        }
+                        else if (currentTabPos > selectedTabPos)
+                        {
+                            // Current tab occurs to the right of the one being dragged.
+                            // Swap positions of tabs if the right end of the one being dragged has passed the mid point of this tab.
+                            if ((d.transX + curveWidth + tabWidth) >= (clipD.transX + curveWidth + (tabWidth / 2)))
+                            {
+                                keyToPosition[d.key] = currentTabPos;
+                                keyToPosition[clipD.key] = selectedTabPos;
+                                positionToKey[selectedTabPos] = clipD.key;
+                                positionToKey[currentTabPos] = d.key;
+                                tabSet.select(".tab-container-" + clipD.key)
+                                    .attr("transform", function(contD) { contD.transX -= (tabWidth + curveWidth); return "translate(" + contD.transX + "," + contD.transY + ")"; });
+                            }
+                        }
+                    }
+                })
 
             /*******************************************
             * Alter Clip Paths To Reflect Tab Movement *
             *******************************************/
             // Setup the clip paths for each tab.
-			var selectedTabPos = keyToPosition[d.key];
             clipPaths.attr("d", function(clipD)
                 {
                     // Set the configuration information for creating the clip path. Extend the width and and height by (tabBorderWidth / 2) to
                     // account for half the stroke of the tabs being outside the tab (as with all SVG elements).
                     var config = {"tabWidth" : tabWidth + (tabBorderWidth / 2), "tabHeight" : tabHeight, "curveWidth" : curveWidth,
                                   "heightExtension" : (tabBorderWidth / 2), "containerWidth" : svgWidth};
-					var currentTabPos = keyToPosition[clipD.key];
+                    var currentTabPos = keyToPosition[clipD.key];
                     if (clipD.key === d.key)
                     {
                         // The selected tab should have no clipping.
@@ -208,19 +247,19 @@ $(document).ready(function()
                     else if (currentTabPos === numberOfTabs - 1)
                     {
                         // The rightmost tab needs its own condition as it can only ever be full or have its left portion clipped.
-                        config.tabOnLeft = tabSet.select("#clip-" + (currentTabPos - 1)).datum();
+                        config.tabOnLeft = tabSet.select("#clip-" + positionToKey[currentTabPos - 1]).datum();
                     }
                     else if (currentTabPos === selectedTabPos - 1)
                     {
                         // The tab currently being looked at is not the leftmost, rightmost or clicked on tab and is one position to the left of the
                         // tab clicked on. In this case the current tab should have both its left and right portions clipped.
-                        config.tabOnLeft = tabSet.select("#clip-" + (currentTabPos - 1)).datum();
+                        config.tabOnLeft = tabSet.select("#clip-" + positionToKey[currentTabPos - 1]).datum();
                         config.tabOnRight = d;
                     }
                     else
                     {
                         // All other tabs should just have their left portion clipped.
-                        config.tabOnLeft = tabSet.select("#clip-" + (currentTabPos - 1)).datum();
+                        config.tabOnLeft = tabSet.select("#clip-" + positionToKey[currentTabPos - 1]).datum();
                     }
                     return create_clip_tab_style_1(config, clipD);
                 });
@@ -275,7 +314,7 @@ $(document).ready(function()
         var leftStartOffset = typeof config.tabOnLeft !== "undefined" ? config.tabOnLeft.transX - currentTabData.transX : undefined;
         var rightStartOffset = typeof config.tabOnRight !== "undefined" ? config.tabOnRight.transX - currentTabData.transX : undefined;
         var heightExtension = typeof config.heightExtension !== "undefined" ? config.heightExtension : 0;
-		var containerWidth = typeof config.containerWidth !== "undefined" ? config.containerWidth : 900;
+        var containerWidth = typeof config.containerWidth !== "undefined" ? config.containerWidth : 900;
 
         /***********************
         * Create the tab paths *
