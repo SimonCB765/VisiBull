@@ -32,7 +32,7 @@ $(document).ready(function()
         // Generate the data for the tabs.
         var tabInfo = []
         var tabConfig = {"tabWidth" : tabWidth, "tabHeight" : tabHeight, "curveWidth" : curveWidth};
-        var pathsForTabs = create_tab_style_1(tabConfig);
+        var pathForTabs = create_tab_style_1(tabConfig);
         for (var i = 0; i < numberOfTabs; i++)
         {
             tabInfo.push({"key" : currentKey, "transX" : i * (curveWidth + tabWidth), "transY" : svgHeight - tabHeight, "text" : textForTabs[i]});
@@ -50,14 +50,14 @@ $(document).ready(function()
             .attr("class", function(d) { return "tab-container " + ("tab-container-" + d.key); });
         var tabs = tabContainer
             .append("path")
-            .attr("d", function(d) { return (keyToPosition[d.key] === 0) ? pathsForTabs.selectedPath : pathsForTabs.deselectedPath; })
+            .attr("d", pathForTabs)
             .classed("tab", true);
         var tabBorderWidth = Math.ceil(parseInt(tabs.style("stroke-width"), 10));  // Get the width of the tab border.
 
         // Create the clip paths for the tabs.
         var clips = tabContainer.append("clipPath")
             .attr("id", function(d) { return "clip-" + d.key; });
-        var clipPaths = clips.append("path")
+        clips.append("path")
             .classed("clip-tab", true)
             .attr("d", function(d)
                 {
@@ -103,7 +103,42 @@ $(document).ready(function()
             .on("dragstart", function() { d3.event.sourceEvent.stopPropagation(); });
         closeButtons.call(closeDrag);
 		closeButtons
-			.on("click", function(d) { console.log("Clicked To Close", d.key); });
+			.on("click", function(d)
+				{
+					// Select the tab that is to be closed.
+					var tabToClose = tabSet.select(".tab-container-" + d.key);
+					var dataOfClickedTab = tabToClose.datum();
+					
+					// If the tab to be closed is the selected one, then make the tab to its left the selected one.
+					if (dataOfClickedTab.key === selectedTab.datum().key)
+					{
+						// Get position of selected tab (the one being closed).
+						var selectedPos = keyToPosition[selectedTab.datum().key];
+						var newSelectedPos = (selectedPos === 0) ? 1 : selectedPos - 1;
+						var keyOfNewSelected = positionToKey[newSelectedPos];
+						selectedTab = tabSet.select(".tab-container-" + keyOfNewSelected);
+						selectedTab.classed("selected", true);
+					}
+					
+					// Update all mappings from position to key and from key to position.
+					var posOfClickedTab = keyToPosition[dataOfClickedTab.key];
+					for (var i = 0; i < numberOfTabs; i++)
+					{
+						if (posOfClickedTab < i)
+						{
+							// If the clicked tab is in a position to the left of the one currently being checked.
+							var currentKey = positionToKey[i];
+							positionToKey[i - 1] = positionToKey[i];
+							keyToPosition[currentKey] = i - 1;
+						}
+					}
+					delete positionToKey[numberOfTabs - 1];
+					delete keyToPosition[dataOfClickedTab.key];
+					
+					// Remove the tab that had its close button clicked.
+					tabToClose.node().remove();
+					numberOfTabs--;
+				});
 		closeButtons.append("circle")
 			.attr("cx", closeButtonRadius)
 			.attr("cy", (tabHeight + tabBorderWidth) / 2)
@@ -141,7 +176,7 @@ $(document).ready(function()
 
             // Set the clip paths.
             var selectedTabPos = keyToPosition[d.key];
-            clipPaths.attr("d", function(clipD)
+            tabSet.selectAll(".clip-tab").attr("d", function(clipD)
                 {
                     // Set the configuration information for creating the clip path. Extend the width and and height by (tabBorderWidth / 2) to
                     // account for half the stroke of the tabs being outside the tab (as with all SVG elements).
@@ -187,24 +222,12 @@ $(document).ready(function()
             // Clear old selected tab information.
             selectedTab.classed("selected", false);
 
-            // Make the appearance of the tabs fit with the choice of tab that should be on top (i.e. the one clicked).
-            tabs
-                .attr("d", function(tabD)
-                    {
-                        var desiredTabPath = pathsForTabs.deselectedPath;  // Default to the deselected tab appearance.
-                        if (tabD.key === d.key)
-                        {
-                            desiredTabPath = pathsForTabs.selectedPath;  // Tab has been clicked on to select it.
-                        }
-                        return desiredTabPath;
-                    });
-
             /*********************************************
             * Alter Clip Paths To Highlight Selected Tab *
             *********************************************/
             // Setup the clip paths for each tab.
             var selectedTabPos = keyToPosition[d.key];
-            clipPaths.attr("d", function(clipD)
+            tabSet.selectAll(".clip-tab").attr("d", function(clipD)
                 {
                     // Set the configuration information for creating the clip path. Extend the width and and height by (tabBorderWidth / 2) to
                     // account for half the stroke of the tabs being outside the tab (as with all SVG elements).
@@ -268,7 +291,7 @@ $(document).ready(function()
             /**********************************
             * Reorder Tab Positions If Needed *
             **********************************/
-            clipPaths.each(function(clipD)
+            tabSet.selectAll(".clip-tab").each(function(clipD)
                 {
                     var currentTabPos = keyToPosition[clipD.key];
                     if (d.key !== clipD.key)
@@ -308,7 +331,7 @@ $(document).ready(function()
             * Alter Clip Paths To Reflect Tab Movement *
             *******************************************/
             // Setup the clip paths for each tab.
-            clipPaths.attr("d", function(clipD)
+            tabSet.selectAll(".clip-tab").attr("d", function(clipD)
                 {
                     // Set the configuration information for creating the clip path. Extend the width and and height by (tabBorderWidth / 2) to
                     // account for half the stroke of the tabs being outside the tab (as with all SVG elements).
@@ -362,7 +385,6 @@ $(document).ready(function()
         var tabWidth = typeof config.tabWidth !== "undefined" ? config.tabWidth : 100;
         var tabHeight = typeof config.tabHeight !== "undefined" ? config.tabHeight : 25;
         var curveWidth = typeof config.curveWidth !== "undefined" ? config.curveWidth : 30;
-        var deselectedTabWidth = typeof config.deselectedTabWidth !== "undefined" ? config.deselectedTabWidth : tabWidth;
 
         /***********************
         * Create the tab paths *
@@ -374,15 +396,8 @@ $(document).ready(function()
             "h" + tabWidth +
             "q" + curveWidth / 4 + "," + 0 + "," + curveWidth / 2 + "," + tabHeight / 2 +
             "t" + curveWidth / 2 + "," + tabHeight / 2;
-        var deselectedTabPath =
-            "M0," + tabHeight +
-            "q" + curveWidth / 4 + "," + 0 + "," + curveWidth / 2 + "," + -tabHeight / 2 +
-            "t" + curveWidth / 2 + "," + -tabHeight / 2 +
-            "h" + deselectedTabWidth +
-            "q" + curveWidth / 4 + "," + 0 + "," + curveWidth / 2 + "," + tabHeight / 2 +
-            "t" + curveWidth / 2 + "," + tabHeight / 2;
 
-        return {"selectedPath" : selectedTabPath, "deselectedPath" : deselectedTabPath};
+        return selectedTabPath;
     }
 
     function create_clip_tab_style_1(config, currentTabData)
