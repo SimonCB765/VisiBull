@@ -94,16 +94,22 @@ $(document).ready(function()
             .classed("tab-content", true)
             .attr("transform", function(d) { return "translate(" + curveWidth + ",0)"; });
 		
-		// Add the close button to each tab.
+		// Add the close button to each tab. In order to prevent clicking and dragging on the close button moving the tab, a drag handler that
+		// prevents event propagation is needed, in order to prevent the drag on the tab container being fired by a mousedown on the close button.
 		var closeButtons = tabContentContainer.append("g")
 			.attr("transform", function() { return "translate(" + closeButtonStartX + ",0)"; })
 			.classed("close-button", true);
+		var closeDrag = d3.behavior.drag()
+            .on("dragstart", function() { d3.event.sourceEvent.stopPropagation(); });
+        closeButtons.call(closeDrag);
+		closeButtons
+			.on("click", function(d) { console.log("Clicked To Close", d.key); });
 		closeButtons.append("circle")
 			.attr("cx", closeButtonRadius)
 			.attr("cy", (tabHeight + tabBorderWidth) / 2)
 			.attr("r", closeButtonRadius);
-		var crossStartCoordsXLength = 4 * Math.acos(0.22 * Math.PI);
-		var crossStartCoordsYLength = 4 * Math.asin(0.22 * Math.PI);
+		var crossStartCoordsXLength = 4 * Math.cos(0.25 * Math.PI);
+		var crossStartCoordsYLength = 4 * Math.sin(0.25 * Math.PI);
 		var posTopLeft = [closeButtonRadius - crossStartCoordsXLength, ((tabHeight + tabBorderWidth) / 2) - crossStartCoordsYLength];
 		var posTopRight = [closeButtonRadius + crossStartCoordsXLength, ((tabHeight + tabBorderWidth) / 2) - crossStartCoordsYLength];
 		var posBottomRight = [closeButtonRadius + crossStartCoordsXLength, ((tabHeight + tabBorderWidth) / 2) + crossStartCoordsYLength];

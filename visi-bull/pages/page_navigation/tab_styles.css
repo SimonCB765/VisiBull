@@ -56,8 +56,9 @@
 #tab-set-6 .tab-container.selected .close-button {fill: white;}
 #tab-set-6 .tab-container.selected .tab {fill: white;}
 
-#tab-set-6 .tab-container .close-button path {stroke: black; stroke-width: 2;}
-#tab-set-6 .tab-container .close-button:hover {fill: #FF008C; stoke: black; stroke-width: 1;}
+#tab-set-6 .tab-container .close-button:hover {fill: #FF008C; stoke: none;}
+#tab-set-6 .tab-container .close-button:hover:active {fill: #E6007E;}  /* Slightly darker button when depressed. */
 #tab-set-6 .tab-container .close-button:hover path {stroke: white;}
+#tab-set-6 .tab-container .close-button path {stroke: black; stroke-width: 2;}
 
 #tab-set-6 .tab-container .tab {stroke: black; stroke-width: 2;}  /* Style the tabs. */
