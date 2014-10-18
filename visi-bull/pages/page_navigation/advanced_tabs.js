@@ -10,19 +10,24 @@ $(document).ready(function()
         // Definitions needed.
         var svgWidth = 900;  // Width of the SVG element.
         var svgHeight = 50;  // Height of the SVG element.
-        var tabWidth = 50;  // The width of each tab.
+        var tabWidth = 100;  // The width of each tab.
         var tabHeight = 25;  // The height of each tab.
         var backingBorderHeight = 2;  // The thickness of the border that the tabs rest on.
         var numberOfTabs = textForTabs.length;  // The number of tabs to create.
-        var curveWidth = 30;  // The width of the curved region of the tabs.
+        var curveWidth = 20;  // The width of the curved region of the tabs.
         var currentKey = 0;  // Counter to generate unique keys for identifying tabs.
         var keyToPosition = {};  // Mapping from tab keys to the position that the tab is in.
         var positionToKey = {};  // Mapping from positions to the key of the tab in that position.
+		var closeButtonRadius = 6;  // The radius of the circle containing the close button.
+		var closeButtonStartX = tabWidth - (2 * closeButtonRadius);  // The offset into the tab content where the close button starts.
 
         // Create the SVG element.
         var tabSet = d3.select(tabSetID)
             .attr("width", svgWidth)
             .attr("height", svgHeight);
+
+        // Create the <defs> to hold the gradients for the text.
+        var defs = tabSet.append("defs");
 
         // Generate the data for the tabs.
         var tabInfo = []
@@ -49,7 +54,7 @@ $(document).ready(function()
             .classed("tab", true);
         var tabBorderWidth = Math.ceil(parseInt(tabs.style("stroke-width"), 10));  // Get the width of the tab border.
 
-        // Create the clip paths.
+        // Create the clip paths for the tabs.
         var clips = tabContainer.append("clipPath")
             .attr("id", function(d) { return "clip-" + d.key; });
         var clipPaths = clips.append("path")
@@ -71,7 +76,7 @@ $(document).ready(function()
         // Setup the behaviour of the tabs.
         tabContainer.on("mouseover", function() { d3.select(this).classed("hover", true); });
         tabContainer.on("mouseout", function() { d3.select(this).classed("hover", false); });
-        var selectedTab = tabSet.select(".tab-container").select(".tab");  // Select the first tab.
+        var selectedTab = tabSet.select(".tab-container");  // Select the first tab.
         selectedTab.classed("selected", true);
 
         // Setup the drag behaviour of the tabs. Have to set the origin properly, so that the x and y positions of the drag event are placed correctly
@@ -82,6 +87,32 @@ $(document).ready(function()
             .on("drag", drag_update)
             .on("dragend", drag_end);
         tabContainer.call(tabDrag);
+		
+		// Add the containers for the tab content.
+        var tabContentContainer = tabContainer
+            .append("g")
+            .classed("tab-content", true)
+            .attr("transform", function(d) { return "translate(" + curveWidth + ",0)"; });
+		
+		// Add the close button to each tab.
+		var closeButtons = tabContentContainer.append("g")
+			.attr("transform", function() { return "translate(" + closeButtonStartX + ",0)"; })
+			.classed("close-button", true);
+		closeButtons.append("circle")
+			.attr("cx", closeButtonRadius)
+			.attr("cy", (tabHeight + tabBorderWidth) / 2)
+			.attr("r", closeButtonRadius);
+		var crossStartCoordsXLength = 4 * Math.acos(0.22 * Math.PI);
+		var crossStartCoordsYLength = 4 * Math.asin(0.22 * Math.PI);
+		var posTopLeft = [closeButtonRadius - crossStartCoordsXLength, ((tabHeight + tabBorderWidth) / 2) - crossStartCoordsYLength];
+		var posTopRight = [closeButtonRadius + crossStartCoordsXLength, ((tabHeight + tabBorderWidth) / 2) - crossStartCoordsYLength];
+		var posBottomRight = [closeButtonRadius + crossStartCoordsXLength, ((tabHeight + tabBorderWidth) / 2) + crossStartCoordsYLength];
+		var posBottomLeft = [closeButtonRadius - crossStartCoordsXLength, ((tabHeight + tabBorderWidth) / 2) + crossStartCoordsYLength];
+		closeButtons.append("path")
+			.attr("d", "M" + posTopLeft[0] + "," + posTopLeft[1] +
+					   "L" + posBottomRight[0] + "," + posBottomRight[1] +
+					   "M" + posTopRight[0] + "," + posTopRight[1] +
+					   "L" + posBottomLeft[0] + "," + posBottomLeft[1]);
 
         // Add the baselines on which the tabs will sit.
         tabSet.append("rect")
@@ -208,7 +239,7 @@ $(document).ready(function()
                 });
 
             // Record new selected tab information.
-            selectedTab = d3.select(this).select(".tab");
+            selectedTab = d3.select(this);
             selectedTab.classed("selected", true);
 
             // Record where the drag started and where the tab will snap to.

@@ -43,9 +43,21 @@
 #tab-set-5 .tab-text {dominant-baseline: middle; fill: black; font-size: .75em; stroke: none;}
 #tab-set-5 .tab-text tspan {dominant-baseline: middle; font-size: 1em; stroke: none;}
 
+
+
+/* Chrome style tabs. */
 #tab-set-6 {display: block; margin: 0 auto;}
+
 #tab-set-6 .backing {fill: black; stroke: none;}  /* Bottom backing border for the tab set. */
-#tab-set-6 .tab-container {cursor: default;}  /* Prevent changing of the cursor when hovering over a tab. */
+
+#tab-set-6 .tab-container {cursor: default; fill: #888888;}  /* Prevent changing of the cursor when hovering over a tab. */
+#tab-set-6 .tab-container.hover .close-button {fill: #989898;}
 #tab-set-6 .tab-container.hover .tab {fill: #989898;}
-#tab-set-6 .tab-container .tab {fill: #888888; stroke: black; stroke-width: 2;}  /* Style the tabs. */
-#tab-set-6 .tab-container .tab.selected {fill: white;}
+#tab-set-6 .tab-container.selected .close-button {fill: white;}
+#tab-set-6 .tab-container.selected .tab {fill: white;}
+
+#tab-set-6 .tab-container .close-button path {stroke: black; stroke-width: 2;}
+#tab-set-6 .tab-container .close-button:hover {fill: #FF008C; stoke: black; stroke-width: 1;}
+#tab-set-6 .tab-container .close-button:hover path {stroke: white;}
+
+#tab-set-6 .tab-container .tab {stroke: black; stroke-width: 2;}  /* Style the tabs. */
