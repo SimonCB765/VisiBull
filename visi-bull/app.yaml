@@ -35,6 +35,12 @@ handlers:
   upload: pages/(.*\.tsv)
   mime_type: text/tab-separated-values
 
+# Serve jpegs from their page directory.
+- url: /static/(.*\.jpg)
+  static_files: pages/\1
+  upload: pages/(.*\.jpg)
+  mime_type: image/jpeg
+
 # Static directory for all other static files.
 - url: /static
   static_dir: static
