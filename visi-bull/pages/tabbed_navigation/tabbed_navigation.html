@@ -2,12 +2,12 @@
 
 {% block head %}
 <!--Block for including page specific CSS and JS files within the <head> tag.-->
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='page_navigation/page_navigation.css') }}">
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='page_navigation/tab_styles.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='tabbed_navigation/tabbed_navigation.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='tabbed_navigation/tab_styles.css') }}">
 <script type="text/javascript" src="{{ url_for('static', filename='scripts/jQuery/jquery-1.11.1.min.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='page_navigation/page_navigation.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='page_navigation/basic_tabs.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='page_navigation/advanced_tabs.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='tabbed_navigation/tabbed_navigation.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='tabbed_navigation/basic_tabs.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='tabbed_navigation/advanced_tabs.js') }}"></script>
 {% endblock %}
 
 {% block header %}
