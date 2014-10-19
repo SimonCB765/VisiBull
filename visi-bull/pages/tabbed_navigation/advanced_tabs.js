@@ -1,7 +1,8 @@
 $(document).ready(function()
 {
     // Create the tabs.
-    var textForTabs = ["Iron Cook", "Zinc Saucier", "How come you always dress like you're doing your laundry?", "I have to go and buy a single piece of fruit with a coupon and then return it."];
+    var textForTabs = ["Iron Cook", "Hey, what kinda party is this? There's no booze and only one hooker.", "I just want to talk. It has nothing to do with mating.", "Zinc Saucier", "How come you always dress like you're doing your laundry?", "I have to go and buy a single piece of fruit with a coupon and then return it."];
+	var iconsForTabs = ["/static/tabbed_navigation/Icons/Bender.jpg", "", "/static/tabbed_navigation/Icons/Fry.jpg", "", "/static/tabbed_navigation/Icons/Leela.jpg", "/static/tabbed_navigation/Icons/Zoidberg.jpg"];
     var newTabText = "New Tab";
     create_moveable_tabs("#tab-set-6");
 
@@ -20,6 +21,7 @@ $(document).ready(function()
         var positionToKey = {};  // Mapping from positions to the key of the tab in that position.
 		var closeButtonRadius = 6;  // The radius of the circle containing the close button.
 		var closeButtonStartX = tabWidth - (2 * closeButtonRadius);  // The offset into the tab content where the close button starts.
+		var tabIconSize = tabHeight - 10;  // The width and height of the square holding the icon on the left of the tab.
 
         // Create the SVG element.
         var tabSet = d3.select(tabSetID)
@@ -35,7 +37,7 @@ $(document).ready(function()
         var pathForTabs = create_tab_style_1(tabConfig);
         for (var i = 0; i < numberOfTabs; i++)
         {
-            tabInfo.push({"key" : currentKey, "transX" : i * (curveWidth + tabWidth), "transY" : svgHeight - tabHeight, "text" : textForTabs[i]});
+            tabInfo.push({"key" : currentKey, "transX" : i * (curveWidth + tabWidth), "transY" : svgHeight - tabHeight, "text" : textForTabs[i], "image" : iconsForTabs[i]});
             keyToPosition[currentKey] = i
             positionToKey[i] = currentKey;
             currentKey++;
@@ -154,6 +156,29 @@ $(document).ready(function()
 					   "L" + posBottomRight[0] + "," + posBottomRight[1] +
 					   "M" + posTopRight[0] + "," + posTopRight[1] +
 					   "L" + posBottomLeft[0] + "," + posBottomLeft[1]);
+		
+		// Add the favicon type icon to each tab that is meant to have one.
+		var tabIcons = tabContentContainer.filter(function(d) { return d.image !== ""; }).append("g")  // Filter out tabs without an icon (where image is "").
+			.attr("transform", function() { return "translate(0,0)"; })
+			.classed("tab-icon", true);
+		var patterns = tabIcons.append("pattern")
+			.attr("id", function(d) { return "icon-image-" + d.key; })
+			.attr("x", 0)
+			.attr("y", 0)
+			.attr("height", tabIconSize)
+			.attr("width", tabIconSize);
+		patterns.append("image")
+			.attr("x", 0)
+			.attr("y", 0)
+			.attr("height", tabIconSize)
+			.attr("width", tabIconSize)
+			.attr("xlink:href", function(d) { return d.image; });
+		tabIcons.append("rect")
+			.attr("x", 0)
+			.attr("y", (tabHeight - tabIconSize) / 2)
+			.attr("width", tabIconSize)
+			.attr("height", tabIconSize)
+			.style("fill", function(d) { return "url(#icon-image-" + d.key + ")"});
 
         // Add the baselines on which the tabs will sit.
         tabSet.append("rect")
