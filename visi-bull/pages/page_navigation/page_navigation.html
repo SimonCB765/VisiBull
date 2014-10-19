@@ -3,11 +3,9 @@
 {% block head %}
 <!--Block for including page specific CSS and JS files within the <head> tag.-->
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='page_navigation/page_navigation.css') }}">
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='page_navigation/button_styles.css') }}">
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='page_navigation/tab_styles.css') }}">
 <script type="text/javascript" src="{{ url_for('static', filename='scripts/jQuery/jquery-1.11.1.min.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='page_navigation/page_navigation.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='page_navigation/button_control.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='page_navigation/basic_tabs.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='page_navigation/advanced_tabs.js') }}"></script>
 {% endblock %}
@@ -20,207 +18,32 @@
 
 {% block content %}
 <!--Block for including the content of the page within the div.content tag.-->
-<div id="navigation-buttons">
-	<div data-navLink="buttons" class="button"><div class="button-content">Buttons</div></div>
-	<div data-navLink="tabs" class="button"><div class="button-content">Tabs</div></div>
-	<div data-navLink="standard" class="button"><div class="button-content">Standard</div></div>
-	<div data-navLink="breadcrumb" class="button"><div class="button-content">Breadcrumbs</div></div>
-</div>
-<br><hr class="divider"><br><br>
-<div id="tabs" class="navigation-panel">
-	<h2 class="centered">Final Tab Styles</h2>
-	<br>
-	<h2 class="centered">Basic SVG Tabs</h2>
-	<br>
-	<p>Basic tabs can be made using SVG paths, and can be made to have similar effects as pure HTML tabs on hover and selection.</p>
-	<svg id="tab-set-1"></svg>
-	<br><br><br><br>
-	<svg id="tab-set-2"></svg>
-	<br><br><br><br>
-	<p>Although foreign objects can be used with SVG in order to style text (and other things) within the tabs, cross-browser support for foreign objects isn't great (no IE version as of 2014 supports it). There are also bugs that prevent things like absolute positioning working properly, which is problematic for approaches to fading out text that rely on absolutely positioned ::before or ::after pseudo-elements.</p>
-	<p>Instead, SVG text elements can be used, and can be clipped to only the area of the tab. Although you can't easily turn overflowing text into ellipses, fading out and/or clipping text is relatively straightforward.</p>
-	<br>Hard clipping using SVG text elements and clip-path.
-	<svg id="tab-set-3"></svg>
-	<br>
-	<br>Text that fades out if it extends beyond the tab.
-	<svg id="tab-set-4"></svg>
-	<br>
-	<br>Tabs with multiple lines of text.
-	<svg id="tab-set-5"></svg>
-	
-	<br><br>
-	<h2 class="centered">Advanced SVG Tabs</h2>
-	<br>
-	<p>In order to move tabs around, you need some method of changing the clipped area. This is difficult with fixed paths, and really needs to be done with clipping or masking rather than fixed paths.</p>
-	<p>Masking would work, except that masked out areas still receive pointer events even when completely transparent. Basically, clipping is required.</p>
-	<svg id="tab-set-6"></svg>
-	<br><br>
-	<br>
-	<p>These ones will have added features, like multirow (when too many for one row), being closeable and having the ability to add tabs</p>
-	<p>Chrome/Firefox style tabs</p>
-</div>
-<div id="buttons" class="navigation-panel">
-	<h2 class="centered">Fixed Width and Height Buttons</h2>
-	<br>
-	<div id="button-set-1">
-		<div class="button"><div class="button-content">Button 1</div></div>
-		<div class="button"><div class="button-content">Button 2</div></div>
-		<div class="button"><div class="button-content">Button 3</div></div>
-		<div class="button"><div class="button-content">Button 4</div></div>
-	</div>
-	<br>
-	<div class="shrinkwrap-flex">
-		<div id="button-set-2">
-			<div class="button"><div class="button-content">Button 1</div></div>
-			<div class="button"><div class="button-content">Button 2</div></div>
-			<div class="button"><div class="button-content">Button 3</div></div>
-			<div class="button"><div class="button-content">Button 4</div></div>
-		</div>
-	</div>
-	<br>
-	<div class="shrinkwrap-flex">
-		<div id="button-set-3">
-			<div class="button"><div class="button-content">Button 1</div></div>
-			<div class="button"><div class="button-content">Button 2</div></div>
-			<div class="button"><div class="button-content">Button 3</div></div>
-			<div class="button"><div class="button-content">Button 4</div></div>
-		</div>
-		<div id="button-set-4">
-			<div class="button"><div class="button-content">Button 1</div></div>
-			<div class="button"><div class="button-content">Button 2</div></div>
-			<div class="button"><div class="button-content">Button 3</div></div>
-			<div class="button"><div class="button-content">I Am Really Way To Big To Fit In This Tiny Little Button</div></div>
-		</div>
-	</div>
-	<br><br>
-	<h2 class="centered">Flexi Buttons</h2>
-	<br>
-	<div id="button-set-5">
-		<div class="button"><div class="button-content">Tiny</div></div>
-		<div class="button"><div class="button-content">Larger</div></div>
-		<div class="button"><div class="button-content">Double<br>Height</div></div>
-		<div class="button"><div class="button-content">Really Very Very Long Button</div></div>
-	</div>
-	<br><br>
-	<h2 class="centered">Buttons With Individual Fitted Widths And Heights</h2>
-	<br>
-	<div class="shrinkwrap-flex">
-		<div id="button-set-6">
-			<div class="button"><div class="button-content">Tiny</div></div>
-			<div class="button"><div class="button-content">Slightly Larger</div></div>
-			<div class="button"><div class="button-content">Double<br>Height</div></div>
-			<div class="button"><div class="button-content">Really Very Very Long Button</div></div>
-		</div>
-	</div>
-	<br>
-	<div class="shrinkwrap-flex">
-		<div id="button-set-7">
-			<div class="button"><div class="button-content">Tiny</div></div>
-			<div class="button"><div class="button-content">Slightly Larger</div></div>
-			<div class="button"><div class="button-content">Double<br>Height</div></div>
-			<div class="button"><div class="button-content">Really Very Very Long Button</div></div>
-		</div>
-		<div id="button-set-8">
-			<div class="button"><div class="button-content">Tiny</div></div>
-			<div class="button"><div class="button-content">Slightly Larger</div></div>
-			<div class="button"><div class="button-content">Double<br>Height</div></div>
-			<div class="button"><div class="button-content">Really Very Very Long Button</div></div>
-		</div>
-	</div>
-	<br><br>
-	<h2 class="centered">Buttons With Fixed Widths And Dynamic Equal Heights</h2>
-	<br>
-	<div class="shrinkwrap-flex">
-		<div id="button-set-9">
-			<div class="button"><div class="button-content">Tiny</div></div>
-			<div class="button"><div class="button-content">Slightly Larger</div></div>
-			<div class="button"><div class="button-content">Double<br>Height</div></div>
-			<div class="button"><div class="button-content">Really Very Very Long Button</div></div>
-		</div>
-	</div>
-	<br><br>
-	<h2 class="centered">Buttons With Fixed Widths And Individual Fitted Heights</h2>
-	<br>
-	<div class="shrinkwrap-flex">
-		<div id="button-set-12">
-			<div class="button"><div class="button-content">Tiny</div></div>
-			<div class="button"><div class="button-content">Slightly Larger</div></div>
-			<div class="button"><div class="button-content">Double<br>Height</div></div>
-			<div class="button"><div class="button-content">Really Very Very Long Button</div></div>
-		</div>
-	</div>
-	<br>
-	<div class="shrinkwrap-flex">
-		<div id="button-set-13">
-			<div class="button"><div class="button-content">Tiny</div></div>
-			<div class="button"><div class="button-content">Slightly Larger</div></div>
-			<div class="button"><div class="button-content">Double<br>Height</div></div>
-			<div class="button"><div class="button-content">Really Very Very Long Button</div></div>
-		</div>
-		<div id="button-set-14">
-			<div class="button"><div class="button-content">Tiny</div></div>
-			<div class="button"><div class="button-content">Slightly Larger</div></div>
-			<div class="button"><div class="button-content">Double<br>Height</div></div>
-			<div class="button"><div class="button-content">Really Very Very Long Button</div></div>
-		</div>
-	</div>
-	<br><br>
-	<h2 class="centered">Buttons With Fixed Heights and Dynamic Equal Widths</h2>
-	<br>
-	<div class="shrinkwrap-flex">
-		<div id="button-set-15">
-			<div class="button"><div class="button-content">Tiny</div></div>
-			<div class="button"><div class="button-content">Slightly Larger</div></div>
-			<div class="button"><div class="button-content">Double<br>Height</div></div>
-			<div class="button"><div class="button-content">Really Very Very Long Button</div></div>
-		</div>
-		<br>
-		<div id="button-set-16">
-			<div class="button"><div class="button-content">Tiny</div></div>
-			<div class="button"><div class="button-content">Slightly Larger</div></div>
-			<div class="button"><div class="button-content">Double<br>Height</div></div>
-			<div class="button"><div class="button-content">Really Very Very Long Button</div></div>
-		</div>
-	</div>
-	<br><br>
-	<h2 class="centered">Buttons With Fixed Heights and Individual Fitted Widths</h2>
-	<br>
-	<div class="shrinkwrap-flex">
-		<div id="button-set-17">
-			<div class="button"><div class="button-content">Tiny</div></div>
-			<div class="button"><div class="button-content">Double<br>Height</div></div>
-			<div class="button"><div class="button-content">Slightly Larger</div></div>
-			<div class="button"><div class="button-content">Really Very Very Long Button</div></div>
-		</div>
-		<br>
-		<div id="button-set-18">
-			<div class="button"><div class="button-content">Tiny</div></div>
-			<div class="button"><div class="button-content">Double<br>Height</div></div>
-			<div class="button"><div class="button-content">Slightly Larger</div></div>
-			<div class="button"><div class="button-content">Really Very Very Long Button</div></div>
-		</div>
-	</div>
-</div>
-<div id="standard" class="navigation-panel">
-	<div class="centered">
-		<h2>Context Menus</h2>
-		<p>Windows style (including breaks between sections)</p>
-		<p>More stylised ones to fit themes</p>
-		<p>Hoizontal and vertical text</p>
-		<p>Ones with text wrapping, ones that cut off long text (i.e. cells in menu are fixed size and no wrapping), ones that extend length to max text field length</p>
-	</div>
-	
-	<br><br>
-	<p>Rollover popout tabs (like rollover a tab along the top, and then a list rolls down) (Vert and Horiz)</p>
-	<p>Nested lists (like here http://css.maxdesign.com.au/listamatic2/)</p>
-	<p>Rollover popout llists (like amazon homepage side panel)</p>
-	<p>For rollover and nested - http://stackoverflow.com/questions/10728513/inline-unordered-list-item-height-100</p>
-	<p>Nice styling for nested lists - http://www.456bereastreet.com/archive/201105/styling_ordered_list_numbers/</p>
-	<p>ToDo type list that uses the ::before pseudo content to create something (like a tick mark) - https://developer.mozilla.org/en-US/docs/Web/CSS/::before</p>
-</div>
-<div id="breadcrumb" class="navigation-panel">
-    <p>Like :   Home >> Products >> Computers</p>
-	<p>http://stackoverflow.com/questions/11218270/descend-z-index-logically/11218781#11218781</p>
-	<p>http://stackoverflow.com/questions/11075116/css-overlapping-arrow/11282225#11282225</p>
-</div>
+<h2 class="centered">Basic SVG Tabs</h2>
+<br>
+<p>Basic tabs can be made using SVG paths, and can be made to have similar effects as pure HTML tabs on hover and selection.</p>
+<svg id="tab-set-1"></svg>
+<br><br><br><br>
+<svg id="tab-set-2"></svg>
+<br><br><br><br>
+<p>Although foreign objects can be used with SVG in order to style text (and other things) within the tabs, cross-browser support for foreign objects isn't great (no IE version as of 2014 supports it). There are also bugs that prevent things like absolute positioning working properly, which is problematic for approaches to fading out text that rely on absolutely positioned ::before or ::after pseudo-elements.</p>
+<p>Instead, SVG text elements can be used, and can be clipped to only the area of the tab. Although you can't easily turn overflowing text into ellipses, fading out and/or clipping text is relatively straightforward.</p>
+<br>Hard clipping using SVG text elements and clip-path.
+<svg id="tab-set-3"></svg>
+<br>
+<br>Text that fades out if it extends beyond the tab.
+<svg id="tab-set-4"></svg>
+<br>
+<br>Tabs with multiple lines of text.
+<svg id="tab-set-5"></svg>
+
+<br><br>
+<h2 class="centered">Advanced SVG Tabs</h2>
+<br>
+<p>In order to move tabs around, you need some method of changing the clipped area. This is difficult with fixed paths, and really needs to be done with clipping or masking rather than fixed paths.</p>
+<p>Masking would work, except that masked out areas still receive pointer events even when completely transparent. Basically, clipping is required.</p>
+<svg id="tab-set-6"></svg>
+<br><br>
+<br>
+<p>These ones will have added features, like being closeable and having the ability to add tabs</p>
+<p>Chrome/Firefox style tabs</p>
 {% endblock %}

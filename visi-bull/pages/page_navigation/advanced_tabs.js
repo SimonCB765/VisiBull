@@ -141,14 +141,14 @@ $(document).ready(function()
 				});
 		closeButtons.append("circle")
 			.attr("cx", closeButtonRadius)
-			.attr("cy", (tabHeight + tabBorderWidth) / 2)
+			.attr("cy", tabHeight / 2)
 			.attr("r", closeButtonRadius);
 		var crossStartCoordsXLength = 4 * Math.cos(0.25 * Math.PI);
 		var crossStartCoordsYLength = 4 * Math.sin(0.25 * Math.PI);
-		var posTopLeft = [closeButtonRadius - crossStartCoordsXLength, ((tabHeight + tabBorderWidth) / 2) - crossStartCoordsYLength];
-		var posTopRight = [closeButtonRadius + crossStartCoordsXLength, ((tabHeight + tabBorderWidth) / 2) - crossStartCoordsYLength];
-		var posBottomRight = [closeButtonRadius + crossStartCoordsXLength, ((tabHeight + tabBorderWidth) / 2) + crossStartCoordsYLength];
-		var posBottomLeft = [closeButtonRadius - crossStartCoordsXLength, ((tabHeight + tabBorderWidth) / 2) + crossStartCoordsYLength];
+		var posTopLeft = [closeButtonRadius - crossStartCoordsXLength, (tabHeight / 2) - crossStartCoordsYLength];
+		var posTopRight = [closeButtonRadius + crossStartCoordsXLength, (tabHeight / 2) - crossStartCoordsYLength];
+		var posBottomRight = [closeButtonRadius + crossStartCoordsXLength, (tabHeight / 2) + crossStartCoordsYLength];
+		var posBottomLeft = [closeButtonRadius - crossStartCoordsXLength, (tabHeight / 2) + crossStartCoordsYLength];
 		closeButtons.append("path")
 			.attr("d", "M" + posTopLeft[0] + "," + posTopLeft[1] +
 					   "L" + posBottomRight[0] + "," + posBottomRight[1] +

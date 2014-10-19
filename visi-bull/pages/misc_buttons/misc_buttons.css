@@ -1,0 +1,12 @@
+/*
+Contents:
+_classes		-> general style declarations.
+*/
+
+/*
+_classes
+*/
+.centered {text-align: center;}
+.divider {background-color: grey; border: 0; height: 1px;}  /* Style for the divider line below the navigation buttons. */
+.navigation-panel {margin: 1em 0 0;}  /* The div of content for each navigation tab. */
+.shrinkwrap-flex {align-items: center; display: flex; justify-content: center;}  /* Style to shrinkwrap the background to the contents. */
