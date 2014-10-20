@@ -22,11 +22,15 @@ $(document).ready(function()
 		var closeButtonRadius = 6;  // The radius of the circle containing the close button.
 		var closeButtonStartX = tabWidth - (2 * closeButtonRadius);  // The offset into the tab content where the close button starts.
 		var tabIconSize = tabHeight - 10;  // The width and height of the square holding the icon on the left of the tab.
+		var textStartWithIcon = tabIconSize + 2;  // The x position of the start of the text in a tab when there is a icon present.
 
         // Create the SVG element.
         var tabSet = d3.select(tabSetID)
             .attr("width", svgWidth)
             .attr("height", svgHeight);
+
+        // Create the <defs> to hold the text clip paths and gradients.
+        var defs = tabSet.append("defs");
 
         // Generate the data for the tabs.
         var tabInfo = []
@@ -86,16 +90,6 @@ $(document).ready(function()
             .on("drag", drag_update)
             .on("dragend", drag_end);
         tabContainer.call(tabDrag);
-		
-		// Add the paths for clipping the text content.
-		var defs = tabSet.append("defs");
-        defs.append("clipPath")
-            .attr("id", "clip-advanced")
-            .append("rect")
-                .attr("x", 0)
-                .attr("y", 0)
-                .attr("width", closeButtonStartX)
-                .attr("height", tabHeight + tabBorderWidth);
 		
 		// Add the containers for the tab content.
         var tabContentContainer = tabContainer
@@ -188,13 +182,52 @@ $(document).ready(function()
 			.style("fill", function(d) { return "url(#icon-image-" + d.key + ")"});
 		
 		// Add the text to the tabs.
+        defs.append("clipPath")
+            .attr("id", "clip-advanced")
+            .append("rect")
+                .attr("x", 0)
+                .attr("y", 0)
+                .attr("width", closeButtonStartX)
+                .attr("height", tabHeight + tabBorderWidth);
         var tabTextElements = tabContentContainer
             .append("text")
             .classed("tab-text", true)
-            .attr("x", function(d) { return (d.image === "") ? 0 : tabIconSize + 2; })
+            .attr("x", function(d) { return (d.image === "") ? 0 : textStartWithIcon; })
             .attr("y", (tabHeight + tabBorderWidth) / 2)
 			.attr("clip-path", "url(#clip-advanced)")
             .text(function(d) { return d.text; });
+
+        // Fade out text that is too long.
+        tabTextElements.each(function(d, i)
+            {
+                var currentTextBBox = this.getBBox()
+                var currentTextWidth = currentTextBBox.width;
+				var maxTextWidth = (d.image === "") ? closeButtonStartX : closeButtonStartX - textStartWithIcon;
+
+                if (currentTextWidth > maxTextWidth)
+                {
+                    // If the text is wider than the tab, then create the gradient for the fade.
+                    var fadeStart = (maxTextWidth * 0.7) / currentTextWidth;
+                    var fadeEnd = (maxTextWidth * 1.0) / currentTextWidth;
+					console.log(i, maxTextWidth, currentTextWidth, fadeStart, fadeEnd);
+                    var gradient = defs.append("linearGradient")
+                        .attr("id", "fadeGradient-advanced-" + i)
+                        .attr("x1", "0%")
+                        .attr("y1", "0%")
+                        .attr("x2", "100%")
+                        .attr("y2", "0%");
+                    gradient.append("stop")
+                        .classed("grad-start", true)
+                        .attr("offset", fadeStart);
+                    gradient.append("stop")
+                        .classed("grad-end", true)
+                        .attr("offset", fadeEnd);
+
+                    // Set the fade.
+                    d3.select(this)
+                        .style("fill", "url(#fadeGradient-advanced-" + i + ")");
+                }
+            });
 
         // Add the baselines on which the tabs will sit.
         tabSet.append("rect")
