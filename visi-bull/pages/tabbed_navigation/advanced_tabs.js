@@ -293,10 +293,19 @@ $(document).ready(function()
         {
             // Transition the dragged tab to its resting place.
             d3.select(this)
-                .attr("transform", function(contD) { contD.transX = snapToLocation; return "translate(" + contD.transX + "," + contD.transY + ")"; });
-
-            // Set the clip paths.
-			update_tab_clipping(d);
+				.transition()
+				.duration(500)
+				.tween("transform", function(contD)
+					{
+						var interpolator = d3.interpolate(contD.transX, snapToLocation);
+						return function(t)
+							{
+								contD.transX = interpolator(t);  // Determine position of released tab at this point in the transition.
+								d3.select(this)  // Update the released tab's position.
+									.attr("transform", function(contD) { return "translate(" + contD.transX + "," + contD.transY + ")"; });
+								update_tab_clipping(d);  // Set the clip paths after this bit of the transition.
+							}
+					});
         }
 
         function drag_start(d)
