@@ -209,7 +209,6 @@ $(document).ready(function()
                     // If the text is wider than the tab, then create the gradient for the fade.
                     var fadeStart = (maxTextWidth * 0.7) / currentTextWidth;
                     var fadeEnd = (maxTextWidth * 1.0) / currentTextWidth;
-                    console.log(i, maxTextWidth, currentTextWidth, fadeStart, fadeEnd);
                     var gradient = defs.append("linearGradient")
                         .attr("id", "fadeGradient-advanced-" + i)
                         .attr("x1", "0%")
@@ -237,68 +236,11 @@ $(document).ready(function()
             .attr("y", svgHeight - backingBorderHeight)
             .classed("backing", true);
 
-        /*********************
-        * Tab Drag Functions *
-        *********************/
-        var startOfDragX;  // The x coordinate where the dragging started. Used to ensure that the mouse stays at the same point over the tab during the drag.
-        var snapToLocation;  // The x coordinate where the dragged tap will snap to on release.
-        function drag_end(d)
-        {
-            // Transition the dragged tab to its resting place.
-            d3.select(this)
-                .attr("transform", function(contD) { contD.transX = snapToLocation; return "translate(" + contD.transX + "," + contD.transY + ")"; });
-
-            // Set the clip paths.
-            var selectedTabPos = keyToPosition[d.key];
-            tabSet.selectAll(".clip-tab").attr("d", function(clipD)
-                {
-                    // Set the configuration information for creating the clip path. Extend the width and and height by (tabBorderWidth / 2) to
-                    // account for half the stroke of the tabs being outside the tab (as with all SVG elements).
-                    var config = {"tabWidth" : tabWidth + (tabBorderWidth / 2), "tabHeight" : tabHeight, "curveWidth" : curveWidth,
-                                  "heightExtension" : (tabBorderWidth / 2), "containerWidth" : svgWidth};
-                    var currentTabPos = keyToPosition[clipD.key];
-                    if (clipD.key === d.key)
-                    {
-                        // The selected tab should have no clipping.
-                    }
-                    else if (currentTabPos === 0)
-                    {
-                        // The leftmost tab can only ever be full or have its right portion clipped.
-                        if (selectedTabPos === 1)
-                        {
-                            // The tab second from left was clicked on, so clip the right portion of the leftmost tab.
-                            config.tabOnRight = d;
-                        }
-                    }
-                    else if (currentTabPos === numberOfTabs - 1)
-                    {
-                        // The rightmost tab needs its own condition as it can only ever be full or have its left portion clipped.
-                        config.tabOnLeft = tabSet.select("#clip-" + positionToKey[currentTabPos - 1]).datum();
-                    }
-                    else if (currentTabPos === selectedTabPos - 1)
-                    {
-                        // The tab currently being looked at is not the leftmost, rightmost or clicked on tab and is one position to the left of the
-                        // tab clicked on. In this case the current tab should have both its left and right portions clipped.
-                        config.tabOnLeft = tabSet.select("#clip-" + positionToKey[currentTabPos - 1]).datum();
-                        config.tabOnRight = d;
-                    }
-                    else
-                    {
-                        // All other tabs should just have their left portion clipped.
-                        config.tabOnLeft = tabSet.select("#clip-" + positionToKey[currentTabPos - 1]).datum();
-                    }
-                    return create_clip_tab_style_1(config, clipD);
-                });
-        }
-
-        function drag_start(d)
-        {
-            // Clear old selected tab information.
-            selectedTab.classed("selected", false);
-
-            /*********************************************
-            * Alter Clip Paths To Highlight Selected Tab *
-            *********************************************/
+		/************************
+		* Tab Clipping Updating *
+		************************/
+		function update_tab_clipping(d)
+		{
             // Setup the clip paths for each tab.
             var selectedTabPos = keyToPosition[d.key];
             tabSet.selectAll(".clip-tab").attr("d", function(clipD)
@@ -340,6 +282,30 @@ $(document).ready(function()
                     }
                     return create_clip_tab_style_1(config, clipD);
                 });
+		}
+
+        /*********************
+        * Tab Drag Functions *
+        *********************/
+        var startOfDragX;  // The x coordinate where the dragging started. Used to ensure that the mouse stays at the same point over the tab during the drag.
+        var snapToLocation;  // The x coordinate where the dragged tap will snap to on release.
+        function drag_end(d)
+        {
+            // Transition the dragged tab to its resting place.
+            d3.select(this)
+                .attr("transform", function(contD) { contD.transX = snapToLocation; return "translate(" + contD.transX + "," + contD.transY + ")"; });
+
+            // Set the clip paths.
+			update_tab_clipping(d);
+        }
+
+        function drag_start(d)
+        {
+            // Clear old selected tab information.
+            selectedTab.classed("selected", false);
+
+			// Alter tab clip paths to reflect the selection of on of the tabs.
+			update_tab_clipping(d);
 
             // Record new selected tab information.
             selectedTab = d3.select(this);
@@ -401,49 +367,8 @@ $(document).ready(function()
                     }
                 })
 
-            /*******************************************
-            * Alter Clip Paths To Reflect Tab Movement *
-            *******************************************/
-            // Setup the clip paths for each tab.
-            tabSet.selectAll(".clip-tab").attr("d", function(clipD)
-                {
-                    // Set the configuration information for creating the clip path. Extend the width and and height by (tabBorderWidth / 2) to
-                    // account for half the stroke of the tabs being outside the tab (as with all SVG elements).
-                    var config = {"tabWidth" : tabWidth + (tabBorderWidth / 2), "tabHeight" : tabHeight, "curveWidth" : curveWidth,
-                                  "heightExtension" : (tabBorderWidth / 2), "containerWidth" : svgWidth};
-                    var currentTabPos = keyToPosition[clipD.key];
-                    if (clipD.key === d.key)
-                    {
-                        // The selected tab should have no clipping.
-                    }
-                    else if (currentTabPos === 0)
-                    {
-                        // The leftmost tab can only ever be full or have its right portion clipped.
-                        if (selectedTabPos === 1)
-                        {
-                            // The tab second from left was clicked on, so clip the right portion of the leftmost tab.
-                            config.tabOnRight = d;
-                        }
-                    }
-                    else if (currentTabPos === numberOfTabs - 1)
-                    {
-                        // The rightmost tab needs its own condition as it can only ever be full or have its left portion clipped.
-                        config.tabOnLeft = tabSet.select("#clip-" + positionToKey[currentTabPos - 1]).datum();
-                    }
-                    else if (currentTabPos === selectedTabPos - 1)
-                    {
-                        // The tab currently being looked at is not the leftmost, rightmost or clicked on tab and is one position to the left of the
-                        // tab clicked on. In this case the current tab should have both its left and right portions clipped.
-                        config.tabOnLeft = tabSet.select("#clip-" + positionToKey[currentTabPos - 1]).datum();
-                        config.tabOnRight = d;
-                    }
-                    else
-                    {
-                        // All other tabs should just have their left portion clipped.
-                        config.tabOnLeft = tabSet.select("#clip-" + positionToKey[currentTabPos - 1]).datum();
-                    }
-                    return create_clip_tab_style_1(config, clipD);
-                });
+            // Alter clip paths to reflect tab movement.
+			update_tab_clipping(d);
         }
     }
 
