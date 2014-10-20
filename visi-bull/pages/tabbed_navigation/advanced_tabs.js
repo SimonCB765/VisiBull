@@ -38,7 +38,7 @@ $(document).ready(function()
         var pathForTabs = create_tab_style_1(tabConfig);
         for (var i = 0; i < numberOfTabs; i++)
         {
-            tabInfo.push({"key" : currentKey, "transX" : i * (curveWidth + tabWidth), "transY" : svgHeight - tabHeight, "text" : textForTabs[i], "image" : iconsForTabs[i]});
+            tabInfo.push({"key" : currentKey, "restingX" : i * (curveWidth + tabWidth), "transX" : i * (curveWidth + tabWidth), "transY" : svgHeight - tabHeight, "text" : textForTabs[i], "image" : iconsForTabs[i]});
             keyToPosition[currentKey] = i
             positionToKey[i] = currentKey;
             currentKey++;
@@ -50,7 +50,8 @@ $(document).ready(function()
             .enter()
             .append("g")
             .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; })
-            .attr("class", function(d) { return "tab-container " + ("tab-container-" + d.key); });
+            .attr("id", function(d) { return "tab-container-" + d.key; })
+            .attr("class", function(d) { return "tab-container"; });
         var tabs = tabContainer
             .append("path")
             .attr("d", pathForTabs)
@@ -70,9 +71,9 @@ $(document).ready(function()
                                   "heightExtension" : (tabBorderWidth / 2), "containerWidth" : svgWidth};
                     if (keyToPosition[d.key] !== 0)
                     {
-                        config.tabOnLeft = tabSet.select("#clip-" + (keyToPosition[d.key] - 1)).datum();
+                        config.leftTabXPos = tabSet.select("#clip-" + (keyToPosition[d.key] - 1)).datum().transX;
                     }
-                    return create_clip_tab_style_1(config, d);
+                    return create_clip_tab_style_1(config, d.transX);
                 });
         tabContainer.attr("clip-path", function(d) { return "url(#clip-" + d.key + ")"; });
 
@@ -109,7 +110,7 @@ $(document).ready(function()
             .on("click", function(d)
                 {
                     // Select the tab that is to be closed.
-                    var tabToClose = tabSet.select(".tab-container-" + d.key);
+                    var tabToClose = tabSet.select("#tab-container-" + d.key);
                     var dataOfClickedTab = tabToClose.datum();
 
                     // If the tab to be closed is the selected one, then make the tab to its left the selected one.
@@ -119,7 +120,7 @@ $(document).ready(function()
                         var selectedPos = keyToPosition[selectedTab.datum().key];
                         var newSelectedPos = (selectedPos === 0) ? 1 : selectedPos - 1;
                         var keyOfNewSelected = positionToKey[newSelectedPos];
-                        selectedTab = tabSet.select(".tab-container-" + keyOfNewSelected);
+                        selectedTab = tabSet.select("#tab-container-" + keyOfNewSelected);
                         selectedTab.classed("selected", true);
                     }
 
@@ -236,13 +237,9 @@ $(document).ready(function()
             .attr("y", svgHeight - backingBorderHeight)
             .classed("backing", true);
 
-        /*************************************
-        * Tab Position And Clipping Updaters *
-        *************************************/
-		function swap_tab_positions()
-		{
-		}
-
+        /***********************
+        * Tab Clipping Updater *
+        ***********************/
         function update_tab_clipping(d)
         {
             // Setup the clip paths for each tab.
@@ -264,59 +261,61 @@ $(document).ready(function()
                         if (selectedTabPos === 1)
                         {
                             // The tab second from left was clicked on, so clip the right portion of the leftmost tab.
-                            config.tabOnRight = d;
+                            config.rightTabXPos = d.transX;
                         }
                     }
                     else if (currentTabPos === numberOfTabs - 1)
                     {
                         // The rightmost tab needs its own condition as it can only ever be full or have its left portion clipped.
-                        config.tabOnLeft = tabSet.select("#clip-" + positionToKey[currentTabPos - 1]).datum();
+                        config.leftTabXPos = tabSet.select("#tab-container-" + positionToKey[currentTabPos - 1]).datum().transX;
                     }
                     else if (currentTabPos === selectedTabPos - 1)
                     {
                         // The tab currently being looked at is not the leftmost, rightmost or clicked on tab and is one position to the left of the
                         // tab clicked on. In this case the current tab should have both its left and right portions clipped.
-                        config.tabOnLeft = tabSet.select("#clip-" + positionToKey[currentTabPos - 1]).datum();
-                        config.tabOnRight = d;
+                        config.leftTabXPos = tabSet.select("#tab-container-" + positionToKey[currentTabPos - 1]).datum().transX;
+                        config.rightTabXPos = d.transX;
                     }
                     else
                     {
                         // All other tabs should just have their left portion clipped.
-                        config.tabOnLeft = tabSet.select("#clip-" + positionToKey[currentTabPos - 1]).datum();
+                        config.leftTabXPos = tabSet.select("#tab-container-" + positionToKey[currentTabPos - 1]).datum().transX;
                     }
-                    return create_clip_tab_style_1(config, clipD);
+                    return create_clip_tab_style_1(config, clipD.transX);
                 });
         }
-		
-		/*********************
+
+        /*********************
         * Tab Drag Functions *
         *********************/
         var startOfDragX;  // The x coordinate where the dragging started. Used to ensure that the mouse stays at the same point over the tab during the drag.
         var snapToLocation;  // The x coordinate where the dragged tap will snap to on release.
+        var currentlyTransitioning = [];  // A set of currently transitioning tabs. Used to prevent a transition being started on a tab while another is already going.
         function drag_end(d)
         {
             // Transition the dragged tab to its resting place.
-			// If the transition is interrupted while it is going (e.g. by the user clicking on the transitioning tab), then the transition is
-			// interrupted. This causes the tab's final resting "correct" position to not be in the desired location, rather it ends up being
-			// wherever the tab got to in the transition. This can be prevented by disabling pointer events at the start of the transition,
-			// and then enabling them at the end
+            // If the transition is interrupted while it is going (e.g. by the user clicking on the transitioning tab), then the transition is
+            // interrupted. This causes the tab's final resting "correct" position to not be in the desired location, rather it ends up being
+            // wherever the tab got to in the transition. This can be prevented by disabling pointer events at the start of the transition,
+            // and then enabling them at the end
             d3.select(this)
                 .transition()
                 .duration(250)
-				.each("start", function() { d3.select(this).style("pointer-events", "none"); })
-                .tween("transform", function(contD)
+                .ease("linear")
+                .each("start", function() { currentlyTransitioning.push(d.key); })
+                .tween("transform", function()
                     {
-						d3.select(this).style("pointer-events", "none");
-                        var interpolator = d3.interpolate(contD.transX, snapToLocation);
+                        var interpolator = d3.interpolate(d.transX, snapToLocation);
+                        d.restingX = snapToLocation;
                         return function(t)
                             {
-                                contD.transX = interpolator(t);  // Determine position of released tab at this point in the transition.
+                                d.transX = interpolator(t);  // Determine position of released tab at this point in the transition.
                                 d3.select(this)  // Update the released tab's position.
-                                    .attr("transform", function(contD) { return "translate(" + contD.transX + "," + contD.transY + ")"; });
+                                    .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });
                                 update_tab_clipping(d);  // Set the clip paths after this bit of the transition.
                             }
                     })
-				.each("end", function() { d3.select(this).style("pointer-events", "auto"); });
+                .each("end", function() { currentlyTransitioning.splice(currentlyTransitioning.indexOf(d.key)); });
         }
 
         function drag_start(d)
@@ -324,16 +323,23 @@ $(document).ready(function()
             // Clear old selected tab information.
             selectedTab.classed("selected", false);
 
+            // If the tab that is starting to be dragged is currently undergoing a transition, then stop the transition.
+            selectedTab = d3.select(this);
+            if (currentlyTransitioning.indexOf(d.key) !== -1)
+            {
+                selectedTab.transition();
+                currentlyTransitioning.splice(currentlyTransitioning.indexOf(d.key));
+            }
+
             // Alter tab clip paths to reflect the selection of on of the tabs.
             update_tab_clipping(d);
 
             // Record new selected tab information.
-            selectedTab = d3.select(this);
             selectedTab.classed("selected", true);
 
             // Record where the drag started and where the tab will snap to.
             startOfDragX = d3.mouse(this)[0];
-            snapToLocation = d.transX;
+            snapToLocation = d.restingX;
         }
 
         function drag_update(d)
@@ -346,46 +352,27 @@ $(document).ready(function()
                         return "translate(" + d.transX + "," + d.transY + ")";
                     });
 
+            // Select the tab to the right and the one to the left of the tab being dragged.
             var selectedTabPos = keyToPosition[d.key];  // Position of selected tab in order.
+            var leftTabKey = positionToKey[selectedTabPos - 1];
+            var leftTab = tabSet.select("#tab-container-" + leftTabKey);
+            var rightTabKey = positionToKey[selectedTabPos + 1];
+            var rightTab = tabSet.select("#tab-container-" + rightTabKey);
+            console.log(selectedTabPos, leftTabKey, rightTabKey);
 
-            /**********************************
-            * Reorder Tab Positions If Needed *
-            **********************************/
-            tabSet.selectAll(".clip-tab").each(function(clipD)
+            // Shift the left tab to the right if the tab being dragged has moved to far to its left.
+            if (!leftTab.empty())
+            {
+                // Only bother if there is actually a tab to the left of the one being dragged.
+                var leftTabData = leftTab.datum();
+                if ((d.transX + curveWidth) <= (leftTabData.transX + curveWidth + (tabWidth / 2)))
                 {
-                    var currentTabPos = keyToPosition[clipD.key];
-                    if (d.key !== clipD.key)
-                    {
-                        if (currentTabPos < selectedTabPos)
-                        {
-                            // Current tab occurs to the left of the one being dragged.
-                            // Swap positions of tabs if the left end of the one being dragged has passed the mid point of this tab.
-                            if ((d.transX + curveWidth) <= (clipD.transX + curveWidth + (tabWidth / 2)))
-                            {
-                                keyToPosition[d.key] = currentTabPos;
-                                keyToPosition[clipD.key] = selectedTabPos;
-                                positionToKey[selectedTabPos] = clipD.key;
-                                positionToKey[currentTabPos] = d.key;
-                                tabSet.select(".tab-container-" + clipD.key)
-                                    .attr("transform", function(contD) { snapToLocation = contD.transX; contD.transX += tabWidth + curveWidth; return "translate(" + contD.transX + "," + contD.transY + ")"; });
-                            }
-                        }
-                        else if (currentTabPos > selectedTabPos)
-                        {
-                            // Current tab occurs to the right of the one being dragged.
-                            // Swap positions of tabs if the right end of the one being dragged has passed the mid point of this tab.
-                            if ((d.transX + curveWidth + tabWidth) >= (clipD.transX + curveWidth + (tabWidth / 2)))
-                            {
-                                keyToPosition[d.key] = currentTabPos;
-                                keyToPosition[clipD.key] = selectedTabPos;
-                                positionToKey[selectedTabPos] = clipD.key;
-                                positionToKey[currentTabPos] = d.key;
-                                tabSet.select(".tab-container-" + clipD.key)
-                                    .attr("transform", function(contD) { snapToLocation = contD.transX; contD.transX -= (tabWidth + curveWidth); return "translate(" + contD.transX + "," + contD.transY + ")"; });
-                            }
-                        }
-                    }
-                })
+                    // The tab being dragged has moved far enough to the left to be swapped with the tab on its left.
+                    snapToLocation = leftTabData.transX;
+                    var leftTabNewLocation = leftTabData.transX + curveWidth + tabWidth;
+                    console.log("Passed Left Tab", leftTabData.transX, leftTabNewLocation);
+                }
+            }
 
             // Alter clip paths to reflect tab movement.
             update_tab_clipping(d);
@@ -419,7 +406,7 @@ $(document).ready(function()
         return selectedTabPath;
     }
 
-    function create_clip_tab_style_1(config, currentTabData)
+    function create_clip_tab_style_1(config, currentTabXPos)
     {
         /*****************************
         * Parse Configuration Inputs *
@@ -429,21 +416,21 @@ $(document).ready(function()
         var tabHeight = typeof config.tabHeight !== "undefined" ? config.tabHeight : 25;
         var curveWidth = typeof config.curveWidth !== "undefined" ? config.curveWidth : 30;
         var heightOffset = typeof config.heightOffset !== "undefined" ? config.heightOffset : 0;
-        var leftStartOffset = typeof config.tabOnLeft !== "undefined" ? config.tabOnLeft.transX - currentTabData.transX : undefined;
-        var rightStartOffset = typeof config.tabOnRight !== "undefined" ? config.tabOnRight.transX - currentTabData.transX : undefined;
+        var leftTabXPos = typeof config.leftTabXPos !== "undefined" ? config.leftTabXPos - currentTabXPos : undefined;
+        var rightTabXPos = typeof config.rightTabXPos !== "undefined" ? config.rightTabXPos - currentTabXPos : undefined;
         var heightExtension = typeof config.heightExtension !== "undefined" ? config.heightExtension : 0;
         var containerWidth = typeof config.containerWidth !== "undefined" ? config.containerWidth : 900;
 
         /***********************
         * Create the tab paths *
         ***********************/
-        var clipTabPath = "M" + (-currentTabData.transX) + "," + tabHeight;
+        var clipTabPath = "M" + (-currentTabXPos) + "," + tabHeight;
 
         // Outline the left clipping tab (if needed).
-        if (leftStartOffset !== undefined)
+        if (leftTabXPos !== undefined)
         {
             var leftTabClip =
-                "H" + leftStartOffset +
+                "H" + leftTabXPos +
                 "q" + curveWidth / 4 + "," + 0 + "," + curveWidth / 2 + "," + -(tabHeight + heightExtension) / 2 +
                 "t" + curveWidth / 2 + "," + -(tabHeight + heightExtension) / 2 +
                 "h" + tabWidth +
@@ -457,10 +444,10 @@ $(document).ready(function()
         }
 
         // Outline the right clip tab if needed.
-        if (rightStartOffset !== undefined)
+        if (rightTabXPos !== undefined)
         {
             var rightTabClip =
-                "H" + rightStartOffset +
+                "H" + rightTabXPos +
                 "q" + curveWidth / 4 + "," + 0 + "," + curveWidth / 2 + "," + -(tabHeight + heightExtension) / 2 +
                 "t" + curveWidth / 2 + "," + -(tabHeight + heightExtension) / 2 +
                 "h" + tabWidth +
@@ -470,7 +457,7 @@ $(document).ready(function()
         }
 
         // Close up the clip outline.
-        clipTabPath += ("H" + containerWidth + "v" + -(tabHeight + heightExtension) + "H" + (-currentTabData.transX) + "z");
+        clipTabPath += ("H" + containerWidth + "v" + -(tabHeight + heightExtension) + "H" + (-currentTabXPos) + "z");
 
         return clipTabPath;
     }
