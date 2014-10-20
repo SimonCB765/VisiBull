@@ -23,6 +23,7 @@ $(document).ready(function()
         var closeButtonStartX = tabWidth - (2 * closeButtonRadius);  // The offset into the tab content where the close button starts.
         var tabIconSize = tabHeight - 10;  // The width and height of the square holding the icon on the left of the tab.
         var textStartWithIcon = tabIconSize + 2;  // The x position of the start of the text in a tab when there is a icon present.
+        var transitionDuration = 250;  // The duration of all tab transitions.
 
         // Create the SVG element.
         var tabSet = d3.select(tabSetID)
@@ -134,6 +135,26 @@ $(document).ready(function()
                             var currentKey = positionToKey[i];
                             positionToKey[i - 1] = positionToKey[i];
                             keyToPosition[currentKey] = i - 1;
+
+                            // Transition the current tab one position to the left.
+                            tabSet.select("#tab-container-" + currentKey)
+                                .transition()
+                                .duration(transitionDuration)
+                                .ease("linear")
+                                .each("start", function(contD) { currentlyTransitioning.push(contD.key); })
+                                .tween("transform", function(contD)
+                                    {
+                                        var interpolator = d3.interpolate(contD.transX, contD.transX - tabWidth - curveWidth);
+                                        contD.restingX -= (tabWidth + curveWidth);
+                                        return function(t)
+                                            {
+                                                contD.transX = interpolator(t);  // Determine position of released tab at this point in the transition.
+                                                d3.select(this)  // Update the released tab's position.
+                                                    .attr("transform", function() { return "translate(" + contD.transX + "," + contD.transY + ")"; });
+                                                update_tab_clipping(selectedTab.datum());  // Set the clip paths after this bit of the transition.
+                                            }
+                                    })
+                                .each("end", function(contD) { currentlyTransitioning.splice(currentlyTransitioning.indexOf(contD.key)); });
                         }
                     }
                     delete positionToKey[numberOfTabs - 1];
@@ -240,10 +261,10 @@ $(document).ready(function()
         /***********************
         * Tab Clipping Updater *
         ***********************/
-        function update_tab_clipping(d)
+        function update_tab_clipping(selectedTabData)
         {
             // Setup the clip paths for each tab.
-            var selectedTabPos = keyToPosition[d.key];
+            var selectedTabPos = keyToPosition[selectedTabData.key];
             tabSet.selectAll(".clip-tab").attr("d", function(clipD)
                 {
                     // Set the configuration information for creating the clip path. Extend the width and and height by (tabBorderWidth / 2) to
@@ -251,7 +272,7 @@ $(document).ready(function()
                     var config = {"tabWidth" : tabWidth + (tabBorderWidth / 2), "tabHeight" : tabHeight, "curveWidth" : curveWidth,
                                   "heightExtension" : (tabBorderWidth / 2), "containerWidth" : svgWidth};
                     var currentTabPos = keyToPosition[clipD.key];
-                    if (clipD.key === d.key)
+                    if (clipD.key === selectedTabData.key)
                     {
                         // The selected tab should have no clipping.
                     }
@@ -261,7 +282,7 @@ $(document).ready(function()
                         if (selectedTabPos === 1)
                         {
                             // The tab second from left was clicked on, so clip the right portion of the leftmost tab.
-                            config.rightTabXPos = d.transX;
+                            config.rightTabXPos = selectedTabData.transX;
                         }
                     }
                     else if (currentTabPos === numberOfTabs - 1)
@@ -274,7 +295,7 @@ $(document).ready(function()
                         // The tab currently being looked at is not the leftmost, rightmost or clicked on tab and is one position to the left of the
                         // tab clicked on. In this case the current tab should have both its left and right portions clipped.
                         config.leftTabXPos = tabSet.select("#tab-container-" + positionToKey[currentTabPos - 1]).datum().transX;
-                        config.rightTabXPos = d.transX;
+                        config.rightTabXPos = selectedTabData.transX;
                     }
                     else
                     {
@@ -300,7 +321,7 @@ $(document).ready(function()
             // and then enabling them at the end
             d3.select(this)
                 .transition()
-                .duration(250)
+                .duration(transitionDuration)
                 .ease("linear")
                 .each("start", function() { currentlyTransitioning.push(d.key); })
                 .tween("transform", function()
