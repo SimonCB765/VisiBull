@@ -2,7 +2,7 @@ $(document).ready(function()
 {
     // Create the tabs.
     var textForTabs = ["Iron Cook", "Hey, what kinda party is this? There's no booze and only one hooker.", "I just want to talk. It has nothing to do with mating.", "Zinc Saucier", "How come you always dress like you're doing your laundry?", "I have to go and buy a single piece of fruit with a coupon and then return it."];
-	var iconsForTabs = ["/static/tabbed_navigation/Icons/Bender.jpg", "", "/static/tabbed_navigation/Icons/Fry.jpg", "", "/static/tabbed_navigation/Icons/Leela.jpg", "/static/tabbed_navigation/Icons/Zoidberg.jpg"];
+    var iconsForTabs = ["/static/tabbed_navigation/Icons/Bender.jpg", "", "/static/tabbed_navigation/Icons/Fry.jpg", "", "/static/tabbed_navigation/Icons/Leela.jpg", "/static/tabbed_navigation/Icons/Zoidberg.jpg"];
     var newTabText = "New Tab";
     create_moveable_tabs("#tab-set-6");
 
@@ -19,10 +19,10 @@ $(document).ready(function()
         var currentKey = 0;  // Counter to generate unique keys for identifying tabs.
         var keyToPosition = {};  // Mapping from tab keys to the position that the tab is in.
         var positionToKey = {};  // Mapping from positions to the key of the tab in that position.
-		var closeButtonRadius = 6;  // The radius of the circle containing the close button.
-		var closeButtonStartX = tabWidth - (2 * closeButtonRadius);  // The offset into the tab content where the close button starts.
-		var tabIconSize = tabHeight - 10;  // The width and height of the square holding the icon on the left of the tab.
-		var textStartWithIcon = tabIconSize + 2;  // The x position of the start of the text in a tab when there is a icon present.
+        var closeButtonRadius = 6;  // The radius of the circle containing the close button.
+        var closeButtonStartX = tabWidth - (2 * closeButtonRadius);  // The offset into the tab content where the close button starts.
+        var tabIconSize = tabHeight - 10;  // The width and height of the square holding the icon on the left of the tab.
+        var textStartWithIcon = tabIconSize + 2;  // The x position of the start of the text in a tab when there is a icon present.
 
         // Create the SVG element.
         var tabSet = d3.select(tabSetID)
@@ -90,98 +90,98 @@ $(document).ready(function()
             .on("drag", drag_update)
             .on("dragend", drag_end);
         tabContainer.call(tabDrag);
-		
-		// Add the containers for the tab content.
+
+        // Add the containers for the tab content.
         var tabContentContainer = tabContainer
             .append("g")
             .classed("tab-content", true)
             .attr("transform", function(d) { return "translate(" + curveWidth + ",0)"; });
-		
-		// Add the close button to each tab. In order to prevent clicking and dragging on the close button moving the tab, a drag handler that
-		// prevents event propagation is needed, in order to prevent the drag on the tab container being fired by a mousedown on the close button.
-		var closeButtons = tabContentContainer.append("g")
-			.attr("transform", function() { return "translate(" + closeButtonStartX + ",0)"; })
-			.classed("close-button", true);
-		var closeDrag = d3.behavior.drag()
+
+        // Add the close button to each tab. In order to prevent clicking and dragging on the close button moving the tab, a drag handler that
+        // prevents event propagation is needed, in order to prevent the drag on the tab container being fired by a mousedown on the close button.
+        var closeButtons = tabContentContainer.append("g")
+            .attr("transform", function() { return "translate(" + closeButtonStartX + ",0)"; })
+            .classed("close-button", true);
+        var closeDrag = d3.behavior.drag()
             .on("dragstart", function() { d3.event.sourceEvent.stopPropagation(); });
         closeButtons.call(closeDrag);
-		closeButtons
-			.on("click", function(d)
-				{
-					// Select the tab that is to be closed.
-					var tabToClose = tabSet.select(".tab-container-" + d.key);
-					var dataOfClickedTab = tabToClose.datum();
-					
-					// If the tab to be closed is the selected one, then make the tab to its left the selected one.
-					if (dataOfClickedTab.key === selectedTab.datum().key)
-					{
-						// Get position of selected tab (the one being closed).
-						var selectedPos = keyToPosition[selectedTab.datum().key];
-						var newSelectedPos = (selectedPos === 0) ? 1 : selectedPos - 1;
-						var keyOfNewSelected = positionToKey[newSelectedPos];
-						selectedTab = tabSet.select(".tab-container-" + keyOfNewSelected);
-						selectedTab.classed("selected", true);
-					}
-					
-					// Update all mappings from position to key and from key to position.
-					var posOfClickedTab = keyToPosition[dataOfClickedTab.key];
-					for (var i = 0; i < numberOfTabs; i++)
-					{
-						if (posOfClickedTab < i)
-						{
-							// If the clicked tab is in a position to the left of the one currently being checked.
-							var currentKey = positionToKey[i];
-							positionToKey[i - 1] = positionToKey[i];
-							keyToPosition[currentKey] = i - 1;
-						}
-					}
-					delete positionToKey[numberOfTabs - 1];
-					delete keyToPosition[dataOfClickedTab.key];
-					
-					// Remove the tab that had its close button clicked.
-					tabToClose.node().remove();
-					numberOfTabs--;
-				});
-		closeButtons.append("circle")
-			.attr("cx", closeButtonRadius)
-			.attr("cy", tabHeight / 2)
-			.attr("r", closeButtonRadius);
-		var crossStartCoordsXLength = 4 * Math.cos(0.25 * Math.PI);
-		var crossStartCoordsYLength = 4 * Math.sin(0.25 * Math.PI);
-		var posTopLeft = [closeButtonRadius - crossStartCoordsXLength, (tabHeight / 2) - crossStartCoordsYLength];
-		var posTopRight = [closeButtonRadius + crossStartCoordsXLength, (tabHeight / 2) - crossStartCoordsYLength];
-		var posBottomRight = [closeButtonRadius + crossStartCoordsXLength, (tabHeight / 2) + crossStartCoordsYLength];
-		var posBottomLeft = [closeButtonRadius - crossStartCoordsXLength, (tabHeight / 2) + crossStartCoordsYLength];
-		closeButtons.append("path")
-			.attr("d", "M" + posTopLeft[0] + "," + posTopLeft[1] +
-					   "L" + posBottomRight[0] + "," + posBottomRight[1] +
-					   "M" + posTopRight[0] + "," + posTopRight[1] +
-					   "L" + posBottomLeft[0] + "," + posBottomLeft[1]);
-		
-		// Add the favicon type icon to each tab that is meant to have one.
-		var tabIcons = tabContentContainer.filter(function(d) { return d.image !== ""; }).append("g")  // Filter out tabs without an icon (where image is "").
-			.attr("transform", function() { return "translate(0,0)"; })
-			.classed("tab-icon", true);
-		var patterns = tabIcons.append("pattern")
-			.attr("id", function(d) { return "icon-image-" + d.key; })
-			.attr("x", 0)
-			.attr("y", 0)
-			.attr("height", tabIconSize)
-			.attr("width", tabIconSize);
-		patterns.append("image")
-			.attr("x", 0)
-			.attr("y", 0)
-			.attr("height", tabIconSize)
-			.attr("width", tabIconSize)
-			.attr("xlink:href", function(d) { return d.image; });
-		tabIcons.append("rect")
-			.attr("x", 0)
-			.attr("y", (tabHeight - tabIconSize) / 2)
-			.attr("width", tabIconSize)
-			.attr("height", tabIconSize)
-			.style("fill", function(d) { return "url(#icon-image-" + d.key + ")"});
-		
-		// Add the text to the tabs.
+        closeButtons
+            .on("click", function(d)
+                {
+                    // Select the tab that is to be closed.
+                    var tabToClose = tabSet.select(".tab-container-" + d.key);
+                    var dataOfClickedTab = tabToClose.datum();
+
+                    // If the tab to be closed is the selected one, then make the tab to its left the selected one.
+                    if (dataOfClickedTab.key === selectedTab.datum().key)
+                    {
+                        // Get position of selected tab (the one being closed).
+                        var selectedPos = keyToPosition[selectedTab.datum().key];
+                        var newSelectedPos = (selectedPos === 0) ? 1 : selectedPos - 1;
+                        var keyOfNewSelected = positionToKey[newSelectedPos];
+                        selectedTab = tabSet.select(".tab-container-" + keyOfNewSelected);
+                        selectedTab.classed("selected", true);
+                    }
+
+                    // Update all mappings from position to key and from key to position.
+                    var posOfClickedTab = keyToPosition[dataOfClickedTab.key];
+                    for (var i = 0; i < numberOfTabs; i++)
+                    {
+                        if (posOfClickedTab < i)
+                        {
+                            // If the clicked tab is in a position to the left of the one currently being checked.
+                            var currentKey = positionToKey[i];
+                            positionToKey[i - 1] = positionToKey[i];
+                            keyToPosition[currentKey] = i - 1;
+                        }
+                    }
+                    delete positionToKey[numberOfTabs - 1];
+                    delete keyToPosition[dataOfClickedTab.key];
+
+                    // Remove the tab that had its close button clicked.
+                    tabToClose.node().remove();
+                    numberOfTabs--;
+                });
+        closeButtons.append("circle")
+            .attr("cx", closeButtonRadius)
+            .attr("cy", tabHeight / 2)
+            .attr("r", closeButtonRadius);
+        var crossStartCoordsXLength = 4 * Math.cos(0.25 * Math.PI);
+        var crossStartCoordsYLength = 4 * Math.sin(0.25 * Math.PI);
+        var posTopLeft = [closeButtonRadius - crossStartCoordsXLength, (tabHeight / 2) - crossStartCoordsYLength];
+        var posTopRight = [closeButtonRadius + crossStartCoordsXLength, (tabHeight / 2) - crossStartCoordsYLength];
+        var posBottomRight = [closeButtonRadius + crossStartCoordsXLength, (tabHeight / 2) + crossStartCoordsYLength];
+        var posBottomLeft = [closeButtonRadius - crossStartCoordsXLength, (tabHeight / 2) + crossStartCoordsYLength];
+        closeButtons.append("path")
+            .attr("d", "M" + posTopLeft[0] + "," + posTopLeft[1] +
+                       "L" + posBottomRight[0] + "," + posBottomRight[1] +
+                       "M" + posTopRight[0] + "," + posTopRight[1] +
+                       "L" + posBottomLeft[0] + "," + posBottomLeft[1]);
+
+        // Add the favicon type icon to each tab that is meant to have one.
+        var tabIcons = tabContentContainer.filter(function(d) { return d.image !== ""; }).append("g")  // Filter out tabs without an icon (where image is "").
+            .attr("transform", function() { return "translate(0,0)"; })
+            .classed("tab-icon", true);
+        var patterns = tabIcons.append("pattern")
+            .attr("id", function(d) { return "icon-image-" + d.key; })
+            .attr("x", 0)
+            .attr("y", 0)
+            .attr("height", tabIconSize)
+            .attr("width", tabIconSize);
+        patterns.append("image")
+            .attr("x", 0)
+            .attr("y", 0)
+            .attr("height", tabIconSize)
+            .attr("width", tabIconSize)
+            .attr("xlink:href", function(d) { return d.image; });
+        tabIcons.append("rect")
+            .attr("x", 0)
+            .attr("y", (tabHeight - tabIconSize) / 2)
+            .attr("width", tabIconSize)
+            .attr("height", tabIconSize)
+            .style("fill", function(d) { return "url(#icon-image-" + d.key + ")"});
+
+        // Add the text to the tabs.
         defs.append("clipPath")
             .attr("id", "clip-advanced")
             .append("rect")
@@ -194,7 +194,7 @@ $(document).ready(function()
             .classed("tab-text", true)
             .attr("x", function(d) { return (d.image === "") ? 0 : textStartWithIcon; })
             .attr("y", (tabHeight + tabBorderWidth) / 2)
-			.attr("clip-path", "url(#clip-advanced)")
+            .attr("clip-path", "url(#clip-advanced)")
             .text(function(d) { return d.text; });
 
         // Fade out text that is too long.
@@ -202,14 +202,14 @@ $(document).ready(function()
             {
                 var currentTextBBox = this.getBBox()
                 var currentTextWidth = currentTextBBox.width;
-				var maxTextWidth = (d.image === "") ? closeButtonStartX : closeButtonStartX - textStartWithIcon;
+                var maxTextWidth = (d.image === "") ? closeButtonStartX : closeButtonStartX - textStartWithIcon;
 
                 if (currentTextWidth > maxTextWidth)
                 {
                     // If the text is wider than the tab, then create the gradient for the fade.
                     var fadeStart = (maxTextWidth * 0.7) / currentTextWidth;
                     var fadeEnd = (maxTextWidth * 1.0) / currentTextWidth;
-					console.log(i, maxTextWidth, currentTextWidth, fadeStart, fadeEnd);
+                    console.log(i, maxTextWidth, currentTextWidth, fadeStart, fadeEnd);
                     var gradient = defs.append("linearGradient")
                         .attr("id", "fadeGradient-advanced-" + i)
                         .attr("x1", "0%")
