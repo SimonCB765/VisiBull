@@ -236,11 +236,15 @@ $(document).ready(function()
             .attr("y", svgHeight - backingBorderHeight)
             .classed("backing", true);
 
-		/************************
-		* Tab Clipping Updating *
-		************************/
-		function update_tab_clipping(d)
+        /*************************************
+        * Tab Position And Clipping Updaters *
+        *************************************/
+		function swap_tab_positions()
 		{
+		}
+
+        function update_tab_clipping(d)
+        {
             // Setup the clip paths for each tab.
             var selectedTabPos = keyToPosition[d.key];
             tabSet.selectAll(".clip-tab").attr("d", function(clipD)
@@ -282,9 +286,9 @@ $(document).ready(function()
                     }
                     return create_clip_tab_style_1(config, clipD);
                 });
-		}
-
-        /*********************
+        }
+		
+		/*********************
         * Tab Drag Functions *
         *********************/
         var startOfDragX;  // The x coordinate where the dragging started. Used to ensure that the mouse stays at the same point over the tab during the drag.
@@ -292,20 +296,27 @@ $(document).ready(function()
         function drag_end(d)
         {
             // Transition the dragged tab to its resting place.
+			// If the transition is interrupted while it is going (e.g. by the user clicking on the transitioning tab), then the transition is
+			// interrupted. This causes the tab's final resting "correct" position to not be in the desired location, rather it ends up being
+			// wherever the tab got to in the transition. This can be prevented by disabling pointer events at the start of the transition,
+			// and then enabling them at the end
             d3.select(this)
-				.transition()
-				.duration(500)
-				.tween("transform", function(contD)
-					{
-						var interpolator = d3.interpolate(contD.transX, snapToLocation);
-						return function(t)
-							{
-								contD.transX = interpolator(t);  // Determine position of released tab at this point in the transition.
-								d3.select(this)  // Update the released tab's position.
-									.attr("transform", function(contD) { return "translate(" + contD.transX + "," + contD.transY + ")"; });
-								update_tab_clipping(d);  // Set the clip paths after this bit of the transition.
-							}
-					});
+                .transition()
+                .duration(250)
+				.each("start", function() { d3.select(this).style("pointer-events", "none"); })
+                .tween("transform", function(contD)
+                    {
+						d3.select(this).style("pointer-events", "none");
+                        var interpolator = d3.interpolate(contD.transX, snapToLocation);
+                        return function(t)
+                            {
+                                contD.transX = interpolator(t);  // Determine position of released tab at this point in the transition.
+                                d3.select(this)  // Update the released tab's position.
+                                    .attr("transform", function(contD) { return "translate(" + contD.transX + "," + contD.transY + ")"; });
+                                update_tab_clipping(d);  // Set the clip paths after this bit of the transition.
+                            }
+                    })
+				.each("end", function() { d3.select(this).style("pointer-events", "auto"); });
         }
 
         function drag_start(d)
@@ -313,8 +324,8 @@ $(document).ready(function()
             // Clear old selected tab information.
             selectedTab.classed("selected", false);
 
-			// Alter tab clip paths to reflect the selection of on of the tabs.
-			update_tab_clipping(d);
+            // Alter tab clip paths to reflect the selection of on of the tabs.
+            update_tab_clipping(d);
 
             // Record new selected tab information.
             selectedTab = d3.select(this);
@@ -377,7 +388,7 @@ $(document).ready(function()
                 })
 
             // Alter clip paths to reflect tab movement.
-			update_tab_clipping(d);
+            update_tab_clipping(d);
         }
     }
 
