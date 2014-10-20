@@ -62,3 +62,6 @@
 #tab-set-6 .tab-container .close-button path {stroke: black; stroke-width: 2;}
 
 #tab-set-6 .tab-container .tab {stroke: black; stroke-width: 2;}  /* Style the tabs. */
+
+#tab-set-6 .tab-container .tab-text {dominant-baseline: middle; fill: black; font-size: .75em; stroke: none;}
+#tab-set-6 .tab-container .tab-text tspan {dominant-baseline: middle; font-size: 1em; stroke: none;}

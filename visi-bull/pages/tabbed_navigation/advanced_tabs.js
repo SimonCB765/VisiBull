@@ -28,9 +28,6 @@ $(document).ready(function()
             .attr("width", svgWidth)
             .attr("height", svgHeight);
 
-        // Create the <defs> to hold the gradients for the text.
-        var defs = tabSet.append("defs");
-
         // Generate the data for the tabs.
         var tabInfo = []
         var tabConfig = {"tabWidth" : tabWidth, "tabHeight" : tabHeight, "curveWidth" : curveWidth};
@@ -89,6 +86,16 @@ $(document).ready(function()
             .on("drag", drag_update)
             .on("dragend", drag_end);
         tabContainer.call(tabDrag);
+		
+		// Add the paths for clipping the text content.
+		var defs = tabSet.append("defs");
+        defs.append("clipPath")
+            .attr("id", "clip-advanced")
+            .append("rect")
+                .attr("x", 0)
+                .attr("y", 0)
+                .attr("width", closeButtonStartX)
+                .attr("height", tabHeight + tabBorderWidth);
 		
 		// Add the containers for the tab content.
         var tabContentContainer = tabContainer
@@ -179,6 +186,15 @@ $(document).ready(function()
 			.attr("width", tabIconSize)
 			.attr("height", tabIconSize)
 			.style("fill", function(d) { return "url(#icon-image-" + d.key + ")"});
+		
+		// Add the text to the tabs.
+        var tabTextElements = tabContentContainer
+            .append("text")
+            .classed("tab-text", true)
+            .attr("x", function(d) { return (d.image === "") ? 0 : tabIconSize + 2; })
+            .attr("y", (tabHeight + tabBorderWidth) / 2)
+			.attr("clip-path", "url(#clip-advanced)")
+            .text(function(d) { return d.text; });
 
         // Add the baselines on which the tabs will sit.
         tabSet.append("rect")
