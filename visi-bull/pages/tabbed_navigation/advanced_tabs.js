@@ -137,24 +137,9 @@ $(document).ready(function()
                             keyToPosition[currentKey] = i - 1;
 
                             // Transition the current tab one position to the left.
-                            tabSet.select("#tab-container-" + currentKey)
-                                .transition()
-                                .duration(transitionDuration)
-                                .ease("linear")
-                                .each("start", function(contD) { currentlyTransitioning.push(contD.key); })
-                                .tween("transform", function(contD)
-                                    {
-                                        var interpolator = d3.interpolate(contD.transX, contD.transX - tabWidth - curveWidth);
-                                        contD.restingX -= (tabWidth + curveWidth);
-                                        return function(t)
-                                            {
-                                                contD.transX = interpolator(t);  // Determine position of released tab at this point in the transition.
-                                                d3.select(this)  // Update the released tab's position.
-                                                    .attr("transform", function() { return "translate(" + contD.transX + "," + contD.transY + ")"; });
-                                                update_tab_clipping(selectedTab.datum());  // Set the clip paths after this bit of the transition.
-                                            }
-                                    })
-                                .each("end", function(contD) { currentlyTransitioning.splice(currentlyTransitioning.indexOf(contD.key)); });
+							var currentTab = tabSet.select("#tab-container-" + currentKey);
+							currentTab.datum().restingX -= (tabWidth + curveWidth);
+							transition_tab(currentTab);
                         }
                     }
                     delete positionToKey[numberOfTabs - 1];
@@ -257,6 +242,30 @@ $(document).ready(function()
             .attr("x", 0)
             .attr("y", svgHeight - backingBorderHeight)
             .classed("backing", true);
+		
+		/******************
+		* Tab Transitions *
+		******************/
+		function transition_tab(currentTab)
+		{
+			currentTab
+				.transition()
+				.duration(transitionDuration)
+				.ease("linear")
+				.each("start", function(d) { currentlyTransitioning.push(d.key); })
+				.tween("transform", function(d)
+					{
+						var interpolator = d3.interpolate(d.transX, d.restingX);
+						return function(t)
+							{
+								d.transX = interpolator(t);  // Determine position of released tab at this point in the transition.
+								d3.select(this)  // Update the released tab's position.
+									.attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });
+								update_tab_clipping(selectedTab.datum());  // Set the clip paths after this bit of the transition.
+							}
+					})
+				.each("end", function(d) { currentlyTransitioning.splice(currentlyTransitioning.indexOf(d.key)); });
+		}
 
         /***********************
         * Tab Clipping Updater *
@@ -319,24 +328,9 @@ $(document).ready(function()
             // interrupted. This causes the tab's final resting "correct" position to not be in the desired location, rather it ends up being
             // wherever the tab got to in the transition. This can be prevented by disabling pointer events at the start of the transition,
             // and then enabling them at the end
-            d3.select(this)
-                .transition()
-                .duration(transitionDuration)
-                .ease("linear")
-                .each("start", function() { currentlyTransitioning.push(d.key); })
-                .tween("transform", function()
-                    {
-                        var interpolator = d3.interpolate(d.transX, snapToLocation);
-                        d.restingX = snapToLocation;
-                        return function(t)
-                            {
-                                d.transX = interpolator(t);  // Determine position of released tab at this point in the transition.
-                                d3.select(this)  // Update the released tab's position.
-                                    .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });
-                                update_tab_clipping(d);  // Set the clip paths after this bit of the transition.
-                            }
-                    })
-                .each("end", function() { currentlyTransitioning.splice(currentlyTransitioning.indexOf(d.key)); });
+			var releasedTab = d3.select(this);
+			releasedTab.datum().restingX = snapToLocation;
+			transition_tab(releasedTab)
         }
 
         function drag_start(d)
