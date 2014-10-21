@@ -6,11 +6,11 @@ $(document).ready(function()
                            "All year long, the grasshopper kept burying acorns for winter, while the octopus mooched off his girlfriend and watched TV.",
                            "But then the winter came, and the grasshopper died, and the octopus ate all his acorns.",
                            "Oh, I don't have time for this. I have to go and buy a single piece of fruit with a coupon and then return it, making people wait behind me while I complain."];
-    create_empty_tabs("#tab-set-1");
-    create_twirling_tabs("#tab-set-2");
-    create_hard_clipped_tabs("#tab-set-3");
-    create_fade_clipped_tabs("#tab-set-4");
-    create_tall_tabs("#tab-set-5");
+    create_empty_tabs("#basic-tab-set");
+    create_twirling_tabs("#twirling-tabs");
+    create_hard_clipped_tabs("#hard-clip-tabs");
+    create_fade_clipped_tabs("#fade-clip-tabs");
+    create_tall_tabs("#tall-tabs");
 
     function create_empty_tabs(tabSetID)
     {

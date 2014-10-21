@@ -21,29 +21,25 @@
 <h2 class="centered">Basic SVG Tabs</h2>
 <br>
 <p>Basic tabs can be made using SVG paths, and can be made to have similar effects as pure HTML tabs on hover and selection.</p>
-<svg id="tab-set-1"></svg>
+<svg id="basic-tab-set"></svg>
 <br><br><br><br>
-<svg id="tab-set-2"></svg>
+<svg id="twirling-tabs"></svg>
 <br><br><br><br>
 <p>Although foreign objects can be used with SVG in order to style text (and other things) within the tabs, cross-browser support for foreign objects isn't great (no IE version as of 2014 supports it). There are also bugs that prevent things like absolute positioning working properly, which is problematic for approaches to fading out text that rely on absolutely positioned ::before or ::after pseudo-elements.</p>
 <p>Instead, SVG text elements can be used, and can be clipped to only the area of the tab. Although you can't easily turn overflowing text into ellipses, fading out and/or clipping text is relatively straightforward.</p>
 <br>Hard clipping using SVG text elements and clip-path.
-<svg id="tab-set-3"></svg>
+<svg id="hard-clip-tabs"></svg>
 <br>
 <br>Text that fades out if it extends beyond the tab.
-<svg id="tab-set-4"></svg>
+<svg id="fade-clip-tabs"></svg>
 <br>
 <br>Tabs with multiple lines of text.
-<svg id="tab-set-5"></svg>
+<svg id="tall-tabs"></svg>
 
 <br><br>
 <h2 class="centered">Advanced SVG Tabs</h2>
 <br>
 <p>In order to move tabs around, you need some method of changing the clipped area. This is difficult with fixed paths, and really needs to be done with clipping or masking rather than fixed paths.</p>
 <p>Masking would work, except that masked out areas still receive pointer events even when completely transparent. Basically, clipping is required.</p>
-<svg id="tab-set-6"></svg>
-<br><br>
-<br>
-<p>These ones will have added features, like being closeable and having the ability to add tabs</p>
-<p>Chrome/Firefox style tabs</p>
+<svg id="movable-tabs"></svg>
 {% endblock %}

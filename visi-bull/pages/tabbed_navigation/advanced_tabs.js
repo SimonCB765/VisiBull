@@ -3,8 +3,7 @@ $(document).ready(function()
     // Create the tabs.
     var textForTabs = ["Iron Cook", "Hey, what kinda party is this? There's no booze and only one hooker.", "I just want to talk. It has nothing to do with mating.", "Zinc Saucier", "How come you always dress like you're doing your laundry?", "I have to go and buy a single piece of fruit with a coupon and then return it."];
     var iconsForTabs = ["/static/tabbed_navigation/Icons/Bender.jpg", "", "/static/tabbed_navigation/Icons/Fry.jpg", "", "/static/tabbed_navigation/Icons/Leela.jpg", "/static/tabbed_navigation/Icons/Zoidberg.jpg"];
-    var newTabText = "New Tab";
-    create_moveable_tabs("#tab-set-6");
+    create_moveable_tabs("#movable-tabs");
 
     function create_moveable_tabs(tabSetID)
     {
