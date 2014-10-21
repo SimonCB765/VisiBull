@@ -60,11 +60,18 @@
 #moveable-tabs .tab-container .tab-text {dominant-baseline: middle; fill: black; font-size: .75em; stroke: none;}
 #moveable-tabs .tab-container .tab-text tspan {dominant-baseline: middle; font-size: 1em; stroke: none;}
 
-#addable-tabs {display: block; margin: 0 auto;}
+#addable-tabs {cursor: default; display: block; margin: 0 auto;}
+
+#addable-tabs .add-button {fill: #F8F8F8; stroke: none;}
+#addable-tabs .add-button:hover {fill: #FF008C;}
+#addable-tabs .add-button:hover:active {fill: #E6007E;}
+#addable-tabs .add-button:hover path {stroke: white;}
+#addable-tabs .add-button path {stroke: black; stroke-width: 2;}
+
 #addable-tabs .backing {fill: black; stroke: none;}  /* Bottom backing border for the tab set. */
 #addable-tabs .grad-end {stop-color : rgba(0,0,0,0);}  /* The stop color for the end of the gradient. */
 #addable-tabs .grad-start {stop-color : rgba(0,0,0,1);}  /* The stop color for the start of the gradient. */
-#addable-tabs .tab-container {cursor: default; fill: #888888;}  /* Prevent changing of the cursor when hovering over a tab. */
+#addable-tabs .tab-container {fill: #888888;}  /* Prevent changing of the cursor when hovering over a tab. */
 #addable-tabs .tab-container.hover .close-button {fill: #989898;}
 #addable-tabs .tab-container.hover .tab {fill: #989898;}
 #addable-tabs .tab-container.selected .close-button {fill: white;}
