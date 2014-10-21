@@ -138,7 +138,9 @@ $(document).ready(function()
                         var selectedPos = keyToPosition[selectedTab.datum().key];
                         var newSelectedPos = (selectedPos === 0) ? 1 : selectedPos - 1;
                         var keyOfNewSelected = positionToKey[newSelectedPos];
+                        selectedTab.classed("selected", false);
                         selectedTab = tabSet.select("#tab-container-add-" + keyOfNewSelected);
+                        update_tab_clipping(selectedTab.datum());
                         selectedTab.classed("selected", true);
                     }
 
@@ -370,7 +372,7 @@ $(document).ready(function()
                 currentlyTransitioning.splice(currentlyTransitioning.indexOf(d.key));
             }
 
-            // Alter tab clip paths to reflect the selection of a new tab.
+            // Alter tab clip paths to reflect the selection of one of the tabs.
             update_tab_clipping(d);
 
             // Record new selected tab information.
