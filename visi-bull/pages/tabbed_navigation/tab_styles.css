@@ -43,19 +43,36 @@
 #tall-tabs .tab-text {dominant-baseline: middle; fill: black; font-size: .75em; stroke: none;}
 #tall-tabs .tab-text tspan {dominant-baseline: middle; font-size: 1em; stroke: none;}
 
-#movable-tabs {display: block; margin: 0 auto;}
-#movable-tabs .backing {fill: black; stroke: none;}  /* Bottom backing border for the tab set. */
-#movable-tabs .grad-end {stop-color : rgba(0,0,0,0);}  /* The stop color for the end of the gradient. */
-#movable-tabs .grad-start {stop-color : rgba(0,0,0,1);}  /* The stop color for the start of the gradient. */
-#movable-tabs .tab-container {cursor: default; fill: #888888;}  /* Prevent changing of the cursor when hovering over a tab. */
-#movable-tabs .tab-container.hover .close-button {fill: #989898;}
-#movable-tabs .tab-container.hover .tab {fill: #989898;}
-#movable-tabs .tab-container.selected .close-button {fill: white;}
-#movable-tabs .tab-container.selected .tab {fill: white;}
-#movable-tabs .tab-container .close-button:hover {fill: #FF008C; stoke: none;}
-#movable-tabs .tab-container .close-button:hover:active {fill: #E6007E;}  /* Slightly darker button when depressed. */
-#movable-tabs .tab-container .close-button:hover path {stroke: white;}
-#movable-tabs .tab-container .close-button path {stroke: black; stroke-width: 2;}
-#movable-tabs .tab-container .tab {stroke: black; stroke-width: 2;}  /* Style the tabs. */
-#movable-tabs .tab-container .tab-text {dominant-baseline: middle; fill: black; font-size: .75em; stroke: none;}
-#movable-tabs .tab-container .tab-text tspan {dominant-baseline: middle; font-size: 1em; stroke: none;}
+#moveable-tabs {display: block; margin: 0 auto;}
+#moveable-tabs .backing {fill: black; stroke: none;}  /* Bottom backing border for the tab set. */
+#moveable-tabs .grad-end {stop-color : rgba(0,0,0,0);}  /* The stop color for the end of the gradient. */
+#moveable-tabs .grad-start {stop-color : rgba(0,0,0,1);}  /* The stop color for the start of the gradient. */
+#moveable-tabs .tab-container {cursor: default; fill: #888888;}  /* Prevent changing of the cursor when hovering over a tab. */
+#moveable-tabs .tab-container.hover .close-button {fill: #989898;}
+#moveable-tabs .tab-container.hover .tab {fill: #989898;}
+#moveable-tabs .tab-container.selected .close-button {fill: white;}
+#moveable-tabs .tab-container.selected .tab {fill: white;}
+#moveable-tabs .tab-container .close-button:hover {fill: #FF008C; stoke: none;}
+#moveable-tabs .tab-container .close-button:hover:active {fill: #E6007E;}  /* Slightly darker button when depressed. */
+#moveable-tabs .tab-container .close-button:hover path {stroke: white;}
+#moveable-tabs .tab-container .close-button path {stroke: black; stroke-width: 2;}
+#moveable-tabs .tab-container .tab {stroke: black; stroke-width: 2;}  /* Style the tabs. */
+#moveable-tabs .tab-container .tab-text {dominant-baseline: middle; fill: black; font-size: .75em; stroke: none;}
+#moveable-tabs .tab-container .tab-text tspan {dominant-baseline: middle; font-size: 1em; stroke: none;}
+
+#addable-tabs {display: block; margin: 0 auto;}
+#addable-tabs .backing {fill: black; stroke: none;}  /* Bottom backing border for the tab set. */
+#addable-tabs .grad-end {stop-color : rgba(0,0,0,0);}  /* The stop color for the end of the gradient. */
+#addable-tabs .grad-start {stop-color : rgba(0,0,0,1);}  /* The stop color for the start of the gradient. */
+#addable-tabs .tab-container {cursor: default; fill: #888888;}  /* Prevent changing of the cursor when hovering over a tab. */
+#addable-tabs .tab-container.hover .close-button {fill: #989898;}
+#addable-tabs .tab-container.hover .tab {fill: #989898;}
+#addable-tabs .tab-container.selected .close-button {fill: white;}
+#addable-tabs .tab-container.selected .tab {fill: white;}
+#addable-tabs .tab-container .close-button:hover {fill: #FF008C; stoke: none;}
+#addable-tabs .tab-container .close-button:hover:active {fill: #E6007E;}  /* Slightly darker button when depressed. */
+#addable-tabs .tab-container .close-button:hover path {stroke: white;}
+#addable-tabs .tab-container .close-button path {stroke: black; stroke-width: 2;}
+#addable-tabs .tab-container .tab {stroke: black; stroke-width: 2;}  /* Style the tabs. */
+#addable-tabs .tab-container .tab-text {dominant-baseline: middle; fill: black; font-size: .75em; stroke: none;}
+#addable-tabs .tab-container .tab-text tspan {dominant-baseline: middle; font-size: 1em; stroke: none;}
