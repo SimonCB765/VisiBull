@@ -114,7 +114,7 @@ $(document).ready(function()
                     var dataOfClickedTab = tabToClose.datum();
 
                     // If the tab to be closed is the selected one, then make the tab to its left the selected one.
-                    if (dataOfClickedTab.key === selectedTab.datum().key)
+                    if (dataOfClickedTab.key === selectedTab.datum().key && numberOfTabs > 1)
                     {
                         // Get position of selected tab (the one being closed).
                         var selectedPos = keyToPosition[selectedTab.datum().key];
