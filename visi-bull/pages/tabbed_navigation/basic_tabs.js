@@ -1248,8 +1248,7 @@ $(document).ready(function()
         //              therefore if a rotation of 0.5 is supplied, left aligned tabs will go down and point right, while right aligned will point left and go up
         //      alignment - whether the tabs should be "left", "center" or "right" aigned
 
-        // For left and center align, the leftmost tab is created first. The leftmost tab will therefore always appear to be 'stacked' on the bottom of the tabs if they overlap. Adding them
-        // to the DOM in reverse order will therefore make them appear to be 'stacked' with the leftmost tab on top.
+        // For left and center align, the leftmost tab is created first.
         // For right aligned tabs the rightmost tab is created fist, so the default stacking order is reversed.
 
         /******************************
@@ -1330,6 +1329,12 @@ $(document).ready(function()
 
     function create_tab_paths(tabWidth, tabHeight, curveWidth, rotation)
     {
+        // Create the four appearances of the tabs needed for displaying static tabs.
+        // tabWidth is the width of the portion of the tab minus the width of the curved ends.
+        // tabHeight is the height of the tab.
+        // curveWidth is the width of each curved region at the end of the tabs.
+        // rotation is the angle (in radians divided by pi, e.g. 0.5 is a 90 degree rotation) through which the tab path should be rotated.
+
         // Create the rotated path with no missing portions.
         var fullTab =
             "M0," + tabHeight +
@@ -1374,6 +1379,9 @@ $(document).ready(function()
     function rotate_point(x, y, rotation)
     {
         // Rotate the point (x, y) around the (0, 0) origin.
+        // x and y are floats representing coordinates, and rotation is the angle through which the point should be rotated.
+        // The angle (rotation) should be in radians divided by pi, e.g. if you want a 90 degree rotation then the argument would be 0.5 (or -0.5).
+
         var result = [0, 0];
         result[0] = x * Math.cos(Math.PI * rotation) - y * Math.sin(Math.PI * rotation);
         result[1] = x * Math.sin(Math.PI * rotation) + y * Math.cos(Math.PI * rotation);
