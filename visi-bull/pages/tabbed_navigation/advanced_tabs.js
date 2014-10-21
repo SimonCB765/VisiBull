@@ -23,7 +23,7 @@ $(document).ready(function()
         var closeButtonStartX = tabWidth - (2 * closeButtonRadius);  // The offset into the tab content where the close button starts.
         var tabIconSize = tabHeight - 10;  // The width and height of the square holding the icon on the left of the tab.
         var textStartWithIcon = tabIconSize + 2;  // The x position of the start of the text in a tab when there is a icon present.
-        var transitionDuration = 250;  // The duration of all tab transitions.
+        var transitionDuration = 200;  // The duration of all tab transitions.
 
         // Create the SVG element.
         var tabSet = d3.select(tabSetID)
@@ -137,9 +137,9 @@ $(document).ready(function()
                             keyToPosition[currentKey] = i - 1;
 
                             // Transition the current tab one position to the left.
-							var currentTab = tabSet.select("#tab-container-" + currentKey);
-							currentTab.datum().restingX -= (tabWidth + curveWidth);
-							transition_tab(currentTab);
+                            var currentTab = tabSet.select("#tab-container-" + currentKey);
+                            currentTab.datum().restingX -= (tabWidth + curveWidth);
+                            transition_tab(currentTab);
                         }
                     }
                     delete positionToKey[numberOfTabs - 1];
@@ -242,30 +242,30 @@ $(document).ready(function()
             .attr("x", 0)
             .attr("y", svgHeight - backingBorderHeight)
             .classed("backing", true);
-		
-		/******************
-		* Tab Transitions *
-		******************/
-		function transition_tab(currentTab)
-		{
-			currentTab
-				.transition()
-				.duration(transitionDuration)
-				.ease("linear")
-				.each("start", function(d) { currentlyTransitioning.push(d.key); })
-				.tween("transform", function(d)
-					{
-						var interpolator = d3.interpolate(d.transX, d.restingX);
-						return function(t)
-							{
-								d.transX = interpolator(t);  // Determine position of released tab at this point in the transition.
-								d3.select(this)  // Update the released tab's position.
-									.attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });
-								update_tab_clipping(selectedTab.datum());  // Set the clip paths after this bit of the transition.
-							}
-					})
-				.each("end", function(d) { currentlyTransitioning.splice(currentlyTransitioning.indexOf(d.key)); });
-		}
+
+        /******************
+        * Tab Transitions *
+        ******************/
+        function transition_tab(currentTab)
+        {
+            currentTab
+                .transition()
+                .duration(transitionDuration)
+                .ease("linear")
+                .each("start", function(d) { currentlyTransitioning.push(d.key); })
+                .tween("transform", function(d)
+                    {
+                        var interpolator = d3.interpolate(d.transX, d.restingX);
+                        return function(t)
+                            {
+                                d.transX = interpolator(t);  // Determine position of released tab at this point in the transition.
+                                d3.select(this)  // Update the released tab's position.
+                                    .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });
+                                update_tab_clipping(selectedTab.datum());  // Set the clip paths after this bit of the transition.
+                            }
+                    })
+                .each("end", function(d) { currentlyTransitioning.splice(currentlyTransitioning.indexOf(d.key)); });
+        }
 
         /***********************
         * Tab Clipping Updater *
@@ -328,9 +328,9 @@ $(document).ready(function()
             // interrupted. This causes the tab's final resting "correct" position to not be in the desired location, rather it ends up being
             // wherever the tab got to in the transition. This can be prevented by disabling pointer events at the start of the transition,
             // and then enabling them at the end
-			var releasedTab = d3.select(this);
-			releasedTab.datum().restingX = snapToLocation;
-			transition_tab(releasedTab)
+            var releasedTab = d3.select(this);
+            releasedTab.datum().restingX = snapToLocation;
+            transition_tab(releasedTab)
         }
 
         function drag_start(d)
@@ -373,19 +373,48 @@ $(document).ready(function()
             var leftTab = tabSet.select("#tab-container-" + leftTabKey);
             var rightTabKey = positionToKey[selectedTabPos + 1];
             var rightTab = tabSet.select("#tab-container-" + rightTabKey);
-            console.log(selectedTabPos, leftTabKey, rightTabKey);
 
             // Shift the left tab to the right if the tab being dragged has moved to far to its left.
             if (!leftTab.empty())
             {
                 // Only bother if there is actually a tab to the left of the one being dragged.
                 var leftTabData = leftTab.datum();
-                if ((d.transX + curveWidth) <= (leftTabData.transX + curveWidth + (tabWidth / 2)))
+                if ((d.transX + curveWidth) <= (leftTabData.restingX + curveWidth + (tabWidth / 2)))
                 {
                     // The tab being dragged has moved far enough to the left to be swapped with the tab on its left.
-                    snapToLocation = leftTabData.transX;
-                    var leftTabNewLocation = leftTabData.transX + curveWidth + tabWidth;
-                    console.log("Passed Left Tab", leftTabData.transX, leftTabNewLocation);
+                    // Update position and key mappings.
+                    var leftTabPos = keyToPosition[leftTabKey];
+                    keyToPosition[d.key] = leftTabPos;
+                    keyToPosition[leftTabKey] = selectedTabPos;
+                    positionToKey[selectedTabPos] = leftTabKey;
+                    positionToKey[leftTabPos] = d.key;
+
+                    // Update physical location of the left tab.
+                    snapToLocation = leftTabData.restingX;
+                    leftTabData.restingX += (curveWidth + tabWidth);
+                    transition_tab(leftTab);
+                }
+            }
+
+            // Shift the right tab to the left if the tab being dragged has moved to far to its right.
+            if (!rightTab.empty())
+            {
+                // Only bother if there is actually a tab to the left of the one being dragged.
+                var rightTabData = rightTab.datum();
+                if ((d.transX + curveWidth + tabWidth) >= (rightTabData.restingX + curveWidth + (tabWidth / 2)))
+                {
+                    // The tab being dragged has moved far enough to the left to be swapped with the tab on its left.
+                    // Update position and key mappings.
+                    var rightTabPos = keyToPosition[rightTabKey];
+                    keyToPosition[d.key] = rightTabPos;
+                    keyToPosition[rightTabKey] = selectedTabPos;
+                    positionToKey[selectedTabPos] = rightTabKey;
+                    positionToKey[rightTabPos] = d.key;
+
+                    // Update physical location of the left tab.
+                    snapToLocation = rightTabData.restingX;
+                    rightTabData.restingX -= (curveWidth + tabWidth);
+                    transition_tab(rightTab);
                 }
             }
 
