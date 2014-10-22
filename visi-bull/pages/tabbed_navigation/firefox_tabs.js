@@ -112,7 +112,7 @@ $(document).ready(function()
     // Create the tabs.
     var selectedTabKey = 0;
     var selectedTab;
-    create_tabs();
+    update_tabs();
 
     // Add the tab navigator behaviour.
     tabNavigator.on("click", function()
@@ -143,71 +143,101 @@ $(document).ready(function()
             positionToKey[numberOfTabs] = currentKey;
             currentKey++;
 
-            // Determine desired size of tabs.
+            // Update all the tab data and add the new tab.
             numberOfTabs++;
-            var idealTabWidth = (svgWidth - tabNavigatorWidth + ((numberOfTabs - 1) * tabOverlap)) / numberOfTabs;
-            console.log(idealTabWidth, tabWidth, Math.max(minTabWidth, Math.min(maxTabWidth, idealTabWidth)));
-            if (idealTabWidth < minTabWidth)
-            {
-                console.log("Need scroll bar for tabs.");
-                tabWidth = Math.max(minTabWidth, Math.min(maxTabWidth, idealTabWidth));
-            }
-            else
-            {
-                tabWidth = Math.max(minTabWidth, Math.min(maxTabWidth, idealTabWidth));
-            }
-
-            // Update all the tab data.
             update_tab_data();
-
-            // Remove all tabs. They will all then be re-added along with the new tab, this is a fairly simple way of adding the new tab.
-            // The alternative is to deal with enter and update selections separately.
-            tabSet.selectAll(".tab-container").remove();
-
-            // Add the new tab.
             selectedTabKey = (numberOfTabs === 1) ? currentKey - 1 : selectedTab.datum().key;
-            create_tabs();
+            update_tabs();
         });
-
-    /************************************************
-    * Update Data Used To Position And Display Tabs *
-    ************************************************/
-    function update_tab_data()
-    {
-        tabPaths = create_tab_paths();
-        for (var i = 0; i < numberOfTabs; i++)
-        {
-            tabData[i].deselected = tabPaths.deselected;
-            tabData[i].selected = tabPaths.selected;
-            tabData[i].deselectedBorder = tabPaths.deselectedBorder;
-            tabData[i].selectedBorder = tabPaths.selectedBorder;
-            tabData[i].restingX = tabNavigatorWidth + (i * tabWidth) - (i * tabOverlap);
-            tabData[i].transX = tabNavigatorWidth + (i * tabWidth) - (i * tabOverlap);
-        }
-        closeButtonStartX = tabWidth - (2 * tabOverlap) - (2 * closeButtonRadius);
-    }
 
     /***************************************************
     * Create/Update The SVG Elements For A Set Of Tabs *
     ***************************************************/
-    function create_tabs()
+    function update_tabs()
+    {
+        // Update and adds tabs. This is done in two steps. The first step is to append and size all elements needed to create a tab.
+        // This first step will only affect the .enter() portion of the selection (i.e. newly added tabs).
+        // The second step is to update the position and appearance (i.e. paths) of all tabs. This will be done on the .update() portion of
+        // the selection following the appends to the .enter() portion. Doing operations in this order causes the .update() portion to contain
+        // all elements that would be in the .enter() selection (i.e. the .update() portion becomes in effect the .enter() + .update()).
+
+        // Select tab containers and bind data.
+        var tabSelection = tabSet.selectAll(".tab-container")
+            .data(tabData, function(d) { return d.key; });
+
+        // Add the new tabs.
+        create_tabs(tabSelection);
+
+        /***********************************************
+        * Update Positioning Of All Tabs (New And Old) *
+        ***********************************************/
+        // Update all tabs (new and old).
+        // Update tab and tab paths and positions.
+        tabSelection.attr("transform", function(d) { return "translate(" + d.restingX + "," + d.transY + ")"; });
+        tabSelection.selectAll(".tab").attr("d", function(d) { return (d.key === selectedTabKey) ? d.selected : d.deselected; });
+        // Update tab borders.
+        tabSelection.selectAll(".tab-border")
+            .attr("d", function(d) { return (d.key === selectedTabKey) ? d.selectedBorder : d.deselectedBorder; });
+        tabSelection.selectAll(".clip-border").selectAll("path").attr("d", function(d) { return (d.key === selectedTabKey) ? d.selected : d.deselected; });
+        // Update tab clipping.
+        update_tab_clipping(selectedTab.datum());
+        // Update tab content.
+        var tabContentContainers = tabSelection.selectAll(".tab-content")
+            .attr("transform", function(d) { return "translate(" + tabOverlap + ",0)"; })
+        // Update text clipping and fading.
+        tabContentContainers.selectAll(".text-clip-rect")
+            .attr("width", closeButtonStartX);
+        tabContentContainers.each(function(d)
+            {
+                var currentTabContentContainer = d3.select(this);
+                var currentTabText = currentTabContentContainer.select(".tab-text");
+                var currentTextBBox = currentTabText.node().getBBox()
+                var currentTextWidth = currentTextBBox.width;
+                var maxTextWidth = (d.image === "") ? closeButtonStartX : closeButtonStartX - textStartWithIcon;
+
+                if (currentTextWidth > maxTextWidth)
+                {
+                    // If the text is wider than the tab, then create the gradient for the fade.
+                    var fadeStart = (maxTextWidth * 0.7) / currentTextWidth;
+                    var fadeEnd = (maxTextWidth * 1.0) / currentTextWidth;
+                    currentTabContentContainer.select(".grad-start")
+                        .attr("offset", fadeStart);
+                    currentTabContentContainer.select(".grad-end")
+                        .attr("offset", fadeEnd);
+                }
+                else
+                {
+                    // If the text is not wider than the tab, then "hide" the gradient.
+                    var fadeStart = (maxTextWidth * 1.0) / currentTextWidth;
+                    var fadeEnd = (maxTextWidth * 1.0) / currentTextWidth;
+                    currentTabContentContainer.select(".grad-start")
+                        .attr("offset", fadeStart);
+                    currentTabContentContainer.select(".grad-end")
+                        .attr("offset", fadeEnd);
+                }
+            });
+        // Update close button position.
+        tabContentContainers.selectAll(".close-button")
+            .attr("transform", function() { return "translate(" + closeButtonStartX + ",0)"; });
+
+        // Transition all tabs to their resting positions.
+        tabSelection.each(function() { transition_tab(d3.select(this)); });
+    }
+
+    function create_tabs(tabSelection)
     {
         // Create the new tabs.
-        var tabContainers = tabSet.selectAll(".tab-container")
-            .data(tabData, function(d) { return d.key; })
+        var tabContainers = tabSelection
             .enter()
             .append("g")
             .attr("id", function(d) { return "tab-container-firefox-" + d.key; })
-            .classed("tab-container", true)
-            .attr("transform", function(d) { return "translate(" + d.restingX + "," + d.transY + ")"; });
+            .classed("tab-container", true);
         tabContainers  // Add the tab paths.
             .append("path")
-            .classed("tab", true)
-            .attr("d", function(d) { return (d.key === selectedTabKey) ? d.selected : d.deselected; });
+            .classed("tab", true);
         var tabBorders = tabContainers  // Add the tab border paths.
             .append("path")
             .classed("tab-border", true)
-            .attr("d", function(d) { return (d.key === selectedTabKey) ? d.selectedBorder : d.deselectedBorder; })
             .style("stroke-width", tabBorderWidth);
 
         // Select the desired tab.
@@ -216,9 +246,9 @@ $(document).ready(function()
 
         // Create the clip paths for the tab borders (to stop them going outside the tabs at all).
         var borderClipPaths = tabContainers.append("clipPath")
+            .classed("clip-border", true)
             .attr("id", function(d) { return "clip-firefox-border-" + d.key; });
-        borderClipPaths.append("path")
-            .attr("d", function(d) { return (d.key === selectedTabKey) ? d.selected : d.deselected; });
+        borderClipPaths.append("path");
         tabBorders.attr("clip-path", function(d) { return "url(#clip-firefox-border-" + d.key + ")"; });
 
         // Create the clip paths for the new tabs.
@@ -227,7 +257,6 @@ $(document).ready(function()
         var clipTabs = clips.append("path")
             .classed("clip-tab", true)
             .attr("d", "");
-        update_tab_clipping(selectedTab.datum());
         tabContainers.attr("clip-path", function(d) { return "url(#clip-firefox-" + d.key + ")"; });
 
         // Setup the drag behaviour of the tabs. Have to set the origin properly, so that the x and y positions of the drag event are placed correctly
@@ -242,8 +271,7 @@ $(document).ready(function()
         // Add the containers for the tab content.
         var tabContentContainers = tabContainers
             .append("g")
-            .classed("tab-content", true)
-            .attr("transform", function(d) { return "translate(" + tabOverlap + ",0)"; });
+            .classed("tab-content", true);
 
         // Add the favicon type icon to each tab that is meant to have one.
         var tabIcons = tabContentContainers.filter(function(d) { return d.image !== ""; }).append("g")  // Filter out tabs without an icon (where image is "").
@@ -272,9 +300,9 @@ $(document).ready(function()
         tabContentContainers.append("clipPath")
             .attr("id", function(d) { return "clip-text-firefox-" + d.key; })
             .append("rect")
+                .classed("text-clip-rect", true)
                 .attr("x", 0)
                 .attr("y", 0)
-                .attr("width", closeButtonStartX)
                 .attr("height", tabHeight);
         var tabTextElements = tabContentContainers
             .append("text")
@@ -320,7 +348,6 @@ $(document).ready(function()
         // Add the close button to each tab. In order to prevent clicking and dragging on the close button moving the tab, a drag handler that
         // prevents event propagation is needed, in order to prevent the drag on the tab container being fired by a mousedown on the close button.
         var closeButtons = tabContentContainers.append("g")
-            .attr("transform", function() { return "translate(" + closeButtonStartX + ",0)"; })
             .classed("close-button", true);
         var closeDrag = d3.behavior.drag()
             .on("dragstart", function() { d3.event.sourceEvent.stopPropagation(); });
@@ -365,19 +392,14 @@ $(document).ready(function()
 
                 // Update all mappings from position to key and from key to position.
                 var posOfClickedTab = keyToPosition[dataOfClickedTab.key];
-                for (var i = 0; i < numberOfTabs; i++)
+                for (var j = 0; j < numberOfTabs; j++)
                 {
-                    if (posOfClickedTab < i)
+                    if (posOfClickedTab < j)
                     {
                         // If the clicked tab is in a position to the left of the one currently being checked.
-                        var currentTabKey = positionToKey[i];
-                        positionToKey[i - 1] = positionToKey[i];
-                        keyToPosition[currentTabKey] = i - 1;
-
-                        // Transition the current tab one position to the left.
-                        var currentTab = tabSet.select("#tab-container-firefox-" + currentTabKey);
-                        currentTab.datum().restingX -= (tabWidth - tabOverlap);
-                        transition_tab(currentTab);
+                        var currentTabKey = positionToKey[j];
+                        positionToKey[j - 1] = positionToKey[j];
+                        keyToPosition[currentTabKey] = j - 1;
                     }
                 }
                 delete positionToKey[numberOfTabs - 1];
@@ -386,7 +408,53 @@ $(document).ready(function()
                 // Remove the tab that had its close button clicked.
                 tabToClose.node().remove();
                 numberOfTabs--;
+
+                // Update the locations of the tabs and their dimensions.
+                var entryToRemove = 0;
+                for (var j = 0; j < numberOfTabs; j++)
+                {
+                    entryToRemove = (tabData[j].key === dataOfClickedTab.key) ? j : entryToRemove;
+                }
+                tabData.splice(entryToRemove, 1);
+                update_tab_data();
+                if (numberOfTabs > 0) update_tabs();
             });
+    }
+
+    /************************************************
+    * Update Data Used To Position And Display Tabs *
+    ************************************************/
+    function update_tab_data()
+    {
+        // Determine desired size of tabs.
+        var idealTabWidth = (svgWidth - tabNavigatorWidth + ((numberOfTabs - 1) * tabOverlap)) / numberOfTabs;
+        if (idealTabWidth < minTabWidth)
+        {
+            console.log("Need scroll bar for tabs.");
+            tabWidth = Math.max(minTabWidth, Math.min(maxTabWidth, idealTabWidth));
+        }
+        else
+        {
+            tabWidth = Math.max(minTabWidth, Math.min(maxTabWidth, idealTabWidth));
+        }
+
+        // Update the position where the close tab button goes.
+        closeButtonStartX = tabWidth - (2 * tabOverlap) - (2 * closeButtonRadius);
+
+        // Create new paths.
+        tabPaths = create_tab_paths();
+
+        // Update data with new tab paths and resting position.
+        for (var i = 0; i < numberOfTabs; i++)
+        {
+            var tabIPosition = keyToPosition[tabData[i].key]
+            tabData[i].deselected = tabPaths.deselected;
+            tabData[i].selected = tabPaths.selected;
+            tabData[i].deselectedBorder = tabPaths.deselectedBorder;
+            tabData[i].selectedBorder = tabPaths.selectedBorder;
+            tabData[i].restingX = tabNavigatorWidth + (tabIPosition * tabWidth) - (tabIPosition * tabOverlap);
+            //tabData[i].transX = tabNavigatorWidth + (tabIPosition * tabWidth) - (tabIPosition * tabOverlap);
+        }
     }
 
     /******************
