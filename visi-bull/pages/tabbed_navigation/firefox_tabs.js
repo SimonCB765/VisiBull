@@ -16,7 +16,7 @@ $(document).ready(function()
 
     // Tab dimensions.
     var maxTabWidth = 150;  // The maximum width that the tabs can take.
-    var minTabWidth = 100;  // The minimum width that a tab can take.
+    var minTabWidth = 120;  // The minimum width that a tab can take.
     var tabWidth = maxTabWidth;  // The width of each tab.
     var tabHeight = 31;  // The height of each tab. An odd number helps to get lines to line up on the half pixel (making them more clean and crisp).
     var curveWidth = 20;  // The width of the curved region of the selected tab.
@@ -83,9 +83,9 @@ $(document).ready(function()
     **************************/
     // Generate the data for the tabs.
     var tabData = [];
+    var tabPaths = create_tab_paths();
     for (var i = 0; i < numberOfTabs; i++)
     {
-        var tabPaths = create_tab_paths();
         tabData.push(
             {
                 // Unique identifier for the tab.
@@ -112,17 +112,15 @@ $(document).ready(function()
     // Create the tabs.
     var selectedTabKey = 0;
     var selectedTab;
-    create_tabs(tabData, selectedTabKey);
+    create_tabs();
 
     // Add the tab navigator behaviour.
     tabNavigator.on("click", function()
         {
             // Get the current data for the tabs.
-            var tabData = tabSet.selectAll(".tab-container").data();
-            console.log(tabData);
+            tabData = tabSet.selectAll(".tab-container").data();
 
-            // Add the new tabs data.
-            var tabPaths = create_tab_paths();
+            // Create the new tab data.
             tabData.push(
                 {
                     // Unique identifier for the tab.
@@ -145,15 +143,54 @@ $(document).ready(function()
             positionToKey[numberOfTabs] = currentKey;
             currentKey++;
 
-            // Add the new tab.
-            create_tabs(tabData, selectedTab.datum().key);
+            // Determine desired size of tabs.
             numberOfTabs++;
+            var idealTabWidth = (svgWidth - tabNavigatorWidth + ((numberOfTabs - 1) * tabOverlap)) / numberOfTabs;
+            console.log(idealTabWidth, tabWidth, Math.max(minTabWidth, Math.min(maxTabWidth, idealTabWidth)));
+            if (idealTabWidth < minTabWidth)
+            {
+                console.log("Need scroll bar for tabs.");
+                tabWidth = Math.max(minTabWidth, Math.min(maxTabWidth, idealTabWidth));
+            }
+            else
+            {
+                tabWidth = Math.max(minTabWidth, Math.min(maxTabWidth, idealTabWidth));
+            }
+
+            // Update all the tab data.
+            update_tab_data();
+
+            // Remove all tabs. They will all then be re-added along with the new tab, this is a fairly simple way of adding the new tab.
+            // The alternative is to deal with enter and update selections separately.
+            tabSet.selectAll(".tab-container").remove();
+
+            // Add the new tab.
+            selectedTabKey = (numberOfTabs === 1) ? currentKey - 1 : selectedTab.datum().key;
+            create_tabs();
         });
+
+    /************************************************
+    * Update Data Used To Position And Display Tabs *
+    ************************************************/
+    function update_tab_data()
+    {
+        tabPaths = create_tab_paths();
+        for (var i = 0; i < numberOfTabs; i++)
+        {
+            tabData[i].deselected = tabPaths.deselected;
+            tabData[i].selected = tabPaths.selected;
+            tabData[i].deselectedBorder = tabPaths.deselectedBorder;
+            tabData[i].selectedBorder = tabPaths.selectedBorder;
+            tabData[i].restingX = tabNavigatorWidth + (i * tabWidth) - (i * tabOverlap);
+            tabData[i].transX = tabNavigatorWidth + (i * tabWidth) - (i * tabOverlap);
+        }
+        closeButtonStartX = tabWidth - (2 * tabOverlap) - (2 * closeButtonRadius);
+    }
 
     /***************************************************
     * Create/Update The SVG Elements For A Set Of Tabs *
     ***************************************************/
-    function create_tabs(tabData, selectedTabKey)
+    function create_tabs()
     {
         // Create the new tabs.
         var tabContainers = tabSet.selectAll(".tab-container")
@@ -320,6 +357,7 @@ $(document).ready(function()
                     var newSelectedPos = (selectedPos === 0) ? 1 : selectedPos - 1;
                     var keyOfNewSelected = positionToKey[newSelectedPos];
                     selectedTab.classed("selected", false);
+                    selectedTabKey = keyOfNewSelected;
                     selectedTab = tabSet.select("#tab-container-firefox-" + keyOfNewSelected);
                     update_tab_clipping(selectedTab.datum());
                     selectedTab.classed("selected", true);
@@ -413,9 +451,10 @@ $(document).ready(function()
                     config.leftTabXPos = tabSet.select("#tab-container-firefox-" + positionToKey[currentTabPos - 1]).datum().transX;
                     config.rightTabXPos = selectedTabData.transX;
                 }
-                else
+                else if (numberOfTabs > 1)
                 {
-                    // All other tabs should just have their left portion clipped.
+                    // All other tabs should just have their left portion clipped, unless there is only one tab. If there is a single tab, then
+                    // it needs no clipping.
                     config.leftTabXPos = tabSet.select("#tab-container-firefox-" + positionToKey[currentTabPos - 1]).datum().transX;
                 }
                 return create_clip_tab_path(clipD.transX, config);
