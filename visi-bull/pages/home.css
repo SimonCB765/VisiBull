@@ -6,17 +6,15 @@ _footer     -> style declarations for the <footer> tag
 _classes    -> style declarations for specific classes.
 */
 
-/* Reset all padding and margins. */
-* {margin: 0; padding: 0;}
-
 /*
 _element
 */
+* {margin: 0; padding: 0;}  /* Reset all padding and margins. */
 html {min-width: 1040px;}
 body {background-color: #F8F8F8; color: #222222; font-family: "Segoe UI", sans-serif; margin: .5em auto; width: 960px;}
 p {margin: 1em 0}
 a {color: #FF0066; font-weight: bold;}
-a:not(:hover) {text-decoration: none;}
+a:not(:hover) {text-decoration: none;}  /* Remove the underline that would normally be present on links (except when hovered over). */
 
 /*
 _header
@@ -33,4 +31,4 @@ footer a {font-style: oblique; font-weight: bold;}
 /*
 _classes
 */
-.date {color: #0099FF; font-size: 14px; font-style: oblique; font-weight: bold; letter-spacing: 2px;}
+.date {color: #0099FF; font-size: 14px; font-style: oblique; font-weight: bold; letter-spacing: 2px;}  /* Styling for dates. */
