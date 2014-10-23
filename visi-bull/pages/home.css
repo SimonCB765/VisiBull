@@ -37,8 +37,15 @@ _classes
 /*
 _code
 */
-pre.code {border-left: solid 2px black; font-size: 125%; margin: 1em 0 1em -1em; padding-left: 12px;}
-.html .attribute {color: red;}  /* Styling for the attribute name in an html/svg tag. */
-.html .element {color: blue;}  /* Styling for the element name in an html/svg tag (e.g. the rect in <rect ...>. */
-.html .tag {color: black;}  /* Styling for an entire <...> tag. */
-.html .value {color: #AE2DE3;}  /* Styling for the value of an attribute in an html/svg tag. */
+code {color: black;}  /* Default styling for all code. */
+code.css .attribute {color: #AE2DE3;}  /* Styling for a CSS attribute name. */
+code.css .class {color: red;}  /* Styling for a CSS class name. */
+code.css .element {color: blue;}  /* Styling for a CSS element name in an html/svg tag (e.g. the rect in <rect ...>. */
+code.html .attribute {color: red;}  /* Styling for the attribute name in an html/svg tag. */
+code.html .element {color: blue;}  /* Styling for the element name in an html/svg tag (e.g. the rect in <rect ...>. */
+code.html .value {color: #AE2DE3;}  /* Styling for the value of an attribute in an html/svg tag. */
+code.javascript .comment {color: green;}  /* Style javascript comments. */
+code.javascript .keyword {color: blue;}  /* Style javascript keywords. */
+code.javascript .number {color: red;}  /* Style javascript numbers. */
+code.javascript .string {color: #AE2DE3;}  /* Style javascript strings. */
+pre.code {border-left: solid 2px black; font-size: 125%; margin: 1em 0 1em -1em; padding-left: 12px;}  /* Style blocks of code. */
