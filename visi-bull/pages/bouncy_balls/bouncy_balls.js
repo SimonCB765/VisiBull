@@ -8,17 +8,20 @@ var bucketGap = 100;  // The gap at the right of the SVG element for the ball bu
 var sliderGap = 50;  // The gap at the bottom of the SVG element for the slider.
 var containerWidth = svgWidth - bucketGap;  // The width of the container that will contain the balls.
 var containerHeight = svgHeight - sliderGap;  // The height of the container that will contain the balls.
-var colors = ["#000000", "#00FFFF", "#00FF00", "#00FF7B", "#FFAF1A", "#FF008C", "#AE2DE3", "#FFFF00"];
+var colors = ["#000000", "#00FFFF", "#00FF00", "#00FF7B", "#FFAF1A", "#FF008C", "#AE2DE3", "#FFFF00"];  // The potential colors for each ball.
 
 // Create the SVG element.
-var svg = create_SVG("div.content");
+var svg = d3.select("div.content")
+    .append("svg")
+        .attr("width", svgWidth)
+        .attr("height", svgHeight);
 
 // Create the container in which the balls will bounce around.
 var ballBox = svg.append("g")
     .classed("ballContainer", true)
     .attr("transform", "translate(1, 1)")  // Shift of one down and right to enable the border of the ball container to show properly at the top and left.
     .on("click", fire_ball);  // Setup the clicking on the background.
-ballBox.append("rect")
+ballBox.append("rect")  // Add the border to show the boundary in which the balls can bounce.
     .classed("ballBoundingSquare", true)
     .attr("width", containerWidth)
     .attr("height", containerHeight);
@@ -33,14 +36,14 @@ var speedScale = d3.scale.linear()  // Scale used to map position on the slider 
     .domain([0, 3])
     .range([0, sliderMax])
     .clamp(true);
-create_slider(svg, sliderOffset, sliderMax, speedScale)
+create_slider()
 
 // Create the bucket to contain the balls that have been clicked on.
 var bucketWidth = (2 * (ballRadius + 2));  // Width of the bucket.
 var bucketOffsetX = containerWidth + ((bucketGap - bucketWidth) / 2);  // Offset of the bucket's top left corner from the left of the SVG element.
 var bucketOffsetY = 50;  // Offset of the bucket's top left corner from the top of the SVG element.
 var bucketHeight = containerHeight - (2 * bucketOffsetY);  // Height of the bucket.
-var clickedBallBucket = create_bucket(svg, bucketWidth, bucketHeight, bucketOffsetX, bucketOffsetY, numberOfBalls, ballRadius);
+var clickedBallBucket = create_bucket();
 
 // Setup the loop to animate the balls.
 d3.timer(function()
@@ -60,7 +63,7 @@ var ballDrag = d3.behavior.drag()
     .on("dragstart", ball_drag_start)
     .on("drag", ball_drag_update)
     .on("dragend", ball_drag_end);
-var noBallDrag = d3.behavior.drag()  // Used to remove all drag listeners from the balls.
+var noBallDrag = d3.behavior.drag()  // Used to remove all drag listeners from the balls when they're placed in the bucket.
     .origin(function(d) {return d;})
     .on("dragstart", null)
     .on("drag", null)
@@ -153,7 +156,7 @@ function ball_drag_update(d)
         .attr("cy", d.y = Math.max(ballRadius, Math.min(containerHeight - ballRadius, ballPosY)));
 }
 
-function create_bucket(svg, bucketWidth, bucketHeight, bucketOffsetX, bucketOffsetY, numberOfBalls, ballRadius)
+function create_bucket()
 {
     // Determine the gap between ball centers when they're stacked in the bucket.
     var ballCenterGap = Math.min((bucketHeight / numberOfBalls), 2 * ballRadius);
@@ -174,7 +177,7 @@ function create_bucket(svg, bucketWidth, bucketHeight, bucketOffsetX, bucketOffs
     return {"inBucket" : [], "bucket" : bucketBox, "ballCenterGap" : ballCenterGap};
 }
 
-function create_slider(svg, sliderOffset, sliderMax, speedScale)
+function create_slider()
 {
     // Create the g element for holding the speed slider.
     var speedSliderBox = svg.append("g")
@@ -200,14 +203,12 @@ function create_slider(svg, sliderOffset, sliderMax, speedScale)
         .call(speedScaleAxis)
     speedScaleAxisContainer.select(".domain")  // Select the path with the domain class that is created along with the axis.
         .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })  // Clone the domain class path...
-        .attr("class", "halo");  // ...and set the class of the newly cloned path (enables the .domain to act as a little shadow around the .halo path).
+        .classed("halo", true);  // ...and set the class of the newly cloned path (enables the .domain to act as a little shadow around the .halo path).
     var speedSliderLabel = speedSliderBox.append("text")
+        .classed("speed-text", true)
         .text("Speed")
         .attr("x", sliderOffset / 2)
-        .attr("y", sliderGap / 2)
-        .style("font-weight", 700)
-        .style("dominant-baseline", "middle")
-        .style("stroke-width", 0);  // Stroke width to 0 in order to make the text crisper.
+        .attr("y", sliderGap / 2);
 
     // Add the speed slider handle.
     var handleRadius = 8;  // The radius of the circle used as the speed slider handle.
@@ -218,37 +219,25 @@ function create_slider(svg, sliderOffset, sliderMax, speedScale)
         .attr("cx", function(d) { return d.x; })
         .attr("cy", function(d) { return d.y; })
         .call(drag);
-    handle.transition()  // Unnecessary intro transition.
+    handle.transition()  // Unnecessary intro transition to get the handle to a speed of 100%.
         .duration(1000)
         .attr("cx", function(d) { d.x = speedScale(1); return d.x; });
 }
 
-function create_SVG(selectionString)
-{
-    var containerDiv = d3.select(selectionString);
-    var svg = containerDiv.append("svg")
-        .attr("width", svgWidth)
-        .attr("height", svgHeight);
-    return svg;
-}
-
 function fire_ball()
 {
-    //d3.event.sourceEvent.stopPropagation(); // Silence any other listeners.
     if (clickedBallBucket.inBucket.length > 0)
     {
         // If there is a ball in the bucket.
         var ballToFire = clickedBallBucket.inBucket.pop();
         ballToFire.transition();  // Empty transition to kill any that are currently active on the ball.
 
-        console.log(d3.event.offsetX, d3.event.layerX, d3.event.offsetY, d3.event.layerY, d3.mouse(this));
-
         // Remove ball from the bucket and add it to the bouncy container.
-        ballToFire.remove();  // Selection.remove() removes the selected elements from the DOM.
-        d3.select(this).append(function() { return ballToFire[0][0]; });  // The removed elements can then be added back through the use of a function with append.
+        ballToFire.remove();  // selection.remove() removes the selected elements from the DOM.
+        d3.select(this).append(function() { return ballToFire.node(); });  // The removed elements can then be added back through the use of a function with append.
         ballData = ballToFire.datum();
-        ballData.x = d3.mouse(this)[0];  // Could also use d3.event.offsetX if the browser supports it.
-        ballData.y = d3.mouse(this)[1];  // Could also use d3.event.offsetY if the browser supports it.
+        ballData.x = d3.mouse(this)[0];
+        ballData.y = d3.mouse(this)[1];
         ballData.angle = 1.35;
         ballData.speed = baseBallSpeed;
         ballToFire
@@ -261,8 +250,11 @@ function fire_ball()
     }
 }
 
-function initiliase_balls(svg)
+function initiliase_balls()
 {
+    // Generate the initial position, color and direction of all balls. Balls are not allowed to overlap initially. This is ensured
+    // by checking the distance between the proposed location of a new ball's center, and the center of all balls that already
+    // have their initial position determined.
     var ballData = [];
     for (var i = 0; i < numberOfBalls; i++)
     {
@@ -289,6 +281,7 @@ function initiliase_balls(svg)
         ballData.push({"x" : ballXLoc, "y" : ballYLoc, "color" : ballColor, "angle" : ballDirection, "speed" : baseBallSpeed});
     }
 
+    // Create the balls.
     var balls = svg.selectAll("circle")
         .data(ballData)
         .enter()

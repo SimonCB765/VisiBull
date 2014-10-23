@@ -1,17 +1,22 @@
 /*
 Contents:
+_element    -> style declarations for all elements of a given type (html, body, table, all p tags etc.).
 _classes    -> style declarations for specific classes.
 */
 
+/*
+_element
+*/
+svg {cursor: default;}  /* Always keep the cursor as a pointer. */
 
 /*
 _classes
 */
-svg .ball {stroke: none;}
-svg .ballBoundingSquare {fill-opacity : 0; stroke : black; stroke-width : 1;}
-svg .bucket {fill-opacity : 0; stroke : black; stroke-width : 3;}
-svg .domain {fill : none; stroke : black; stroke-linecap : round; stroke-width : 13;}
-svg .halo {fill : none; stroke : #FF008C; stroke-linecap : round; stroke-width : 7;}
-svg .handle {fill : white; stroke : black; stroke-width : 2}
-svg .sliderBox {stroke : #3A3A3B;}
-svg .xAxis {stroke: none;}  /* Set stroke width to 0 in order to make the text crisper. */
+svg .ball {stroke: none;}  /* No border surrounding the balls. */
+svg .ballBoundingSquare {fill-opacity: 0; stroke: black; stroke-width: 1;}  /* Style the square inside which the balls bounce. */
+svg .bucket {fill-opacity: 0; stroke: black; stroke-width: 3;}  /* Style the border of the bucket into which the balls drop. */
+svg .domain {fill: none; stroke: black; stroke-linecap: round; stroke-width: 13;}  /* Speed slider outer boundary styling. */
+svg .halo {fill: none; stroke: #FF008C; stroke-linecap: round; stroke-width: 7;}  /* Speed slider inner line styling. */
+svg .handle {fill: white; stroke: black; stroke-width: 2}  /* Style the circle used as the speed slider handle. */
+svg .speed-text {dominant-baseline: middle; font-weight: 700; stroke: none;}  /* Style the 'Speed' label for the slider. */
+svg .xAxis {stroke: none;}  /* Set stroke width to 0 in order to make the axis text crisper. */

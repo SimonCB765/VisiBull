@@ -14,7 +14,83 @@
 {% block content %}
 <!--Block for including the content of the page within the div.content tag.-->
 <script type="text/javascript" src="{{ url_for('static', filename='bouncy_balls/bouncy_balls.js') }}"></script>
-<br><br><br><br>
-<p>TODO: add some descriptive text and improve JS comments.</p>
-<p>Text in the SVG element ('Speed' and tick marks) made crisp by setting stroke-width to 0.</p>
+<br><br><br>
+<h3>Controls</h3>
+<p>
+    Balls bounce around their enclosure using their individual speed and angle of movement.
+    When they hit a wall, their angle of movement is recomputed in order to ensure that they bounce off the wall at the apropriate angle.
+</p>
+<p>
+    The balls can be interacted with through clicking on them or dragging and releasing them.
+    If you click on a ball, then it will be placed in the bucket to the left of the enclosure.
+    Clicking inside the enclosure will shoot a ball out of the mouse tip, if there is a ball in the bucket.
+    Balls can be dragged and released to 'throw' them around the box.
+    The speed with which you release the ball determines the speed at which it moves following its release.
+</p>
+<br>
+<h3>Dragging and Clicking</h3>
+<p>
+    The ability to both drag and click a ball was achieved by recording the number of drag update calls made during an entire drag event.
+    If this number was less than two, then a click was assumed to have been performed.
+    Allowing zero or one drag updates to both count as clicks gives a little leeway in case you accidentally moved slightly during the click.
+</p>
+<br>
+<h3>Crisp SVG Text</h3>
+<p>
+    Text ('Speed' and the tick marks) was made crisper by setting the <code class="html"><span class="attribute">stroke</span></code> attribute to
+    <code class="html"><span class="value">"none"</span></code> in the text element tags, and using only the
+    <code class="html"><span class="attribute">fill</span></code> attribute to style the text.
+</p>
+<br>
+<h3>Moving Balls Between the Enclosure and Bucket</h3>
+<p>
+    Balls are transitioned between the enclosure and the bucket by removing them from the DOM and then adding them back.
+    This can be achieved by:
+    <pre class="code"><code class="javascript"><span class="keyword">var</span> ball = ...  <span class="comment">// Select the ball to move.</span>
+ball.remove();
+<span class="keyword">var</span> target = ...  <span class="comment">// Select either the enclosure or bucket.</span>
+target.append(<span class="keyword">function</span>() { <span class="keyword">return</span> ball.node(); });</code></pre>
+    where <code class="javacsript">target</code> is the enclosure (if moving the ball from the bucket to the enclosure) or the bucket (if
+    moving the ball in the opposite direction).
+    The ball is removed from the DOM using <a href="https://github.com/mbostock/d3/wiki/Selections#remove"><code class="javacsript">selection.remove()</code></a>,
+    and can then be added back through the use of a function when you're appending.
+</p>
+<p>
+    Balls that are in the bucket need the made undraggable. This is done by giving them new drag behaviour when they're added to the bucket.
+    The new behaviour causes dragging the balls to do nothing, and is implemented as:
+    <pre class="code"><code class="javascript">d3.behavior.drag()
+    .origin(<span class="keyword">function</span>(d) {<span class="keyword">return</span> d;})
+    .on(<span class="string">"dragstart"</span>, null)
+    .on(<span class="string">"drag"</span>, null)
+    .on(<span class="string">"dragend"</span>, null);</code></pre>
+</p>
+<p>On returning the ball to the enclosure, the drag behaviour can be reverted to the appropriate behaviour for a bouncing ball.</p>
+<br>
+<h3>Bucket Outline</h3>
+<p>
+    The bucket that the balls are placed in after being clicked on is created using <code class="html"><span class="attribute">stroke-dasharray</span></code>
+    and <code class="html"><span class="attribute">stroke-dashoffset</span></code> attributes to style the border of the rectangle that defines the bucket.
+    A polyline or manually created three sided path could be used instead.
+</p>
+<br>
+<h3>Slider Bar</h3>
+<p>
+    The slider bar is a styled axis with an additional path added. The original path that creates the line for an axis is:
+    <pre class="code"><code class="html"><<span class="element">path</span> <span class="attribute">class</span>=<span class="value">"domain"</span> <span class="attribute">d</span>=<span class="value">"..."</span>></code></pre>
+    This gives you a path that you can style as follows to get the outer pinkish red color:
+    <pre class="code"><code class="html"><span class="element">svg</span> <span class="class">.domain</span> {<span class="attribute">fill</span>: none; <span class="attribute">stroke</span>: black; <span class="attribute">stroke-linecap</span>: round; <span class="attribute">stroke-width</span>: 13;}</code></pre>
+    The inner black bar for the slider is added by:
+    <pre class="code"><code class="javascript">axis.select(<span class="string">".domain"</span>)  <span class="comment">// Select the path with the domain class that is created along with the axis.</span>
+    .select(<span class="keyword">function</span>() { <span class="keyword">return</span> <span class="keyword">this</span>.parentNode.appendChild(<span class="keyword">this</span>.cloneNode(<span class="keyword">true</span>)); })  <span class="comment">// Clone domain and select clone.</span>
+    .classed(<span class="string">"halo"</span>, <span class="keyword">true</span>);</code></pre>
+    The new path is then styled as follow:
+    <pre class="code"><code class="html"><span class="element">svg</span> <span class="class">.halo</span> {<span class="attribute">fill</span>: none; <span class="attribute">stroke</span>: #FF008C; <span class="attribute">stroke-linecap</span>: round; <span class="attribute">stroke-width</span>: 7;}</code></pre>
+    While the ideal naming could have the <code class="html"><span class="class">.domain</span></code> class being the inner black portion of the slide bar,
+    as the axis <code class="html"><span class="class">.domain</span></code> path is added first it will appear behind the
+    <code class="html"><span class="class">.halo</span></code> path, and therefore must be styled as the outer pinkish red portion.
+    Alternatively, the <code class="html"><span class="class">.halo</span></code> path could be inserted before the
+    <code class="html"><span class="class">.domain</span></code> path, in which case it would appear behind the
+    <code class="html"><span class="class">.domain</span></code> path, and the stylings for the classes could be swapped (and the class names would be
+    more logical).
+</p>
 {% endblock %}
