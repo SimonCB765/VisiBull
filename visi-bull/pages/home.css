@@ -4,6 +4,7 @@ _element    -> style declarations for all elements of a given type (html, body, 
 _header     -> style declarations for the <header> tag
 _footer     -> style declarations for the <footer> tag
 _classes    -> style declarations for specific classes.
+_code		-> style declarations for code blocks.
 */
 
 /*
@@ -32,3 +33,12 @@ footer a {font-style: oblique; font-weight: bold;}
 _classes
 */
 .date {color: #0099FF; font-size: 14px; font-style: oblique; font-weight: bold; letter-spacing: 2px;}  /* Styling for dates. */
+
+/*
+_code
+*/
+pre.code {border-left: solid 2px black; font-size: 125%; margin: 1em 0 1em -1em; padding-left: 12px;}
+.html .attribute {color: red;}  /* Styling for the attribute name in an html/svg tag. */
+.html .element {color: blue;}  /* Styling for the element name in an html/svg tag (e.g. the rect in <rect ...>. */
+.html .tag {color: black;}  /* Styling for an entire <...> tag. */
+.html .value {color: #AE2DE3;}  /* Styling for the value of an attribute in an html/svg tag. */
