@@ -17,6 +17,6 @@ svg .ballBoundingSquare {fill-opacity: 0; stroke: black; stroke-width: 1;}  /* S
 svg .bucket {fill-opacity: 0; stroke: black; stroke-width: 3;}  /* Style the border of the bucket into which the balls drop. */
 svg .domain {fill: none; stroke: black; stroke-linecap: round; stroke-width: 13;}  /* Speed slider outer boundary styling. */
 svg .halo {fill: none; stroke: #FF008C; stroke-linecap: round; stroke-width: 7;}  /* Speed slider inner line styling. */
-svg .handle {fill: white; stroke: black; stroke-width: 2}  /* Style the circle used as the speed slider handle. */
+svg .handle {fill: white; stroke: black; stroke-width: 2;}  /* Style the circle used as the speed slider handle. */
 svg .speed-text {dominant-baseline: middle; font-weight: 700; stroke: none;}  /* Style the 'Speed' label for the slider. */
 svg .xAxis {stroke: none;}  /* Set stroke width to 0 in order to make the axis text crisper. */

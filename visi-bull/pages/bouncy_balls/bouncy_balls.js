@@ -31,12 +31,12 @@ var balls = initiliase_balls(ballBox);
 
 // Create the speed slider.
 var sliderOffset = 150;  // Offset of the slider's left end from the left of the SVG element.
-var sliderMax = containerWidth - (2 * sliderOffset)  // Offset of the slider's right end from the left of the SVG element
+var sliderMax = containerWidth - (2 * sliderOffset);  // Offset of the slider's right end from the left of the SVG element
 var speedScale = d3.scale.linear()  // Scale used to map position on the slider to speed of ball movement.
     .domain([0, 3])
     .range([0, sliderMax])
     .clamp(true);
-create_slider()
+create_slider();
 
 // Create the bucket to contain the balls that have been clicked on.
 var bucketWidth = (2 * (ballRadius + 2));  // Width of the bucket.
@@ -102,7 +102,7 @@ function ball_drag_end(d)
         var lastPos = dragBuffer.slice(-1)[0];
         var distanceTravelledX = lastPos.x - firstPos.x;
         var distanceTravelledY = lastPos.y - firstPos.y;
-        var distanceTravelledTotal = Math.sqrt((distanceTravelledX * distanceTravelledX) + (distanceTravelledY * distanceTravelledY))
+        var distanceTravelledTotal = Math.sqrt((distanceTravelledX * distanceTravelledX) + (distanceTravelledY * distanceTravelledY));
         var timeTaken = lastPos.time - firstPos.time;
 
         // Determine the new angle of movement.
@@ -200,7 +200,7 @@ function create_slider()
     var speedScaleAxisContainer = speedSliderBox.append("g")
         .classed("xAxis", true)
         .attr("transform", "translate(" + sliderOffset + "," + sliderGap / 2 + ")")
-        .call(speedScaleAxis)
+        .call(speedScaleAxis);
     speedScaleAxisContainer.select(".domain")  // Select the path with the domain class that is created along with the axis.
         .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })  // Clone the domain class path...
         .classed("halo", true);  // ...and set the class of the newly cloned path (enables the .domain to act as a little shadow around the .halo path).
@@ -244,7 +244,7 @@ function fire_ball()
             .datum(ballData)
             .attr("cx", function(d) { return d.x; })
             .attr("cy", function(d) { return d.y; })
-            .call(ballDrag)  // Add drag event listeners.
+            .call(ballDrag);  // Add drag event listeners.
 
         ballToFire.classed({"anim" : true, "inBucket" : false});  // Enable timer animation and record as not in bucket.
     }
@@ -277,7 +277,7 @@ function initiliase_balls()
             }
         }
         var ballColor = colors[Math.floor(Math.random() * colors.length)];
-        var ballDirection = Math.random() * 2
+        var ballDirection = Math.random() * 2;
         ballData.push({"x" : ballXLoc, "y" : ballYLoc, "color" : ballColor, "angle" : ballDirection, "speed" : baseBallSpeed});
     }
 
