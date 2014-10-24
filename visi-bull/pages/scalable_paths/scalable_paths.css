@@ -1,0 +1,26 @@
+/*
+Contents:
+_element    -> style declarations for all elements of a given type (html, body, table, all p tags etc.).
+_classes    -> style declarations for specific classes.
+_slider		-> style declarations for the sliders.
+*/
+
+/*
+_element
+*/
+path {fill: none;}  /* Default to all paths not being filled. */
+svg {outline: thin solid black;}  /* Add a border around the svg. */
+svg {cursor: default; display: block; margin: 0 auto;}  /* Center the SVG and always keep the cursor as a pointer. */
+
+/*
+_classes
+*/
+
+/*
+_slider
+*/
+svg .domain {fill: none; stroke: black; stroke-linecap: round; stroke-width: 13;}  /* Slider outer boundary styling. */
+svg .halo {fill: none; stroke: #FF008C; stroke-linecap: round; stroke-width: 7;}  /* Slider inner line styling. */
+svg .handle {fill: white; stroke: black; stroke-width: 2;}  /* Style the circle used as the slider handle. */
+svg .slider-text {dominant-baseline: middle; font-weight: 700; stroke: none;}  /* Style the label for the slider. */
+svg .axis {stroke: none;}  /* Set stroke width to 0 in order to make the axis text crisper. */
