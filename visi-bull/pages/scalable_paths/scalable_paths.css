@@ -1,8 +1,8 @@
 /*
 Contents:
 _element    -> style declarations for all elements of a given type (html, body, table, all p tags etc.).
-_classes    -> style declarations for specific classes.
-_slider		-> style declarations for the sliders.
+_classes    -> style declarations for specific classes and elements selected by id.
+_slider     -> style declarations for the sliders.
 */
 
 /*
@@ -15,6 +15,8 @@ svg {cursor: default; display: block; margin: 0 auto;}  /* Center the SVG and al
 /*
 _classes
 */
+#view-box-effects svg {display: inline; margin: 0 5px;}
+#view-box-effects svg text {alignment-baseline: middle; font-size: 10px; text-anchor: middle;}
 
 /*
 _slider

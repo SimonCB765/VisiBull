@@ -9,7 +9,7 @@
 
 {% block header %}
 <!--Block for including page specific header information (e.g. page title) within the <header> tag.-->
-<h1 class="pageTitle">Scalable SVG Paths</h1>
+<h1 class="pageTitle">Scaling SVG Elements and Their Contents</h1>
 <span class="date">-- --, 2014</span>
 {% endblock %}
 
@@ -51,6 +51,70 @@
     .attr(<span class="string">"viewBox"</span>, <span class="string">"0 0 "</span> + svgWidth + <span class="string">" "</span> + svgHeight)
     .attr(<span class="string">"preserveAspectRatio"</span>, <span class="string">"..."</span>);
 </code></pre>
+<p>
+    The parameters for the <code class="html"><span class="attribute">viewBox</span></code> attribute are
+    <code class="html"><span class="value">"origin-x origin-y width height"</span></code>. The
+    <code class="html"><span class="value">"origin-x"</span></code> and <code class="html"><span class="value">"origin-y"</span></code>
+    values are used to define the top left corner of the SVG element.
+    For example, the top left corner of an SVG element is usually (0, 0), but if
+    <code class="html"><span class="attribute">viewBox</span>=<span class="value">"10 20 width height"</span></code> is used, then the top left
+    corner becomes (10, 20). In this case any point in the path with X coordinate less than 10 or Y coordinate less than 20 will not be
+    visible in the SVG element (they're outside the 'view').
+</p>
+<p>
+    Similarly, the <code class="html"><span class="value">"width"</span></code> and <code class="html"><span class="value">"height"</span></code>
+    values define the width and height of the 'view'. The coordinates of a point within the SVG element, are therefore mapped to a new coordinate
+    system as defined by the <code class="html"><span class="attribute">viewBox</span></code>. Assuming that the SVG element is defined as having
+    a width of 400 and height of 200, then by setting
+    <code class="html"><span class="attribute">viewBox</span>=<span class="value">"10 20 30 30"</span></code>, you are saying that the 400
+    by 200 pixel SVG element will internally use a coordinate system that goes from (10, 20) to (40, 50).
+    Therefore, each unit used when defining shapes within the SVG will correspond to 400/40 = 10 pixels in width and 200/50 = 4 pixels in height.
+    A rectangle that has its top left corner notionally at (20, 40), will therefore appear to actually have its top left corner located at
+    (200, 160) in the SVG element.
+</p>
+<p>Examples of the effects of changing the <code class="html"><span class="attribute">viewBox</span></code> can be seen below.</p>
+<br>
+<div id="view-box-effects"></div>
+<br>
+<p>In each case the SVG element and diamond are defined as</p>
+<pre class="code"><code class="html"><<span class="element">svg</span> <span class="attribute">width</span>=<span class="value">"175"</span> <span class="attribute">height</span>=<span class="value">"175"</span>>
+    <<span class="element">path</span> <span class="attribute">d</span>=<span class="value">"M0,10L10,20L20,10L10,0Z"</span>>
+&lt;/<span class="element">svg</span>></code></pre>
+<p>
+    The only value that changes between the SVG elements are the values of the <code class="html"><span class="attribute">viewBox</span></code> and
+    <code class="html"><span class="attribute">preserveAspectRatio</span></code> attributes.
+    Therefore, despite the different sizes and shapes of the red diamond, its center is always (10, 10).
+</p>
+<p>
+    In example 1, the <code class="html"><span class="attribute">viewBox</span></code> is left undefined (and therefore is the same as using
+    <code class="html"><span class="attribute">viewBox</span>=<span class="value">"0 0 175 175"</span></code>).
+</p>
+<p>
+    In example 2, the <code class="html"><span class="attribute">viewBox</span></code> attribute is set to be
+    <code class="html"><span class="value">"-10 -10 40 40"</span></code>.
+</p>
+<p>
+    In example 3, the <code class="html"><span class="attribute">viewBox</span></code> attribute is set to be
+    <code class="html"><span class="value">"0 0 20 20"</span></code>.
+</p>
+<p>
+    In example 4, the <code class="html"><span class="attribute">viewBox</span></code> attribute is set to be
+    <code class="html"><span class="value">"0 0 40 80"</span></code>.
+</p>
+<p>
+    In example 5, the <code class="html"><span class="attribute">viewBox</span></code> attribute is set to be
+    <code class="html"><span class="value">"0 0 40 80"</span></code>. This is also the only case where the
+    <code class="html"><span class="attribute">preserveAspectRatio</span></code> attribute is not left as its default value. Instead, it is set to
+    <code class="html"><span class="value">"none"</span></code> to prevent the preserving of the aspect ratio.
+</p>
+<p>
+    The change of coordinate space also effects the text. Although the text is always in the middle of the SVG element, the coordinates of the text
+    are not the same across all SVG elements. For example 1, the coordinates of the text are (175/2, 175/2), for examples 2 and 3 the coordinates are
+    (10, 10) and for examples 4 and 5 the coordinates are (20, 40).
+    The different size of the text in the different SVG elements is caused by the same coordinate space change. The text is defined to be 10px in all
+    SVG elements, but due to the changed coordinate space appears bigger or smaller.
+</p>
+<br><br><br><br>
 <svg id="view-box-scaling" />
 <br>
 <svg id="view-box-sliders" />

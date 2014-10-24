@@ -3,12 +3,14 @@ $(document).ready(function()
     // SVG tag ids.
     var staticPathDemo = "#static-path-demo";
     var staticPathSliders = "#static-sliders";
-	var viewBoxDemo = "#view-box-scaling";
-	var viewBoxSliders = "#view-box-sliders";
+    var viewBoxEffect = "#view-box-effects";
+    var viewBoxDemo = "#view-box-scaling";
+    var viewBoxSliders = "#view-box-sliders";
 
     // Create the demos.
     create_static_path_demo();
-	create_view_box_demo();
+    create_view_box_effect_demo();
+    create_view_box_scaling_demo();
 
     function create_static_path_demo()
     {
@@ -102,7 +104,85 @@ $(document).ready(function()
         create_slider(svgSlider, heightScale, 100, svgSliderHeight / 2, 50, "Height", svgLineHeight, heightDragBehaviour);
     }
 
-    function create_view_box_demo()
+    function create_view_box_effect_demo()
+    {
+        // Definitions needed.
+        var svgWidth = 175;  // The width of each SVG element.
+        var svgHeight = 175;  // The height of each SVG element.
+        var div = d3.select(viewBoxEffect);
+
+        // Create the default viewbox image.
+        var svg = div.append("svg")
+            .attr("width", svgWidth)
+            .attr("height", svgHeight);
+        svg.append("path")
+            .attr("d", "M0,10L10,20L20,10L10,0Z")
+            .style("fill", "red")
+            .style("stroke", "none");
+        svg.append("text")
+            .text("Ex 1")
+            .attr("x", svgWidth / 2)
+            .attr("y", svgHeight / 2);
+
+        // Create the image with the slightly scaled.
+        var svg = div.append("svg")
+            .attr("width", svgWidth)
+            .attr("height", svgHeight)
+            .attr("viewBox", "-10 -10 40 40");
+        svg.append("path")
+            .attr("d", "M0,10L10,20L20,10L10,0Z")
+            .style("fill", "red")
+            .style("stroke", "none");
+        svg.append("text")
+            .text("Ex 2")
+            .attr("x", 10)
+            .attr("y", 10);
+
+        // Create the image with the tightly wrapped viewbox.
+        var svg = div.append("svg")
+            .attr("width", svgWidth)
+            .attr("height", svgHeight)
+            .attr("viewBox", "0 0 20 20");
+        svg.append("path")
+            .attr("d", "M0,10L10,20L20,10L10,0Z")
+            .style("fill", "red")
+            .style("stroke", "none");
+        svg.append("text")
+            .text("Ex 3")
+            .attr("x", 10)
+            .attr("y", 10);
+
+        // Create the image with uneven scaling and no distortion.
+        var svg = div.append("svg")
+            .attr("width", svgWidth)
+            .attr("height", svgHeight)
+            .attr("viewBox", "0 0 40 80");
+        svg.append("path")
+            .attr("d", "M0,10L10,20L20,10L10,0Z")
+            .style("fill", "red")
+            .style("stroke", "none");
+        svg.append("text")
+            .text("Ex 4")
+            .attr("x", 20)
+            .attr("y", 40);
+
+        // Create the distorted image.
+        var svg = div.append("svg")
+            .attr("width", svgWidth)
+            .attr("height", svgHeight)
+            .attr("viewBox", "0 0 40 80")
+            .attr("preserveAspectRatio", "none");
+        svg.append("path")
+            .attr("d", "M0,10L10,20L20,10L10,0Z")
+            .style("fill", "red")
+            .style("stroke", "none");
+        svg.append("text")
+            .text("Ex 5")
+            .attr("x", 20)
+            .attr("y", 40);
+    }
+
+    function create_view_box_scaling_demo()
     {
         // Definitions needed.
         var svgLineWidth = 600;  // The width of the SVG element containing the lines.
@@ -119,8 +199,8 @@ $(document).ready(function()
         var svgLine = d3.select(viewBoxDemo)
             .attr("width", svgLineWidth)
             .attr("height", svgLineHeight)
-			.attr("viewBox", "0 0 " + svgLineWidth + " " + svgLineHeight)
-			.attr("preserveAspectRatio", "none");
+            .attr("viewBox", "0 0 " + svgLineWidth + " " + svgLineHeight)
+            .attr("preserveAspectRatio", "none");
 
         // Create the data for the paths.
         var pathOneData = [{"x": 20, "y": 20}, {"x": 50, "y": 138}, {"x": 170, "y": 90}, {"x": 300, "y": 240}, {"x": 550, "y": 300}];
