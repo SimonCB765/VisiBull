@@ -9,11 +9,11 @@ _grid       -> style declarations specific to the grid.
 _element
 */
 svg {cursor: default; display: block; margin: 0 auto;}  /* Center the game and always keep the cursor as a pointer. */
+svg:focus {outline: none;}  /* Remove the outline from the svg element when it gets focus. */
 
 /*
 _classes
 */
-svg:focus {outline: none;}  /* Remove the outline from the svg element when it gets focus. */
 svg .gameOver {alignment-baseline: middle; fill: white; text-anchor: middle;}  /* Style for the game over text. */
 svg .retry {fill: white;}  /* The retry button. */
 svg .retryText {alignment-baseline: middle; font-weight: bold; pointer-events: none; text-anchor: middle;}  /* Style for the retry text. */
