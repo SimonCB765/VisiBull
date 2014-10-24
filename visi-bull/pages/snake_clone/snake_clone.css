@@ -8,7 +8,7 @@ _grid       -> style declarations specific to the grid.
 /*
 _element
 */
-svg {display: block; margin: 0 auto;}
+svg {cursor: default; display: block; margin: 0 auto;}  /* Center the game and always keep the cursor as a pointer. */
 
 /*
 _classes

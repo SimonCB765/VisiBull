@@ -9,8 +9,10 @@ var svg = d3.select(".content")
     .attr("height", svgHeight)
     .attr("tabindex", 0);  // Set tab index to ensure that the element can get focus.
 
-// Create the tile data.
-tileData = []
+// Create the tile data. This will include an extra two rows (above and below the game grid) and an extra two columns (to the left
+// and right of the game grid). These rows and columns will be used for determining when the snake has hit the wall (if the head goes into
+// an off the grid square, then the snake has hit the wall).
+tileData = [];
 var tileIndex = 0;  // Tile indices increase down columns first, and then by rows going left to right.
 var offEdge = false;  // Whether the tile is off the edge of the grid.
 var numRows = (svgWidth / tileSideLength);  // The number of rows.
@@ -36,7 +38,7 @@ var tileContainers = svg.selectAll(".tile")
     .attr("transform", function(d) { return "translate(" + d.transX + ", " + d.transY + ")"; });
 var tiles = tileContainers.append("rect")
     .classed("tile", true)
-    .attr("data-index", function(d) { return d.index; })  // Attach the index as an HTML5 data attribute.
+    .attr("data-index", function(d) { return d.index; })  // Attach the index of the tile as an HTML5 data attribute.
     .attr("height", tileSideLength)
     .attr("width", tileSideLength);
 
@@ -46,6 +48,8 @@ initialise_game();
 
 function initialise_game()
 {
+    // Initialise the game and start it running.
+
     // Clear the game grid.
     d3.selectAll(".tile")
         .classed({"snake" : false, "food" : false, "head" : false});
@@ -56,7 +60,7 @@ function initialise_game()
     var snakeTail;  // The index of the tail of the snake.
     var snakeDirection = "right";  // The initial snake direction.
     var snakeSpeed = 350;  // Number of milliseconds between snake movements.
-    var speedIncrement = 10;  // The number of milliseconds by which the snake's movement delay should decrease.
+    var speedIncrement = 10;  // The number of milliseconds by which the snake's movement delay should decrease after eating food.
     var maxSpeed = 100;  // The minimum number of milliseconds between snake movements.
     for (var i = 1; i <= 5; i++)
     {
@@ -84,8 +88,9 @@ function initialise_game()
     // Setup the timer for the snake movement.
     var gameStep = setInterval(move_snake, snakeSpeed);
 
-    function change_direction()
+    function snake_direction()
     {
+        // Determine the direction of the snake.
         switch (lastKeyPress)
         {
             case 37:  // Left arrow key.
@@ -107,10 +112,12 @@ function initialise_game()
 
     function move_snake()
     {
-        // Check if the snake direction should change.
-        change_direction();
+        // Move the snake by a square.
 
-        // Determine the new head.
+        // Get the snake's direction.
+        snake_direction();
+
+        // Determine the new head position.
         var newSnakeHead = snakeHead;
         switch (snakeDirection)
         {
@@ -126,7 +133,7 @@ function initialise_game()
             default:  // "left"
                 newSnakeHead -= (numCols + 2);
         }
-        var newHeadElement = d3.select(document.querySelector("[data-index='" + newSnakeHead + "']"));
+        var newHeadElement = d3.select(document.querySelector("[data-index='" + newSnakeHead + "']"));  // Select the new head.
 
         // Determine whether the new head is on a food item.
         if (newHeadElement.classed("food"))
@@ -148,7 +155,7 @@ function initialise_game()
             // Add a new food item.
             place_food();
 
-            // Speed the snake up.
+            // Speed the snake up if the max speed has not already been reached.
             snakeSpeed -= speedIncrement;
             snakeSpeed = Math.max(snakeSpeed, maxSpeed);
             clearInterval(gameStep);
@@ -172,6 +179,7 @@ function initialise_game()
             // Game over if the new head element is off the edge of the screen or is already part of the snake.
             if (newHeadElement.datum().offEdge || newHeadElement.classed("snake"))
             {
+                // Set up the game over text and retry button.
                 var retryButtonHeight = 50;
                 var retryButtonWidth = 100;
                 clearInterval(gameStep);
@@ -226,7 +234,7 @@ function initialise_game()
                                 .transition()
                                 .style("font-size", "30px");
                         });
-                retryButton
+                retryButton  // Add behaviour of retry button.
                     .on("click", function() { gameOver.remove(); eatenMessage.remove(); retryG.remove(); initialise_game(); })
             }
 
@@ -239,16 +247,12 @@ function initialise_game()
     }
 }
 
-
-/***************
-Helper Functions
-***************/
-
 function place_food()
 {
+    // Place a piece of food in a random valid square. A valid square is one that does not contain the snake or a piece of food already,
+    // and is not off the visible grid.
     var foodIndex = validFoodIndices[Math.floor(Math.random() * validFoodIndices.length)];  // The index where the food will be added.
     validFoodIndices.splice(validFoodIndices.indexOf(foodIndex), 1);  // No longer a valid index for food.
     var foodSquare = document.querySelector("[data-index='" + foodIndex + "']");  // Grab the element with the selected index.
-    d3.select(foodSquare)
-        .classed("food", true);
+    d3.select(foodSquare).classed("food", true);
 }
