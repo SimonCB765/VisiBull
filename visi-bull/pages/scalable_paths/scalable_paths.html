@@ -35,6 +35,8 @@
     In order to dynamically resize your page (including the SVG) when a user changes the size of their browser window (or to accommodate
     smaller screen sizes), you'll need to scale both the SVG element and its contents.
 </p>
+<br>
+<h3>Scaling Using the Viewbox</h3>
 <p>
     The simplest manner in which this scaling can be achieved, is through the
     <code class="html"><span class="attribute">viewBox</span></code> attribute of the SVG tag.
@@ -124,4 +126,26 @@
     <a href="https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/preserveAspectRatio">values</a>). Here
     <code class="html"><span class="attribute">viewBox</span>=<span class="value">"none"</span></code> has been used.
 </p>
+<br><br><br><br><br>
+<br>
+<h3>Scaling By Recomputing Path Coordinates</h3>
+<p>With the viewBox you get the problem that as you shrink the SVG element, the paths become very indistinct without messing about with their styles.</p>
+<p>This is solved by redrawing the paths at proper scales.</p>
+<br>
+<p>Left scales with the smaller of the height and width to keep the aspect, right scales the height and width independently (and loses aspect)</p>
+<br>
+<div id="change-path-scaling"></div>
+<br>
+<svg id="change-path-sliders" />
+<br><br><br><br>
+<p>Second 2 SVGs with rectangles of color along the bottom and the right (left will have rectangles not scale, right will scale slower)</p>
+<p>
+    Think need to define the width/height of the rectangles as a fraction of the width/height of the whole svg, also need to define the x/y of
+    the rectangle as a fraction of the width/height of the whole svg. That way it appears to be the same size
+</p>
+<br>
+<div id="final-path-scaling"></div>
+<br>
+<svg id="final-sliders" />
+<br>
 {% endblock %}

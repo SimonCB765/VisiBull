@@ -15,6 +15,10 @@ svg {cursor: default; display: block; margin: 0 auto;}  /* Center the SVG and al
 /*
 _classes
 */
+#change-path-scaling svg {display: inline; margin: 0 5px;}
+
+#final-path-scaling svg {display: inline; margin: 0 5px;}
+
 #view-box-effects svg {display: inline; margin: 0 5px;}
 #view-box-effects svg text {alignment-baseline: middle; font-size: 10px; text-anchor: middle;}
 

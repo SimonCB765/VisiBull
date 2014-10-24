@@ -6,11 +6,208 @@ $(document).ready(function()
     var viewBoxEffect = "#view-box-effects";
     var viewBoxDemo = "#view-box-scaling";
     var viewBoxSliders = "#view-box-sliders";
+    var pathChangeDemo = "#change-path-scaling";
+    var pathChangeSliders = "#change-path-sliders";
+    var finalDemo = "#final-path-scaling";
+    var finalSliders = "#final-sliders";
 
     // Create the demos.
     create_static_path_demo();
     create_view_box_effect_demo();
     create_view_box_scaling_demo();
+    create_change_path_demo();
+    create_final_demo();
+
+    function create_change_path_demo()
+    {
+        // Definitions needed.
+        var svgWidth = 400;  // The width of each SVG element.
+        var svgHeight = 400;  // The height of each SVG element.
+        var currentSVGWidth = svgWidth;  // The current width of the SVG element.
+        var currentSVGWidthScale = currentSVGWidth / svgWidth;  // The difference between the current SVG width and the original width.
+        var currentSVGHeight = svgHeight;  // The current height of the SVG element.
+        var currentSVGHeightScale = currentSVGHeight / svgHeight;  // The difference between the current SVG height and the original width.
+        var svgSliderWidth = 600;  // The width of the SVG element containing the sliders.
+        var svgSliderHeight = 100;  // The height of the SVG element containing the sliders.
+        var minSVGWidth = 100;  // The minimum width for the SVG element containing the lines.
+        var maxSVGWidth = 450;  // The maximum width for the SVG element containing the lines.
+        var minSVGHeight = 100;  // The minimum height for the SVG element containing the lines.
+        var maxSVGHeight = 450;  // The maximum height for the SVG element containing the lines.
+        var div = d3.select(pathChangeDemo);
+
+        // Create the data for the paths.
+        var pathOneData = [{"x": 50, "y": 50}, {"x": 350, "y": 350}];
+        var pathTwoData = [{"x": 50, "y": 350}, {"x": 350, "y": 50}];
+
+        // Create the line generator.
+        var line = d3.svg.line()
+            .x(function(d) { return d.x; })
+            .y(function(d) { return d.y; })
+            .interpolate("linear");
+
+        /******************
+        * Create Left SVG *
+        ******************/
+        // Create the left SVG element.
+        var svgLeft = div.append("svg")
+            .attr("width", svgWidth)
+            .attr("height", svgHeight);
+
+        // Draw the lines.
+        svgLeft.append("path")
+            .classed("left-path-one", true)
+            .attr("d", line(pathOneData))
+            .style("stroke", "red");
+        svgLeft.append("path")
+            .classed("left-path-two", true)
+            .attr("d", line(pathTwoData))
+            .style("stroke", "blue");
+
+        /*******************
+        * Create Right SVG *
+        *******************/
+        // Create the left SVG element.
+        var svgRight = div.append("svg")
+            .attr("width", svgWidth)
+            .attr("height", svgHeight);
+
+        // Draw the lines.
+        svgRight.append("path")
+            .classed("right-path-one", true)
+            .attr("d", line(pathOneData))
+            .style("stroke", "red");
+        svgRight.append("path")
+            .classed("right-path-two", true)
+            .attr("d", line(pathTwoData))
+            .style("stroke", "blue");
+
+        /*********************
+        * Create The Sliders *
+        *********************/
+        // Create the SVG element for the sliders.
+        var svgSlider = d3.select(pathChangeSliders)
+            .attr("width", svgSliderWidth)
+            .attr("height", svgSliderHeight)
+            .style("outline", "none");
+
+        // Create the slider for the SVG width.
+        var widthScaleMaxVal = 450;
+        var widthScale = d3.scale.linear()  // Scale used to map position on the slider to width of the SVG element.
+            .domain([minSVGWidth, maxSVGWidth])
+            .range([0, widthScaleMaxVal])
+            .clamp(true);
+        var widthDragBehaviour = d3.behavior.drag()
+            .origin(function(d) {return d;})
+            .on("drag", function(d)
+                {
+                    var sliderPos = d3.event.x;  // Current position of the slider handle relative to its container.
+                    currentSVGWidth = widthScale.invert(sliderPos);  // New width for the SVG element.
+                    currentSVGWidthScale = currentSVGWidth / svgWidth;
+
+                    // Update the slider handle position.
+                    d3.select(this)
+                        .attr("cx", d.x = Math.max(0, Math.min(widthScaleMaxVal, sliderPos)));
+
+                    // Update left SVG element paths.
+                    var newPathOneData = [];
+                    for (var i = 0; i < pathOneData.length; i++)
+                    {
+                        newPathOneData.push({"x": pathOneData[i].x * (Math.min(currentSVGWidthScale, currentSVGHeightScale)),
+                                             "y": pathOneData[i].y * (Math.min(currentSVGWidthScale, currentSVGHeightScale))});
+                    }
+                    var newPathTwoData = [];
+                    for (var i = 0; i < pathTwoData.length; i++)
+                    {
+                        newPathTwoData.push({"x": pathTwoData[i].x * (Math.min(currentSVGWidthScale, currentSVGHeightScale)),
+                                             "y": pathTwoData[i].y * (Math.min(currentSVGWidthScale, currentSVGHeightScale))});
+                    }
+                    d3.select(".left-path-one").attr("d", line(newPathOneData))
+                    d3.select(".left-path-two").attr("d", line(newPathTwoData))
+
+                    // Update right SVG element paths.
+                    var newPathOneData = [];
+                    for (var i = 0; i < pathOneData.length; i++)
+                    {
+                        newPathOneData.push({"x": pathOneData[i].x * currentSVGWidthScale, "y": pathOneData[i].y * currentSVGHeightScale});
+                    }
+                    var newPathTwoData = [];
+                    for (var i = 0; i < pathTwoData.length; i++)
+                    {
+                        newPathTwoData.push({"x": pathTwoData[i].x * currentSVGWidthScale, "y": pathTwoData[i].y * currentSVGHeightScale});
+                    }
+                    d3.select(".right-path-one").attr("d", line(newPathOneData))
+                    d3.select(".right-path-two").attr("d", line(newPathTwoData))
+
+                    // Update the width of the SVG element.
+                    svgLeft.attr("width", currentSVGWidth);
+                    svgRight.attr("width", currentSVGWidth);
+                });
+        create_slider(svgSlider, widthScale, 100, 0, 50, "Width", svgWidth, widthDragBehaviour);
+
+        // Create the slider for the SVG height.
+        var heightScaleMaxVal = 450;
+        var heightScale = d3.scale.linear()  // Scale used to map position on the slider to height of the SVG element.
+            .domain([minSVGHeight, maxSVGHeight])
+            .range([0, heightScaleMaxVal])
+            .clamp(true);
+        var heightDragBehaviour = d3.behavior.drag()
+            .origin(function(d) {return d;})
+            .on("drag", function(d)
+                {
+                    var sliderPos = d3.event.x;  // Current position of the slider handle relative to its container.
+                    currentSVGHeight = heightScale.invert(sliderPos);  // New height for the SVG element.
+                    currentSVGHeightScale = currentSVGHeight / svgHeight;
+
+                    // Update the slider handle position.
+                    d3.select(this)
+                        .attr("cx", d.x = Math.max(0, Math.min(heightScaleMaxVal, sliderPos)));
+
+                    // Update left SVG element paths.
+                    var newPathOneData = [];
+                    for (var i = 0; i < pathOneData.length; i++)
+                    {
+                        newPathOneData.push({"x": pathOneData[i].x * (Math.min(currentSVGWidthScale, currentSVGHeightScale)),
+                                             "y": pathOneData[i].y * (Math.min(currentSVGWidthScale, currentSVGHeightScale))});
+                    }
+                    var newPathTwoData = [];
+                    for (var i = 0; i < pathTwoData.length; i++)
+                    {
+                        newPathTwoData.push({"x": pathTwoData[i].x * (Math.min(currentSVGWidthScale, currentSVGHeightScale)),
+                                             "y": pathTwoData[i].y * (Math.min(currentSVGWidthScale, currentSVGHeightScale))});
+                    }
+                    d3.select(".left-path-one").attr("d", line(newPathOneData))
+                    d3.select(".left-path-two").attr("d", line(newPathTwoData))
+
+                    // Update right SVG element paths.
+                    var newPathOneData = [];
+                    for (var i = 0; i < pathOneData.length; i++)
+                    {
+                        newPathOneData.push({"x": pathOneData[i].x * currentSVGWidthScale, "y": pathOneData[i].y * currentSVGHeightScale});
+                    }
+                    var newPathTwoData = [];
+                    for (var i = 0; i < pathTwoData.length; i++)
+                    {
+                        newPathTwoData.push({"x": pathTwoData[i].x * currentSVGWidthScale, "y": pathTwoData[i].y * currentSVGHeightScale});
+                    }
+                    d3.select(".right-path-one").attr("d", line(newPathOneData))
+                    d3.select(".right-path-two").attr("d", line(newPathTwoData))
+
+                    // Update the width of the SVG element.
+                    svgLeft.attr("height", currentSVGHeight);
+                    svgRight.attr("height", currentSVGHeight);
+                });
+        create_slider(svgSlider, heightScale, 100, svgSliderHeight / 2, 50, "Height", svgHeight, heightDragBehaviour);
+    }
+
+    function create_final_demo()
+    {
+        // Definitions needed.
+        var svgWidth = 450;  // The width of each SVG element.
+        var svgHeight = 450;  // The height of each SVG element.
+        var svgSliderWidth = 600;  // The width of the SVG element containing the sliders.
+        var svgSliderHeight = 100;  // The height of the SVG element containing the sliders.
+        var div = d3.select(finalDemo);
+    }
 
     function create_static_path_demo()
     {
