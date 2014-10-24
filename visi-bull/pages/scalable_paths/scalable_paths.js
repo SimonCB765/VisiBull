@@ -3,9 +3,12 @@ $(document).ready(function()
     // SVG tag ids.
     var staticPathDemo = "#static-path-demo";
     var staticPathSliders = "#static-sliders";
+	var viewBoxDemo = "#view-box-scaling";
+	var viewBoxSliders = "#view-box-sliders";
 
     // Create the demos.
     create_static_path_demo();
+	create_view_box_demo();
 
     function create_static_path_demo()
     {
@@ -52,6 +55,100 @@ $(document).ready(function()
         *********************/
         // Create the SVG element for the sliders.
         var svgSlider = d3.select(staticPathSliders)
+            .attr("width", svgSliderWidth)
+            .attr("height", svgSliderHeight)
+            .style("outline", "none");
+
+        // Create the slider for the SVG width.
+        var widthScaleMaxVal = 450;
+        var widthScale = d3.scale.linear()  // Scale used to map position on the slider to width of the SVG element.
+            .domain([0, maxSVGWidth])
+            .range([0, widthScaleMaxVal])
+            .clamp(true);
+        var widthDragBehaviour = d3.behavior.drag()
+            .origin(function(d) {return d;})
+            .on("drag", function(d)
+                {
+                    var sliderPos = d3.event.x;  // Current position of the slider handle relative to its container.
+
+                    // Update the slider handle position.
+                    d3.select(this)
+                        .attr("cx", d.x = Math.max(0, Math.min(widthScaleMaxVal, sliderPos)));
+
+                    // Update the width of the SVG element.
+                    svgLine.attr("width", widthScale.invert(sliderPos));
+                });
+        create_slider(svgSlider, widthScale, 100, 0, 50, "Width", svgLineWidth, widthDragBehaviour);
+
+        // Create the slider for the SVG height.
+        var heightScaleMaxVal = 450;
+        var heightScale = d3.scale.linear()  // Scale used to map position on the slider to height of the SVG element.
+            .domain([0, maxSVGHeight])
+            .range([0, heightScaleMaxVal])
+            .clamp(true);
+        var heightDragBehaviour = d3.behavior.drag()
+            .origin(function(d) {return d;})
+            .on("drag", function(d)
+                {
+                    var sliderPos = d3.event.x;  // Current position of the slider handle relative to its container.
+
+                    // Update the slider handle position.
+                    d3.select(this)
+                        .attr("cx", d.x = Math.max(0, Math.min(heightScaleMaxVal, sliderPos)));
+
+                    // Update the width of the SVG element.
+                    svgLine.attr("height", heightScale.invert(sliderPos));
+                });
+        create_slider(svgSlider, heightScale, 100, svgSliderHeight / 2, 50, "Height", svgLineHeight, heightDragBehaviour);
+    }
+
+    function create_view_box_demo()
+    {
+        // Definitions needed.
+        var svgLineWidth = 600;  // The width of the SVG element containing the lines.
+        var svgLineHeight = 450;  // The height of the SVG element containing the lines.
+        var svgSliderWidth = 600;  // The width of the SVG element containing the sliders.
+        var svgSliderHeight = 100;  // The height of the SVG element containing the sliders.
+        var maxSVGWidth = 900;  // The maximum width for the SVG element containing the lines.
+        var maxSVGHeight = 600;  // The maximum height for the SVG element containing the lines.
+
+        /*******************
+        * Create The Paths *
+        *******************/
+        // Create the SVG element for the lines.
+        var svgLine = d3.select(viewBoxDemo)
+            .attr("width", svgLineWidth)
+            .attr("height", svgLineHeight)
+			.attr("viewBox", "0 0 " + svgLineWidth + " " + svgLineHeight)
+			.attr("preserveAspectRatio", "none");
+
+        // Create the data for the paths.
+        var pathOneData = [{"x": 20, "y": 20}, {"x": 50, "y": 138}, {"x": 170, "y": 90}, {"x": 300, "y": 240}, {"x": 550, "y": 300}];
+        var pathTwoData = [{"x": 50, "y": 400}, {"x": 125, "y": 375}, {"x": 450, "y": 225}, {"x": 550, "y": 100}, {"x": 350, "y": 50}, {"x": 375, "y": 175}];
+        var pathThreeData = [{"x": 350, "y": 375}, {"x": 50, "y": 300}, {"x": 200, "y": 50}, {"x": 250, "y": 225}, {"x": 450, "y": 250}];
+
+        // Create the line generator.
+        var line = d3.svg.line()
+            .x(function(d) { return d.x; })
+            .y(function(d) { return d.y; })
+            .interpolate("linear");
+
+        // Draw the lines.
+        svgLine.append("path")
+            .attr("d", line(pathOneData))
+            .style("stroke", "red");
+        svgLine.append("path")
+            .attr("d", line(pathTwoData))
+            .style("stroke", "blue");
+        svgLine.append("path")
+            .attr("d", line(pathThreeData))
+            .style("stroke", "green");
+
+        /*********************
+        * Create The Sliders *
+        *********************/
+        // Create the SVG element for the sliders.
+        var svgSlider = d3.select(viewBoxSliders)
             .attr("width", svgSliderWidth)
             .attr("height", svgSliderHeight)
             .style("outline", "none");

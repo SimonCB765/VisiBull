@@ -15,21 +15,49 @@
 
 {% block content %}
 <!--Block for including the content of the page within the div.content tag.-->
-<p>Sometimes its fine to define an SVG path as</p>
-<pre class="code"><code class="html"><<span class="element">path</span> <span class="attribute">d</span>=<span class="value">"..."</span>></code></pre>
-<p>where the path coordinates are known beforehand and can be supplied.</p>
+<p>Often its fine to define an SVG path as</p>
+<pre class="code"><code class="html"><<span class="element">svg</span> <span class="attribute">width</span>=<span class="value">"..."</span> <span class="attribute">height</span>=<span class="value">"..."</span>>
+    <<span class="element">path</span> <span class="attribute">d</span>=<span class="value">"..."</span>>
+&lt;/<span class="element">svg</span>></code></pre>
 <p>For example, if we were to define a few paths as follows</p>
-<pre class="code"><code class="html"><<span class="element">path</span> <span class="attribute">class</span>=<span class="value">"domain"</span> <span class="attribute">d</span>=<span class="value">"M20,20L50,138L170,90L300,240L550,300"</span> <span class="attribute">style</span>=<span class="value">"stroke: red;"</span>>
-<<span class="element">path</span> <span class="attribute">class</span>=<span class="value">"domain"</span> <span class="attribute">d</span>=<span class="value">"M50,400L125,375L450,225L550,100L350,50L375,175"</span> <span class="attribute">style</span>=<span class="value">"stroke: blue;"</span>>
-<<span class="element">path</span> <span class="attribute">class</span>=<span class="value">"domain"</span> <span class="attribute">d</span>=<span class="value">"M350,375L50,300L200,50L250,225L450,250"</span> <span class="attribute">style</span>=<span class="value">"stroke: green;"</span>></code></pre>
+<pre class="code"><code class="html"><<span class="element">svg</span> <span class="attribute">width</span>=<span class="value">"600"</span> <span class="attribute">height</span>=<span class="value">"450"</span>>
+    <<span class="element">path</span> <span class="attribute">class</span>=<span class="value">"domain"</span> <span class="attribute">d</span>=<span class="value">"M20,20L50,138L170,90L300,240L550,300"</span> <span class="attribute">style</span>=<span class="value">"stroke: red;"</span>>
+    <<span class="element">path</span> <span class="attribute">class</span>=<span class="value">"domain"</span> <span class="attribute">d</span>=<span class="value">"M50,400L125,375L450,225L550,100L350,50L375,175"</span> <span class="attribute">style</span>=<span class="value">"stroke: blue;"</span>>
+    <<span class="element">path</span> <span class="attribute">class</span>=<span class="value">"domain"</span> <span class="attribute">d</span>=<span class="value">"M350,375L50,300L200,50L250,225L450,250"</span> <span class="attribute">style</span>=<span class="value">"stroke: green;"</span>>
+&lt;/<span class="element">svg</span>></code></pre>
 <p>we would get the following image.</p>
 <svg id="static-path-demo" />
 <br>
 <svg id="static-sliders" />
 <p>
-	However, if you play with the sliders, you can see what would happen to the visibility of the paths as the size of the SVG element changes. 
-	For static pages, changing the size of the element may be unnecessary, but if you want to dynamically resize your page (including the SVG) 
-	when a user changes the size of their browser window (or to accommodate smaller screen sizes), then you'll need to scale both the SVG element 
-	and its contents.
+    However, if you play with the sliders, you can see that changing the size of the SVG element (say in order to fit it in a smaller screen)
+    will either clip the path content or give extra blank space to the right and/or bottom.
+    In order to dynamically resize your page (including the SVG) when a user changes the size of their browser window (or to accommodate
+    smaller screen sizes), you'll need to scale both the SVG element and its contents.
+</p>
+<p>
+    The simplest manner in which this scaling can be achieved, is through the
+    <code class="html"><span class="attribute">viewBox</span></code> attribute of the SVG tag.
+</p>
+<p>
+    In order to use the <code class="html"><span class="attribute">viewBox</span></code> attribute for scaling in this manner, you first need to
+    define your path and the original 'view' for the SVG. The simplest way to do this (using d3) is
+<pre class="code"><code class="javascript"><span class="keyword">var</span> svgWidth = <span class="number">600</span>;  <span class="comment">// The width of the SVG element.</span>
+<span class="keyword">var</span> svgHeight = <span class="number">450</span>;  <span class="comment">// The height of the SVG element.</span>
+<span class="keyword">var</span> svg = d3.select(<span class="string">"svg"</span>)
+    .append(<span class="string">"svg"</span>)
+    .attr(<span class="string">"width"</span>, svgWidth)
+    .attr(<span class="string">"height"</span>, svgHeight)
+    .attr(<span class="string">"viewBox"</span>, <span class="string">"0 0 "</span> + svgWidth + <span class="string">" "</span> + svgHeight)
+    .attr(<span class="string">"preserveAspectRatio"</span>, <span class="string">"..."</span>);
+</code></pre>
+<svg id="view-box-scaling" />
+<br>
+<svg id="view-box-sliders" />
+<p>
+    Using the <code class="html"><span class="attribute">viewBox</span></code> attribute gives you extensive control over how the scaling of the
+    content changes via the <code class="html"><span class="attribute">preserveAspectRatio</span></code> attribute (and its many
+    <a href="https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/preserveAspectRatio">values</a>). Here
+    <code class="html"><span class="attribute">viewBox</span>=<span class="value">"none"</span></code> has been used.
 </p>
 {% endblock %}
