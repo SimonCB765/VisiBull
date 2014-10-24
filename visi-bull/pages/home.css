@@ -14,7 +14,7 @@ _element
 html {min-width: 1040px;}
 body {background-color: #F8F8F8; color: #222222; font-family: "Segoe UI", sans-serif; margin: .5em auto; width: 960px;}
 p {margin: 1em 0}
-a {color: #FF0066; font-weight: bold;}
+a {color: #FF0066;}
 a:not(:hover) {text-decoration: none;}  /* Remove the underline that would normally be present on links (except when hovered over). */
 
 /*
