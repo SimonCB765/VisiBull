@@ -208,6 +208,7 @@ $(document).ready(function()
         var currentSVGWidthScale = currentSVGWidth / svgWidth;  // The difference between the current SVG width and the original width.
         var currentSVGHeight = svgHeight;  // The current height of the SVG element.
         var currentSVGHeightScale = currentSVGHeight / svgHeight;  // The difference between the current SVG height and the original width.
+        var scaleValue = Math.min(currentSVGWidthScale, currentSVGHeightScale);  // The scale value to use to keep the aspect ratio even.
         var svgSliderWidth = 600;  // The width of the SVG element containing the sliders.
         var svgSliderHeight = 100;  // The height of the SVG element containing the sliders.
         var minSVGWidth = 100;  // The minimum width for the SVG element containing the lines.
@@ -217,30 +218,28 @@ $(document).ready(function()
         var div = d3.select(finalDemo);
 
         // Create the data for the lines in the left SVG element.
-        var currentLeftCenter = {"x": svgWidth / 2, "y": svgHeight / 2};
-        var leftLineOneData = [{"x": 50, "y": 50}, {"x": 350, "y": 350}];
-        var leftLineOneDistFromCenter = [];
-        for (var i = 0; i < leftLineOneData.length; i++)
+        var originalScaleAroundLeft = {"x": svgWidth / 2, "y": svgHeight / 2};
+        var scaleAroundLeft = {"x": svgWidth / 2, "y": svgHeight / 2};  // The point around which to scale the left paths.
+        var leftLineOneDataOriginal = [{"x": 50, "y": 50}, {"x": 350, "y": 350}];
+        var leftLineOneData = [];
+        for (var i = 0; i < leftLineOneDataOriginal.length; i++)
         {
-            leftLineOneDistFromCenter.push({"x": currentLeftCenter.x - leftLineOneData[i].x, "y": currentLeftCenter.y - leftLineOneData[i].y});
+            var dx = scaleAroundLeft.x - leftLineOneDataOriginal[i].x;
+            var dy = scaleAroundLeft.y - leftLineOneDataOriginal[i].y;
+            leftLineOneData.push({"dx": dx, "x": leftLineOneDataOriginal[i].x, "dy": dy, "y": leftLineOneDataOriginal[i].y});
         }
-        var leftLineTwoData = [{"x": 50, "y": 350}, {"x": 350, "y": 50}];
+        var leftLineTwoDataOriginal = [{"x": 50, "y": 350}, {"x": 350, "y": 50}];
+        var leftLineTwoData = [];
         var leftLineTwoDistFromCenter = [];
-        for (var i = 0; i < leftLineTwoData.length; i++)
+        for (var i = 0; i < leftLineTwoDataOriginal.length; i++)
         {
-            leftLineTwoDistFromCenter.push({"x": currentLeftCenter.x - leftLineTwoData[i].x, "y": currentLeftCenter.y - leftLineTwoData[i].y});
+            var dx = scaleAroundLeft.x - leftLineTwoDataOriginal[i].x;
+            var dy = scaleAroundLeft.y - leftLineTwoDataOriginal[i].y;
+            leftLineTwoData.push({"dx": dx, "x": leftLineTwoDataOriginal[i].x, "dy": dy, "y": leftLineTwoDataOriginal[i].y});
         }
-
-        // Create the data for the paths.
-        var pathOneData = [{"x": 50, "y": 50}, {"x": 350, "y": 350}];
-        var pathTwoData = [{"x": 50, "y": 350}, {"x": 350, "y": 50}];
 
         // Create the line generators.
         var leftLine = d3.svg.line()
-            .x(function(d) { return d.x + currentLeftCenter.x; })
-            .y(function(d) { return d.y + currentLeftCenter.y; })
-            .interpolate("linear");
-        var line = d3.svg.line()
             .x(function(d) { return d.x; })
             .y(function(d) { return d.y; })
             .interpolate("linear");
@@ -256,11 +255,11 @@ $(document).ready(function()
         // Draw the lines.
         svgLeft.append("path")
             .classed("left-path-one", true)
-            .attr("d", leftLine(leftLineOneDistFromCenter))
+            .attr("d", leftLine(leftLineOneData))
             .style("stroke", "red");
         svgLeft.append("path")
             .classed("left-path-two", true)
-            .attr("d", leftLine(leftLineTwoDistFromCenter))
+            .attr("d", leftLine(leftLineTwoData))
             .style("stroke", "blue");
 
         /*******************
@@ -270,16 +269,6 @@ $(document).ready(function()
         var svgRight = div.append("svg")
             .attr("width", svgWidth)
             .attr("height", svgHeight);
-
-        // Draw the lines.
-        svgRight.append("path")
-            .classed("right-path-one", true)
-            .attr("d", line(pathOneData))
-            .style("stroke", "red");
-        svgRight.append("path")
-            .classed("right-path-two", true)
-            .attr("d", line(pathTwoData))
-            .style("stroke", "blue");
 
         /*********************
         * Create The Sliders *
@@ -303,41 +292,30 @@ $(document).ready(function()
                     var sliderPos = d3.event.x;  // Current position of the slider handle relative to its container.
                     currentSVGWidth = widthScale.invert(sliderPos);  // New width for the SVG element.
                     currentSVGWidthScale = currentSVGWidth / svgWidth;
+                    scaleValue = Math.min(currentSVGWidthScale, currentSVGHeightScale);
 
                     // Update the slider handle position.
                     d3.select(this)
                         .attr("cx", d.x = Math.max(0, Math.min(widthScaleMaxVal, sliderPos)));
 
                     // Update left SVG element paths.
-                    currentLeftCenter.x = currentSVGWidth / 2;
-                    var newLeftLineOneDistFromCenter = [];
-                    for (var i = 0; i < leftLineOneDistFromCenter.length; i++)
+                    scaleAroundLeft.x = originalScaleAroundLeft.x * currentSVGWidthScale;
+                    var newLeftLineOneData = [];
+                    for (var i = 0; i < leftLineOneData.length; i++)
                     {
-                        newLeftLineOneDistFromCenter.push({"x": leftLineOneDistFromCenter[i].x * (Math.min(currentSVGWidthScale, currentSVGHeightScale)),
-                                                           "y": leftLineOneDistFromCenter[i].y * (Math.min(currentSVGWidthScale, currentSVGHeightScale))});
+                        newLeftLineOneData.push({"x": scaleAroundLeft.x - (leftLineOneData[i].dx * scaleValue),
+                                                 "y": scaleAroundLeft.y - (leftLineOneData[i].dy * scaleValue)});
                     }
-                    var newLeftLineTwoDistFromCenter = [];
-                    for (var i = 0; i < leftLineTwoDistFromCenter.length; i++)
+                    var newLeftLineTwoData = [];
+                    for (var i = 0; i < leftLineTwoData.length; i++)
                     {
-                        newLeftLineTwoDistFromCenter.push({"x": leftLineTwoDistFromCenter[i].x * (Math.min(currentSVGWidthScale, currentSVGHeightScale)),
-                                                           "y": leftLineTwoDistFromCenter[i].y * (Math.min(currentSVGWidthScale, currentSVGHeightScale))});
+                        newLeftLineTwoData.push({"x": scaleAroundLeft.x - (leftLineTwoData[i].dx * scaleValue),
+                                                 "y": scaleAroundLeft.y - (leftLineTwoData[i].dy * scaleValue)});
                     }
-                    svgLeft.select(".left-path-one").attr("d", leftLine(newLeftLineOneDistFromCenter))
-                    svgLeft.select(".left-path-two").attr("d", leftLine(newLeftLineTwoDistFromCenter))
+                    svgLeft.select(".left-path-one").attr("d", leftLine(newLeftLineOneData))
+                    svgLeft.select(".left-path-two").attr("d", leftLine(newLeftLineTwoData))
 
-                    // Update right SVG element paths.
-                    var newPathOneData = [];
-                    for (var i = 0; i < pathOneData.length; i++)
-                    {
-                        newPathOneData.push({"x": pathOneData[i].x * currentSVGWidthScale, "y": pathOneData[i].y * currentSVGHeightScale});
-                    }
-                    var newPathTwoData = [];
-                    for (var i = 0; i < pathTwoData.length; i++)
-                    {
-                        newPathTwoData.push({"x": pathTwoData[i].x * currentSVGWidthScale, "y": pathTwoData[i].y * currentSVGHeightScale});
-                    }
-                    svgRight.select(".right-path-one").attr("d", line(newPathOneData))
-                    svgRight.select(".right-path-two").attr("d", line(newPathTwoData))
+                    console.log("width", scaleAroundLeft);
 
                     // Update the width of the SVG element.
                     svgLeft.attr("width", currentSVGWidth);
@@ -358,41 +336,30 @@ $(document).ready(function()
                     var sliderPos = d3.event.x;  // Current position of the slider handle relative to its container.
                     currentSVGHeight = heightScale.invert(sliderPos);  // New height for the SVG element.
                     currentSVGHeightScale = currentSVGHeight / svgHeight;
+                    scaleValue = Math.min(currentSVGWidthScale, currentSVGHeightScale);
 
                     // Update the slider handle position.
                     d3.select(this)
                         .attr("cx", d.x = Math.max(0, Math.min(heightScaleMaxVal, sliderPos)));
 
                     // Update left SVG element paths.
-                    currentLeftCenter.y = currentSVGHeight / 2;
-                    var newLeftLineOneDistFromCenter = [];
-                    for (var i = 0; i < leftLineOneDistFromCenter.length; i++)
+                    scaleAroundLeft.y = originalScaleAroundLeft.y * currentSVGHeightScale;
+                    var newLeftLineOneData = [];
+                    for (var i = 0; i < leftLineOneData.length; i++)
                     {
-                        newLeftLineOneDistFromCenter.push({"x": leftLineOneDistFromCenter[i].x * (Math.min(currentSVGWidthScale, currentSVGHeightScale)),
-                                                           "y": leftLineOneDistFromCenter[i].y * (Math.min(currentSVGWidthScale, currentSVGHeightScale))});
+                        newLeftLineOneData.push({"x": scaleAroundLeft.x - (leftLineOneData[i].dx * scaleValue),
+                                                 "y": scaleAroundLeft.y - (leftLineOneData[i].dy * scaleValue)});
                     }
-                    var newLeftLineTwoDistFromCenter = [];
-                    for (var i = 0; i < leftLineTwoDistFromCenter.length; i++)
+                    var newLeftLineTwoData = [];
+                    for (var i = 0; i < leftLineTwoData.length; i++)
                     {
-                        newLeftLineTwoDistFromCenter.push({"x": leftLineTwoDistFromCenter[i].x * (Math.min(currentSVGWidthScale, currentSVGHeightScale)),
-                                                           "y": leftLineTwoDistFromCenter[i].y * (Math.min(currentSVGWidthScale, currentSVGHeightScale))});
+                        newLeftLineTwoData.push({"x": scaleAroundLeft.x - (leftLineTwoData[i].dx * scaleValue),
+                                                 "y": scaleAroundLeft.y - (leftLineTwoData[i].dy * scaleValue)});
                     }
-                    svgLeft.select(".left-path-one").attr("d", leftLine(newLeftLineOneDistFromCenter))
-                    svgLeft.select(".left-path-two").attr("d", leftLine(newLeftLineTwoDistFromCenter))
+                    svgLeft.select(".left-path-one").attr("d", leftLine(newLeftLineOneData))
+                    svgLeft.select(".left-path-two").attr("d", leftLine(newLeftLineTwoData))
 
-                    // Update right SVG element paths.
-                    var newPathOneData = [];
-                    for (var i = 0; i < pathOneData.length; i++)
-                    {
-                        newPathOneData.push({"x": pathOneData[i].x * currentSVGWidthScale, "y": pathOneData[i].y * currentSVGHeightScale});
-                    }
-                    var newPathTwoData = [];
-                    for (var i = 0; i < pathTwoData.length; i++)
-                    {
-                        newPathTwoData.push({"x": pathTwoData[i].x * currentSVGWidthScale, "y": pathTwoData[i].y * currentSVGHeightScale});
-                    }
-                    svgRight.select(".right-path-one").attr("d", line(newPathOneData))
-                    svgRight.select(".right-path-two").attr("d", line(newPathTwoData))
+                    console.log("height", scaleAroundLeft);
 
                     // Update the width of the SVG element.
                     svgLeft.attr("height", currentSVGHeight);
