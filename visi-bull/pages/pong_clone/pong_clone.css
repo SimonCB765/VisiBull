@@ -7,7 +7,7 @@ _classes    -> style declarations for specific classes.
 /*
 _element
 */
-svg {background: black; display: block; margin: 0 auto; outline: 1px solid black;}
+svg {background: black; display: block; margin: 0 auto; outline: 1px solid black;}  /* Style and centre the SVG element containing the game. */
 
 /*
 _classes
