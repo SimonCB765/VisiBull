@@ -137,7 +137,18 @@
 <div id="change-path-scaling"></div>
 <br>
 <svg id="change-path-sliders" />
+<br>
+<p>dx and dy are only needed when scaling and keeping aspect ratios.</p>
+<p>
+	Potential problem is that the stroke width stays the same, a stroke width of 2 pixels takes up a much greater fraction of the space 
+	in a 50x50 pixel portion of the SVG element than in a 200x200 portion. Of course you can emulate the viewBox effect where the stroke width 
+	scales down by simply scaling the stroke width as well.
+</p>
 <br><br><br><br>
+<p>
+	Can scale different shapes around different points (top left and bottom right in right SVG), and can scale with and without aspect ratio
+	preserving (left SVG).
+</p>
 <p>Second 2 SVGs with rectangles of color along the bottom and the right (left will have rectangles not scale, right will scale slower)</p>
 <p>
     Think need to define the width/height of the rectangles as a fraction of the width/height of the whole svg, also need to define the x/y of

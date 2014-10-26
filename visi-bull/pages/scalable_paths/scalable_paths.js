@@ -201,13 +201,13 @@ $(document).ready(function()
 
     function create_final_demo()
     {
-        // Definitions needed.
+        // Definitions needed for both SVG elements.
         var svgWidth = 400;  // The width of each SVG element.
         var svgHeight = 400;  // The height of each SVG element.
         var currentSVGWidth = svgWidth;  // The current width of the SVG element.
-        var currentSVGWidthScale = currentSVGWidth / svgWidth;  // The difference between the current SVG width and the original width.
+        var currentSVGWidthScale = currentSVGWidth / svgWidth;  // The amount by which to scale the width to keep the relative widths of objects the same.
         var currentSVGHeight = svgHeight;  // The current height of the SVG element.
-        var currentSVGHeightScale = currentSVGHeight / svgHeight;  // The difference between the current SVG height and the original width.
+        var currentSVGHeightScale = currentSVGHeight / svgHeight;  // The amount by which to scale the height to keep the relative heights of objects the same.
         var scaleValue = Math.min(currentSVGWidthScale, currentSVGHeightScale);  // The scale value to use to keep the aspect ratio even.
         var svgSliderWidth = 600;  // The width of the SVG element containing the sliders.
         var svgSliderHeight = 100;  // The height of the SVG element containing the sliders.
@@ -217,29 +217,8 @@ $(document).ready(function()
         var maxSVGHeight = 450;  // The maximum height for the SVG element containing the lines.
         var div = d3.select(finalDemo);
 
-        // Create the data for the lines in the left SVG element.
-        var originalScaleAroundLeft = {"x": svgWidth / 2, "y": svgHeight / 2};
-        var scaleAroundLeft = {"x": svgWidth / 2, "y": svgHeight / 2};  // The point around which to scale the left paths.
-        var leftLineOneDataOriginal = [{"x": 50, "y": 50}, {"x": 350, "y": 350}];
-        var leftLineOneData = [];
-        for (var i = 0; i < leftLineOneDataOriginal.length; i++)
-        {
-            var dx = scaleAroundLeft.x - leftLineOneDataOriginal[i].x;
-            var dy = scaleAroundLeft.y - leftLineOneDataOriginal[i].y;
-            leftLineOneData.push({"dx": dx, "x": leftLineOneDataOriginal[i].x, "dy": dy, "y": leftLineOneDataOriginal[i].y});
-        }
-        var leftLineTwoDataOriginal = [{"x": 50, "y": 350}, {"x": 350, "y": 50}];
-        var leftLineTwoData = [];
-        var leftLineTwoDistFromCenter = [];
-        for (var i = 0; i < leftLineTwoDataOriginal.length; i++)
-        {
-            var dx = scaleAroundLeft.x - leftLineTwoDataOriginal[i].x;
-            var dy = scaleAroundLeft.y - leftLineTwoDataOriginal[i].y;
-            leftLineTwoData.push({"dx": dx, "x": leftLineTwoDataOriginal[i].x, "dy": dy, "y": leftLineTwoDataOriginal[i].y});
-        }
-
-        // Create the line generators.
-        var leftLine = d3.svg.line()
+        // Create the line generator.
+        var lineGenerator = d3.svg.line()
             .x(function(d) { return d.x; })
             .y(function(d) { return d.y; })
             .interpolate("linear");
@@ -247,28 +226,116 @@ $(document).ready(function()
         /******************
         * Create Left SVG *
         ******************/
+        // Line definitions needed for left SVG.
+        var scaleLeftLineGAround = {"x": 0, "y": 0};  // The point around which the <g> containing the lines will be scaled.
+        var scaleLeftLineAround = {"x": 150, "y": 150};  // The point around which the lines will be scaled.
+        var originalLineCoords = [{"x": 50, "y": 50}, {"x": 250, "y": 250}, {"x": 50, "y": 250}, {"x": 250, "y": 50}, {"x": 50, "y": 50}];
+        var augmentedLineCoords = [];
+        for (var i = 0; i < originalLineCoords.length; i++)
+        {
+            var dx = scaleLeftLineAround.x - originalLineCoords[i].x;
+            var dy = scaleLeftLineAround.y - originalLineCoords[i].y;
+            augmentedLineCoords.push({"dx": dx, "x": originalLineCoords[i].x, "dy": dy, "y": originalLineCoords[i].y});
+        }
+        var lineDataG = {"scaleX": scaleLeftLineGAround.x, "scaleY": scaleLeftLineGAround.y, "transX": 0, "transY": 0};;
+        var lineData = {"scaleX": scaleLeftLineAround.x, "scaleY": scaleLeftLineAround.y, "line": augmentedLineCoords};
+
+        // Tall rectangle definitions needed for left SVG.
+        // The scale for the actual rectangle needs to be in relation to the <g> that it's in, while the <g>'s scale needs to be in relation
+        // to the entire SVG.
+        var scaleLeftTallRectAround = {"x": 400, "y": 0};  // The point around which the tall right side rectangle will be scaled around.
+
+        // Ellipse definitions needed for Left SVG.
+        // The scale for the actual ellipse needs to be in relation to the <g> that it's in, while the <g>'s scale needs to be in relation
+        // to the entire SVG.
+        var scaleLeftEllipseGAround = {"x": 400, "y": 400};  // The point around which the <g> containing the ellipse will be scaled.
+        var scaleLeftEllipseAround = {"x": scaleLeftEllipseGAround.x - 300, "y": scaleLeftEllipseGAround.y - 300};  // The point around which the left ellipse will be scaled.
+        var ellipseLeftGData = {"scaleX": scaleLeftEllipseGAround.x, "scaleY": scaleLeftEllipseGAround.y, "transX": 300, "transY": 300};
+        var ellipseLeftData = {"cx": 50, "cy": 50, "rx": 50, "ry": 50, "scaleX": scaleLeftEllipseAround.x, "scaleY": scaleLeftEllipseAround.y};
+
+        // Wide rectangle definitions needed for left SVG.
+        // The scale for the actual rectangle needs to be in relation to the <g> that it's in, while the <g>'s scale needs to be in relation
+        // to the entire SVG.
+        var scaleLeftWideRectAround = {"x": 0, "y": 400};  // The point around which the wide bottom rectangle will be scaled around.
+
         // Create the left SVG element.
         var svgLeft = div.append("svg")
             .attr("width", svgWidth)
             .attr("height", svgHeight);
 
-        // Draw the lines.
-        svgLeft.append("path")
-            .classed("left-path-one", true)
-            .attr("d", leftLine(leftLineOneData))
-            .style("stroke", "red");
-        svgLeft.append("path")
-            .classed("left-path-two", true)
-            .attr("d", leftLine(leftLineTwoData))
-            .style("stroke", "blue");
+        // Draw the shapes.
+        var lineLeftG = svgLeft.append("g")
+            .datum(lineDataG)
+            .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+        var lineLeft = lineLeftG.append("path")
+            .datum(lineData)
+            .attr("d", function(d) { return lineGenerator(d.line); })
+            .style("stroke", "black")
+            .style("stroke-width", 2);
+        var tallRectLeftG = svgLeft.append("g")
+            .datum({"dx": 0, "dy": 0, "height": 300, "scaleX": scaleLeftTallRectAround.x, "scaleY": scaleLeftTallRectAround.y, "transX": 300, "transY": 0, "width": 100})
+            .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+        var tallRectLeft = tallRectLeftG.append("rect")
+            .attr("width", function(d) { return d.width; })
+            .attr("height", function(d) { return d.height; })
+            .style("fill", "black")
+            .style("stroke", "none");
+        var ellipseLeftG = svgLeft.append("g")
+            .datum(ellipseLeftGData)
+            .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+        var ellipseLeft = ellipseLeftG.append("ellipse")
+            .datum(ellipseLeftData)
+            .attr("cx", function(d) { return d.cx; })
+            .attr("cy", function(d) { return d.cy; })
+            .attr("rx", function(d) { return d.rx; })
+            .attr("ry", function(d) { return d.ry; })
+            .style("fill", "black")
+            .style("stroke", "none");
+        var wideRectLeftG = svgLeft.append("g")
+            .datum({"dx": 0, "dy": 0, "height": 100, "scaleX": scaleLeftWideRectAround.x, "scaleY": scaleLeftWideRectAround.y, "transX": 0, "transY": 300, "width": 300})
+            .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+        var wideRectLeft = wideRectLeftG.append("rect")
+            .attr("width", function(d) { return d.width; })
+            .attr("height", function(d) { return d.height; })
+            .style("fill", "black")
+            .style("stroke", "none");
 
         /*******************
         * Create Right SVG *
         *******************/
+        // Line definitions needed for right SVG.
+        var scaleRightLineAround = {"x": 0, "y": 0};  // The point around which the lines will be scaled.
+        var originalLineCoords = [{"x": 10, "y": 10}, {"x": 190, "y": 190}, {"x": 10, "y": 190}, {"x": 190, "y": 10}, {"x": 10, "y": 10}];
+        var augmentedLineCoords = [];
+        for (var i = 0; i < originalLineCoords.length; i++)
+        {
+            var dx = scaleRightLineAround.x - originalLineCoords[i].x;
+            var dy = scaleRightLineAround.y - originalLineCoords[i].y;
+            augmentedLineCoords.push({"dx": dx, "x": originalLineCoords[i].x, "dy": dy, "y": originalLineCoords[i].y});
+        }
+        lineData = [{"scaleX": scaleRightLineAround.x, "scaleY": scaleRightLineAround.y, "line": augmentedLineCoords}];
+
+        // Circle definitions needed for right SVG.
+        var scaleRightCircleAround = {"x": 400, "y": 400};  // The point around which the circle will be scaled.
+
         // Create the left SVG element.
         var svgRight = div.append("svg")
             .attr("width", svgWidth)
             .attr("height", svgHeight);
+
+        // Draw the shapes.
+        var lineRight = svgRight.append("path")
+            .data(lineData)
+            .attr("d", function(d) { return lineGenerator(d.line); })
+            .style("stroke", "black")
+            .style("stroke-width", 2);
+        var circleRight = svgRight.append("circle")
+            .data([{"cx": 300, "cy": 300, "dx": 100, "dy": 100, "scaleX": scaleRightCircleAround.x, "scaleY": scaleRightCircleAround.y, "r": 100}])
+            .attr("cx", function(d) { return d.cx; })
+            .attr("cy", function(d) { return d.cy; })
+            .attr("r", function(d) { return d.r; })
+            .style("fill", "black")
+            .style("stroke", "none");
 
         /*********************
         * Create The Sliders *
@@ -298,24 +365,56 @@ $(document).ready(function()
                     d3.select(this)
                         .attr("cx", d.x = Math.max(0, Math.min(widthScaleMaxVal, sliderPos)));
 
-                    // Update left SVG element paths.
-                    scaleAroundLeft.x = originalScaleAroundLeft.x * currentSVGWidthScale;
-                    var newLeftLineOneData = [];
-                    for (var i = 0; i < leftLineOneData.length; i++)
+                    // Update the left SVG's line.
+                    var originalLineGData = lineLeftG.datum();
+                    var originalLineData = lineLeft.datum();
+                    scaleLeftLineGAround.x = originalLineGData.scaleX * scaleValue;
+                    scaleLeftLineGAround.y = originalLineGData.scaleY * scaleValue;
+                    scaleLeftLineAround.x = originalLineData.scaleX * scaleValue;
+                    scaleLeftLineAround.y = originalLineData.scaleY * scaleValue;
+                    var newLineData = [];
+                    for (var i = 0; i < originalLineData.line.length; i++)
                     {
-                        newLeftLineOneData.push({"x": scaleAroundLeft.x - (leftLineOneData[i].dx * scaleValue),
-                                                 "y": scaleAroundLeft.y - (leftLineOneData[i].dy * scaleValue)});
+                        newLineData.push({"x": scaleLeftLineAround.x - (originalLineData.line[i].dx * scaleValue),
+                                          "y": scaleLeftLineAround.y - (originalLineData.line[i].dy * scaleValue)});
                     }
-                    var newLeftLineTwoData = [];
-                    for (var i = 0; i < leftLineTwoData.length; i++)
-                    {
-                        newLeftLineTwoData.push({"x": scaleAroundLeft.x - (leftLineTwoData[i].dx * scaleValue),
-                                                 "y": scaleAroundLeft.y - (leftLineTwoData[i].dy * scaleValue)});
-                    }
-                    svgLeft.select(".left-path-one").attr("d", leftLine(newLeftLineOneData))
-                    svgLeft.select(".left-path-two").attr("d", leftLine(newLeftLineTwoData))
+                    lineLeftG
+                        .attr("transform", "translate(" + (originalLineGData.transX * scaleValue) + "," +
+                              (originalLineGData.transY * scaleValue) + ")");
+                    lineLeft.attr("d", lineGenerator(newLineData));
 
-                    console.log("width", scaleAroundLeft);
+                    // Update the left SVG's ellipse.
+                    var originalEllipseGData = ellipseLeftG.datum();
+                    var originalEllipseData = ellipseLeft.datum();
+                    scaleLeftEllipseGAround.x = originalEllipseGData.scaleX * currentSVGWidthScale;
+                    scaleLeftEllipseAround.x = originalEllipseData.scaleX * currentSVGWidthScale;
+                    ellipseLeftG
+                        .attr("transform", "translate(" + (originalEllipseGData.transX * currentSVGWidthScale) + "," +
+                              (originalEllipseGData.transY * currentSVGHeightScale) + ")");
+                    ellipseLeft
+                        .attr("cx", originalEllipseData.cx * currentSVGWidthScale)
+                        .attr("cy", originalEllipseData.cy * currentSVGHeightScale)
+                        .attr("rx", originalEllipseData.rx * currentSVGWidthScale)
+                        .attr("ry", originalEllipseData.ry * currentSVGHeightScale);
+
+                    // Update the right SVG's line.
+                    var originalLineData = lineRight.datum();
+                    scaleRightLineAround.x = originalLineData.scaleX * currentSVGWidthScale;
+                    var newLineData = [];
+                    for (var i = 0; i < originalLineData.line.length; i++)
+                    {
+                        newLineData.push({"x": scaleRightLineAround.x - (originalLineData.line[i].dx * scaleValue),
+                                          "y": scaleRightLineAround.y - (originalLineData.line[i].dy * scaleValue)});
+                    }
+                    lineRight.attr("d", lineGenerator(newLineData));
+
+                    // Update the right SVG's circle.
+                    var originalCircleData = circleRight.datum();
+                    scaleRightCircleAround.x = originalCircleData.scaleX * currentSVGWidthScale;
+                    circleRight
+                        .attr("cx", scaleRightCircleAround.x - (originalCircleData.dx * scaleValue))
+                        .attr("cy", scaleRightCircleAround.y - (originalCircleData.dy * scaleValue))
+                        .attr("r", originalCircleData.r * scaleValue);
 
                     // Update the width of the SVG element.
                     svgLeft.attr("width", currentSVGWidth);
@@ -342,24 +441,56 @@ $(document).ready(function()
                     d3.select(this)
                         .attr("cx", d.x = Math.max(0, Math.min(heightScaleMaxVal, sliderPos)));
 
-                    // Update left SVG element paths.
-                    scaleAroundLeft.y = originalScaleAroundLeft.y * currentSVGHeightScale;
-                    var newLeftLineOneData = [];
-                    for (var i = 0; i < leftLineOneData.length; i++)
+                    // Update the left SVG's line.
+                    var originalLineGData = lineLeftG.datum();
+                    var originalLineData = lineLeft.datum();
+                    scaleLeftLineGAround.x = originalLineGData.scaleX * scaleValue;
+                    scaleLeftLineGAround.y = originalLineGData.scaleY * scaleValue;
+                    scaleLeftLineAround.x = originalLineData.scaleX * scaleValue;
+                    scaleLeftLineAround.y = originalLineData.scaleY * scaleValue;
+                    var newLineData = [];
+                    for (var i = 0; i < originalLineData.line.length; i++)
                     {
-                        newLeftLineOneData.push({"x": scaleAroundLeft.x - (leftLineOneData[i].dx * scaleValue),
-                                                 "y": scaleAroundLeft.y - (leftLineOneData[i].dy * scaleValue)});
+                        newLineData.push({"x": scaleLeftLineAround.x - (originalLineData.line[i].dx * scaleValue),
+                                          "y": scaleLeftLineAround.y - (originalLineData.line[i].dy * scaleValue)});
                     }
-                    var newLeftLineTwoData = [];
-                    for (var i = 0; i < leftLineTwoData.length; i++)
-                    {
-                        newLeftLineTwoData.push({"x": scaleAroundLeft.x - (leftLineTwoData[i].dx * scaleValue),
-                                                 "y": scaleAroundLeft.y - (leftLineTwoData[i].dy * scaleValue)});
-                    }
-                    svgLeft.select(".left-path-one").attr("d", leftLine(newLeftLineOneData))
-                    svgLeft.select(".left-path-two").attr("d", leftLine(newLeftLineTwoData))
+                    lineLeftG
+                        .attr("transform", "translate(" + (originalLineGData.transX * scaleValue) + "," +
+                              (originalLineGData.transY * scaleValue) + ")");
+                    lineLeft.attr("d", lineGenerator(newLineData));
 
-                    console.log("height", scaleAroundLeft);
+                    // Update the left SVG's ellipse.
+                    var originalEllipseGData = ellipseLeftG.datum();
+                    var originalEllipseData = ellipseLeft.datum();
+                    scaleLeftEllipseGAround.y = originalEllipseGData.scaleY * currentSVGHeightScale;
+                    scaleLeftEllipseAround.y = originalEllipseData.scaleY * currentSVGHeightScale;
+                    ellipseLeftG
+                        .attr("transform", "translate(" + (originalEllipseGData.transX * currentSVGWidthScale) + "," +
+                              (originalEllipseGData.transY * currentSVGHeightScale) + ")");
+                    ellipseLeft
+                        .attr("cx", originalEllipseData.cx * currentSVGWidthScale)
+                        .attr("cy", originalEllipseData.cy * currentSVGHeightScale)
+                        .attr("rx", originalEllipseData.rx * currentSVGWidthScale)
+                        .attr("ry", originalEllipseData.ry * currentSVGHeightScale);
+
+                    // Update the right SVG's line.
+                    var originalLineData = lineRight.datum();
+                    scaleRightLineAround.y = originalLineData.scaleY * currentSVGHeightScale;
+                    var newLineData = [];
+                    for (var i = 0; i < originalLineData.line.length; i++)
+                    {
+                        newLineData.push({"x": scaleRightLineAround.x - (originalLineData.line[i].dx * scaleValue),
+                                          "y": scaleRightLineAround.y - (originalLineData.line[i].dy * scaleValue)});
+                    }
+                    lineRight.attr("d", lineGenerator(newLineData));
+
+                    // Update the right SVG's circle.
+                    var originalCircleData = circleRight.datum();
+                    scaleRightCircleAround.y = originalCircleData.scaleY * currentSVGHeightScale;
+                    circleRight
+                        .attr("cx", scaleRightCircleAround.x - (originalCircleData.dx * scaleValue))
+                        .attr("cy", scaleRightCircleAround.y - (originalCircleData.dy * scaleValue))
+                        .attr("r", originalCircleData.r * scaleValue);
 
                     // Update the width of the SVG element.
                     svgLeft.attr("height", currentSVGHeight);
