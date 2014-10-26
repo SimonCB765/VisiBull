@@ -140,14 +140,14 @@
 <br>
 <p>dx and dy are only needed when scaling and keeping aspect ratios.</p>
 <p>
-	Potential problem is that the stroke width stays the same, a stroke width of 2 pixels takes up a much greater fraction of the space 
-	in a 50x50 pixel portion of the SVG element than in a 200x200 portion. Of course you can emulate the viewBox effect where the stroke width 
-	scales down by simply scaling the stroke width as well.
+    Potential problem is that the stroke width stays the same, a stroke width of 2 pixels takes up a much greater fraction of the space
+    in a 50x50 pixel portion of the SVG element than in a 200x200 portion. Of course you can emulate the viewBox effect where the stroke width
+    scales down by simply scaling the stroke width as well.
 </p>
 <br><br><br><br>
 <p>
-	Can scale different shapes around different points (top left and bottom right in right SVG), and can scale with and without aspect ratio
-	preserving (left SVG).
+    Can scale different shapes around different points (top left and bottom right in right SVG), and can scale with and without aspect ratio
+    preserving (left SVG).
 </p>
 <p>Second 2 SVGs with rectangles of color along the bottom and the right (left will have rectangles not scale, right will scale slower)</p>
 <p>
@@ -155,7 +155,17 @@
     the rectangle as a fraction of the width/height of the whole svg. That way it appears to be the same size
 </p>
 <br>
-<div id="final-path-scaling"></div>
+<div id="different-path-scaling"></div>
+<br>
+<svg id="different-sliders" />
+<br><br><br><br><br>
+<p>Can also get really complex scaling. The shapes below all scale very differently.</p>
+<p>The hourglass path scales so that it stays in the middle of the area left by the other shapes, while keeping its aspect ratio</p>
+<p>The circle keeps its aspect ratio (unsurprisingly as it's a circle) and shrinks into the bottom right</p>
+<p>The tall rectangle maintains its width at all times, but extends its height to fit all the right hand side space not needed by the circle</p>
+<p>The wide rectangle at the bottom maintains its height at all times, but extends its width to fit all the space not used by the circle</p>
+<br>
+<svg id="final-demo" />
 <br>
 <svg id="final-sliders" />
 <br>
