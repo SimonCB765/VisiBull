@@ -243,7 +243,10 @@ $(document).ready(function()
         // Tall rectangle definitions needed for left SVG.
         // The scale for the actual rectangle needs to be in relation to the <g> that it's in, while the <g>'s scale needs to be in relation
         // to the entire SVG.
-        var scaleLeftTallRectAround = {"x": 400, "y": 0};  // The point around which the tall right side rectangle will be scaled around.
+        var scaleLeftTallRectGAround = {"x": 400, "y": 0};  // The point around which the <g> containing the tall right side rectangle will be scaled around.
+        var scaleLeftTallRectAround = {"x": 100, "y": 100};  // The point around which the tall right side rectangle will be scaled around.
+        var tallLeftRectGData = {"scaleX": scaleLeftTallRectGAround.x, "scaleY": scaleLeftTallRectGAround.y, "transX": 300, "transY": 0};
+        var tallLeftRectData = {"height": 300, "scaleX": scaleLeftTallRectAround.x, "scaleY": scaleLeftTallRectAround.y, "width": 100};
 
         // Ellipse definitions needed for Left SVG.
         // The scale for the actual ellipse needs to be in relation to the <g> that it's in, while the <g>'s scale needs to be in relation
@@ -256,7 +259,10 @@ $(document).ready(function()
         // Wide rectangle definitions needed for left SVG.
         // The scale for the actual rectangle needs to be in relation to the <g> that it's in, while the <g>'s scale needs to be in relation
         // to the entire SVG.
-        var scaleLeftWideRectAround = {"x": 0, "y": 400};  // The point around which the wide bottom rectangle will be scaled around.
+        var scaleLeftWideRectGAround = {"x": 0, "y": 400};  // The point around which the <g> containing the wide bottom rectangle will be scaled around.
+        var scaleLeftWideRectAround = {"x": 0, "y": 100};  // The point around which the wide bottom rectangle will be scaled around.
+        var wideLeftRectGData = {"scaleX": scaleLeftWideRectGAround.x, "scaleY": scaleLeftWideRectGAround.y, "transX": 0, "transY": 300};
+        var wideLeftRectData = {"height": 100, "scaleX": scaleLeftWideRectAround.x, "scaleY": scaleLeftWideRectAround.y, "width": 300};
 
         // Create the left SVG element.
         var svgLeft = div.append("svg")
@@ -273,9 +279,10 @@ $(document).ready(function()
             .style("stroke", "black")
             .style("stroke-width", 2);
         var tallRectLeftG = svgLeft.append("g")
-            .datum({"dx": 0, "dy": 0, "height": 300, "scaleX": scaleLeftTallRectAround.x, "scaleY": scaleLeftTallRectAround.y, "transX": 300, "transY": 0, "width": 100})
+            .datum(tallLeftRectGData)
             .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
         var tallRectLeft = tallRectLeftG.append("rect")
+            .datum(tallLeftRectData)
             .attr("width", function(d) { return d.width; })
             .attr("height", function(d) { return d.height; })
             .style("fill", "black")
@@ -292,9 +299,10 @@ $(document).ready(function()
             .style("fill", "black")
             .style("stroke", "none");
         var wideRectLeftG = svgLeft.append("g")
-            .datum({"dx": 0, "dy": 0, "height": 100, "scaleX": scaleLeftWideRectAround.x, "scaleY": scaleLeftWideRectAround.y, "transX": 0, "transY": 300, "width": 300})
+            .datum(wideLeftRectGData)
             .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
         var wideRectLeft = wideRectLeftG.append("rect")
+            .datum(wideLeftRectData)
             .attr("width", function(d) { return d.width; })
             .attr("height", function(d) { return d.height; })
             .style("fill", "black")
@@ -379,15 +387,23 @@ $(document).ready(function()
                                           "y": scaleLeftLineAround.y - (originalLineData.line[i].dy * scaleValue)});
                     }
                     lineLeftG
-                        .attr("transform", "translate(" + (originalLineGData.transX * scaleValue) + "," +
-                              (originalLineGData.transY * scaleValue) + ")");
+                        .attr("transform", "translate(" + (scaleLeftLineGAround.x - (originalLineGData.transX * scaleValue)) + "," +
+                              (scaleLeftLineGAround.y - (originalLineGData.transY * scaleValue)) + ")");
                     lineLeft.attr("d", lineGenerator(newLineData));
+
+                    // Update the left SVG's tall rectangle.
+                    var originalTallRectGData = tallRectLeftG.datum();
+                    var originalTallRectData = tallRectLeft.datum();
+                    tallRectLeftG
+                        .attr("transform", "translate(" + (originalTallRectGData.transX * currentSVGWidthScale) + "," +
+                              (originalTallRectGData.transY * currentSVGHeightScale) + ")");
+                    tallRectLeft
+                        .attr("width", originalTallRectData.width * currentSVGWidthScale)
+                        .attr("height", originalTallRectData.height * currentSVGHeightScale);
 
                     // Update the left SVG's ellipse.
                     var originalEllipseGData = ellipseLeftG.datum();
                     var originalEllipseData = ellipseLeft.datum();
-                    scaleLeftEllipseGAround.x = originalEllipseGData.scaleX * currentSVGWidthScale;
-                    scaleLeftEllipseAround.x = originalEllipseData.scaleX * currentSVGWidthScale;
                     ellipseLeftG
                         .attr("transform", "translate(" + (originalEllipseGData.transX * currentSVGWidthScale) + "," +
                               (originalEllipseGData.transY * currentSVGHeightScale) + ")");
@@ -396,6 +412,16 @@ $(document).ready(function()
                         .attr("cy", originalEllipseData.cy * currentSVGHeightScale)
                         .attr("rx", originalEllipseData.rx * currentSVGWidthScale)
                         .attr("ry", originalEllipseData.ry * currentSVGHeightScale);
+
+                    // Update the left SVG's wide rectangle.
+                    var originalWideRectGData = wideRectLeftG.datum();
+                    var originalWideRectData = wideRectLeft.datum();
+                    wideRectLeftG
+                        .attr("transform", "translate(" + (originalWideRectGData.transX * currentSVGWidthScale) + "," +
+                              (originalWideRectGData.transY * currentSVGHeightScale) + ")");
+                    wideRectLeft
+                        .attr("width", originalWideRectData.width * currentSVGWidthScale)
+                        .attr("height", originalWideRectData.height * currentSVGHeightScale);
 
                     // Update the right SVG's line.
                     var originalLineData = lineRight.datum();
@@ -455,15 +481,23 @@ $(document).ready(function()
                                           "y": scaleLeftLineAround.y - (originalLineData.line[i].dy * scaleValue)});
                     }
                     lineLeftG
-                        .attr("transform", "translate(" + (originalLineGData.transX * scaleValue) + "," +
-                              (originalLineGData.transY * scaleValue) + ")");
+                        .attr("transform", "translate(" + (scaleLeftLineGAround.x - (originalLineGData.transX * scaleValue)) + "," +
+                              (scaleLeftLineGAround.y - (originalLineGData.transY * scaleValue)) + ")");
                     lineLeft.attr("d", lineGenerator(newLineData));
+
+                    // Update the left SVG's tall rectangle.
+                    var originalTallRectGData = tallRectLeftG.datum();
+                    var originalTallRectData = tallRectLeft.datum();
+                    tallRectLeftG
+                        .attr("transform", "translate(" + (originalTallRectGData.transX * currentSVGWidthScale) + "," +
+                              (originalTallRectGData.transY * currentSVGHeightScale) + ")");
+                    tallRectLeft
+                        .attr("width", originalTallRectData.width * currentSVGWidthScale)
+                        .attr("height", originalTallRectData.height * currentSVGHeightScale);
 
                     // Update the left SVG's ellipse.
                     var originalEllipseGData = ellipseLeftG.datum();
                     var originalEllipseData = ellipseLeft.datum();
-                    scaleLeftEllipseGAround.y = originalEllipseGData.scaleY * currentSVGHeightScale;
-                    scaleLeftEllipseAround.y = originalEllipseData.scaleY * currentSVGHeightScale;
                     ellipseLeftG
                         .attr("transform", "translate(" + (originalEllipseGData.transX * currentSVGWidthScale) + "," +
                               (originalEllipseGData.transY * currentSVGHeightScale) + ")");
@@ -472,6 +506,16 @@ $(document).ready(function()
                         .attr("cy", originalEllipseData.cy * currentSVGHeightScale)
                         .attr("rx", originalEllipseData.rx * currentSVGWidthScale)
                         .attr("ry", originalEllipseData.ry * currentSVGHeightScale);
+
+                    // Update the left SVG's wide rectangle.
+                    var originalWideRectGData = wideRectLeftG.datum();
+                    var originalWideRectData = wideRectLeft.datum();
+                    wideRectLeftG
+                        .attr("transform", "translate(" + (originalWideRectGData.transX * currentSVGWidthScale) + "," +
+                              (originalWideRectGData.transY * currentSVGHeightScale) + ")");
+                    wideRectLeft
+                        .attr("width", originalWideRectData.width * currentSVGWidthScale)
+                        .attr("height", originalWideRectData.height * currentSVGHeightScale);
 
                     // Update the right SVG's line.
                     var originalLineData = lineRight.datum();
