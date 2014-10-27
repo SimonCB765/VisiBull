@@ -44,6 +44,7 @@
 <p>
     In order to use the <code class="html"><span class="attribute">viewBox</span></code> attribute for scaling in this manner, you first need to
     define your path and the original 'view' for the SVG. The simplest way to do this (using d3) is
+</p>
 <pre class="code"><code class="javascript"><span class="keyword">var</span> svgWidth = <span class="number">600</span>;  <span class="comment">// The width of the SVG element.</span>
 <span class="keyword">var</span> svgHeight = <span class="number">450</span>;  <span class="comment">// The height of the SVG element.</span>
 <span class="keyword">var</span> svg = d3.select(<span class="string">"svg"</span>)
@@ -122,43 +123,120 @@
     The different size of the text in the different SVG elements is caused by the coordinate space change. The text is defined to be 10px in all
     SVG elements, but due to the changed coordinate space appears bigger or smaller.
 </p>
-<br><br><br><br>
+<p>Scaling using the <code class="html"><span class="attribute">viewBox</span></code> attribute can be seen below.</p>
+<br>
 <svg id="view-box-scaling" />
 <br>
 <svg id="view-box-sliders" />
+<br>
 <p>
     Using the <code class="html"><span class="attribute">viewBox</span></code> attribute gives you extensive control over how the scaling of the
     content changes via the <code class="html"><span class="attribute">preserveAspectRatio</span></code> attribute (and its many
     <a href="https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/preserveAspectRatio">values</a>). Here
-    <code class="html"><span class="attribute">viewBox</span>=<span class="value">"none"</span></code> has been used.
+    <code class="html"><span class="attribute">preserveAspectRatio</span>=<span class="value">"none"</span></code> has been used in order to allow
+    the path to deform and fit the entire space available.
 </p>
-<br><br><br><br><br>
 <br>
 <h3>Scaling By Recomputing Path Coordinates</h3>
-<p>With the viewBox you get the problem that as you shrink the SVG element, the paths become very indistinct without messing about with their styles.</p>
-<p>This is solved by redrawing the paths at proper scales.</p>
-<br>
-<p>Left scales with the smaller of the height and width to keep the aspect, right scales the height and width independently (and loses aspect)</p>
+<p>
+    One potential problem with using the <code class="html"><span class="attribute">viewBox</span></code> attribute to scale content, is that
+    changing the SVG element's dimensions causes the appearance of the contents to change. As the size of the SV element above shrinks, the stroke
+    width of the path in it decreases noticeably. If this is desired, then there's no problem. However, in some cases it may be desirable to keep
+    the path more visible (even though maintaining the stroke size as you scale down the path makes the lines take up a greater proportion of the
+    available space).
+</p>
+<p>
+    While this problem can be overcome by resetting the stroke width, it can also be solved by redrawing the paths at the proper scale.
+    Doing this requires more computation, but gives finer control over the scaling of the objects in the SVG element. For example, individual
+    objects in the SVG element can be scaled differently, and can use different methods to achieve an effect similar to all the values of
+    the <code class="html"><span class="attribute">preserveAspectRatio</span></code> attribute.
+</p>
+<p>An example of this redrawing can be seen below.</p>
 <br>
 <div id="change-path-scaling"></div>
 <br>
 <svg id="change-path-sliders" />
 <br>
-<p>dx and dy are only needed when scaling and keeping aspect ratios.</p>
 <p>
-    Potential problem is that the stroke width stays the same, a stroke width of 2 pixels takes up a much greater fraction of the space
-    in a 50x50 pixel portion of the SVG element than in a 200x200 portion. Of course you can emulate the viewBox effect where the stroke width
-    scales down by simply scaling the stroke width as well.
+    The basic process by which this works is to calculate the ratio of the current size of the SVG element to its original size, and the use this
+    ratio to rescale objects as needed (the <code class="javascript">scaleValue</code> variable is used when you want to maintain the aspect ratio).
 </p>
-<br><br><br><br>
+<pre class="code"><code class="javascript"><span class="keyword">var</span> originalSvgWidth = <span class="number">600</span>;  <span class="comment">// The original width of the SVG element.</span>
+<span class="keyword">var</span> currentSvgWidth = originalSvgWidth;  <span class="comment">// The current width of the SVG element.</span>
+<span class="keyword">var</span> svgWidthRatio = currentSvgWidth / originalSvgWidth;  <span class="comment">// The ratio of current to original width of the SVG element.</span>
+<span class="keyword">var</span> originalSvgHeight = <span class="number">450</span>;  <span class="comment">// The original height of the SVG element.</span>
+<span class="keyword">var</span> currentSvgHeight = originalSvgHeight;  <span class="comment">// The current height of the SVG element.</span>
+<span class="keyword">var</span> svgHeightRatio = currentSvgHeight / originalSvgHeight;  <span class="comment">// The ratio of current to original height of the SVG element.</span>
+<span class="keyword">var</span> scaleValue = Math.min(currentSVGWidthScale, currentSVGHeightScale);
+</code></pre>
+<p>Then, when the size of the SVG element changes, you update the current width/height and the ratios.</p>
+<pre class="code"><code class="javascript"><span class="comment">// Get the new height and width.</span>
+currentSvgWidth = <span class="number">...</span>;
+svgWidthRatio = currentSvgWidth / originalSvgWidth;
+currentSvgHeight = <span class="number">...</span>;
+svgHeightRatio = currentSvgHeight / originalSvgHeight;
+scaleValue = Math.min(currentSVGWidthScale, currentSVGHeightScale);
+</code></pre>
+<p>You can then update the coordinates of the path to reflect the positions they should take in the SVG element with the changed size.</p>
+<pre class="code"><code class="javascript"><span class="comment">// For maintaining the aspect ratio.</span>
+<span class="keyword">var</span> newCoords = [];
+<span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i < originalCoords.length; i++)
+{
+    newCoords.push({<span class="string">"x"</span>: originalCoords[i].x * scaleValue, <span class="string">"y"</span>: originalCoords[i].y * scaleValue})
+}
+
+<span class="comment">// To not maintain the aspect ratio.</span>
+<span class="keyword">var</span> newCoords = [];
+<span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i < originalCoords.length; i++)
+{
+    newCoords.push({<span class="string">"x"</span>: originalCoords[i].x * svgWidthRatio, <span class="string">"y"</span>: originalCoords[i].y * svgHeightRatio})
+}
+</code></pre>
 <p>
-    Can scale different shapes around different points (top left and bottom right in right SVG), and can scale with and without aspect ratio
-    preserving (left SVG).
+    In addition to these concepts, you also need the point around which the scaling will occur. For example, the code (and paths in the examples)
+    above will scale towards the top left corner (e.g. (0, 0)). However, you may want them to scale towards a different position.
+    With the <code class="html"><span class="attribute">viewBox</span></code> approach this is achieved through the
+    <code class="html"><span class="attribute">preserveAspectRatio</span></code> attribute.
+    The custom scaling of paths allows you to achieve all the options provided by the
+    <code class="html"><span class="attribute">preserveAspectRatio</span></code> attribute, and in addition, allows you to scale towards
+    any arbitrary point you want.
 </p>
-<p>Second 2 SVGs with rectangles of color along the bottom and the right (left will have rectangles not scale, right will scale slower)</p>
+<p>All that's required for this is to define the point around which to scale</p>
+<pre class="code"><code class="javascript"><span class="keyword">var</span> scaleAround = {<span class="string">"x"</span>: <span class="number">...</span>, <span class="string">"y"</span>: <span class="number">...</span>}</code></pre>
+<p>and then alter the coordinate updating code slightly</p>
+<pre class="code"><code class="javascript"><span class="comment">// Need to scale the point around which the scaling occurs.</span>
+<span class="keyword">var</span> currentScalingCoords = {<span class="string">"x"</span>: scaleAround.x * svgWidthRatio, <span class="string">"y"</span>: scaleAround.y * svgHeightRatio};
+
+<span class="comment">// For maintaining the aspect ratio.</span>
+<span class="keyword">var</span> newCoords = [];
+<span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i < originalCoords.length; i++)
+{
+    newCoords.push({<span class="string">"x"</span>: currentScalingCoords.x - (originalCoords[i].dx * scaleValue),
+                    <span class="string">"y"</span>: currentScalingCoords.y - (originalCoords[i].dy * scaleValue)})
+}
+
+<span class="comment">// To not maintain the aspect ratio.</span>
+<span class="keyword">var</span> newCoords = [];
+<span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i < originalCoords.length; i++)
+{
+    newCoords.push({<span class="string">"x"</span>: currentScalingCoords.x - (originalCoords[i].dx * svgWidthRatio),
+                    <span class="string">"y"</span>: currentScalingCoords.y - (originalCoords[i].dy * svgHeightRatio)})
+}
+</code></pre>
 <p>
-    Think need to define the width/height of the rectangles as a fraction of the width/height of the whole svg, also need to define the x/y of
-    the rectangle as a fraction of the width/height of the whole svg. That way it appears to be the same size
+    The <code class="javascript">originalCoords[i].dx</code> and <code class="javascript">originalCoords[i].dy</code> records how far the
+    point at <code class="javascript">originalCoords[i]</code> is from <code class="javascript">scaleAround.x</code> and
+    <code class="javascript">scaleAround.y</code> respectively (i.e. how far the original path point is from the point around which the scaling
+    is to be done). This ensures that the distance from all points to the point around which they are scaling remains the correct proportion
+    as the point scaled around changes with the SVG element size.
+</p>
+<p>
+    This approach allows each object to be scaled in different manners around potentially different points. For example, in the left SVG element
+    below, the hourglass scales towards the point (150, 150), the tall rectangle towards the top right, the ellipse towards the bottom right and the wide
+    rectangle to the bottom left. The rectangles and ellipse also do not maintain their aspect ratios, unlike the hourglass.
+    In the right one, both shapes maintain their aspect ratios, but the hourglass scales towards the top left, while the circle scales towards
+    the bottom right.
+</p>
 </p>
 <br>
 <div id="different-path-scaling"></div>
