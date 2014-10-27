@@ -10,7 +10,7 @@
 {% block header %}
 <!--Block for including page specific header information (e.g. page title) within the <header> tag.-->
 <h1 class="pageTitle">Scaling SVG Elements and Their Contents</h1>
-<span class="date">-- --, 2014</span>
+<span class="date">October 30, 2014</span>
 {% endblock %}
 
 {% block content %}
@@ -93,7 +93,8 @@
 </p>
 <p>
     In example 2, the <code class="html"><span class="attribute">viewBox</span></code> attribute is set to be
-    <code class="html"><span class="value">"-10 -10 40 40"</span></code>.
+    <code class="html"><span class="value">"-10 -10 40 40"</span></code>. As the diamond's X and Y coordinates both go from 0 to 20, setting
+    the top left corner to (-10, -10), and making the width and height both 40 pixels, causes the diamond to become centered.
 </p>
 <p>
     In example 3, the <code class="html"><span class="attribute">viewBox</span></code> attribute is set to be
@@ -101,19 +102,24 @@
 </p>
 <p>
     In example 4, the <code class="html"><span class="attribute">viewBox</span></code> attribute is set to be
-    <code class="html"><span class="value">"0 0 40 80"</span></code>.
+    <code class="html"><span class="value">"0 0 40 80"</span></code>. Due to the change in the
+    <code class="html"><span class="attribute">viewBox</span></code> preserving the aspect ratio, the width of the diamond is now half of the height.
+    Although the diamond appears to have shifted along the X axis, it still touches the top of the SVG element when at Y=10. However, with the
+    width being half the height, the diamond can no longer touch the left side as well.
 </p>
 <p>
     In example 5, the <code class="html"><span class="attribute">viewBox</span></code> attribute is set to be
     <code class="html"><span class="value">"0 0 40 80"</span></code>. This is also the only case where the
     <code class="html"><span class="attribute">preserveAspectRatio</span></code> attribute is not left as its default value. Instead, it is set to
-    <code class="html"><span class="value">"none"</span></code> to prevent the preserving of the aspect ratio.
+    <code class="html"><span class="value">"none"</span></code> to prevent the preserving of the aspect ratio. This allows the diamond to stretch
+    to touch the left side of the SVG element (unlike in example 4). Preventing the preservation of the aspect ratio ensures that the drawn path
+    goes through each one of the specified coordinates regardless of the effect that has on the shape.
 </p>
 <p>
-    The change of coordinate space also effects the text. Although the text is always in the middle of the SVG element, the coordinates of the text
+    The change of coordinate space also affects the text. Although the text is always in the middle of the SVG element, the coordinates of the text
     are not the same across all SVG elements. For example 1, the coordinates of the text are (175/2, 175/2), for examples 2 and 3 the coordinates are
     (10, 10) and for examples 4 and 5 the coordinates are (20, 40).
-    The different size of the text in the different SVG elements is caused by the same coordinate space change. The text is defined to be 10px in all
+    The different size of the text in the different SVG elements is caused by the coordinate space change. The text is defined to be 10px in all
     SVG elements, but due to the changed coordinate space appears bigger or smaller.
 </p>
 <br><br><br><br>
@@ -158,15 +164,4 @@
 <div id="different-path-scaling"></div>
 <br>
 <svg id="different-sliders" />
-<br><br><br><br><br>
-<p>Can also get really complex scaling. The shapes below all scale very differently.</p>
-<p>The hourglass path scales so that it stays in the middle of the area left by the other shapes, while keeping its aspect ratio</p>
-<p>The circle keeps its aspect ratio (unsurprisingly as it's a circle) and shrinks into the bottom right</p>
-<p>The tall rectangle maintains its width at all times, but extends its height to fit all the right hand side space not needed by the circle</p>
-<p>The wide rectangle at the bottom maintains its height at all times, but extends its width to fit all the space not used by the circle</p>
-<br>
-<svg id="final-demo" />
-<br>
-<svg id="final-sliders" />
-<br>
 {% endblock %}

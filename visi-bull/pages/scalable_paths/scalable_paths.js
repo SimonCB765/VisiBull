@@ -10,8 +10,6 @@ $(document).ready(function()
     var pathChangeSliders = "#change-path-sliders";
     var differentDemo = "#different-path-scaling";
     var differentSliders = "#different-sliders";
-    var finalDemo = "#final-demo";
-    var finalSliders = "#final-sliders";
 
     // Create the demos.
     create_static_path_demo();
@@ -19,7 +17,6 @@ $(document).ready(function()
     create_view_box_scaling_demo();
     create_change_path_demo();
     create_different_demo();
-    create_final_demo();
 
     function create_change_path_demo()
     {
@@ -200,31 +197,6 @@ $(document).ready(function()
                     svgRight.attr("height", currentSVGHeight);
                 });
         create_slider(svgSlider, heightScale, 100, svgSliderHeight / 2, 50, "Height", svgHeight, heightDragBehaviour);
-    }
-
-    function create_final_demo()
-    {
-        // Definitions needed for the SVG element.
-        var svgWidth = 600;  // The width of each SVG element.
-        var svgHeight = 450;  // The height of each SVG element.
-        var currentSVGWidth = svgWidth;  // The current width of the SVG element.
-        var currentSVGWidthScale = currentSVGWidth / svgWidth;  // The amount by which to scale the width to keep the relative widths of objects the same.
-        var currentSVGHeight = svgHeight;  // The current height of the SVG element.
-        var currentSVGHeightScale = currentSVGHeight / svgHeight;  // The amount by which to scale the height to keep the relative heights of objects the same.
-        var scaleValue = Math.min(currentSVGWidthScale, currentSVGHeightScale);  // The scale value to use to keep the aspect ratio even.
-        var svgSliderWidth = 600;  // The width of the SVG element containing the sliders.
-        var svgSliderHeight = 100;  // The height of the SVG element containing the sliders.
-        var minSVGWidth = 100;  // The minimum width for the SVG element containing the lines.
-        var maxSVGWidth = 900;  // The maximum width for the SVG element containing the lines.
-        var minSVGHeight = 100;  // The minimum height for the SVG element containing the lines.
-        var maxSVGHeight = 600;  // The maximum height for the SVG element containing the lines.
-
-        // Create the SVG element.
-        var svg = d3.select(finalDemo)
-            .attr("width", svgWidth)
-            .attr("height", svgHeight);
-
-        //finalSliders
     }
 
     function create_different_demo()
