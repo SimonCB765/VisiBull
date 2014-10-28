@@ -4,18 +4,24 @@
 <!--Block for including page specific CSS and JS files within the <head> tag.-->
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='favicon/favicon.css') }}">
 <script type="text/javascript" src="{{ url_for('static', filename='scripts/jQuery/jquery-1.11.1.min.js') }}"></script>
+<script type="text/javascript" >
+var HOMEPAGE = "{{ url_for('home') }}";
+var GITHUBREPO = "{{ githubURL }}";
+</script>
 <script type="text/javascript" src="{{ url_for('static', filename='favicon/favicon.js') }}"></script>
 {% endblock %}
 
 {% block header %}
 <!--Block for including page specific header information (e.g. page title) within the <header> tag.-->
 <h1 class="pageTitle">Favicon Creation</h1>
-<span class="date">-- --, 2014</span>
+<span class="date">November 6, 2014</span>
 {% endblock %}
 
 {% block content %}
 <!--Block for including the content of the page within the div.content tag.-->
+<p>Bare silhouettes.</p>
 <div id="no-links" class="centered"></div>
 <br><br>
+<p>Silhouettes with links to the home page and GitHub repo for use on pages without text.</p>
 <div id="with-links" class="centered"></div>
 {% endblock %}

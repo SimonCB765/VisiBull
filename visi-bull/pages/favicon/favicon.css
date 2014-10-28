@@ -7,16 +7,23 @@ _classes    -> style declarations for specific classes and ids.
 /*
 _element
 */
-svg {outline: thin black solid;}
-svg {cursor: default; display: inline; margin: 0 10px;}
+svg {border: thin black solid; cursor: default; display: inline; margin: 0 10px;}  /* Style the SVG elements. */
 
 /*
 _classes
 */
-.blackOnWhite {background-color: white;}
-.blackOnWhite .bull {fill: none; stroke: black; stroke-width: 2;}
+div .centered {margin: 0 auto; width: 500px;}  /* Setup the div to center its elements horizontally. */
 
-.whiteOnBlack {background-color: black;}
-.whiteOnBlack .bull {fill: none; stroke: white; stroke-width: 2;}
+/* Black on white bull. */
+.blackOnWhite {background-color: white;}  /* Set the background. */
+.whiteOnBlack text {fill: black; stroke: none;}  /* Color GitHub and home text. */
+.blackOnWhite .bull {fill: none; stroke: black; stroke-width: 2;}  /* Style the bull. */
+.blackOnWhite .github {cursor: pointer; font-size: 25px; text-anchor: end;}  /* Style the GitHub text. */
+.blackOnWhite .home {alignment-baseline: middle; cursor: pointer; font-size: 30px; text-anchor: middle;}  /* Style the home text. */
 
-div .centered {margin: 0 auto; width: 500px;}
+/* White on black bull. */
+.whiteOnBlack {background-color: black;}  /* Set the background. */
+.whiteOnBlack text {fill: #AE2DE3; stroke: none;}  /* Color GitHub and home text. */
+.whiteOnBlack .bull {fill: none; stroke: white; stroke-width: 2;}  /* Style the bull. */
+.whiteOnBlack .github {cursor: pointer; font-size: 25px; text-anchor: end;}  /* Style the GitHub text. */
+.whiteOnBlack .home {alignment-baseline: middle; cursor: pointer; font-size: 30px; text-anchor: middle;}  /* Style the home text. */

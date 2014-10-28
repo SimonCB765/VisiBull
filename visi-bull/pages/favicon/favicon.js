@@ -28,6 +28,21 @@ $(document).ready(function()
         .attr("width", svgWidth)
         .attr("height", svgHeight);
     create_outline(svg);
+    // Add the links.
+    var homeLink = svg.append("a")
+        .attr("xlink:href", HOMEPAGE);
+    homeLink.append("text")
+        .classed("home", true)
+        .text("Home")
+        .attr("x", svgWidth / 2)
+        .attr("y", svgHeight / 2);
+    var githubLink = svg.append("a")
+        .attr("xlink:href", GITHUBREPO);
+    githubLink.append("text")
+        .classed("github", true)
+        .text("GitHub")
+        .attr("x", svgWidth)
+        .attr("y", svgHeight);
 
     // Create the white on black outline with links.
     var svg = withLinks.append("svg")
@@ -35,7 +50,21 @@ $(document).ready(function()
         .attr("width", svgWidth)
         .attr("height", svgHeight);
     create_outline(svg);
-
+    // Add the links.
+    var homeLink = svg.append("a")
+        .attr("xlink:href", HOMEPAGE);
+    homeLink.append("text")
+        .classed("home", true)
+        .text("Home")
+        .attr("x", svgWidth / 2)
+        .attr("y", svgHeight / 2);
+    var githubLink = svg.append("a")
+        .attr("xlink:href", GITHUBREPO);
+    githubLink.append("text")
+        .classed("github", true)
+        .text("GitHub")
+        .attr("x", svgWidth)
+        .attr("y", svgHeight);
 
     function create_outline(svg)
     {
