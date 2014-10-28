@@ -1,0 +1,22 @@
+/*
+Contents:
+_element    -> style declarations for all elements of a given type (html, body, table, all p tags etc.).
+_classes    -> style declarations for specific classes and ids.
+*/
+
+/*
+_element
+*/
+svg {outline: thin black solid;}
+svg {cursor: default; display: inline; margin: 0 10px;}
+
+/*
+_classes
+*/
+.blackOnWhite {background-color: white;}
+.blackOnWhite .bull {fill: none; stroke: black; stroke-width: 2;}
+
+.whiteOnBlack {background-color: black;}
+.whiteOnBlack .bull {fill: none; stroke: white; stroke-width: 2;}
+
+div .centered {margin: 0 auto; width: 500px;}
