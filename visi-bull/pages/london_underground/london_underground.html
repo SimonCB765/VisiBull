@@ -1,0 +1,13 @@
+{% extends "canvas.html" %}
+
+{% block head %}
+<!--Block for including page specific CSS and JS files within the <head> tag.-->
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='london_underground/london_underground.css') }}">
+<script type="text/javascript" src="{{ url_for('static', filename='scripts/jQuery/jquery-1.11.1.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='london_underground/london_underground.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<!--Block for including the content of the page within the div.content tag.-->
+<svg id="underground" />
+{% endblock %}

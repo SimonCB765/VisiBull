@@ -1,0 +1,19 @@
+/*
+Contents:
+_element    -> style declarations for all elements of a given type (html, body, table, all p tags etc.).
+_classes    -> style declarations for specific classes.
+*/
+
+#underground {border: thin black solid;}
+#underground {background: url("TubeMap.png") no-repeat; background-size: 100% 100%;}
+#underground {height: 640px; width: 1000px;}
+
+/*
+_element
+*/
+
+/*
+_classes
+*/
+.zone {fill: rgba(0,0,0,0.1); stroke: none;}
+.zone {fill: none; stroke: rgba(0,0,0,0.1);}
