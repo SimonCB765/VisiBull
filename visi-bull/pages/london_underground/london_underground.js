@@ -92,20 +92,22 @@ $(document).ready(function()
 			"Q676,355" + ",669,355" +
 			"L656,355" +
 			"Q653,355" + ",649,359" +  // Bend above Bermondsey.
-			"L555,444"
-			//+
-			//"L660,343"
-			//+
-			//"Q693,351" + ",675,354" 
-			//+
-			//"L660,354"
-			
-			/*
+			"L555,444" +
+			"Q552,446" + ",546,446" +  // Bend right of Elephant and Castle.
+			"L437,446" +
+			"Q431,446" + ",427,442" +  // Bend left of Vauxhall.
+			"L344,367" +
+			"Q342,364" + ",342,360" +  // Bend at Earl's Court.
+			"L342,315" +
+			"Q342,311" + ",345,309" +  // Bend left of High Street Kensington.
+			"L349,306" +
+			"Q351,304" + ",351,299" +  // Bend below Notting Hill Gate. 
+			"L351,286" +
+			"Q351,281" + ",346,279" +  // Bend above Notting Hill Gate. 
+			"Q342,276" + ",342,270" +  // Bend left of Bayswater.
 			"L342,271" +
 			"L342,257" +
-			"Q342,246" + ",333,245"  // Bend below Paddington.
-			*/
-			;
+			"Q342,246" + ",333,245";  // Bend below Paddington.
 		return zone2Outer + zone2Inner;
 	}
 
