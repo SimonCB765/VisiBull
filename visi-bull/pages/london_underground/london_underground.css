@@ -2,6 +2,7 @@
 Contents:
 _element    -> style declarations for all elements of a given type (html, body, table, all p tags etc.).
 _classes    -> style declarations for specific classes.
+_lines		-> style declarations for the lines.
 */
 
 #underground {border: thin black solid;}
@@ -17,3 +18,21 @@ _classes
 */
 .zone {fill: rgba(0,0,0,0.1); fill-rule: evenodd; stroke: none;}
 .zone {fill: none; stroke: rgba(0,0,0,0.1);}
+
+/*
+_lines
+*/
+.bakerloo {fill: none; stroke: rgb(137,78,36); stroke-width: 2;}
+.central {fill: none; stroke: rgb(220,36,31); stroke-width: 2;}
+.cirle {fill: none; stroke: rgb(255,206,0); stroke-width: 2;}
+.district {fill: none; stroke: rgb(0,114,41); stroke-width: 2;}
+.dlr {fill: none; stroke: rgb(0,175,173); stroke-width: 2;}
+/*.emirates {fill: none; stroke: rgb(,,); stroke-width: 2;}*/
+.hammersmith {fill: none; stroke: rgb(215,153,175); stroke-width: 2;}
+.jubilee {fill: none; stroke: rgb(134,143,152); stroke-width: 2;}
+.metropolitan {fill: none; stroke: rgb(117,16,86); stroke-width: 2;}
+.northern {fill: none; stroke: rgb(0,0,0); stroke-width: 2;}
+.overground {fill: none; stroke: rgb(232,106,16); stroke-width: 2;}
+.piccadilly {fill: none; stroke: rgb(0,25,168); stroke-width: 2;}
+.victoria {fill: none; stroke: rgb(0,160,226); stroke-width: 2;}
+.waterloo {fill: none; stroke: rgb(118,208,189); stroke-width: 2;}
