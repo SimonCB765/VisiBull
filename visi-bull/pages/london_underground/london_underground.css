@@ -16,8 +16,10 @@ _element
 /*
 _classes
 */
+.thames {fill: rgba(0,0,255,0.1); fill-rule: evenodd; stroke: none;}
 .zone {fill: rgba(0,0,0,0.1); fill-rule: evenodd; stroke: none;}
-.zone {fill: none; stroke: rgba(0,0,0,0.1);}
+
+.thames {fill: none; stroke: rgba(0,0,0,0.1);}
 
 /*
 _lines

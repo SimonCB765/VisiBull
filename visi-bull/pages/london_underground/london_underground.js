@@ -158,11 +158,67 @@ $(document).ready(function()
             "Q645,544" + ",641,548" +  // Bend left of West Croydon.
             "L600,585" +
             "Q597,588" + ",592,588" +  // Bend left of bottom 5.
-            "L302,588"
-            ;
+            "L302,588";
         var zone4Inner =
-            ""
-            ;
+            "M480,564" +
+            "L360,564" +
+            "L265,481" +
+            "Q262,478" + ",262,475" +  // Bend to right of bottom left 4.
+            "L262,445" +
+            "Q262,441" + ",258,438" +  // Bend below bottom left 3.
+            "L235,417" +
+            "Q232,414" + ",229,414" +  // Bend to left of bottom left 3.
+            "L213,414" +
+            "Q210,414" + ",205,409" +  // Bend at Kew Gardens.
+            "L168,375" +
+            "Q165,373" + ",162,373" +  // Bend below and right of Northfields.
+            "L134,373" +
+            "Q130,373" + ",126,370" +  // Bend below and left of Northfields.
+            "L108,354" +
+            "Q106,351" + ",106,348" +  // Bend below and right of leftmost 4.
+            "L106,275" +
+            "Q106,272" + ",109,269" +  // Bend above and right of leftmost 4.
+            "L227,162" +
+            "Q229,160" + ",233,160" +  // Bend left of Stonebridge Park.
+            "L316,160" +
+            "Q320,160" + ",323,157" +  // Bend right of Stonebridge Park.
+            "L370,115" +
+            "Q373,112" + ",376,112" +  // Bend left of Hendon Central.
+            "L497,112" +
+            "Q501,112" + ",505,109" +  // Bend below and right of the top 4.
+            "L514,101" +
+            "Q516,99" + ",520,99" +  // Bend left of East Finchley.
+            "L590,99" +
+            "Q594,99" + ",597,96" +  // Bend right of East Finchley.
+            "L605,89" +
+            "Q608,87" + ",612,87" +  // Bend left of Bounds Green.
+            "L726,87" +
+            "Q730,87" + ",734,89" +  // Bend above South Tottenham.
+            "L802,151" +
+            "Q805,154" + ",809,154" +  // Bend at Leytonstone.
+            "L843,154" +
+            "Q846,154" + ",849,155" +  // Bend above Leytonstone High Road.
+            "L868,172" +
+            "Q870,174" + ",870,177" +  // Bend right of Leytonstone High Road.
+            "L870,214" +
+            "Q870,216" + ",868,218" +  // Bend at Woodgrange Park.
+            "L862,223" +
+            "Q854,231" + ",862,241" +  // Bend left of Barking.
+            "L959,329" +
+            "Q962,331" + ",962,335" +  // Bend below rightmost 4.
+            "L962,388" +
+            "Q962,391" + ",959,395" +  // Bend right of Beckton.
+            "L879,468" +
+            "Q875,471" + ",870,471" +  // Bend above and left of bottom right 4.
+            "L827,471" +
+            "Q823,471" + ",819,474" +  // Bend right of Deptford Bridge.
+            "L781,509" +
+            "Q778,512" + ",774,512" +  // Bend below and left of Lewisham.
+            "L660,512" +
+            "Q656,512" + ",653,514" +  // Bend above Penge West.
+            "L601,561" +
+            "Q597,564" + ",592,564" +  // Bend below and left of Crystal Palace.
+            "L480,564";
         return zone4Outer + zone4Inner;
     }
 
@@ -180,8 +236,7 @@ $(document).ready(function()
             "Q886,56" + ",882,56" +  // Bend above the 5.
             "L761,56" +
             "Q755,56" + ",752,53" +  // Bend left of Loughton.
-            "L702,7"
-            ;
+            "L702,7";
         var zone6Left =
             "M399,7" +  // Corner above the top left 6.
             "L436,7" +
@@ -205,8 +260,7 @@ $(document).ready(function()
             "Q72,68" + ",77,68" +  // Bend above Hillingdon.
             "L328,68" +
             "Q333,68" + ",337,64" +  // Bend above Stanmore.
-            "L399,7"
-            ;
+            "L399,7";
         return zone6Right + zone6Left;
     }
 
