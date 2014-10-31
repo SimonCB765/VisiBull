@@ -119,6 +119,51 @@ $(document).ready(function()
 
     function create_zone_4()
     {
+        var zone4Outer =
+            "M302,588" +  // Bottom left corner of outside ring.
+            "L175,475" +
+            "L82,390" +
+            "Q78,387" + ",78,382" +  // Bend left of Osterley.
+            "L78,224" +
+            "Q78,220" + ",81,217" +  // Bend left of Greenford.
+            "L147,157" +
+            "Q151,154" + ",155,154" +  // Bend left of Sudbury Hill.
+            "L215,154" +
+            "Q219,154" + ",223,151" +  // Bend below West Harrow.
+            "L270,108" +
+            "Q273,106" + ",276,106" +  // Bend above Northwick Park.
+            "L367,106" +
+            "Q371,106" + ",375,102" +  // Bend below and left of Edgware.
+            "L431,51" +
+            "Q435,47" + ",440,47" +  // Bend below and left of the top 5.
+            "L638,47" +
+            "Q642,47" + ",645,49" +  // Bend left of Oakwood.
+            "L662,64" +
+            "Q665,67" + ",669,67" +  // Bend right of Southgate.
+            "L863,67" +
+            "Q869,67" + ",871,69" +  // Bend above Grange Hill.
+            "L881,78" +
+            "Q884,81" + ",884,85" +  // Bend right of Hainault.
+            "L884,203" +
+            "Q884,206" + ",887,209" + // Bend above Upney.
+            "L995,307" +
+            "L995,416" +
+            "L902,501" +
+            "Q899,504" + ",894,504" +  // Bend below bottom right 4.
+            "L843,504" +
+            "Q839,504" + ",836,506" +
+            "L798,541" +
+            "Q794,544" + ",789,544" +
+            "L649,544" +
+            "Q645,544" + ",641,548" +  // Bend left of West Croydon.
+            "L600,585" +
+            "Q597,588" + ",592,588" +  // Bend left of bottom 5.
+            "L302,588"
+            ;
+        var zone4Inner =
+            ""
+            ;
+        return zone4Outer + zone4Inner;
     }
 
     function create_zone_6()
