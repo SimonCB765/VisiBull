@@ -16,11 +16,121 @@ $(document).ready(function()
         .classed("zone", true)
         .attr("d", create_zone_8());
 
+	/*************************
+	* Draw the zone numbers. *
+	*************************/
+	// Draw the special fare.
+	underground.append("text")
+		.classed({"oddZone": true, "sign": true, "specialFare": true})
+		.attr("x", "278")
+		.attr("y", "19")
+		.text("Special fares apply")
+	// Draw the 9.
+	underground.append("text")
+		.classed({"oddZone": true, "sign": true, "zoneNumber": true})
+		.attr("x", "79.5")
+		.attr("y", "34")
+		.text("9")
+	// Draw the 8s.
+	underground.append("text")
+		.classed({"evenZone": true, "sign": true, "zoneNumber": true})
+		.attr("x", "135,332.5")
+		.attr("y", "34,34")
+		.text("88")
+	// Draw the 7s.
+	underground.append("text")
+		.classed({"oddZone": true, "sign": true, "zoneNumber": true})
+		.attr("x", "191,365")
+		.attr("y", "34,34")
+		.text("77")
+	// Draw the 6s.
+	underground.append("text")
+		.classed({"evenZone": true, "sign": true, "zoneNumber": true})
+		.attr("x", "29,396.5,902")
+		.attr("y", "321,34,53")
+		.text("666")
+	// Draw the 5s.
+	underground.append("text")
+		.classed({"oddZone": true, "sign": true, "zoneNumber": true})
+		.attr("x", "59,150,471,655,881")
+		.attr("y", "321,473,34,584,73")
+		.text("55555")
+	// Draw the 4s.
+	underground.append("text")
+		.classed({"evenZone": true, "sign": true, "zoneNumber": true})
+		.attr("x", "92,211,471,475,834,898,954")
+		.attr("y", "321,447,86,584,112.5,483.5,313")
+		.text("4444444")
+	// Draw the 3s.
+	underground.append("text")
+		.classed({"oddZone": true, "sign": true, "zoneNumber": true})
+		.attr("x", "136,255,471,475,750,843,875")
+		.attr("y", "321,429,131,543,188.5,449,313")
+		.text("3333333")
+	// Draw the 2s.
+	underground.append("text")
+		.classed({"evenZone": true, "sign": true, "zoneNumber": true})
+		.attr("x", "301,308.5,471,475,713.5,740,779")
+		.attr("y", "321,404.5,199.5,465,234.5,313,408.5")
+		.text("2222222")
+	// Draw the 1s.
+	underground.append("text")
+		.classed({"oddZone": true, "sign": true, "zoneNumber": true})
+		.attr("x", "394.5,475,631")
+		.attr("y", "321,424,313")
+		.text("111")
+
+	// Draw the Thames.
+    underground.append("path")
+        .classed("thames", true)
+        .attr("d", create_thames());
+
 
 
     underground
         .on("click", function() { console.log(d3.mouse(d3.select("body").node())); });
 
+	function create_thames()
+	{
+		var thamesUpper =
+			"M39,477" +  // Left side, top edge.
+			"L187,477" +
+			"Q192,477" + ",192,471" +  // Bend right of bottom left 5.
+			"L192,412" +
+			"Q192,402" + ",202,401" +  // Bend left of Gunnersbury.
+			"L253,401" +
+			"Q256,401" + ",259,403" +  // Bend right of Gunnersbury.
+			"L288,430" +
+			"Q291,433" + ",293,433" +  // Bend left of Putney Bridge.
+			"L438,433" +
+			"Q442,433" + ",442,428" +  // Bend below Pimlico.
+			"L442,384" +
+			"Q442,376" + ",452,375" +  // Bend below Westminster.
+			"L552,375" +
+			"Q556,375" + ",559,372" +  // Bend below Embankment.
+			"L583,351" +
+			"Q586,349" + ",591,349" +  // Bend right of Blackfriars.
+			"L701,349" +
+			"Q712,349" + ",713,360" +  // Bend below Wapping.
+			"L713,424" +
+			"Q713,427.5" + ",716,427.5" +  // Bend left of Island Gardens.
+			"L759,427.5" +
+			"Q762,427.5" + ",762,424" +  // Bend right of Island Gardens.
+			"L762,361" +
+			"Q763,352" + ",774,351" +  // Bend below ad left of West India Quay.
+			"L832,351" +
+			"C838,351" + ",843,356" + ",843,362" +  // Bend left of West Silvertown.
+			"L843,404" +
+			"Q843,407.5" + ",846,407.5" + // Bend left of King George V.
+			"L959,407.5";
+		var thamesLower =
+			"M959,416" +
+			"L846,416" +
+			"C839,416" + ",834,409" + ",834,404" +  // Bend above bottom right 3.
+			"L834,362"
+			;
+		return thamesUpper + thamesLower;
+	}
 
     function create_zone_2()
     {
