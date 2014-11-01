@@ -16,10 +16,17 @@ _element
 /*
 _classes
 */
-.thames {fill: rgba(0,0,255,0.1); fill-rule: evenodd; stroke: none;}
-.zone {fill: rgba(0,0,0,0.1); fill-rule: evenodd; stroke: none;}
+.sign {cursor: default; font-family: "Gill Sans MT", Tahoma, Arial, sans-serif;}
 
-.thames {fill: none; stroke: rgba(0,0,0,0.1);}
+.thames {fill: rgba(0,0,255,0.1); fill-rule: evenodd; stroke: rgba(0,0,255,0.4); stroke-width: .5;}
+
+.zone {fill: rgba(0,0,0,0.1); fill-rule: evenodd; stroke: none;}
+.zoneNumber {font-size: 22px; font-weight: bold; text-anchor: middle;}  /* Style for the zone numbers. */
+.evenZone {fill: rgba(0,0,0,1); stroke: none;}  /* Color for the zone number in even numbered zones. */
+.oddZone {fill: rgba(0,0,0,1); stroke: none;}  /* Color for the zone number in odd numbered zones. */
+.specialFare {font-size: 10px; font-weight: bold; text-anchor: middle;}  /* Style for the special fare. */
+
+.thames {fill: none; stroke: rgba(0,0,0,0.4); stroke-width: .5;}
 
 /*
 _lines
