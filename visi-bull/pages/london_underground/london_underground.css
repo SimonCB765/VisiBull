@@ -2,12 +2,11 @@
 Contents:
 _element    -> style declarations for all elements of a given type (html, body, table, all p tags etc.).
 _classes    -> style declarations for specific classes.
-_lines		-> style declarations for the lines.
+_lines      -> style declarations for the lines.
 */
 
 #underground {border: thin black solid;}
 #underground {background: url("TubeMap.png") no-repeat; background-size: 100% 100%;}
-#underground {height: 640px; width: 1000px;}
 
 /*
 _element
@@ -20,11 +19,11 @@ _classes
 
 .thames {fill: rgba(0,0,255,0.1); fill-rule: evenodd; stroke: rgba(0,0,255,0.4); stroke-width: .5;}
 
-.zone {fill: rgba(0,0,0,0.1); fill-rule: evenodd; stroke: none;}
+.zone {fill: rgba(0,0,0,0.1); fill-rule: evenodd; stroke: none;}  /* Style for the even numbered zones. */
 .zoneNumber {font-size: 22px; font-weight: bold; text-anchor: middle;}  /* Style for the zone numbers. */
-.evenZone {fill: rgba(0,0,0,1); stroke: none;}  /* Color for the zone number in even numbered zones. */
-.oddZone {fill: rgba(0,0,0,1); stroke: none;}  /* Color for the zone number in odd numbered zones. */
-.specialFare {font-size: 10px; font-weight: bold; text-anchor: middle;}  /* Style for the special fare. */
+.evenZone {fill: white; stroke: none;}  /* Color for the zone number in even numbered zones. */
+.oddZone {fill: rgba(0,0,0,0.1); stroke: none;}  /* Color for the zone number in odd numbered zones. */
+.specialFare {font-size: 10.5px; font-weight: bold; text-anchor: middle;}  /* Style for the special fare text. */
 
 .thames {fill: none; stroke: rgba(0,0,0,0.4); stroke-width: .5;}
 
