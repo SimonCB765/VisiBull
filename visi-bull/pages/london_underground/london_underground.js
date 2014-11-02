@@ -129,11 +129,37 @@ $(document).ready(function()
             "Q843,407.5" + ",846,407.5" + // Bend left of King George V.
             "L959,407.5";
         var thamesLower =
-            "M959,416" +
+            "L959,416" +
             "L846,416" +
             "C839,416" + ",834,409" + ",834,404" +  // Bend above bottom right 3.
-            "L834,362"
-            ;
+            "L834,362" +
+            "Q834,358.5" + ",830,358.5" +  // Bend right of Emirates Greenwich Peninsula.
+            "L774,358.5" +
+            "Q770.5,358.5" + ",770.5,361" +  // Bend left of North Greenwich.
+            "L770.5,424" +
+            "C770.5,429" + ",765,435" + ",760,435" +  // Bend right of Cutty Sark for Maritime Greenwich.
+            "L715,435" +
+            "C710,435" + ",704.5,430" + ",704.5,425" +  // Bend above and right of New Cross.
+            "L704.5,358" +
+            "Q704.5,355" + ",700,355" +  // Bend right of Rotherhithe.
+            "L590,355" +
+            "Q588,355" + ",587,356" +  // Bend above and left of London Bridge.
+            "L561,379" +
+            "Q558,381" + ",554,381" +  // Bend above and right of Southwark.
+            "L453,381" +
+            "Q449,381" + ",449,385" +  // Bend left of Waterloo.
+            "L449,428" +
+            "C449,433" + ",444,437.5" + ",438,437.5" +  // Bend above Vauxhall.
+            "L292,437.5" +
+            "Q288,437.5" + ",285,434" +  // Bend left of East Putney.
+            "L256,408" +
+            "Q254,406.5" + ",252,406.5" +  // Bend above bottom left 3.
+            "L203,406.5" +
+            "Q197.5,406.5" + ",197.5,413" +  // Bend above and left of Kew Gardens.
+            "L197.5,473" +
+            "C197.5,478" + ",192,482" + ",187,482" +  // Bend below and left of bottom left 4.
+            "L39,482" +
+            "L39,477";
         return thamesUpper + thamesLower;
     }
 
