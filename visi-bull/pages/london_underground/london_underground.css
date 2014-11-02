@@ -17,15 +17,13 @@ _classes
 */
 .sign {cursor: default; font-family: "Gill Sans MT", Tahoma, Arial, sans-serif;}
 
-.thames {fill: rgba(173, 255, 251, 1); fill-rule: evenodd; stroke: none;}
+.thames {fill: #c5e9fa; fill-rule: evenodd; stroke: none;}
 
 .zone {fill: rgba(0,0,0,.1); fill-rule: evenodd; stroke: none;}  /* Style for the even numbered zones. */
 .zoneNumber {font-size: 22px; font-weight: bold; text-anchor: middle;}  /* Style for the zone numbers. */
 .evenZone {fill: white; stroke: none;}  /* Color for the zone number in even numbered zones. */
 .oddZone {fill: rgba(0,0,0,.1); stroke: none;}  /* Color for the zone number in odd numbered zones. */
 .specialFare {font-size: 10.5px; font-weight: bold; text-anchor: middle;}  /* Style for the special fare text. */
-
-/*.thames {fill: none; stroke: rgba(0,0,0,0.4); stroke-width: .5;}*/
 
 /*
 _lines
