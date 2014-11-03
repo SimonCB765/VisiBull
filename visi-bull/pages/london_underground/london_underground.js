@@ -105,12 +105,15 @@ $(document).ready(function()
     ******************/
     /*
     underground.append("path")
+        .classed({"bakerloo": true, "line": true})
+        .attr("d", create_line_bakerloo());
+    underground.append("path")
         .classed({"central": true, "line": true})
         .attr("d", create_line_central());
-    */
     underground.append("path")
         .classed({"victoria": true, "line": true})
         .attr("d", create_line_victoria());
+    */
 
 
 
@@ -118,6 +121,9 @@ $(document).ready(function()
         .on("click", function() { console.log(d3.mouse(d3.select("body").node())); });
 });
 
+/*********************
+* Create the Thames. *
+*********************/
 function create_thames()
 {
     var thamesUpper =
@@ -189,6 +195,28 @@ function create_thames()
 /***************************
 * Line creation functions. *
 ***************************/
+function create_line_bakerloo()
+{
+    var line =
+        "M288,97" +
+        "L288,211" +
+        "Q288,213.9" + ",290,216" +  // Bend at Kilburn Park.
+        "L309,233.3" +
+        "Q311,235.5" + ",316,235.8" +  // Bend at Warwick Avenue.
+        "L405,235.8" +
+        "Q408.1,235.8" + ",411,238" +  // Bend right of Marylebone.
+        "L453.9,277.2" +
+        "Q457,280" + ",457,283" +  // Bend above Oxford Circus.
+        "L457,299" +
+        "Q457,302.5" + ",459,305" +  // Bend below Oxford Circus.
+        "L505.8,347.3" +
+        "Q509.2,350" + ",509.1,354" +  // Bend below an right of Charing Cross.
+        "L509.1,430" +
+        "Q509.1,434" + ",511,436" +  // Bend below Lambeth North.
+        "L522.2,446.2";
+    return line;
+}
+
 function create_line_central()
 {
     var topLeft =  // Line portion starting in the top left of the image.
