@@ -5,7 +5,7 @@ _classes    -> style declarations for specific classes.
 _lines      -> style declarations for the lines.
 */
 
-#underground {border: thin black solid;}
+#underground {background: white; border: thin black solid;}
 #underground {background: url("TubeMap.png") no-repeat; background-size: 100% 100%;}
 
 /*
@@ -17,28 +17,30 @@ _classes
 */
 .sign {cursor: default; font-family: "Gill Sans MT", Tahoma, Arial, sans-serif;}
 
-.thames {fill: #c5e9fa; fill-rule: evenodd; stroke: none;}
+.thames {fill: #C5E9FA; fill-rule: evenodd; stroke: none;}
 
-.zone {fill: rgba(0,0,0,.1); fill-rule: evenodd; stroke: none;}  /* Style for the even numbered zones. */
+.zone {fill: #E6E7E7; fill-rule: evenodd; stroke: none;}  /* Style for the even numbered zones. */
 .zoneNumber {font-size: 22px; font-weight: bold; text-anchor: middle;}  /* Style for the zone numbers. */
 .evenZone {fill: white; stroke: none;}  /* Color for the zone number in even numbered zones. */
-.oddZone {fill: rgba(0,0,0,.1); stroke: none;}  /* Color for the zone number in odd numbered zones. */
+.oddZone {fill: #E6E7E7; stroke: none;}  /* Color for the zone number in odd numbered zones. */
 .specialFare {font-size: 10.5px; font-weight: bold; text-anchor: middle;}  /* Style for the special fare text. */
 
 /*
 _lines
 */
-.bakerloo {fill: none; stroke: rgb(137,78,36); stroke-width: 2;}
-.central {fill: none; stroke: rgb(220,36,31); stroke-width: 2;}
-.cirle {fill: none; stroke: rgb(255,206,0); stroke-width: 2;}
-.district {fill: none; stroke: rgb(0,114,41); stroke-width: 2;}
-.dlr {fill: none; stroke: rgb(0,175,173); stroke-width: 2;}
-/*.emirates {fill: none; stroke: rgb(,,); stroke-width: 2;}*/
-.hammersmith {fill: none; stroke: rgb(215,153,175); stroke-width: 2;}
-.jubilee {fill: none; stroke: rgb(134,143,152); stroke-width: 2;}
-.metropolitan {fill: none; stroke: rgb(117,16,86); stroke-width: 2;}
-.northern {fill: none; stroke: rgb(0,0,0); stroke-width: 2;}
-.overground {fill: none; stroke: rgb(232,106,16); stroke-width: 2;}
-.piccadilly {fill: none; stroke: rgb(0,25,168); stroke-width: 2;}
-.victoria {fill: none; stroke: rgb(0,160,226); stroke-width: 2;}
-.waterloo {fill: none; stroke: rgb(118,208,189); stroke-width: 2;}
+.bakerloo {fill: none; stroke: rgb(137,78,36);}
+.central {fill: none; stroke: rgb(220,36,31);}
+.cirle {fill: none; stroke: rgb(255,206,0);}
+.district {fill: none; stroke: rgb(0,114,41);}
+.dlr {fill: none; stroke: rgb(0,175,173);}
+/*.emirates {fill: none; stroke: #e31936;}*/
+.hammersmith {fill: none; stroke: rgb(215,153,175);}
+.jubilee {fill: none; stroke: rgb(134,143,152);}
+.metropolitan {fill: none; stroke: rgb(117,16,86);}
+.northern {fill: none; stroke: rgb(0,0,0);}
+.overground {fill: none; stroke: rgb(232,106,16);}
+.piccadilly {fill: none; stroke: rgb(0,25,168);}
+.victoria {fill: none; stroke: rgb(0,160,226);}
+.waterloo {fill: none; stroke: rgb(118,208,189);}
+
+.line {stroke: rgba(0,0,0,.5); stroke-width: 2.4;}
