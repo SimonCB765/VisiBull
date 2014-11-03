@@ -103,9 +103,14 @@ $(document).ready(function()
     /******************
     * Draw the lines. *
     ******************/
+    /*
     underground.append("path")
         .classed({"central": true, "line": true})
         .attr("d", create_line_central());
+    */
+    underground.append("path")
+        .classed({"victoria": true, "line": true})
+        .attr("d", create_line_victoria());
 
 
 
@@ -221,6 +226,24 @@ function create_line_central()
 
 function create_line_victoria()
 {
+    var line =
+        "M507.5,504.5" +
+        "L437.5,441" +
+        "Q435.5,438.9" + ",435.5,436" +  // Bend above Vauxhall.
+        "L435.5,317" +
+        "Q435.5,313.5" + ",438.5,310.7" +  // Bend at Green Park.
+        "L527,230" +
+        "Q529,228" + ",534,227.9" +  // Bend left of King's Cross.
+        "L612,227.9" +
+        "Q615,227.9" + ",618.1,225.1" +  // Bend right of King,s Cross.
+        "L630.3,214" +
+        "Q633.1,211.1" + ",632.9,208" +  // Bend below Caledonian Road & Barnsbury.
+        "L632.9,173" +
+        "Q632.9,170.2" + ",635.4,167.4" +  // Bend above Highbury % Islington.
+        "L666.3,139.3" +
+        "Q669,137.4" + ",672,137.4" +  // Bend left of Seven Sisters.
+        "L766,137.4";
+    return line;
 }
 
 /***************************
