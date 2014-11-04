@@ -123,6 +123,30 @@ $(document).ready(function()
         .classed({"victoria": true, "line": true})
         .attr("d", create_line_victoria());
     */
+    underground.append("path")
+        .classed({"dlr": true, "line": true})
+        .attr("d", create_line_dlr());
+    underground.append("path")
+        .classed({"emirates": true, "line": true})
+        .attr("d", create_line_emirates());
+    underground.append("path")
+        .classed({"hammersmith": true, "line": true})
+        .attr("d", create_line_hammersmith());
+    underground.append("path")
+        .classed({"jubilee": true, "line": true})
+        .attr("d", create_line_jubilee());
+    underground.append("path")
+        .classed({"metropolitan": true, "line": true})
+        .attr("d", create_line_metropolitan());
+    underground.append("path")
+        .classed({"overground": true, "line": true})
+        .attr("d", create_line_overground());
+    underground.append("path")
+        .classed({"piccadilly": true, "line": true})
+        .attr("d", create_line_piccadilly());
+    underground.append("path")
+        .classed({"waterloo": true, "line": true})
+        .attr("d", create_line_waterloo());
 
 
 
@@ -330,6 +354,45 @@ function create_line_district()
     return topPath + topSpur + bottomPath + bottomSpur;
 }
 
+function create_line_dlr()
+{
+}
+
+function create_line_emirates()
+{
+    var line =
+        ""
+        ;
+    return line;
+}
+
+function create_line_hammersmith()
+{
+    var line =
+        ""
+        ;
+    return line;
+}
+
+function create_line_jubilee()
+{
+    var line =
+        ""
+        ;
+    return line;
+}
+
+function create_line_metropolitan()
+{
+    var line =  // Starting at Amersham.
+        ""
+        ;
+    var spur =  // Starting at Uxbridge.
+        ""
+        ;
+    return line + spur;
+}
+
 function create_line_northern()
 {
     var leftPath =
@@ -368,6 +431,40 @@ function create_line_northern()
     return leftPath + rightPath + topRightSpur;
 }
 
+function create_line_overground()
+{
+    var topLeftPath =  // Line portion starting at Watford Junction and ending at Euston.
+        ""
+        ;
+    var topRightPath =  // Line portion starting at Gospel Oak and ending at Barking.
+        ""
+        ;
+    var leftPath =  // Line portion starting at Richmond and ending at Stratford.
+        ""
+        ;
+    var leftSpur =  // Line portion stating at Clapham Junction and connecting to the left path.
+        ""
+        ;
+    var bottomPath =  // Line portion starting at Clapham Junction and ending at Highbury & Islington (includes spur to New Cross).
+        ""
+        ;
+    var bottomSpur =  // Spur taking in Crystal Palace and West Croydon.
+        ""
+        ;
+    return topLeftPath + topRightPath + leftPath + leftSpur + bottomPath + bottomSpur;
+}
+
+function create_line_piccadilly()
+{
+    var line =
+        ""
+        ;
+    var bottomLoop =
+        ""
+        ;
+    return line + bottomLoop;
+}
+
 function create_line_victoria()
 {
     var line =
@@ -387,6 +484,14 @@ function create_line_victoria()
         "L666.3,139.3" +
         "Q669,137.4" + ",672,137.4" +  // Bend left of Seven Sisters.
         "L766,137.4";
+    return line;
+}
+
+function create_line_waterloo()
+{
+    var line =
+        ""
+        ;
     return line;
 }
 
