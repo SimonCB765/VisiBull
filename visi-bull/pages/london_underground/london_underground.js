@@ -111,6 +111,15 @@ $(document).ready(function()
         .classed({"central": true, "line": true})
         .attr("d", create_line_central());
     underground.append("path")
+        .classed({"circle": true, "line": true})
+        .attr("d", create_line_circle());
+    underground.append("path")
+        .classed({"district": true, "line": true})
+        .attr("d", create_line_district());
+    underground.append("path")
+        .classed({"northern": true, "line": true})
+        .attr("d", create_line_northern());
+    underground.append("path")
         .classed({"victoria": true, "line": true})
         .attr("d", create_line_victoria());
     */
@@ -250,6 +259,113 @@ function create_line_central()
         "L825,80.5" +
         "Q819.5,81" + ",819.4,85";  // Bend left of Roding Valley.
     return topLeft + left + loop;
+}
+
+function create_line_circle()
+{
+    var line =
+        "M290,351" +
+        "L290,277" +
+        "Q289.8,274" + ",293,271.4" +  // Bend at Latimer Road.
+        "L320.4,246.4" +
+        "Q323,244.3" + ",327,244.4" +  // Bend above and left of Royal Oak.
+        "H557" +
+        "Q560.1,244.2" + ",562.9,246.1" +  // Bend above and left of Farringdon.
+        "L593.1,273.7" +
+        "Q596,276" + ",600,275.9" +  // Bend at Moorgate.
+        "H657" +
+        "C660.5,276.4" + ",663.4,278.5" + ",664.1,282.9" +  // Bend right of Liverpool Street.
+        "V319" +
+        "Q663.9,325.9" + ",654.5,326.2" +  // Bend right of Tower Hill.
+        "H597" +
+        "Q593,326.2" + ",591.2,328.1" +  // Bend left of Monument.
+        "L556.9,359.3" +
+        "Q554.5,361.9" + ",551,361.6" +  // Bend at Temple.
+        "H360" +
+        "Q352.6,361" + ",352.3,353.6" +  // Bend left of South Kensington.
+        "V257" +
+        "Q353.4,250.6" + ",360,250.4" +  // Bend at Paddington.
+        "H382";
+    return line;
+}
+
+function create_line_district()
+{
+    var topPath =  // Part of line starting at Ealing Broadway.
+        "M160,296.2" +
+        "H167" +
+        "Q174,296.8" + ",174.8,303" +  // Bend to the right of Ealing Broadway.
+        "V348" +
+        "Q174.7,351.2" + ",176.9,354.1" +  // Bend above and left of Acton Town.
+        "L186,362.1" +
+        "Q188,364" + ",192,364" +  // Bend left of Chiswick Park.
+        "H343" +
+        "C346,364" + ",349.9,360.2" + ",349.8,356" +  // Bend right of Earl's Court.
+        "V257.5" +
+        "C350.1,252.5" + ",354,248.3" + ",359.5,248.2" +  // Bend at Paddington.
+        "H382.2";
+    var topSpur =  // Part of the line starting at Kensington (Olympia).
+        "M333.1,333" +
+        "V356" +
+        "Q333.2,363.9" + ",343,364";  // Bend left of Earl's Court.
+    var bottomPath =  // Part of line starting at Richmond.
+        "M209.3,427" +
+        "V371" +
+        "Q209.6,364.1" + ",219,364" +  // Bend left of Turnham Green.
+        "H552" +
+        "Q555.5,364" + ",558.4,361.1" +  // Bend right of Embankment.
+        "L592.6,330" +
+        "Q595,328.2" + ",597,328.4" +  // Bend left of Monument.
+        "H659" +
+        "Q663.7,328.7" + ",667.6,325" +  // Bend right of Tower Hill.
+        "L725.8,272" +
+        "Q728.2,270" + ",733,270" +  // Bend left of Bow Street.
+        "H825" +
+        "Q829.1,270.3" + ",832.2,267.2" +  // Bend below and left of Plaistow.
+        "L956.2,154.3";
+    var bottomSpur =  // Part of Line starting at Wimbledon.
+        "M333.1,476.2" +
+        "V371" +
+        "Q333.5,364.2" + ",343,364";  // Bend left of Earl's Court.
+    return topPath + topSpur + bottomPath + bottomSpur;
+}
+
+function create_line_northern()
+{
+    var leftPath =
+        "M396,74.9" +
+        "L516,184.2" +
+        "Q519.2,187.1" + ",519.2,189.8" +  // Bend above Camden Town.
+        "V197" +
+        "Q519.2,199" + ",516.8,201.7" +  // Bend below Camden Town.
+        "Q513.9,204.1" + ",514.2,209" +
+        "V230" +
+        "Q514.4,233.5" + ",511.5,236.2" +  // Bend at Euston.
+        "L504,243" +
+        "Q501.5,245" + ",501.6,249" +  // Bend above Warren Street.
+        "V460" +
+        "Q501.7,464.6" + ",498.2,467.7";  // Bend at Kennington.
+    var rightPath =
+        "M552.6,40" +
+        "V153" +
+        "Q552.7,156.2" + ",550.1,158.9" +  // Bend at Kentish Town.
+        "L522.2,184.3" +
+        "Q519.3,187.1" + ",519.2,189.5" +  // Bend above Camden Town.
+        "V197" +
+        "Q519.2,199" + ",521.6,201.7" +  // Bend below Camden Town.
+        "Q524.3,204.1" + ",524.3,209" +
+        "V230" +
+        "Q524.6,236.7" + ",532.1,237.4" +  // Bend at Euston.
+        "H594.5" +
+        "Q601,238.3" + ",601.9,244" +  // Bend above Old Street
+        "V369" +
+        "Q602.1,373.2" + ",599,376" +  // Bend at London Bridge.
+        "L384.6,571.1";
+    var topRightSpur =
+        "M534.8,69.3" +
+        "L549.2,82.4" +
+        "Q552.6,85" + ",552.6,89.1";  // Bend onto the right path.
+    return leftPath + rightPath + topRightSpur;
 }
 
 function create_line_victoria()

@@ -33,7 +33,7 @@ _lines
 */
 .bakerloo {fill: none; stroke: rgb(137,78,36);}
 .central {fill: none; stroke: rgb(220,36,31);}
-.cirle {fill: none; stroke: rgb(255,206,0);}
+.circle {fill: none; stroke: rgb(255,206,0);}
 .district {fill: none; stroke: rgb(0,114,41);}
 .dlr {fill: none; stroke: rgb(0,175,173);}
 /*.emirates {fill: none; stroke: #e31936;}*/
@@ -46,7 +46,7 @@ _lines
 .victoria {fill: none; stroke: rgb(0,160,226);}
 .waterloo {fill: none; stroke: rgb(118,208,189);}
 
-.line {stroke: rgba(0,0,0,.5); stroke-width: 2.4;}
+.line {stroke: rgba(0,255,255,.5); stroke-width: 2.4;}
 
 
 #underground {background: url("TubeMap.png") no-repeat; background-size: 100% 100%;}
