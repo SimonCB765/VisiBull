@@ -122,6 +122,9 @@ $(document).ready(function()
     underground.append("path")
         .classed({"victoria": true, "line": true})
         .attr("d", create_line_victoria());
+    underground.append("path")
+        .classed({"waterloo": true, "line": true})
+        .attr("d", create_line_waterloo());
     */
     underground.append("path")
         .classed({"dlr": true, "line": true})
@@ -144,9 +147,6 @@ $(document).ready(function()
     underground.append("path")
         .classed({"piccadilly": true, "line": true})
         .attr("d", create_line_piccadilly());
-    underground.append("path")
-        .classed({"waterloo": true, "line": true})
-        .attr("d", create_line_waterloo());
 
 
 
@@ -462,6 +462,9 @@ function create_line_piccadilly()
     var bottomLoop =
         ""
         ;
+    var spur =  // The portion of the line starting at Uxbridge.
+        ""
+        ;
     return line + bottomLoop;
 }
 
@@ -490,8 +493,12 @@ function create_line_victoria()
 function create_line_waterloo()
 {
     var line =
-        ""
-        ;
+        "M509,386.3" +
+        "h52" +
+        "q5,0" + ",8.3,-3" +  // Bend right of Waterloo.
+        "l22.9,-21.1" +
+        "q1.7,-2" + ",1.7,-6" +  // Bend below Bank.
+        "v-46.4";
     return line;
 }
 
