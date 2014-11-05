@@ -127,12 +127,6 @@ $(document).ready(function()
         .attr("d", create_line_waterloo());
     */
     underground.append("path")
-        .classed({"dlr": true, "line": true})
-        .attr("d", create_line_dlr());
-    underground.append("path")
-        .classed({"emirates": true, "line": true})
-        .attr("d", create_line_emirates());
-    underground.append("path")
         .classed({"hammersmith": true, "line": true})
         .attr("d", create_line_hammersmith());
     underground.append("path")
@@ -141,9 +135,6 @@ $(document).ready(function()
     underground.append("path")
         .classed({"metropolitan": true, "line": true})
         .attr("d", create_line_metropolitan());
-    underground.append("path")
-        .classed({"overground": true, "line": true})
-        .attr("d", create_line_overground());
     underground.append("path")
         .classed({"piccadilly": true, "line": true})
         .attr("d", create_line_piccadilly());
@@ -354,18 +345,6 @@ function create_line_district()
     return topPath + topSpur + bottomPath + bottomSpur;
 }
 
-function create_line_dlr()
-{
-}
-
-function create_line_emirates()
-{
-    var line =
-        ""
-        ;
-    return line;
-}
-
 function create_line_hammersmith()
 {
     var line =
@@ -431,29 +410,6 @@ function create_line_northern()
     return leftPath + rightPath + topRightSpur;
 }
 
-function create_line_overground()
-{
-    var topLeftPath =  // Line portion starting at Watford Junction and ending at Euston.
-        ""
-        ;
-    var topRightPath =  // Line portion starting at Gospel Oak and ending at Barking.
-        ""
-        ;
-    var leftPath =  // Line portion starting at Richmond and ending at Stratford.
-        ""
-        ;
-    var leftSpur =  // Line portion stating at Clapham Junction and connecting to the left path.
-        ""
-        ;
-    var bottomPath =  // Line portion starting at Clapham Junction and ending at Highbury & Islington (includes spur to New Cross).
-        ""
-        ;
-    var bottomSpur =  // Spur taking in Crystal Palace and West Croydon.
-        ""
-        ;
-    return topLeftPath + topRightPath + leftPath + leftSpur + bottomPath + bottomSpur;
-}
-
 function create_line_piccadilly()
 {
     var line =
@@ -494,11 +450,11 @@ function create_line_waterloo()
 {
     var line =
         "M509,386.3" +
-        "h52" +
-        "q5,0" + ",8.3,-3" +  // Bend right of Waterloo.
-        "l22.9,-21.1" +
-        "q1.7,-2" + ",1.7,-6" +  // Bend below Bank.
-        "v-46.4";
+        "H561" +
+        "Q566,386.3" + ",569.3,383.3" +  // Bend right of Waterloo.
+        "L592.2,362.2" +
+        "Q593.9,360.2" + ",593.9,356.2" +  // Bend below Bank.
+        "V309.8";
     return line;
 }
 

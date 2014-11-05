@@ -35,18 +35,15 @@ _lines
 .central {fill: none; stroke: rgb(220,36,31);}
 .circle {fill: none; stroke: rgb(255,206,0);}
 .district {fill: none; stroke: rgb(0,114,41);}
-.dlr {fill: none; stroke: rgb(0,175,173);}
-.emirates {fill: none; stroke: #e31936;}
 .hammersmith {fill: none; stroke: rgb(215,153,175);}
 .jubilee {fill: none; stroke: rgb(134,143,152);}
 .metropolitan {fill: none; stroke: rgb(117,16,86);}
 .northern {fill: none; stroke: rgb(0,0,0);}
-.overground {fill: none; stroke: rgb(232,106,16);}
 .piccadilly {fill: none; stroke: rgb(0,25,168);}
 .victoria {fill: none; stroke: rgb(0,160,226);}
 .waterloo {fill: none; stroke: rgb(118,208,189);}
 
-.line {stroke: rgba(255,0,0,.5); stroke-width: 2.4;}
+.line {stroke: rgba(0,0,0,.5); stroke-width: 2.4;}
 
 
 #underground {background: url("TubeMap.png") no-repeat; background-size: 100% 100%;}
