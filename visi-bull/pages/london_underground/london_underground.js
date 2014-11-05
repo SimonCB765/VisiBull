@@ -125,10 +125,10 @@ $(document).ready(function()
     underground.append("path")
         .classed({"waterloo": true, "line": true})
         .attr("d", create_line_waterloo());
-    */
     underground.append("path")
         .classed({"hammersmith": true, "line": true})
         .attr("d", create_line_hammersmith());
+    */
     underground.append("path")
         .classed({"jubilee": true, "line": true})
         .attr("d", create_line_jubilee());
@@ -348,8 +348,26 @@ function create_line_district()
 function create_line_hammersmith()
 {
     var line =
-        ""
-        ;
+        "M287.6,351" +
+        "V276" +
+        "Q287.5,273.4" + ",289.5,271.2" +  // Bend at Latimer Road.
+        "L319.3,244.2" +
+        "Q322,242.1" + ",325,242.1" +  // Bend above and right of Royal Oak.
+        "H557" +
+        "Q560.6,242" + ",564.5,244.4" +  // Bend right of King's Cross.
+        "L594,271.1" +
+        "Q596.5,273.7" + ",600,273.6" +  // Bend at Moorgate.
+        "H656.5" +
+        "C660.6,273.6" + ",666.6,276" + ",666.6,281" +  // Bend right of Liverpool Street.
+        "V299" +
+        "Q666.6,301.9" + ",669,304.5" +  // Bend above Aldgate.
+        "L674.2,308.9" +
+        "Q679,310.7" + ",683,307.8" +  // Bend below and left of Aldgate East.
+        "L724,270.5" +
+        "Q727,267.9" + ",732,267.9" +  // Bend left of Mile End.
+        "H825" +
+        "Q829,267.9" + ",832.5,264" +  // Bend at West Ham.
+        "L870,229.7";
     return line;
 }
 
