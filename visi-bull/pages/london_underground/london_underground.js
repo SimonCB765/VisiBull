@@ -117,27 +117,31 @@ $(document).ready(function()
         .classed({"district": true, "line": true})
         .attr("d", create_line_district());
     underground.append("path")
+        .classed({"hammersmith": true, "line": true})
+        .attr("d", create_line_hammersmith());
+    underground.append("path")
+        .classed({"jubilee": true, "line": true})
+        .attr("d", create_line_jubilee());
+	*/
+    underground.append("path")
+        .classed({"metropolitan": true, "line": true})
+        .attr("d", create_line_metropolitan());
+	/*
+    underground.append("path")
         .classed({"northern": true, "line": true})
         .attr("d", create_line_northern());
+	*/
+    underground.append("path")
+        .classed({"piccadilly": true, "line": true})
+        .attr("d", create_line_piccadilly());
+	/*
     underground.append("path")
         .classed({"victoria": true, "line": true})
         .attr("d", create_line_victoria());
     underground.append("path")
         .classed({"waterloo": true, "line": true})
         .attr("d", create_line_waterloo());
-    underground.append("path")
-        .classed({"hammersmith": true, "line": true})
-        .attr("d", create_line_hammersmith());
     */
-    underground.append("path")
-        .classed({"jubilee": true, "line": true})
-        .attr("d", create_line_jubilee());
-    underground.append("path")
-        .classed({"metropolitan": true, "line": true})
-        .attr("d", create_line_metropolitan());
-    underground.append("path")
-        .classed({"piccadilly": true, "line": true})
-        .attr("d", create_line_piccadilly());
 
 
 
@@ -374,8 +378,26 @@ function create_line_hammersmith()
 function create_line_jubilee()
 {
     var line =
-        ""
-        ;
+        "M326.3,87.4" +
+        "V130" +
+        "Q326.3,133" + ",328,135.7" +  // Bend at Wembley Park.
+        "L425.5,224.4" +
+        "Q427.6,226.5" + ",427.6,231" +  // Bend above Baker Street.
+        "V311" +
+        "Q427.6,314.2" + ",430,316.8" +  // Bend above and left of Green Park.
+        "L491,372" +
+        "Q493.9,374.5" + ",493.9,378" +  // Bend above Waterloo.
+        "V390" +
+        "Q493.9,398.2" + ",502,398.2" +  // Bend below Waterloo.
+        "H558" +
+        "Q562,398.2" + ",565.1,395" +  // Bend right of Southwark.
+        "L593.1,369.5" +
+        "Q596.5,367.1" + ",602,367.1" +  // Bend at London Bridge.
+        "H788" +
+        "Q791.9,367.1" + ",795.7,364" +  // Bend right of Canary Wharf.
+        "L808.8,351.9" +
+        "Q810.5,349.5" + ",810.5,345" +  // Bend below Canning Town.
+        "V205.3";
     return line;
 }
 

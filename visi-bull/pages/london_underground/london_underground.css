@@ -43,7 +43,7 @@ _lines
 .victoria {fill: none; stroke: rgb(0,160,226);}
 .waterloo {fill: none; stroke: rgb(118,208,189);}
 
-.line {stroke: rgba(0,0,0,.5); stroke-width: 2.4;}
+.line {stroke: rgba(0,255,0,.5); stroke-width: 2.4;}
 
 
 #underground {background: url("TubeMap.png") no-repeat; background-size: 100% 100%;}
