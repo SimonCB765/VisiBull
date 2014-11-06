@@ -128,11 +128,9 @@ $(document).ready(function()
     underground.append("path")
         .classed({"northern": true, "line": true})
         .attr("d", create_line_northern());
-    */
     underground.append("path")
         .classed({"piccadilly": true, "line": true})
         .attr("d", create_line_piccadilly());
-    /*
     underground.append("path")
         .classed({"victoria": true, "line": true})
         .attr("d", create_line_victoria());
@@ -475,15 +473,37 @@ function create_line_northern()
 function create_line_piccadilly()
 {
     var line =
-        ""
-        ;
+        "M51.5,466.3" +
+        "L168.1,360.1" +
+        "Q170.8,358" + ",176,358.1" +  // Bend left of Acton Town.
+        "H388" +
+        "Q391,358.1" + ",394.5,355.4" +  // Bend right of South Kensington.
+        "L429.6,323.3" +
+        "Q432,321.6" + ",434,321.7" +  // Bend at Green Park.
+        "H491" +
+        "Q495,321.7" + ",498.7,318" +  // Bend right of Piccadilly Circus.
+        "L529.9,289.5" +
+        "Q532.1,287" + ",532.1,282" +  // Bend above and right of Holborn.
+        "V255" +
+        "Q532,252.1" + ",535.5,249.1" +  // Bend above Russell Square.
+        "L656.8,138.6" +
+        "Q659.1,135.7" + ",659.1,132" +  // Bend below Manor House.
+        "V41";
     var bottomLoop =
-        ""
-        ;
+        "M89.6,431.6" +
+        "Q85.7,435" + ",85.7,438" +
+        "V454" +
+        "C84.5,472.5" + ",58.5,460.5" + ",71,448.6";
     var spur =  // The portion of the line starting at Uxbridge.
-        ""
-        ;
-    return line + bottomLoop;
+        "M48,98.1" +
+        "H142" +
+        "Q144.5,98.1" + ",146.5,99" +  // Bend right of Ruislip.
+        "L174.9,124.7" +
+        "Q177.4,127" + ",177.4,129" +  // Bend at Rayners Lane.
+        "V348" +
+        "Q177.4,350.5" + ",179.2,352.8" +  // Bend at Acton Town.
+        "Q183,358.1" + ",191.5,358.1";
+    return line + bottomLoop + spur;
 }
 
 function create_line_victoria()
