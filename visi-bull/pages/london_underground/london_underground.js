@@ -281,9 +281,9 @@ function create_line_circle()
     var line =
         "M290,351" +
         "L290,277" +
-        "Q289.8,274" + ",293,271.4" +  // Bend at Latimer Road.
+        "Q289.8,273.5" + ",293,271.4" +  // Bend at Latimer Road.
         "L320.4,246.4" +
-        "Q323,244.3" + ",327,244.4" +  // Bend above and left of Royal Oak.
+        "Q322.5,244.3" + ",327,244.4" +  // Bend above and left of Royal Oak.
         "H557" +
         "Q560.1,244.2" + ",562.9,246.1" +  // Bend above and left of Farringdon.
         "L593.1,273.7" +
@@ -309,13 +309,13 @@ function create_line_district()
     var topPath =  // Part of line starting at Ealing Broadway.
         "M160,296.2" +
         "H167" +
-        "Q174,296.8" + ",174.8,303" +  // Bend to the right of Ealing Broadway.
+        "Q174,296.8" + ",175,303" +  // Bend to the right of Ealing Broadway.
         "V348" +
-        "Q174.7,351.2" + ",176.9,354.1" +  // Bend above and left of Acton Town.
+        "Q175.1,351.2" + ",177.1,353.9" +  // Bend above and left of Acton Town.
         "L186,362.1" +
         "Q188,364" + ",192,364" +  // Bend left of Chiswick Park.
-        "H343" +
-        "C346,364" + ",349.9,360.2" + ",349.8,356" +  // Bend right of Earl's Court.
+        "H339.9" +
+        "Q349.9,364" + ",349.9,356" +  // Bend right of Earl's Court.
         "V257.5" +
         "C350.1,252.5" + ",354,248.3" + ",359.5,248.2" +  // Bend at Paddington.
         "H382.2";
@@ -350,15 +350,15 @@ function create_line_hammersmith()
     var line =
         "M287.6,351" +
         "V276" +
-        "Q287.5,273.4" + ",289.5,271.2" +  // Bend at Latimer Road.
-        "L319.3,244.2" +
-        "Q322,242.1" + ",325,242.1" +  // Bend above and right of Royal Oak.
+        "Q287.7,273.5" + ",289.7,271.2" +  // Bend at Latimer Road.
+        "L319.4,244.2" +
+        "Q322,242.3" + ",325,242.1" +  // Bend above and right of Royal Oak.
         "H557" +
         "Q560.6,242" + ",564.5,244.4" +  // Bend right of King's Cross.
-        "L594,271.1" +
-        "Q596.5,273.7" + ",600,273.6" +  // Bend at Moorgate.
+        "L593.8,271.1" +
+        "Q596.3,273.7" + ",600,273.6" +  // Bend at Moorgate.
         "H656.5" +
-        "C660.6,273.6" + ",666.6,276" + ",666.6,281" +  // Bend right of Liverpool Street.
+        "Q665.2,274.6" + ",666.4,283" +  // Bend right of Liverpool Street.
         "V299" +
         "Q666.6,301.9" + ",669,304.5" +  // Bend above Aldgate.
         "L674.2,308.9" +
@@ -420,10 +420,10 @@ function create_line_metropolitan()
         "L592.2,276" +
         "Q595,278.1" + ",599,278.1" +  // Bend at Moorgate.
         "H655.6" +
-        "Q661.4,278.1" + ",661.6,283" +  // Bend right of Liverpool Street.
+        "Q661.4,278.1" + ",661.7,283" +  // Bend right of Liverpool Street.
         "V309.7";
     var spur =  // Starting at Uxbridge.
-        "M48.5,95.9" +
+        "M48,95.9" +
         "H141.3" +
         "Q146.8,95.9" + ",149,98" +  // Bend right of Ruislip.
         "L179,125.2" +
