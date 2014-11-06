@@ -122,19 +122,17 @@ $(document).ready(function()
     underground.append("path")
         .classed({"jubilee": true, "line": true})
         .attr("d", create_line_jubilee());
-	*/
     underground.append("path")
         .classed({"metropolitan": true, "line": true})
         .attr("d", create_line_metropolitan());
-	/*
     underground.append("path")
         .classed({"northern": true, "line": true})
         .attr("d", create_line_northern());
-	*/
+    */
     underground.append("path")
         .classed({"piccadilly": true, "line": true})
         .attr("d", create_line_piccadilly());
-	/*
+    /*
     underground.append("path")
         .classed({"victoria": true, "line": true})
         .attr("d", create_line_victoria());
@@ -404,11 +402,35 @@ function create_line_jubilee()
 function create_line_metropolitan()
 {
     var line =  // Starting at Amersham.
-        ""
-        ;
+        "M68.5,31" +
+        "L77,39" +
+        "Q80,42.2" + ",85,42.2" +  // Bend below and right of Chesham.
+        "M158,41" +
+        "V60" +
+        "Q158,64" + ",161,66.7" +  // Bend below Croxley.
+        "M46.2,42.2" +
+        "H130" +
+        "Q133,42.2" + ",136,44" +  // Bend right of Chalfont & Latimer.
+        "L225,125" +
+        "Q228,127.9" + ",234,127.9" +  // Bend left of Harrow-on-the-Hill.
+        "H305.5" +
+        "Q308.3,127.9" + ",311.3,130" +  // Bend right of Preston Road.
+        "L437.1,244.6" +
+        "Q440,246.7" + ",444,246.7" +  // Bend at Baker Street.
+        "H556.5" +
+        "Q559.3,246.7" + ",561.2,247.7" +  // Bend right of King's Cross.
+        "L592.2,276" +
+        "Q595,278.1" + ",599,278.1" +  // Bend at Moorgate.
+        "H655.6" +
+        "Q661.4,278.1" + ",661.6,283" +  // Bend right of Liverpool Street.
+        "V309.7";
     var spur =  // Starting at Uxbridge.
-        ""
-        ;
+        "M48.5,95.9" +
+        "H141.3" +
+        "Q146.8,95.9" + ",149,98" +  // Bend right of Ruislip.
+        "L179,125.2" +
+        "Q182,127.9" + ",185,127.9" +  // Bend left of West Harrow.
+        "H238";
     return line + spur;
 }
 
