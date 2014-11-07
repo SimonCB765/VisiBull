@@ -199,7 +199,7 @@ $(document).ready(function()
     /*******************
     * Add the Stations *
     *******************/
-    var interchangeSize = 30;  // Size in square pixels for the interchange station to fill.
+    var interchangeSize = 26;  // Size in square pixels for the interchange station to fill.
     var interchangeGenerator = d3.svg.symbol().type("circle").size(interchangeSize);
     var stepFreeSize = 37;  // Size in square pixels for the step free station to fill.
     var stepFreeGenerator = d3.svg.symbol().type("circle").size(stepFreeSize);

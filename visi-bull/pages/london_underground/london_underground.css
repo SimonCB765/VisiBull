@@ -40,7 +40,7 @@ _lines
 .district {fill: none; stroke: rgb(0,114,41);}
 .hammersmith {fill: none; stroke: rgb(215,153,175);}
 .jubilee {fill: none; stroke: rgb(134,143,152);}
-.metropolitan {fill: none; stroke: rgb(117,16,86);}
+.metropolitan {fill: none; stroke: rgb(151,0,92);}
 .northern {fill: none; stroke: rgb(0,0,0);}
 .piccadilly {fill: none; stroke: rgb(0,25,168);}
 .victoria {fill: none; stroke: rgb(0,160,226);}
@@ -52,6 +52,6 @@ _lines
 _stations
 */
 .station {opacity: .4; stroke: rgb(0,255,255); stroke-width: 1.6;}
-.interchange {fill: rgb(255,255,255); stroke: rgb(0,255,255); stroke-width: 1;}
+.interchange {fill: rgb(255,255,255); stroke: rgb(0,255,255); stroke-width: 1.2;}
 .streetToPlatform {fill: white; stroke: blue; stroke-width: .35;}
 .streetToTrain {fill: blue; stroke: blue; stroke-width: .35;}
