@@ -1,8 +1,9 @@
 /*
 Contents:
 _element    -> style declarations for all elements of a given type (html, body, table, all p tags etc.).
-_ids		-> style declarations for specific IDs.
+_ids        -> style declarations for specific IDs.
 _classes    -> style declarations for specific classes.
+_stations   -> Style declarations for stations.
 _lines      -> style declarations for the lines.
 */
 
@@ -14,6 +15,7 @@ _element
 _ids
 */
 #underground {background: white; border: thin black solid;}  /* Style for the SVG containing the underground map. */
+#underground {background: url("TubeMap.png") no-repeat; background-size: 100% 100%;}
 
 /*
 _classes
@@ -43,3 +45,13 @@ _lines
 .piccadilly {fill: none; stroke: rgb(0,25,168);}
 .victoria {fill: none; stroke: rgb(0,160,226);}
 .waterloo {fill: none; stroke: rgb(118,208,189);}
+
+.line {stroke: rgb(0,255,255); opacity: 0.5;}
+
+/*
+_stations
+*/
+.station {opacity: .4; stroke: rgb(0,255,255); stroke-width: 1.6;}
+.interchange {fill: rgb(255,255,255); stroke: rgb(0,255,255); stroke-width: 1;}
+.streetToPlatform {fill: white; stroke: blue; stroke-width: .35;}
+.streetToTrain {fill: blue; stroke: blue; stroke-width: .35;}

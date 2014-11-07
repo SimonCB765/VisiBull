@@ -7,6 +7,12 @@ $(document).ready(function()
         .attr("width", svgWidth)
         .attr("height", svgHeight);
 
+
+
+    underground
+        .on("click", function() { console.log(d3.mouse(d3.select("body").node())); });
+
+
     /******************
     * Draw the zones. *
     ******************/
@@ -104,45 +110,119 @@ $(document).ready(function()
     * Draw the lines. *
     ******************/
     /*
-    underground.append("path")
+    var lineBakerloo = underground.append("path")
         .classed({"bakerloo": true, "line": true})
         .attr("d", create_line_bakerloo());
-    underground.append("path")
+    var pathBakerloo = lineBakerloo.node();
+
+    var lineCentral = underground.append("path")
         .classed({"central": true, "line": true})
         .attr("d", create_line_central());
-    underground.append("path")
+    var pathCentral = lineCentral.node();
+
+    var lineCircle = underground.append("path")
         .classed({"circle": true, "line": true})
         .attr("d", create_line_circle());
-    underground.append("path")
+    var pathCircle = lineCircle.node();
+
+    var lineDistrict = underground.append("path")
         .classed({"district": true, "line": true})
         .attr("d", create_line_district());
-    underground.append("path")
+    var pathDistrict = lineDistrict.node();
+
+    var lineHammersmith = underground.append("path")
         .classed({"hammersmith": true, "line": true})
         .attr("d", create_line_hammersmith());
-    underground.append("path")
+    var pathHammersmith = lineHammersmith.node();
+
+    var lineJubilee = underground.append("path")
         .classed({"jubilee": true, "line": true})
         .attr("d", create_line_jubilee());
-    underground.append("path")
-        .classed({"metropolitan": true, "line": true})
-        .attr("d", create_line_metropolitan());
-    underground.append("path")
+    var pathJubilee = lineJubilee.node();
+    */
+    var dataMetropolitan = create_line_metropolitan();
+    var containerMetropolitan = underground.append("g")
+        .classed("metropolitan", true);
+    var lineMetropolitan = containerMetropolitan.selectAll("path")
+        .data(dataMetropolitan)
+        .enter()
+            .append("path")
+            .classed("line", true)
+            .attr("d", function(d) { return d.path; })
+            .attr("data-portion", function(d) { return d.name; });
+    var pathMetropolitan = {};
+    lineMetropolitan.each(function(d)
+        {
+            pathMetropolitan[d.name] = d3.select(this).node();
+        });
+    /*
+    var lineNorthern = underground.append("path")
         .classed({"northern": true, "line": true})
         .attr("d", create_line_northern());
-    underground.append("path")
+    var pathNorthern = lineNorthern.node();
+
+    var linePiccadilly = underground.append("path")
         .classed({"piccadilly": true, "line": true})
         .attr("d", create_line_piccadilly());
-    underground.append("path")
+    var pathPiccadilly = linePiccadilly.node();
+
+    var lineVictoria = underground.append("path")
         .classed({"victoria": true, "line": true})
         .attr("d", create_line_victoria());
-    underground.append("path")
+    var pathVictoria = lineVictoria.node();
+
+    var lineWaterloo = underground.append("path")
         .classed({"waterloo": true, "line": true})
         .attr("d", create_line_waterloo());
+    var pathWaterloo = lineWaterloo.node();
     */
 
+    /***********************************
+    * Create the Data for the Stations *
+    ***********************************/
+    // Name is the name of the station (also a unique identifier).
+    // Interchange is true if the stations is an interchange else false.
+    // StepFree can take either false, streetToTrain or streetToPlatform.
+    // NationalRail is true if the station has national rail links.
+    // Positions contains the position of the station along the line.
+    // Offset any offset from the center of the line required to align the station correctly.
+    // Rotate any rotation needed by the station to align it correctly (used for non-circular stations).
+    // Terminate is true if the station is a terminal station.
+    var stationDataMetropolitan =
+        [
+            {"Name": "Amersham", "Interchange": true, "StepFree": false, "NationalRail": true, "Position": pathMetropolitan.amersham.getPointAtLength(0), "Offset": {"x": 0, "y": 0}, "Rotate": 0, "Terminate": true},
+            {"Name": "Chesham", "Interchange": false, "StepFree": "streetToPlatform", "NationalRail": false, "Position": pathMetropolitan.chesham.getPointAtLength(0), "Offset": {"x": 0, "y": 0}, "Rotate": 0, "Terminate": true},
+            {"Name": "Watford", "Interchange": false, "StepFree": false, "NationalRail": false, "Position": pathMetropolitan.watford.getPointAtLength(.8), "Offset": {"x": 0, "y": 0}, "Rotate": 90, "Terminate": true}
+        ];
+    //{"Name": , "Interchange": false, "StepFree": false, "NationalRail": false, "Position": , "Offset": {"x": 0, "y": 0}, "Rotate": 0, "Terminate": },
 
-
-    underground
-        .on("click", function() { console.log(d3.mouse(d3.select("body").node())); });
+    /*******************
+    * Add the Stations *
+    *******************/
+    var interchangeSize = 30;  // Size in square pixels for the interchange station to fill.
+    var interchangeGenerator = d3.svg.symbol().type("circle").size(interchangeSize);
+    var stepFreeSize = 37;  // Size in square pixels for the step free station to fill.
+    var stepFreeGenerator = d3.svg.symbol().type("circle").size(stepFreeSize);
+    var rectangleGenerator = "M0,0L0,3";
+    var terminalGenerator = "M0,-3L0,3";
+    var translation;
+    var rotation;
+    containerMetropolitan.selectAll(".station")
+        .data(stationDataMetropolitan)
+        .enter()
+        .append("path")
+            .attr("class", function(d)
+                {
+                    return "station" + ((d.Interchange) ? " interchange" : "") +
+                           ((d.StepFree === "streetToPlatform") ? " streetToPlatform" : "") + ((d.StepFree === "streetToTrain") ? " streetToTrain" : "");
+                })
+            .attr("transform", function(d)
+                {
+                    translation = "translate(" + (d.Position.x + d.Offset.x) + "," + (d.Position.y + d.Offset.y) + ")";
+                    rotation = "rotate(" + d.Rotate + ")";
+                    return translation + " " + rotation;
+                })
+            .attr("d", function(d) { return (d.Interchange) ? interchangeGenerator() : ((d.StepFree) ? stepFreeGenerator() : ((d.Terminate) ? terminalGenerator : rectangleGenerator)); });
 });
 
 /*********************
@@ -399,14 +479,8 @@ function create_line_jubilee()
 
 function create_line_metropolitan()
 {
-    var line =  // Starting at Amersham.
-        "M68.5,31" +
-        "L77,39" +
-        "Q80,42.2" + ",85,42.2" +  // Bend below and right of Chesham.
-        "M158,41" +
-        "V60" +
-        "Q158,64" + ",161,66.7" +  // Bend below Croxley.
-        "M46.2,42.2" +
+    var amersham =  // Starting at Amersham.
+        "M46.6,42.2" +
         "H130" +
         "Q133,42.2" + ",136,44" +  // Bend right of Chalfont & Latimer.
         "L225,125" +
@@ -422,14 +496,28 @@ function create_line_metropolitan()
         "H655.6" +
         "Q661.4,278.1" + ",661.7,283" +  // Bend right of Liverpool Street.
         "V309.7";
-    var spur =  // Starting at Uxbridge.
+    var chesham =  // Starting at Chesham.
+        "M68.5,31" +
+        "L77,39" +
+        "Q80,42.2" + ",85,42.2";  // Bend below and right of Chesham.
+    var watford =  // Starting at Watford.
+        "M158,41.1" +
+        "V60" +
+        "Q158,64" + ",161,66.7";  // Bend below Croxley.
+    var uxbridge =  // Starting at Uxbridge.
         "M48,95.9" +
         "H141.3" +
         "Q146.8,95.9" + ",149,98" +  // Bend right of Ruislip.
         "L179,125.2" +
         "Q182,127.9" + ",185,127.9" +  // Bend left of West Harrow.
         "H238";
-    return line + spur;
+    return [
+            {"name": "amersham", "path": amersham},
+            {"name": "chesham", "path": chesham},
+            {"name": "uxbridge", "path": uxbridge},
+            {"name": "watford", "path": watford}
+           ];
+
 }
 
 function create_line_northern()
