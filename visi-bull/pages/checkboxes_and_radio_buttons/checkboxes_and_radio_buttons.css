@@ -13,7 +13,8 @@ svg text {fill: white; font-size: 15px; stroke: none;}  /* Style definitions for
 /*
 _classes
 */
-.backing {opacity: 0; stroke: none;}
-.checkboxContainer {cursor: pointer;}
-.checkbox {fill-opacity: 0; stroke: white;}
-.checkmark {stroke-width: 3;}
+.backing {opacity: 0; stroke: none;}  /* The backing rectangle should be invisible. */
+.checkboxContainer {cursor: pointer;}  /* Keep the cursor as a pointing hand the whole time that it's over the checkbox. */
+.checkbox {fill: none; stroke: white;}  /* Only stroke the border of the checkboxes. */
+.checkmark {stroke-width: 3;}  /* Define the stroke-width of the check mark used to show selection. */
+.outline {fill: none; stroke: #585858; stroke-width: 2;}  /* Style for the light border rectangle. */
