@@ -1,0 +1,34 @@
+{% extends "home.html" %}
+
+{% block head %}
+<!--Block for including page specific CSS and JS files within the <head> tag.-->
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='checkboxes_and_radio_buttons/checkboxes_and_radio_buttons.css') }}">
+<script type="text/javascript" src="{{ url_for('static', filename='scripts/jQuery/jquery-1.11.1.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='checkboxes_and_radio_buttons/checkboxes_and_radio_buttons.js') }}"></script>
+{% endblock %}
+
+{% block header %}
+<!--Block for including page specific header information (e.g. page title) within the <header> tag.-->
+<h1 class="pageTitle">SVG Checkboxes and Radio Buttons</h1>
+<span class="date">-- --, 2014</span>
+{% endblock %}
+
+{% block content %}
+<!--Block for including the content of the page within the div.content tag.-->
+<br><br>
+<p>Checkboxes with ticks.</p>
+<br><br>
+<svg id="tickbox" />
+<br><br>
+<p>Checkboxes with crosses.</p>
+<br><br>
+<svg id="crossbox" />
+<br><br>
+<p>Radio buttons.</p>
+<br><br>
+<svg id="radio" />
+<br><br>
+<p>Fancy radio buttons.</p>
+<br><br>
+<svg id="fancyradio" />
+{% endblock %}

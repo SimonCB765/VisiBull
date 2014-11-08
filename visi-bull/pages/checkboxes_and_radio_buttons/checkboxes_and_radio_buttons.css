@@ -1,0 +1,19 @@
+/*
+Contents:
+_element    -> style declarations for all elements of a given type (html, body, table, all p tags etc.).
+_classes    -> style declarations for specific classes.
+*/
+
+/*
+_element
+*/
+svg {background: black; display: block; margin: 0 auto;}  /* Style all SVG elements, and make them centered. */
+svg text {fill: white; font-size: 15px; stroke: none;}  /* Style definitions for all text elements in and SVG element. */
+
+/*
+_classes
+*/
+.backing {opacity: 0; stroke: none;}
+.checkboxContainer {cursor: pointer;}
+.checkbox {fill-opacity: 0; stroke: white;}
+.checkmark {stroke-width: 3;}
