@@ -16,5 +16,5 @@ _classes
 .backing {opacity: 0; stroke: none;}  /* The backing rectangle should be invisible. */
 .checkboxContainer {cursor: pointer;}  /* Keep the cursor as a pointing hand the whole time that it's over the checkbox. */
 .checkbox {fill: none; stroke: white;}  /* Only stroke the border of the checkboxes. */
-.checkmark {stroke-width: 3;}  /* Define the stroke-width of the check mark used to show selection. */
+.checkmark {fill: none; stroke-width: 3;}  /* Define the stroke-width of the check mark used to show selection. */
 .outline {fill: none; stroke: #585858; stroke-width: 2;}  /* Style for the light border rectangle. */
