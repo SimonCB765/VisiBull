@@ -1,5 +1,9 @@
 $(document).ready(function()
 {
+    // Define the labels and their corresponding colors.
+    var labels = ["Green", "Orange", "Pink", "Purple", "Seafoam Green", "Sky Blue", "Yellow", "Bright Red", "Light Salmon", "Orangey Red"];  // Labels for the checkboxes.
+    var colorCodes = ["#00FF00", "#FFAF1A", "#FF008C", "#AE2DE3", "#00FF7B", "#00FFFF", "#FFFF00", "#FF0000", "#FFA07A", "#FF4500"];  // Color codes corresponding to the label names.
+
     // Create the checkboxes and radio buttons.
     create_tick_boxes("#tickbox");
     create_cross_boxes("#crossbox");
@@ -49,7 +53,7 @@ $(document).ready(function()
     {
         // Definitions needed.
         var svgWidth = 600;  // The width of the SVG element.
-        var svgHeight = 100;  // The height of the SVG element.
+        var svgHeight = 120;  // The height of the SVG element.
         var boxSize;  // The width and height of the checkbox.
         var boxStrokeWidth = 1;  // The stroke width for the checkbox.
         var boxLabelGap = 5;  // The gap between the box and the label.
@@ -57,10 +61,8 @@ $(document).ready(function()
         var startXPos = 20;  // The minimum position on the x axis at which the boxes can begin being placed.
         var widthToFill = 560;  // The width of the space that the checkboxes should fill up.
         var startYPos = 10;  // The Y position of the top of the first row of boxes.
-        var heightToFill = 80;  // The height that the checkboxes should evenly fill up (i.e. one row would be right in the middle, 3 rows at the quartiles).
+        var heightToFill = 100;  // The height that the checkboxes should evenly fill up (i.e. one row would be right in the middle, 3 rows at the quartiles).
         var checkMark;  // The mark that indicates that a box has been checked.
-        var labels = ["Green", "Orange", "Pink", "Purple", "Seafoam Green", "Sky Blue", "Yellow"];  // Labels for the checkboxes.
-        var colorCodes = ["#00FF00", "#FFAF1A", "#FF008C", "#AE2DE3", "#00FF7B", "#00FFFF", "#FFFF00"];  // Color codes corresponding to the label names.
 
         // Create the SVG element.
         var svg = d3.select(svgID)
@@ -102,7 +104,7 @@ $(document).ready(function()
         for (var i = 0; i < choiceData.length; i++)
         {
             var currentChoice = choiceData[i];
-            currentChoice.transY = rowGap * currentChoice.rowNumber;
+            currentChoice.transY = startYPos + (rowGap * currentChoice.rowNumber) - ((boxSize + boxStrokeWidth) / 2);
         }
 
         // Add the lines showing the boundaries for the checkboxes.
