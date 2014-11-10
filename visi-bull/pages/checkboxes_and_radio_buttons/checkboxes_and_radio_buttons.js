@@ -234,51 +234,56 @@ $(document).ready(function()
             .text(function(d) { return d.label; });
         choiceContainers.on("click", function(d)
             {
-                // Remove the old selection (if there is one).
-                var currentlySelected = svg.select(".selected");
-                if (!currentlySelected.empty())
+                if (!d3.select(this).classed("selected"))
                 {
-                    currentlySelected.classed("selected", false);
-                    currentlySelected.select("text").style("fill", "white");
-                    var checkmark = currentlySelected.select(".checkmark");
+                    // Only make changes to the selected choice if the clicked on choice was not the selected one.
+
+                    // Remove the old selection (if there is one).
+                    var currentlySelected = svg.select(".selected");
+                    if (!currentlySelected.empty())
+                    {
+                        currentlySelected.classed("selected", false);
+                        currentlySelected.select("text").style("fill", "white");
+                        var checkmark = currentlySelected.select(".checkmark");
+                        var checkmarkLength = checkmark.node().getTotalLength();
+                        checkmark
+                            .style("stroke", "white")
+                            .transition()
+                            .duration(transitionLength)
+                            .ease("linear")
+                            .style("stroke-dashoffset", checkmarkLength)
+                            .remove();
+                    }
+
+                    // Select the clicked on choice.
+                    var container = d3.select(this);
+                    var containedLabel = container.select("text");
+                    container.classed("selected", true);
+                    containedLabel.style("fill", d.color);
+                    var checkmark = container.append("path")
+                        .classed("checkmark", true)
+                        .attr("d", function(d)
+                            {
+                                return "M" + (d.labelWidth + (choiceGap / 6)) + ",0" +
+                                       "C" + (d.labelWidth + (choiceGap / 4)) + "," + (-labelHeight / 5) + "," +
+                                             (-choiceGap / 4) + "," + (-labelHeight / 3) + "," +
+                                             (-choiceGap / 4) + "," + (labelHeight / 2) +
+                                       "C" + (-choiceGap / 4) + "," + (labelHeight * 3 / 2) + "," +
+                                             (d.labelWidth + (choiceGap / 4)) + "," + (labelHeight * 3 / 2) + "," +
+                                             (d.labelWidth + (choiceGap / 2)) + "," + (labelHeight / 3);
+                            })
+                        .style("stroke", d.color);
+
+                    // Transition the checkmark so it doesn't appear all at once.
                     var checkmarkLength = checkmark.node().getTotalLength();
                     checkmark
-                        .style("stroke", "white")
-                        .transition()
+                        .style("stroke-dasharray", checkmarkLength + " " + checkmarkLength)
+                        .style("stroke-dashoffset", checkmarkLength);
+                    checkmark.transition()
                         .duration(transitionLength)
                         .ease("linear")
-                        .style("stroke-dashoffset", checkmarkLength)
-                        .remove();
+                        .style("stroke-dashoffset", 0);
                 }
-
-                // Select the clicked on choice.
-                var container = d3.select(this);
-                var containedLabel = container.select("text");
-                container.classed("selected", true);
-                containedLabel.style("fill", d.color);
-                var checkmark = container.append("path")
-                    .classed("checkmark", true)
-                    .attr("d", function(d)
-                        {
-                            return "M" + (d.labelWidth + (choiceGap / 6)) + ",0" +
-                                   "C" + (d.labelWidth + (choiceGap / 4)) + "," + (-labelHeight / 5) + "," +
-                                         (-choiceGap / 4) + "," + (-labelHeight / 3) + "," +
-                                         (-choiceGap / 4) + "," + (labelHeight / 2) +
-                                   "C" + (-choiceGap / 4) + "," + (labelHeight * 3 / 2) + "," +
-                                         (d.labelWidth + (choiceGap / 4)) + "," + (labelHeight * 3 / 2) + "," +
-                                         (d.labelWidth + (choiceGap / 2)) + "," + (labelHeight / 3);
-                        })
-                    .style("stroke", d.color);
-
-                // Transition the checkmark so it doesn't appear all at once.
-                var checkmarkLength = checkmark.node().getTotalLength();
-                checkmark
-                    .style("stroke-dasharray", checkmarkLength + " " + checkmarkLength)
-                    .style("stroke-dashoffset", checkmarkLength);
-                checkmark.transition()
-                    .duration(transitionLength)
-                    .ease("linear")
-                    .style("stroke-dashoffset", 0);
             });
     }
 
