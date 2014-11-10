@@ -1,8 +1,10 @@
 $(document).ready(function()
 {
     // Define the labels and their corresponding colors.
-    var labels = ["Green", "Orange", "Pink", "Purple", "Seafoam Green", "Sky Blue", "Yellow", "Bright Red", "Light Salmon", "Orangey Red"];  // Labels for the checkboxes.
+    var labels = ["Green", "Orange", "Pink", "Purple", "Seafoam Green", "Sky Blue", "Yellow", "Bright Red", "Light Salmon", "Red And Some Orange"];  // Labels for the checkboxes.
     var colorCodes = ["#00FF00", "#FFAF1A", "#FF008C", "#AE2DE3", "#00FF7B", "#00FFFF", "#FFFF00", "#FF0000", "#FFA07A", "#FF4500"];  // Color codes corresponding to the label names.
+    var labels = ["Green", "Orange", "Seafoam Green", "Purple", "Pink", "Sky Blue", "Yellow", "Red And Some Orange"];  // Labels for the checkboxes.
+    var colorCodes = ["#00FF00", "#FFAF1A", "#00FF7B", "#AE2DE3", "#FF008C", "#00FFFF", "#FFFF00", "#FF4500"];  // Color codes corresponding to the label names.
 
     // Create the checkboxes and radio buttons.
     create_tick_boxes("#tickbox");
@@ -567,15 +569,19 @@ $(document).ready(function()
         // Definitions needed.
         var svgWidth = 600;  // The width of the SVG element.
         var svgHeight = 120;  // The height of the SVG element.
-        var boxSize;  // The width and height of the checkbox.
         var boxStrokeWidth = 1;  // The stroke width for the checkbox.
+		var boxSize = 10 - boxStrokeWidth;  // The total width and height of the checkbox (excluding the stroke portion extending outside it).
+		var checkMark =  // The mark that indicates that a box has been checked.
+			"M" + boxStrokeWidth + "," + ((boxSize + boxStrokeWidth) / 2) +
+            "L" + ((boxSize + boxStrokeWidth) / 2) + "," + (boxSize - 1) +
+            "L" + boxSize + "," + boxStrokeWidth;
         var boxLabelGap = 5;  // The gap between the box and the label.
+		var labelWidth = 60;  // The available horizontal gap for each label.
         var choiceGap = 20;  // The gap between each checkbox/label combos.
         var startXPos = 20;  // The minimum position on the x axis at which the boxes can begin being placed.
         var widthToFill = 560;  // The width of the space that the checkboxes should fill up.
         var startYPos = 10;  // The Y position of the top of the first row of boxes.
         var heightToFill = 100;  // The height that the checkboxes should evenly fill up (i.e. one row would be right in the middle, 3 rows at the quartiles).
-        var checkMark;  // The mark that indicates that a box has been checked.
         var transitionLength = 400;  // The length of time that the checkmarks will take to appear and disappear.
 
         // Create the SVG element.
@@ -583,19 +589,15 @@ $(document).ready(function()
             .attr("width", svgWidth)
             .attr("height", svgHeight);
 
-        // Determine the width of all the labels.
-        var labelWidths = [];  // The width of each label, with index i in this array corresponding to the label with index i in the labels array.
-        var tempText = svg.selectAll("text")
+        // Determine the height of all the labels after text wrapping.
+        var tempText = svg.selectAll(".choiceLabel")
             .data(labels)
             .enter()
             .append("text")
                 .text(function(d) { return d; });
-        tempText.each(function() { labelWidths.push(d3.select(this).node().getBBox().width); });
-        boxSize = tempText.node().getBBox().height - boxStrokeWidth;  // Set the box plus box border to be the same size as the label height.
-        tempText.remove();  // Remove the text once the bboxs the labels take up have been computed.
-        checkMark = "M" + boxStrokeWidth + "," + ((boxSize + boxStrokeWidth) / 2) +
-                    "L" + ((boxSize + boxStrokeWidth) / 2) + "," + (boxSize - 1) +
-                    "L" + boxSize + "," + boxStrokeWidth;
+		var labelHeights;  // The height of each label, with index i in this array corresponding to the label with index i in the labels array.
+		labelHeights = wrap_text(tempText, labelWidth);  // Wrap the text.
+		tempText.remove();  // Remove the text once the bboxs the labels take up have been computed.
 
         // Compute the positions of the checkboxes.
         // Set the boxes on the half pixel to make them crisper with a 1px border.
@@ -605,7 +607,7 @@ $(document).ready(function()
         var cumulativeWidth = startXPos;
         for (var i = 0; i < labels.length; i++)
         {
-            choiceWidth = boxSize + boxStrokeWidth + boxLabelGap + labelWidths[i] + choiceGap;
+            choiceWidth = boxSize + boxStrokeWidth + boxLabelGap + labelWidth + choiceGap;
             if (cumulativeWidth + choiceWidth > widthToFill)
             {
                 numberOfRows++;
@@ -640,14 +642,16 @@ $(document).ready(function()
         choiceContainers.append("rect")  // The checkbox squares.
             .classed("checkbox", true)
             .attr("x", boxOffset)
-            .attr("y", boxStrokeWidth / 2)
+            .attr("y", boxOffset)
             .attr("width", boxSize)
             .attr("height", boxSize)
             .style("stroke-width", boxStrokeWidth);
-        choiceContainers.append("text")  // The label text.
+        var labelText = choiceContainers.append("text")  // The label text.
             .attr("x", boxSize + boxStrokeWidth + boxLabelGap)
-            .attr("y", Math.ceil((boxSize + boxStrokeWidth) * 4 / 5))
+            .attr("y", (boxSize + boxStrokeWidth) / 2)//Math.ceil((boxSize + boxStrokeWidth) * 4 / 5))
+			.attr("dy", ".35em")
             .text(function(d) { return d.label; });
+		wrap_text(labelText, labelWidth);  // Wrap the text.
         choiceContainers.append("rect")  // An invisible rectangle to help catch events.
             .classed("backing", true)
             .attr("x", 0)
@@ -702,3 +706,65 @@ $(document).ready(function()
             });
     }
 });
+
+function wrap_text(textSelection, labelWidth)
+{
+	// Wraps each text element in a selection and computes the height of each text element after wrapping.
+	// textSelection is a D3 selection consisting of the text elements to wrap.
+	// labelWidth is the maximum width that each <tspan> can take.
+	
+	var labelHeights = [];  // The height of each label, with index i in this array corresponding to the label with index i in the labels array.
+
+	textSelection.each(function(d)
+		{
+			// Select the needed DOM nodes.
+			var textElement = d3.select(this);
+			
+			// Get the text dimensions and record the height.
+			var currentTextBBox = textElement.node().getBBox()
+			var currentTextHeight = currentTextBBox.height;
+			
+			// Get the original positions of the text.
+			var origXPos = textElement.attr("x");
+			var origYPos = textElement.attr("y");
+
+			// Definitions for wrapping the text.
+			var words = textElement.text().split(/\s+/);  // The words in the original text.
+			var word;
+			var line = [];  // The line of text currently being created.
+			var linesAdded = 1;  // The number of lines of text needed.
+
+			var tspan = textElement.text(null).append("tspan").attr("x", origXPos).attr("y", origYPos);
+			while (word = words.shift())
+			{
+				line.push(word);
+				tspan.text(line.join(" "));
+				if (tspan.node().getComputedTextLength() > labelWidth)
+				{
+					// Finish of the current line of text.
+					line.pop();
+					tspan.text(line.join(" "));
+					linesAdded++;
+
+					// Start the next line of text.
+					line = [word];
+					tspan = textElement.append("tspan")
+						.attr("x", origXPos)
+						.attr("y", origYPos);
+				}
+			}
+			tspan.text(line.join(" "));  // Add any leftover text to the final tspan.
+			
+			// Alter the y locations of the all <tspan> elements to get the text centered.
+			textElement.selectAll("tspan")
+				.attr("dy", function(d,i)
+				{
+					return (-(linesAdded - 1) * 0.5) + i + 0.35 + "em";
+				});
+			
+			// Record the height of the text element.
+			labelHeights.push(currentTextHeight * linesAdded);
+		});
+
+	return labelHeights;
+}

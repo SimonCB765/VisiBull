@@ -9,6 +9,7 @@ _element
 */
 svg {background: black; display: block; margin: 0 auto;}  /* Style all SVG elements, and make them centered. */
 svg text {fill: white; font-size: 15px; stroke: none;}  /* Style definitions for all text elements in and SVG element. */
+svg tspan {text-anchor: start;}  /* Style definitions for tspans (couple this with a dy of .35em to center the text. */
 
 /*
 _classes
