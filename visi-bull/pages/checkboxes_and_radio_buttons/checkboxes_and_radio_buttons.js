@@ -176,12 +176,12 @@ $(document).ready(function()
         // Definitions needed.
         var svgWidth = 600;  // The width of the SVG element.
         var svgHeight = 120;  // The height of the SVG element.
-        var choiceGap = 20;  // The gap between each choice.
-        var startXPos = 20;  // The minimum position on the x axis at which the choices can begin being placed.
-        var widthToFill = 560;  // The width of the space that the choices should fill up.
-        var startYPos = 10;  // The Y position of the top of the first row of choices.
-        var heightToFill = 100;  // The height that the choices should evenly fill up (i.e. one row would be right in the middle, 3 rows at the quartiles).
-        var labelHeight;  // The height of each label (all labels have the same height).
+        var labelWidth = 60;  // The available horizontal gap for each label.
+        var choiceGapHorizontal = 20;  // The horizontal gap between each checkbox/label combos.
+        var choiceGapVertical = 10;  // The vertical gap between each checkbox/label combos.
+        var startXPos = 20;  // The minimum position on the x axis at which the boxes can begin being placed.
+        var widthToFill = 560;  // The width of the space that the checkboxes should fill up.
+        var startYPos = 10;  // The Y position of the top of the first row of boxes.
         var transitionLength = 400;  // The length of time that the checkmarks will take to appear and disappear.
 
         // Create the SVG element.
@@ -189,38 +189,43 @@ $(document).ready(function()
             .attr("width", svgWidth)
             .attr("height", svgHeight);
 
-        // Determine the width of all the labels.
-        var labelWidths = [];  // The width of each label, with index i in this array corresponding to the label with index i in the labels array.
-        var tempText = svg.selectAll("text")
+        // Determine the height of all the labels after text wrapping.
+        var tempText = svg.selectAll(".choiceLabel")
             .data(labels)
             .enter()
             .append("text")
                 .text(function(d) { return d; });
-        tempText.each(function() { labelWidths.push(d3.select(this).node().getBBox().width); });
-        labelHeight = tempText.node().getBBox().height;
+        var labelHeights;  // The height of each label, with index i in this array corresponding to the label with index i in the labels array.
+        labelHeights = wrap_text(tempText, labelWidth);  // Wrap the text.
         tempText.remove();  // Remove the text once the bboxs the labels take up have been computed.
 
         // Compute the positions of the choices.
         var choiceData = [];
         var choiceWidth;  // The width of the current choice.
-        var numberOfRows = 1;  // The number of rows of checkboxes to use.
-        var cumulativeWidth = startXPos + choiceGap;
+        var numberOfRows = 0;  // The number of rows of checkboxes to use.
+        var cumulativeWidth = startXPos + choiceGapHorizontal;  // The cumulative width of all checkbox/label combos on the current row.
+        var cumulativeHeight = [0];  // Each index i records the cumulative height of all rows with an index less than i.
+        var highestInRow = {"0": 0};  // A record of the height of the label with the greatest height in each row.
         for (var i = 0; i < labels.length; i++)
         {
-            choiceWidth = labelWidths[i] + choiceGap;
+            choiceWidth = labelWidth + choiceGapHorizontal;
             if (cumulativeWidth + choiceWidth > widthToFill)
             {
+                cumulativeHeight.push(cumulativeHeight[numberOfRows] + highestInRow[numberOfRows]);
                 numberOfRows++;
-                cumulativeWidth = startXPos + choiceGap;
+                cumulativeWidth = startXPos + choiceGapHorizontal;
+                highestInRow[numberOfRows] = 0;
             }
-            choiceData.push({"color": colorCodes[i], "label": labels[i], "labelWidth": labelWidths[i], "rowNumber": numberOfRows, "transX": cumulativeWidth});
+            highestInRow[numberOfRows] = Math.max(labelHeights[i], highestInRow[numberOfRows]);  // Update the highest height if needed.
+            choiceData.push({"color": colorCodes[i], "label": labels[i], "rowNumber": numberOfRows, "transX": cumulativeWidth});
             cumulativeWidth += choiceWidth;
         }
-        var rowGap = heightToFill / (numberOfRows + 1);  // The gaps to leave between each row.
+        console.log(cumulativeHeight, highestInRow);
+        cumulativeHeight.push(cumulativeHeight[numberOfRows] + highestInRow[numberOfRows]);
         for (var i = 0; i < choiceData.length; i++)
         {
             var currentChoice = choiceData[i];
-            currentChoice.transY = startYPos + (rowGap * currentChoice.rowNumber - (labelHeight / 2));
+            currentChoice.transY = startYPos + (currentChoice.rowNumber * choiceGapVertical) + (highestInRow[0] / 2) + cumulativeHeight[currentChoice.rowNumber];
         }
 
         // Add the lines showing the boundaries for the choices.
@@ -229,7 +234,7 @@ $(document).ready(function()
             .attr("x", startXPos)
             .attr("y", startYPos)
             .attr("width", widthToFill)
-            .attr("height", heightToFill);
+            .attr("height", svgHeight);
 
         // Add the choices.
         var choiceContainers = svg.selectAll(".boxes")
@@ -238,11 +243,12 @@ $(document).ready(function()
             .append("g")
                 .classed("checkboxContainer", true)
                 .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
-        choiceContainers.append("text")  // The label text.
+        var labelText = choiceContainers.append("text")  // The label text.
             .attr("x", 0)
-            .attr("y", Math.ceil(labelHeight * 4 / 5))
+            .attr("y", 0)
             .text(function(d) { return d.label; });
-        choiceContainers.on("click", function(d)
+        wrap_text(labelText, labelWidth);  // Wrap the text.
+        choiceContainers.on("click", function(d, i)
             {
                 if (!d3.select(this).classed("selected"))
                 {
@@ -272,15 +278,15 @@ $(document).ready(function()
                     containedLabel.style("fill", d.color);
                     var checkmark = container.append("path")
                         .classed("checkmark", true)
-                        .attr("d", function(d)
+                        .attr("d", function()
                             {
-                                return "M" + (d.labelWidth + (choiceGap / 6)) + ",0" +
-                                       "C" + (d.labelWidth + (choiceGap / 4)) + "," + (-labelHeight / 5) + "," +
-                                             (-choiceGap / 4) + "," + (-labelHeight / 3) + "," +
-                                             (-choiceGap / 4) + "," + (labelHeight / 2) +
-                                       "C" + (-choiceGap / 4) + "," + (labelHeight * 3 / 2) + "," +
-                                             (d.labelWidth + (choiceGap / 4)) + "," + (labelHeight * 3 / 2) + "," +
-                                             (d.labelWidth + (choiceGap / 2)) + "," + (labelHeight / 3);
+                                return "M" + (labelWidth + (choiceGapHorizontal / 6)) + ",0" +
+                                       "C" + (labelWidth + (choiceGapHorizontal / 4)) + "," + (-labelHeights[i] * 2 / 3) + "," +
+                                             (-choiceGapHorizontal / 4) + "," + (-labelHeights[i] * 2 / 3) + "," +
+                                             (-choiceGapHorizontal / 4) + "," + 0 +
+                                       "C" + (-choiceGapHorizontal / 4) + "," + (labelHeights[i] * 2 / 3) + "," +
+                                             (labelWidth + (choiceGapHorizontal / 4)) + "," + (labelHeights[i] * 2 / 3) + "," +
+                                             (labelWidth + (choiceGapHorizontal / 2)) + "," + (labelHeights[i] / 3);
                             })
                         .style("stroke", d.color);
 
@@ -302,12 +308,12 @@ $(document).ready(function()
         // Definitions needed.
         var svgWidth = 200;  // The width of the SVG element.
         var svgHeight = 400;  // The height of the SVG element.
-        var choiceGap = 20;  // The gap between each choice.
-        var startXPos = 10;  // The minimum position on the x axis at which the choices can begin being placed.
-        var widthToFill = 180;  // The width of the space that the choices should fill up.
-        var startYPos = 10;  // The Y position of the top of the first row of choices.
-        var heightToFill = 380;  // The height that the choices should evenly fill up (i.e. one row would be right in the middle, 3 rows at the quartiles).
-        var labelHeight;  // The height of each label (all labels have the same height).
+        var labelWidth = 60;  // The available horizontal gap for each label.
+        var choiceGapHorizontal = 20;  // The horizontal gap between each checkbox/label combos.
+        var choiceGapVertical = 10;  // The vertical gap between each checkbox/label combos.
+        var startXPos = 20;  // The minimum position on the x axis at which the boxes can begin being placed.
+        var widthToFill = 160;  // The width of the space that the checkboxes should fill up.
+        var startYPos = 10;  // The Y position of the top of the first row of boxes.
         var transitionLength = 400;  // The length of time that the checkmarks will take to appear and disappear.
 
         // Create the SVG element.
@@ -315,38 +321,43 @@ $(document).ready(function()
             .attr("width", svgWidth)
             .attr("height", svgHeight);
 
-        // Determine the width of all the labels.
-        var labelWidths = [];  // The width of each label, with index i in this array corresponding to the label with index i in the labels array.
-        var tempText = svg.selectAll("text")
+        // Determine the height of all the labels after text wrapping.
+        var tempText = svg.selectAll(".choiceLabel")
             .data(labels)
             .enter()
             .append("text")
                 .text(function(d) { return d; });
-        tempText.each(function() { labelWidths.push(d3.select(this).node().getBBox().width); });
-        labelHeight = tempText.node().getBBox().height;
+        var labelHeights;  // The height of each label, with index i in this array corresponding to the label with index i in the labels array.
+        labelHeights = wrap_text(tempText, labelWidth);  // Wrap the text.
         tempText.remove();  // Remove the text once the bboxs the labels take up have been computed.
 
         // Compute the positions of the choices.
         var choiceData = [];
         var choiceWidth;  // The width of the current choice.
-        var numberOfRows = 1;  // The number of rows of checkboxes to use.
-        var cumulativeWidth = startXPos + choiceGap;
+        var numberOfRows = 0;  // The number of rows of checkboxes to use.
+        var cumulativeWidth = startXPos + choiceGapHorizontal;  // The cumulative width of all checkbox/label combos on the current row.
+        var cumulativeHeight = [0];  // Each index i records the cumulative height of all rows with an index less than i.
+        var highestInRow = {"0": 0};  // A record of the height of the label with the greatest height in each row.
         for (var i = 0; i < labels.length; i++)
         {
-            choiceWidth = labelWidths[i] + choiceGap;
+            choiceWidth = labelWidth + choiceGapHorizontal;
             if (cumulativeWidth + choiceWidth > widthToFill)
             {
+                cumulativeHeight.push(cumulativeHeight[numberOfRows] + highestInRow[numberOfRows]);
                 numberOfRows++;
-                cumulativeWidth = startXPos + choiceGap;
+                cumulativeWidth = startXPos + choiceGapHorizontal;
+                highestInRow[numberOfRows] = 0;
             }
-            choiceData.push({"color": colorCodes[i], "label": labels[i], "labelWidth": labelWidths[i], "rowNumber": numberOfRows, "transX": cumulativeWidth});
+            highestInRow[numberOfRows] = Math.max(labelHeights[i], highestInRow[numberOfRows]);  // Update the highest height if needed.
+            choiceData.push({"color": colorCodes[i], "label": labels[i], "rowNumber": numberOfRows, "transX": cumulativeWidth});
             cumulativeWidth += choiceWidth;
         }
-        var rowGap = heightToFill / (numberOfRows + 1);  // The gaps to leave between each row.
+        console.log(cumulativeHeight, highestInRow);
+        cumulativeHeight.push(cumulativeHeight[numberOfRows] + highestInRow[numberOfRows]);
         for (var i = 0; i < choiceData.length; i++)
         {
             var currentChoice = choiceData[i];
-            currentChoice.transY = startYPos + (rowGap * currentChoice.rowNumber - (labelHeight / 2));
+            currentChoice.transY = startYPos + (currentChoice.rowNumber * choiceGapVertical) + (highestInRow[0] / 2) + cumulativeHeight[currentChoice.rowNumber];
         }
 
         // Add the lines showing the boundaries for the choices.
@@ -355,7 +366,7 @@ $(document).ready(function()
             .attr("x", startXPos)
             .attr("y", startYPos)
             .attr("width", widthToFill)
-            .attr("height", heightToFill);
+            .attr("height", svgHeight);
 
         // Add the choices.
         var choiceContainers = svg.selectAll(".boxes")
@@ -364,11 +375,12 @@ $(document).ready(function()
             .append("g")
                 .classed("checkboxContainer", true)
                 .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
-        choiceContainers.append("text")  // The label text.
+        var labelText = choiceContainers.append("text")  // The label text.
             .attr("x", 0)
-            .attr("y", Math.ceil(labelHeight * 4 / 5))
+            .attr("y", 0)
             .text(function(d) { return d.label; });
-        choiceContainers.on("click", function(d)
+        wrap_text(labelText, labelWidth);  // Wrap the text.
+        choiceContainers.on("click", function(d, i)
             {
                 if (!d3.select(this).classed("selected"))
                 {
@@ -398,15 +410,15 @@ $(document).ready(function()
                     containedLabel.style("fill", d.color);
                     var checkmark = container.append("path")
                         .classed("checkmark", true)
-                        .attr("d", function(d)
+                        .attr("d", function()
                             {
-                                return "M" + (d.labelWidth + (choiceGap / 6)) + ",0" +
-                                       "C" + (d.labelWidth + (choiceGap / 4)) + "," + (-labelHeight / 5) + "," +
-                                             (-choiceGap / 4) + "," + (-labelHeight / 3) + "," +
-                                             (-choiceGap / 4) + "," + (labelHeight / 2) +
-                                       "C" + (-choiceGap / 4) + "," + (labelHeight * 3 / 2) + "," +
-                                             (d.labelWidth + (choiceGap / 4)) + "," + (labelHeight * 3 / 2) + "," +
-                                             (d.labelWidth + (choiceGap / 2)) + "," + (labelHeight / 3);
+                                return "M" + (labelWidth + (choiceGapHorizontal / 6)) + ",0" +
+                                       "C" + (labelWidth + (choiceGapHorizontal / 4)) + "," + (-labelHeights[i] * 2 / 3) + "," +
+                                             (-choiceGapHorizontal / 4) + "," + (-labelHeights[i] * 2 / 3) + "," +
+                                             (-choiceGapHorizontal / 4) + "," + 0 +
+                                       "C" + (-choiceGapHorizontal / 4) + "," + (labelHeights[i] * 2 / 3) + "," +
+                                             (labelWidth + (choiceGapHorizontal / 4)) + "," + (labelHeights[i] * 2 / 3) + "," +
+                                             (labelWidth + (choiceGapHorizontal / 2)) + "," + (labelHeights[i] / 3);
                             })
                         .style("stroke", d.color);
 
