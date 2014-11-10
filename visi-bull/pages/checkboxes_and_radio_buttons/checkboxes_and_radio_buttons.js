@@ -21,60 +21,65 @@ $(document).ready(function()
         // Definitions needed.
         var svgWidth = 600;  // The width of the SVG element.
         var svgHeight = 120;  // The height of the SVG element.
-        var boxSize;  // The width and height of the checkbox.
         var boxStrokeWidth = 1;  // The stroke width for the checkbox.
+        var boxSize = 15 - boxStrokeWidth;  // The total width and height of the checkbox (excluding the stroke portion extending outside it).
+        var checkMark = [];  // The mark that indicates that a box has been checked. As the checkmark consists of two unconnected lines, animating with
+                             // stroke-dasharray requires that you animate each disconnected part separately.
+        checkMark.push("M" + boxStrokeWidth + "," + boxStrokeWidth +
+                       "L" + boxSize + "," + boxSize)
+        checkMark.push("M" + boxSize + "," + boxStrokeWidth +
+                       "L" + boxStrokeWidth + "," + boxSize);
         var boxLabelGap = 5;  // The gap between the box and the label.
-        var choiceGap = 20;  // The gap between each checkbox/label combos.
+        var labelWidth = 60;  // The available horizontal gap for each label.
+        var choiceGapHorizontal = 20;  // The horizontal gap between each checkbox/label combos.
+        var choiceGapVertical = 10;  // The vertical gap between each checkbox/label combos.
         var startXPos = 20;  // The minimum position on the x axis at which the boxes can begin being placed.
         var widthToFill = 560;  // The width of the space that the checkboxes should fill up.
         var startYPos = 10;  // The Y position of the top of the first row of boxes.
-        var heightToFill = 100;  // The height that the checkboxes should evenly fill up (i.e. one row would be right in the middle, 3 rows at the quartiles).
-        var checkMark = [];  // The mark that indicates that a box has been checked. As the checkmark consists of two unconnected lines, animating with
-                             // stroke-dasharray requires that you animate each disconnected part separately.
-        var transitionLength = 200;  // The length of time that the individual portions of the checkmarks will take to appear and disappear.
+        var transitionLength = 400;  // The length of time that the checkmarks will take to appear and disappear.
 
         // Create the SVG element.
         var svg = d3.select(svgID)
             .attr("width", svgWidth)
             .attr("height", svgHeight);
 
-        // Determine the width of all the labels.
-        var labelWidths = [];  // The width of each label, with index i in this array corresponding to the label with index i in the labels array.
-        var tempText = svg.selectAll("text")
+        // Determine the height of all the labels after text wrapping.
+        var tempText = svg.selectAll(".choiceLabel")
             .data(labels)
             .enter()
             .append("text")
                 .text(function(d) { return d; });
-        tempText.each(function() { labelWidths.push(d3.select(this).node().getBBox().width); });
-        boxSize = tempText.node().getBBox().height - boxStrokeWidth;  // Set the box plus box border to be the same size as the label height.
+        var labelHeights;  // The height of each label, with index i in this array corresponding to the label with index i in the labels array.
+        labelHeights = wrap_text(tempText, labelWidth);  // Wrap the text.
         tempText.remove();  // Remove the text once the bboxs the labels take up have been computed.
-        checkMark.push("M" + boxStrokeWidth + "," + boxStrokeWidth +
-                       "L" + boxSize + "," + boxSize)
-        checkMark.push("M" + boxSize + "," + boxStrokeWidth +
-                       "L" + boxStrokeWidth + "," + boxSize);
 
         // Compute the positions of the checkboxes.
         // Set the boxes on the half pixel to make them crisper with a 1px border.
         var choiceData = [];
         var choiceWidth;  // The width of the current box/label combo.
-        var numberOfRows = 1;  // The number of rows of checkboxes to use.
-        var cumulativeWidth = startXPos;
+        var numberOfRows = 0;  // The number of rows of checkboxes to use.
+        var cumulativeWidth = startXPos;  // The cumulative width of all checkbox/label combos on the current row.
+        var cumulativeHeight = [0];  // Each index i records the cumulative height of all rows with an index less than i.
+        var highestInRow = {"0": boxSize + boxStrokeWidth};  // A record of the height of the label with the greatest height in each row.
         for (var i = 0; i < labels.length; i++)
         {
-            choiceWidth = boxSize + boxStrokeWidth + boxLabelGap + labelWidths[i] + choiceGap;
+            choiceWidth = boxSize + boxStrokeWidth + boxLabelGap + labelWidth + choiceGapHorizontal;
             if (cumulativeWidth + choiceWidth > widthToFill)
             {
+                cumulativeHeight.push(cumulativeHeight[numberOfRows] + highestInRow[numberOfRows]);
                 numberOfRows++;
                 cumulativeWidth = startXPos;
+                highestInRow[numberOfRows] = boxSize + boxStrokeWidth;
             }
+            highestInRow[numberOfRows] = Math.max(labelHeights[i], highestInRow[numberOfRows]);  // Update the highest height if needed.
             choiceData.push({"color": colorCodes[i], "label": labels[i], "rowNumber": numberOfRows, "transX": cumulativeWidth});
             cumulativeWidth += choiceWidth;
         }
-        var rowGap = heightToFill / (numberOfRows + 1);  // The gaps to leave between each row.
+        cumulativeHeight.push(cumulativeHeight[numberOfRows] + highestInRow[numberOfRows]);
         for (var i = 0; i < choiceData.length; i++)
         {
             var currentChoice = choiceData[i];
-            currentChoice.transY = startYPos + (rowGap * currentChoice.rowNumber) - ((boxSize + boxStrokeWidth) / 2);
+            currentChoice.transY = startYPos + (currentChoice.rowNumber * choiceGapVertical) + (highestInRow[0] / 2) + cumulativeHeight[currentChoice.rowNumber];
         }
 
         // Add the lines showing the boundaries for the checkboxes.
@@ -83,7 +88,7 @@ $(document).ready(function()
             .attr("x", startXPos)
             .attr("y", startYPos)
             .attr("width", widthToFill)
-            .attr("height", heightToFill);
+            .attr("height", svgHeight);
 
         // Add the checkboxes.
         var boxOffset = boxStrokeWidth / 2;  // Offset each checkbox by half the stroke width to keep everything within the desired bounds.
@@ -96,20 +101,22 @@ $(document).ready(function()
         choiceContainers.append("rect")  // The checkbox squares.
             .classed("checkbox", true)
             .attr("x", boxOffset)
-            .attr("y", boxStrokeWidth / 2)
+            .attr("y", boxOffset)
             .attr("width", boxSize)
             .attr("height", boxSize)
             .style("stroke-width", boxStrokeWidth);
-        choiceContainers.append("text")  // The label text.
+        var labelText = choiceContainers.append("text")  // The label text.
             .attr("x", boxSize + boxStrokeWidth + boxLabelGap)
-            .attr("y", Math.ceil((boxSize + boxStrokeWidth) * 4 / 5))
+            .attr("y", (boxSize + boxStrokeWidth) / 2)
+            .attr("dy", ".35em")
             .text(function(d) { return d.label; });
+        wrap_text(labelText, labelWidth);  // Wrap the text.
         choiceContainers.append("rect")  // An invisible rectangle to help catch events.
             .classed("backing", true)
             .attr("x", 0)
             .attr("y", 0)
             .attr("width", function(d) { return d3.select(this).node().parentNode.getBBox().width + (boxOffset * 2); })  // The width of the backing rect is the combined width of all elements in its parent <g>.
-            .attr("height", boxSize + boxStrokeWidth);
+            .attr("height", function(d,i) { return labelHeights[i]; });
         choiceContainers.on("click", function(d)
             {
                 // Select the elements needed.
@@ -421,15 +428,26 @@ $(document).ready(function()
         // Definitions needed.
         var svgWidth = 200;  // The width of the SVG element.
         var svgHeight = 400;  // The height of the SVG element.
-        var boxSize;  // The width and height of the checkbox.
         var boxStrokeWidth = 1;  // The stroke width for the checkbox.
+        var boxSize = 15 - boxStrokeWidth;  // The total width and height of the checkbox (excluding the stroke portion extending outside it).
+        var checkMark =  // The mark that indicates that a box has been checked.
+            "M" + boxStrokeWidth + "," + ((boxSize + boxStrokeWidth) / 3) +
+            "L" + ((boxSize + boxStrokeWidth) / 3) + "," + boxStrokeWidth +
+            "L" + boxStrokeWidth + "," + ((boxSize + boxStrokeWidth) * 2 / 3) +
+            "L" + ((boxSize + boxStrokeWidth) * 2 / 3) + "," + boxStrokeWidth +
+            "L" + boxStrokeWidth + "," + boxSize +
+            "L" + boxSize + "," + boxStrokeWidth +
+            "L" + ((boxSize + boxStrokeWidth) / 3) + "," + boxSize +
+            "L" + boxSize + "," + ((boxSize + boxStrokeWidth) / 3) +
+            "L" + ((boxSize + boxStrokeWidth) * 2 / 3) + "," + boxSize +
+            "L" + boxSize + "," + ((boxSize + boxStrokeWidth) * 2 / 3);
         var boxLabelGap = 5;  // The gap between the box and the label.
-        var choiceGap = 20;  // The gap between each checkbox/label combos.
-        var startXPos = 10;  // The minimum position on the x axis at which the boxes can begin being placed.
-        var widthToFill = 180;  // The width of the space that the checkboxes should fill up.
+        var labelWidth = 60;  // The available horizontal gap for each label.
+        var choiceGapHorizontal = 20;  // The horizontal gap between each checkbox/label combos.
+        var choiceGapVertical = 10;  // The vertical gap between each checkbox/label combos.
+        var startXPos = 20;  // The minimum position on the x axis at which the boxes can begin being placed.
+        var widthToFill = 160;  // The width of the space that the checkboxes should fill up.
         var startYPos = 10;  // The Y position of the top of the first row of boxes.
-        var heightToFill = 380;  // The height that the checkboxes should evenly fill up (i.e. one row would be right in the middle, 3 rows at the quartiles).
-        var checkMark;  // The mark that indicates that a box has been checked.
         var transitionLength = 400;  // The length of time that the checkmarks will take to appear and disappear.
 
         // Create the SVG element.
@@ -437,49 +455,43 @@ $(document).ready(function()
             .attr("width", svgWidth)
             .attr("height", svgHeight);
 
-        // Determine the width of all the labels.
-        var labelWidths = [];  // The width of each label, with index i in this array corresponding to the label with index i in the labels array.
-        var tempText = svg.selectAll("text")
+        // Determine the height of all the labels after text wrapping.
+        var tempText = svg.selectAll(".choiceLabel")
             .data(labels)
             .enter()
             .append("text")
                 .text(function(d) { return d; });
-        tempText.each(function() { labelWidths.push(d3.select(this).node().getBBox().width); });
-        boxSize = tempText.node().getBBox().height - boxStrokeWidth;  // Set the box plus box border to be the same size as the label height.
+        var labelHeights;  // The height of each label, with index i in this array corresponding to the label with index i in the labels array.
+        labelHeights = wrap_text(tempText, labelWidth);  // Wrap the text.
         tempText.remove();  // Remove the text once the bboxs the labels take up have been computed.
-        checkMark = "M" + boxStrokeWidth + "," + ((boxSize + boxStrokeWidth) / 3) +
-                    "L" + ((boxSize + boxStrokeWidth) / 3) + "," + boxStrokeWidth +
-                    "L" + boxStrokeWidth + "," + ((boxSize + boxStrokeWidth) * 2 / 3) +
-                    "L" + ((boxSize + boxStrokeWidth) * 2 / 3) + "," + boxStrokeWidth +
-                    "L" + boxStrokeWidth + "," + boxSize +
-                    "L" + boxSize + "," + boxStrokeWidth +
-                    "L" + ((boxSize + boxStrokeWidth) / 3) + "," + boxSize +
-                    "L" + boxSize + "," + ((boxSize + boxStrokeWidth) / 3) +
-                    "L" + ((boxSize + boxStrokeWidth) * 2 / 3) + "," + boxSize +
-                    "L" + boxSize + "," + ((boxSize + boxStrokeWidth) * 2 / 3);
 
         // Compute the positions of the checkboxes.
         // Set the boxes on the half pixel to make them crisper with a 1px border.
         var choiceData = [];
         var choiceWidth;  // The width of the current box/label combo.
-        var numberOfRows = 1;  // The number of rows of checkboxes to use.
-        var cumulativeWidth = startXPos;
+        var numberOfRows = 0;  // The number of rows of checkboxes to use.
+        var cumulativeWidth = startXPos;  // The cumulative width of all checkbox/label combos on the current row.
+        var cumulativeHeight = [0];  // Each index i records the cumulative height of all rows with an index less than i.
+        var highestInRow = {"0": boxSize + boxStrokeWidth};  // A record of the height of the label with the greatest height in each row.
         for (var i = 0; i < labels.length; i++)
         {
-            choiceWidth = boxSize + boxStrokeWidth + boxLabelGap + labelWidths[i] + choiceGap;
+            choiceWidth = boxSize + boxStrokeWidth + boxLabelGap + labelWidth + choiceGapHorizontal;
             if (cumulativeWidth + choiceWidth > widthToFill)
             {
+                cumulativeHeight.push(cumulativeHeight[numberOfRows] + highestInRow[numberOfRows]);
                 numberOfRows++;
                 cumulativeWidth = startXPos;
+                highestInRow[numberOfRows] = boxSize + boxStrokeWidth;
             }
+            highestInRow[numberOfRows] = Math.max(labelHeights[i], highestInRow[numberOfRows]);  // Update the highest height if needed.
             choiceData.push({"color": colorCodes[i], "label": labels[i], "rowNumber": numberOfRows, "transX": cumulativeWidth});
             cumulativeWidth += choiceWidth;
         }
-        var rowGap = heightToFill / (numberOfRows + 1);  // The gaps to leave between each row.
+        cumulativeHeight.push(cumulativeHeight[numberOfRows] + highestInRow[numberOfRows]);
         for (var i = 0; i < choiceData.length; i++)
         {
             var currentChoice = choiceData[i];
-            currentChoice.transY = startYPos + (rowGap * currentChoice.rowNumber) - ((boxSize + boxStrokeWidth) / 2);
+            currentChoice.transY = startYPos + (currentChoice.rowNumber * choiceGapVertical) + (highestInRow[0] / 2) + cumulativeHeight[currentChoice.rowNumber];
         }
 
         // Add the lines showing the boundaries for the checkboxes.
@@ -488,7 +500,7 @@ $(document).ready(function()
             .attr("x", startXPos)
             .attr("y", startYPos)
             .attr("width", widthToFill)
-            .attr("height", heightToFill);
+            .attr("height", svgHeight);
 
         // Add the checkboxes.
         var boxOffset = boxStrokeWidth / 2;  // Offset each checkbox by half the stroke width to keep everything within the desired bounds.
@@ -501,20 +513,22 @@ $(document).ready(function()
         choiceContainers.append("rect")  // The checkbox squares.
             .classed("checkbox", true)
             .attr("x", boxOffset)
-            .attr("y", boxStrokeWidth / 2)
+            .attr("y", boxOffset)
             .attr("width", boxSize)
             .attr("height", boxSize)
             .style("stroke-width", boxStrokeWidth);
-        choiceContainers.append("text")  // The label text.
+        var labelText = choiceContainers.append("text")  // The label text.
             .attr("x", boxSize + boxStrokeWidth + boxLabelGap)
-            .attr("y", Math.ceil((boxSize + boxStrokeWidth) * 4 / 5))
+            .attr("y", (boxSize + boxStrokeWidth) / 2)
+            .attr("dy", ".35em")
             .text(function(d) { return d.label; });
+        wrap_text(labelText, labelWidth);  // Wrap the text.
         choiceContainers.append("rect")  // An invisible rectangle to help catch events.
             .classed("backing", true)
             .attr("x", 0)
             .attr("y", 0)
             .attr("width", function(d) { return d3.select(this).node().parentNode.getBBox().width + (boxOffset * 2); })  // The width of the backing rect is the combined width of all elements in its parent <g>.
-            .attr("height", boxSize + boxStrokeWidth);
+            .attr("height", function(d,i) { return labelHeights[i]; });
         choiceContainers.on("click", function(d)
             {
                 // Select the elements needed.
@@ -548,8 +562,7 @@ $(document).ready(function()
                     var checkmark = container.append("path")
                         .classed("checkmark", true)
                         .attr("d", checkMark)
-                        .style("stroke", d.color)
-                        .style("stroke-linejoin", "round");
+                        .style("stroke", d.color);
 
                     // Transition the checkmark so it doesn't appear all at once.
                     var checkmarkLength = checkmark.node().getTotalLength();
@@ -622,7 +635,6 @@ $(document).ready(function()
             cumulativeWidth += choiceWidth;
         }
         cumulativeHeight.push(cumulativeHeight[numberOfRows] + highestInRow[numberOfRows]);
-        console.log(highestInRow, cumulativeHeight);
         for (var i = 0; i < choiceData.length; i++)
         {
             var currentChoice = choiceData[i];
