@@ -53,26 +53,31 @@ $(document).ready(function()
         labelHeights = wrap_text(tempText, labelWidth);  // Wrap the text.
         tempText.remove();  // Remove the text once the bboxs the labels take up have been computed.
 
+        // Determine how to evenly distribute the checkboxes between rows.
+        var distributedBoxes = distribute_labels(labels, widthToFill, boxSize + boxStrokeWidth + boxLabelGap + labelWidth + choiceGapHorizontal);
+
         // Compute the positions of the checkboxes.
         // Set the boxes on the half pixel to make them crisper with a 1px border.
         var choiceData = [];
-        var choiceWidth;  // The width of the current box/label combo.
+        var currentLabel;  // The label of the checkbox currently being positioned.
+        var choiceWidth = boxSize + boxStrokeWidth + boxLabelGap + labelWidth + choiceGapHorizontal;  // The width of the current box/label combo.
         var numberOfRows = 0;  // The number of rows of checkboxes to use.
         var cumulativeWidth = startXPos;  // The cumulative width of all checkbox/label combos on the current row.
         var cumulativeHeight = [0];  // Each index i records the cumulative height of all rows with an index less than i.
         var highestInRow = {"0": boxSize + boxStrokeWidth};  // A record of the height of the label with the greatest height in each row.
         for (var i = 0; i < labels.length; i++)
         {
-            choiceWidth = boxSize + boxStrokeWidth + boxLabelGap + labelWidth + choiceGapHorizontal;
-            if (cumulativeWidth + choiceWidth > widthToFill)
+            currentLabel = labels[i];
+            if (distributedBoxes[currentLabel] > numberOfRows)
             {
+                // The current label is the first that is to be on a new line.
                 cumulativeHeight.push(cumulativeHeight[numberOfRows] + highestInRow[numberOfRows]);
                 numberOfRows++;
                 cumulativeWidth = startXPos;
                 highestInRow[numberOfRows] = boxSize + boxStrokeWidth;
             }
             highestInRow[numberOfRows] = Math.max(labelHeights[i], highestInRow[numberOfRows]);  // Update the highest height if needed.
-            choiceData.push({"color": colorCodes[i], "label": labels[i], "rowNumber": numberOfRows, "transX": cumulativeWidth});
+            choiceData.push({"color": colorCodes[i], "label": currentLabel, "rowNumber": numberOfRows, "transX": cumulativeWidth});
             cumulativeWidth += choiceWidth;
         }
         cumulativeHeight.push(cumulativeHeight[numberOfRows] + highestInRow[numberOfRows]);
@@ -201,14 +206,13 @@ $(document).ready(function()
 
         // Compute the positions of the choices.
         var choiceData = [];
-        var choiceWidth;  // The width of the current choice.
+        var choiceWidth = labelWidth + choiceGapHorizontal;  // The width of the current choice.
         var numberOfRows = 0;  // The number of rows of checkboxes to use.
         var cumulativeWidth = startXPos + choiceGapHorizontal;  // The cumulative width of all checkbox/label combos on the current row.
         var cumulativeHeight = [0];  // Each index i records the cumulative height of all rows with an index less than i.
         var highestInRow = {"0": 0};  // A record of the height of the label with the greatest height in each row.
         for (var i = 0; i < labels.length; i++)
         {
-            choiceWidth = labelWidth + choiceGapHorizontal;
             if (cumulativeWidth + choiceWidth > widthToFill)
             {
                 cumulativeHeight.push(cumulativeHeight[numberOfRows] + highestInRow[numberOfRows]);
@@ -220,7 +224,6 @@ $(document).ready(function()
             choiceData.push({"color": colorCodes[i], "label": labels[i], "rowNumber": numberOfRows, "transX": cumulativeWidth});
             cumulativeWidth += choiceWidth;
         }
-        console.log(cumulativeHeight, highestInRow);
         cumulativeHeight.push(cumulativeHeight[numberOfRows] + highestInRow[numberOfRows]);
         for (var i = 0; i < choiceData.length; i++)
         {
@@ -333,14 +336,13 @@ $(document).ready(function()
 
         // Compute the positions of the choices.
         var choiceData = [];
-        var choiceWidth;  // The width of the current choice.
+        var choiceWidth = labelWidth + choiceGapHorizontal;  // The width of the current choice.
         var numberOfRows = 0;  // The number of rows of checkboxes to use.
         var cumulativeWidth = startXPos + choiceGapHorizontal;  // The cumulative width of all checkbox/label combos on the current row.
         var cumulativeHeight = [0];  // Each index i records the cumulative height of all rows with an index less than i.
         var highestInRow = {"0": 0};  // A record of the height of the label with the greatest height in each row.
         for (var i = 0; i < labels.length; i++)
         {
-            choiceWidth = labelWidth + choiceGapHorizontal;
             if (cumulativeWidth + choiceWidth > widthToFill)
             {
                 cumulativeHeight.push(cumulativeHeight[numberOfRows] + highestInRow[numberOfRows]);
@@ -352,7 +354,6 @@ $(document).ready(function()
             choiceData.push({"color": colorCodes[i], "label": labels[i], "rowNumber": numberOfRows, "transX": cumulativeWidth});
             cumulativeWidth += choiceWidth;
         }
-        console.log(cumulativeHeight, highestInRow);
         cumulativeHeight.push(cumulativeHeight[numberOfRows] + highestInRow[numberOfRows]);
         for (var i = 0; i < choiceData.length; i++)
         {
@@ -480,14 +481,13 @@ $(document).ready(function()
         // Compute the positions of the checkboxes.
         // Set the boxes on the half pixel to make them crisper with a 1px border.
         var choiceData = [];
-        var choiceWidth;  // The width of the current box/label combo.
+        var choiceWidth = boxSize + boxStrokeWidth + boxLabelGap + labelWidth + choiceGapHorizontal;  // The width of the current box/label combo.
         var numberOfRows = 0;  // The number of rows of checkboxes to use.
         var cumulativeWidth = startXPos;  // The cumulative width of all checkbox/label combos on the current row.
         var cumulativeHeight = [0];  // Each index i records the cumulative height of all rows with an index less than i.
         var highestInRow = {"0": boxSize + boxStrokeWidth};  // A record of the height of the label with the greatest height in each row.
         for (var i = 0; i < labels.length; i++)
         {
-            choiceWidth = boxSize + boxStrokeWidth + boxLabelGap + labelWidth + choiceGapHorizontal;
             if (cumulativeWidth + choiceWidth > widthToFill)
             {
                 cumulativeHeight.push(cumulativeHeight[numberOfRows] + highestInRow[numberOfRows]);
@@ -627,14 +627,13 @@ $(document).ready(function()
         // Compute the positions of the checkboxes.
         // Set the boxes on the half pixel to make them crisper with a 1px border.
         var choiceData = [];
-        var choiceWidth;  // The width of the current box/label combo.
+        var choiceWidth = boxSize + boxStrokeWidth + boxLabelGap + labelWidth + choiceGapHorizontal;  // The width of the current box/label combo.
         var numberOfRows = 0;  // The number of rows of checkboxes to use.
         var cumulativeWidth = startXPos;  // The cumulative width of all checkbox/label combos on the current row.
         var cumulativeHeight = [0];  // Each index i records the cumulative height of all rows with an index less than i.
         var highestInRow = {"0": boxSize + boxStrokeWidth};  // A record of the height of the label with the greatest height in each row.
         for (var i = 0; i < labels.length; i++)
         {
-            choiceWidth = boxSize + boxStrokeWidth + boxLabelGap + labelWidth + choiceGapHorizontal;
             if (cumulativeWidth + choiceWidth > widthToFill)
             {
                 cumulativeHeight.push(cumulativeHeight[numberOfRows] + highestInRow[numberOfRows]);
@@ -736,6 +735,35 @@ $(document).ready(function()
             });
     }
 });
+
+function distribute_labels(labels, spaceToFill, sizeOfChoice)
+{
+    // Determines the correct row/column for each label if you are trying to evenly distribute the labels between rows/columns.
+    // labels is an array of the labels themselves.
+    // spaceToFill is the space (horizontal or vertical) that is permissible for one row/column of choices.
+    // sizeOfChoice is the width/height of each choice when distributing horizontally/vertically.
+
+    // Determine max number of rows/columns needed.
+    var choicesPer = Math.floor(spaceToFill / sizeOfChoice);  // Choices that can fit in a row/column.
+    var maxNeeded = Math.ceil(labels.length / choicesPer);  // The maximum number of rows/columns needed to display the choices.
+    var maxIndex = maxNeeded - 1;  // The index of the bottom/right row/column.
+
+    // Split the labels so that they are distributed between maxNeeded rows/columns as evenly as possible.
+    var distributed = {}, len = labels.length, i = 0;
+    while (i < len)
+    {
+        var size = Math.ceil((len - i) / maxNeeded);
+        maxNeeded--;
+        var labelsInRow = labels.slice(i, i + size);
+        for (var j = 0; j < labelsInRow.length; j++)
+        {
+            distributed[labelsInRow[j]] = maxIndex - maxNeeded;
+        }
+        i += size;
+    }
+
+    return distributed;
+}
 
 function wrap_text(textSelection, labelWidth)
 {
