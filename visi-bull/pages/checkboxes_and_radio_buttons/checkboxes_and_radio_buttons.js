@@ -36,7 +36,7 @@ $(document).ready(function()
         var startXPos = 20;  // The minimum position on the x axis at which the boxes can begin being placed.
         var widthToFill = 560;  // The width of the space that the checkboxes should fill up.
         var startYPos = 10;  // The Y position of the top of the first row of boxes.
-        var transitionLength = 400;  // The length of time that the checkmarks will take to appear and disappear.
+        var transitionLength = 200;  // The length of time that each segment of the checkmarks will take to appear and disappear.
 
         // Create the SVG element.
         var svg = d3.select(svgID)
