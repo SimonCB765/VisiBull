@@ -4,7 +4,7 @@ _element    -> style declarations for all elements of a given type (html, body, 
 _header     -> style declarations for the <header> tag
 _footer     -> style declarations for the <footer> tag
 _classes    -> style declarations for specific classes.
-_code		-> style declarations for code blocks.
+_code       -> style declarations for code blocks.
 */
 
 /*
@@ -13,7 +13,7 @@ _element
 * {margin: 0; padding: 0;}  /* Reset all padding and margins. */
 html {min-width: 1040px;}
 body {background-color: #F8F8F8; color: #222222; font-family: "Segoe UI", sans-serif; margin: .5em auto; width: 960px;}
-p {margin: 1em 0}
+p {margin: 1em 0;}
 a {color: #FF0066;}
 a:not(:hover) {text-decoration: none;}  /* Remove the underline that would normally be present on links (except when hovered over). */
 
@@ -32,6 +32,10 @@ footer a {font-style: oblique; font-weight: bold;}
 /*
 _classes
 */
+.banner {background-repeat: no-repeat; background-size: 100% 100%; border: thin black solid; cursor: pointer; display: block;}  /* Style the SVG banner. */
+.bannerContainer {margin: 1em 0;}  /* Style for the div containing a banner. */
+.bannerText {font-size: 40px; stroke: none; text-anchor: start;}  /* Style for the text overlaying the banner. */
+
 .date {color: #0099FF; font-size: 14px; font-style: oblique; font-weight: bold; letter-spacing: 2px;}  /* Styling for dates. */
 
 /*

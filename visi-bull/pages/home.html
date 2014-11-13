@@ -4,6 +4,7 @@
         <title>Visual Perambulations</title>
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='home.css') }}">
         <script type="text/javascript" src="{{ url_for('static', filename='scripts/d3/d3.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='scripts/jQuery/jquery-1.11.1.min.js') }}"></script>
         {% block head %}
             <!--Block for including page specific CSS and JS files within the <head> tag.-->
             <script type="text/javascript" src="{{ url_for('static', filename='home.js') }}"></script>
@@ -21,50 +22,52 @@
         <div class="content">
             {% block content %}
                 <!--Block for including the content of the page within the div.content tag.-->
-                <p class="banner">
+                <div class="bannerContainer" data-name="Carousels" data-background="{{ url_for('static', filename='carousels/carousels.png') }}">
                     <a href="{{ url_for('prettyPictures', prettyPictureName='carousels') }}">carousels</a>
                     <span class="date">-- --, 2014</span>
-                </p>
-                <p class="banner">
-                    <a href="{{ url_for('prettyPictures', prettyPictureName='checkboxes_and_radio_buttons') }}">checkboxes_and_radio_buttons</a>
-                    <span class="date">-- --, 2014</span>
-                </p>
-                <p class="banner">
+                </div>
+                <div class="bannerContainer" data-name="London Underground" data-background="{{ url_for('static', filename='london_underground/london_underground.png') }}">
                     <a href="{{ url_for('prettyPictures', prettyPictureName='london_underground') }}">london_underground</a>
                     <span class="date">-- --, 2014</span>
-                </p>
-				<br><br><br><br>
-                <p class="banner">
+                </div>
+                <br><br><br><br>
+                <div class="bannerContainer" data-name="Checkboxes and Radio Buttons" data-background="{{ url_for('static', filename='checkboxes_and_radio_buttons/checkboxes_and_radio_buttons.png') }}">
+                    <a href="{{ url_for('prettyPictures', prettyPictureName='checkboxes_and_radio_buttons') }}">checkboxes_and_radio_buttons</a>
+                    <span class="date">November 13, 2014</span>
+                </div>
+                <div class="bannerContainer" data-name="Favicon" data-background="{{ url_for('static', filename='favicon/favicon.png') }}">
                     <a href="{{ url_for('prettyPictures', prettyPictureName='favicon') }}">favicon</a>
                     <span class="date">November 6, 2014</span>
-                </p>
-                <p class="banner">
+                </div>
+                <div class="bannerContainer" data-name="Scalable Paths" data-background="{{ url_for('static', filename='scalable_paths/scalable_paths.png') }}">
                     <a href="{{ url_for('prettyPictures', prettyPictureName='scalable_paths') }}">scalable_paths</a>
                     <span class="date">October 30, 2014</span>
-                </p>
-                <p class="banner">
+                </div>
+                <div class="bannerContainer" data-name="Tabbed Navigation" data-background="{{ url_for('static', filename='tabbed_navigation/tabbed_navigation.png') }}">
                     <a href="{{ url_for('prettyPictures', prettyPictureName='tabbed_navigation') }}">tabbed_navigation</a>
                     <span class="date">October 22, 2014</span>
-                </p>
-                <p class="banner">
+                </div>
+                <div class="bannerContainer" data-name="Pong" data-background="{{ url_for('static', filename='pong_clone/pong_clone.png') }}">
                     <a href="{{ url_for('prettyPictures', prettyPictureName='pong_clone') }}">pong_clone</a>
                     <span class="date">October 10, 2014</span>
-                </p>
-                <p class="banner">
+                </div>
+                <div class="bannerContainer" data-name="Space Invaders" data-background="{{ url_for('static', filename='space_invaders_clone/space_invaders_clone.png') }}">
                     <a href="{{ url_for('prettyPictures', prettyPictureName='space_invaders_clone') }}">space_invaders_clone</a>
                     <span class="date">October 2, 2014</span>
-                </p>
-                <p class="banner">
+                </div>
+                <div class="bannerContainer" data-name="Snake" data-background="{{ url_for('static', filename='snake_clone/snake_clone.png') }}">
                     <a href="{{ url_for('prettyPictures', prettyPictureName='snake_clone') }}">snake_clone</a>
                     <span class="date">September 24, 2014</span>
-                </p>
-                <p class="banner">
-                    <a href="{{ url_for('prettyPictures', prettyPictureName='bouncy_balls') }}">bouncy_balls</a>
+                </div>
+                <div class="bannerContainer" data-name="Bouncy Balls" data-background="{{ url_for('static', filename='bouncy_balls/bouncy_balls.png') }}">
                     <span class="date">September 17, 2014</span>
-                </p>
+                    <a href="{{ url_for('prettyPictures', prettyPictureName='bouncy_balls') }}">
+                        <svg class="banner" />
+                    </a>
+                </div>
             {% endblock %}
-			<br><br>
-			<p>CSS, HTML and Javascript code for creating the page can be found <a href={{ githubURL }}>here</a>.</p>
+            <br><br>
+            <p>CSS, HTML and Javascript code for creating the page can be found <a href={{ githubURL }}>here</a>.</p>
         </div>
 
         <footer>
