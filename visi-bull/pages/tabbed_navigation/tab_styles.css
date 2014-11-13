@@ -1,52 +1,20 @@
-#basic-tab-set {display: block; margin: 0 auto;}
-#basic-tab-set .backing {fill: black; stroke: none;}  /* Bottom backing border for the tab set. */
-#basic-tab-set .tab {fill: #888888; stroke: black; stroke-width: 1;}  /* Style the tabs. */
-#basic-tab-set .tab-container {cursor: default;}  /* Prevent changing of the cursor when hovering over a tab. */
-#basic-tab-set .tab-container.hover .tab {fill: #989898;}
-#basic-tab-set .tab-container .tab.selected {fill: white;}
-#basic-tab-set .tab-content {}
+/**************************
+* Style info for all tabs *
+**************************/
+svg {display: block; margin: 0 auto;}  /* Center SVG elements. */
+svg .backing {fill: black; stroke: none;}  /* Bottom backing border for the tab set. */
+svg .grad-end {stop-color : rgba(0,0,0,0)}  /* The stop color for the end of the gradient. */
+svg .grad-start {stop-color : rgba(0,0,0,1)}  /* The stop color for the start of the gradient. */
+svg .tab {fill: #888888; stroke: black; stroke-width: 1;}  /* Style the tabs. */
+svg .tab-container {cursor: default;}  /* Prevent changing of the cursor when hovering over a tab. */
+svg .tab-container.hover .tab {fill: #989898;}
+svg .tab-container .tab.selected {fill: white;}
+svg .tab-text {dominant-baseline: middle; fill: black; font-size: .75em; stroke: none;}
+svg .tab-text tspan {dominant-baseline: middle; font-size: 1em; stroke: none;}
 
-#twirling-tabs {display: block; margin: 0 auto;}
-#twirling-tabs .backing {fill: black; stroke: none;}  /* Bottom backing border for the tab set. */
-#twirling-tabs .tab {fill: #888888; stroke: black; stroke-width: 1;}  /* Style the tabs. */
-#twirling-tabs .tab-container {cursor: default;}  /* Prevent changing of the cursor when hovering over a tab. */
-#twirling-tabs .tab-container.hover .tab {fill: #989898;}
-#twirling-tabs .tab-container .tab.selected {fill: white;}
-#twirling-tabs .tab-content {}
-
-#hard-clip-tabs {display: block; margin: 0 auto;}
-#hard-clip-tabs .backing {fill: black; stroke: none;}  /* Bottom backing border for the tab set. */
-#hard-clip-tabs .tab {fill: #888888; stroke: black; stroke-width: 2;}  /* Style the tabs. */
-#hard-clip-tabs .tab-container {cursor: default;}  /* Prevent changing of the cursor when hovering over a tab. */
-#hard-clip-tabs .tab-container.hover .tab {fill: #989898;}
-#hard-clip-tabs .tab-container .tab.selected {fill: white;}
-#hard-clip-tabs .tab-text {dominant-baseline: middle; fill: black; font-size: .75em; stroke: none;}
-
-#fade-clip-tabs {display: block; margin: 0 auto;}
-#fade-clip-tabs .backing {fill: black; stroke: none;}  /* Bottom backing border for the tab set. */
-#fade-clip-tabs .grad-end {stop-color : rgba(0,0,0,0.2)}  /* The stop color for the end of the gradient. */
-#fade-clip-tabs .grad-start {stop-color : rgba(0,0,0,1)}  /* The stop color for the start of the gradient. */
-#fade-clip-tabs .tab {fill: #888888; stroke: black; stroke-width: 2;}  /* Style the tabs. */
-#fade-clip-tabs .tab-container {cursor: default;}  /* Prevent changing of the cursor when hovering over a tab. */
-#fade-clip-tabs .tab-container.hover .tab {fill: #989898;}
-#fade-clip-tabs .tab-container .tab.selected {fill: white;}
-#fade-clip-tabs .tab-text {dominant-baseline: middle; fill: black; font-size: .75em; stroke: none;}
-
-#tall-tabs {display: block; margin: 0 auto;}
-#tall-tabs .backing {fill: black; stroke: none;}  /* Bottom backing border for the tab set. */
-#tall-tabs .grad-end {stop-color : rgba(0,0,0,0);}  /* The stop color for the end of the gradient. */
-#tall-tabs .grad-start {stop-color : rgba(0,0,0,1);}  /* The stop color for the start of the gradient. */
-#tall-tabs .tab {fill: #888888; stroke: black; stroke-width: 2;}  /* Style the tabs. */
-#tall-tabs .tab-container {cursor: default;}  /* Prevent changing of the cursor when hovering over a tab. */
-#tall-tabs .tab-container.hover .tab {fill: #989898;}
-#tall-tabs .tab-container .tab.selected {fill: white;}
-#tall-tabs .tab-text {dominant-baseline: middle; fill: black; font-size: .75em; stroke: none;}
-#tall-tabs .tab-text tspan {dominant-baseline: middle; font-size: 1em; stroke: none;}
-
-#moveable-tabs {display: block; margin: 0 auto;}
-#moveable-tabs .backing {fill: black; stroke: none;}  /* Bottom backing border for the tab set. */
-#moveable-tabs .grad-end {stop-color : rgba(0,0,0,0);}  /* The stop color for the end of the gradient. */
-#moveable-tabs .grad-start {stop-color : rgba(0,0,0,1);}  /* The stop color for the start of the gradient. */
+/***************************************
+* Style info for specific sets of tabs *
+***************************************/
 #moveable-tabs .tab-container {cursor: default; fill: #888888;}  /* Prevent changing of the cursor when hovering over a tab. */
 #moveable-tabs .tab-container.hover .close-button {fill: #989898;}
 #moveable-tabs .tab-container.hover .tab {fill: #989898;}
@@ -56,12 +24,11 @@
 #moveable-tabs .tab-container .close-button:hover:active {fill: #E6007E;}  /* Slightly darker button when depressed. */
 #moveable-tabs .tab-container .close-button:hover path {stroke: white;}
 #moveable-tabs .tab-container .close-button path {stroke: black; stroke-width: 2;}
-#moveable-tabs .tab-container .tab {stroke: black; stroke-width: 2;}  /* Style the tabs. */
-#moveable-tabs .tab-container .tab-text {dominant-baseline: middle; fill: black; font-size: .75em; stroke: none;}
-#moveable-tabs .tab-container .tab-text tspan {dominant-baseline: middle; font-size: 1em; stroke: none;}
 
-/* Firefox Style Tabs. */
-#firefox-tabs {cursor: default; display: block; margin: 0 auto;}  /* Center SVG element and keep cursor always as a pointer. */
+/**********************
+* Firefox Style Tabs. *
+**********************/
+#firefox-tabs {cursor: default; display: block; margin: 0 auto;}  /* Keep the cursor as a pointer always. */
 #firefox-tabs .baseline {fill: #FF008C; stroke: none;}  /* Style for the baseline border on which the tabs sit. */
 #firefox-tabs .grad-end {stop-color : rgba(0,0,0,0);}  /* The stop color for the end of the gradient. */
 #firefox-tabs .grad-start {stop-color : rgba(0,0,0,1);}  /* The stop color for the start of the gradient. */
