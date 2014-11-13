@@ -34,7 +34,8 @@ _classes
 */
 .banner {background-repeat: no-repeat; background-size: 100% 100%; border: thin black solid; cursor: pointer; display: block;}  /* Style the SVG banner. */
 .bannerContainer {margin: 1em 0;}  /* Style for the div containing a banner. */
-.bannerText {font-size: 40px; stroke: none; text-anchor: start;}  /* Style for the text overlaying the banner. */
+.bannerContainer a {text-decoration: none;}  /* No underlines on the text in the SVG banner. */
+.bannerText {fill: white; font-size: 40px; font-weight: bold; stroke: none; text-anchor: start;}  /* Style for the text overlaying the banner. */
 
 .date {color: #0099FF; font-size: 14px; font-style: oblique; font-weight: bold; letter-spacing: 2px;}  /* Styling for dates. */
 

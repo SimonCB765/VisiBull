@@ -15,6 +15,7 @@ function setup_banners()
             var container = d3.select(this);
             var backgroundImage = container.attr("data-background");  // The URL for the background image of the banner.
             var bannerText = container.attr("data-name");  // The text to overlay on the banner.
+            var textColor = container.attr("data-textColor"); // the color for the overlayed text.
             var banner = container.select(".banner");
 
             // Size the banner.
@@ -31,6 +32,7 @@ function setup_banners()
                 .attr("x", 0)
                 .attr("y", bannerHeight / 2)
                 .attr("dy", ".35em")
+                .style("fill", textColor)
                 .text(bannerText);
         });
 }
