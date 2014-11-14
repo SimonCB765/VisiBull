@@ -69,6 +69,7 @@ function initialise_game()
     var faceMovementSpeed = 0.35;  // Horizontal distance moved each time step.
     var currentDirection = 1;  // Horizontal direction being moved by the faces (1 for right and -1 for left).
     var alreadyDescending = false;  // Whether the faces are moving in the Y direction.
+    var descendTo;  // The Y coordinate that indicates that the faces should start moving horizontally again.
     var bottomEdgeOfFaces;  // The Y position of the lowest face.
     var topEdgeOfFaces;  // The Y position of the highest face.
     var leftEdgeOfFaces;  // The X position of the leftmost face.
@@ -295,7 +296,7 @@ function initialise_game()
         if (alreadyDescending)
         {
             // Faces are already moving in the Y directions, so see if they should continue to do so.
-            if (bottomEdgeOfFaces % (faceDiameter + faceGapVertical))
+            if (bottomEdgeOfFaces < descendTo)
             {
                 // Not reached new row for faces so drop down Y.
                 changeInY = faceMovementSpeed;
@@ -304,14 +305,14 @@ function initialise_game()
             {
                 // Reached new resting Y value.
                 alreadyDescending = false;
-                changeInY = 0;
                 currentDirection *= -1;  // Reverse direction.
             }
         }
-        else if (leftEdgeOfFaces === 0 || rightEdgeOfFaces === svgWidth)
+        else if (leftEdgeOfFaces <= 0 || rightEdgeOfFaces >= svgWidth)
         {
             // Faces are not descending and have just reached the left or right edge of the screen.
             alreadyDescending = true;
+            descendTo = bottomEdgeOfFaces + faceDiameter + faceGapVertical;
             changeInY = faceMovementSpeed;
         }
         var changeInX = changeInY ? 0 : currentDirection * faceMovementSpeed;
