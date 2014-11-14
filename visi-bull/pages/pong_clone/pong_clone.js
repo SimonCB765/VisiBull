@@ -51,6 +51,24 @@ svg.on("mousemove", function()
             });
     });
 
+// Add the scores.
+var playerScore = svg.append("text")
+    .datum({"score": 0})
+    .classed("score", true)
+    .attr("x", (svgWidth / 2) - 30)
+    .attr("y", 40)
+    .attr("dy", ".35em")
+    .style("text-anchor", "end")  // Score will grow to the left of the screen.
+    .text(function(d) { return d.score; });
+var aiScore = svg.append("text")
+    .datum({"score": 0})
+    .classed("score", true)
+    .attr("x", (svgWidth / 2) + 30)
+    .attr("y", 40)
+    .attr("dy", ".35em")
+    .style("text-anchor", "start")  // Score will grow to the right of the screen.
+    .text(function(d) { return d.score; });
+
 // Start the game.
 initialise_game();
 d3.timer(move_ball);  // Start the ball moving.
@@ -131,6 +149,9 @@ function initialise_game()
 {
     // Set up the initial state of the game.
 
+    // Remove the trajectory of the ball if it's present.
+    svg.selectAll(".trajectory").remove();
+
     // Reset ball velocity.
     ballVelocity = {"x" : -2, "y" : 4};
 
@@ -185,11 +206,13 @@ function move_ball()
     if (ballPos.x === ballRadius)
     {
         // Ball is touching the left wall, so a point is scored by the AI.
+        aiScore.text(function(d) { d.score += 1; return d.score; });
         initialise_game();
     }
     else if (ballPos.x === (svgWidth - ballRadius))
     {
         // Ball is touching the right wall, so a point is scored by the player.
+        playerScore.text(function(d) { d.score += 1; return d.score; });
         initialise_game();
     }
     else if (ballPos.x <= (ballRadius + paddleWidth) && ballPos.y >= playerPos.y && ballPos.y <= playerPos.y + paddleHeight && ballVelocity.x < 0)
@@ -303,7 +326,6 @@ function move_ball()
     // Move the AI paddle the first time that the ball crosses the halfway line after touching the player's paddle.
     if (ballPos.x > (svgWidth / 2) && collisionPos != -1)
     {
-        console.log("moving");
         aiPaddle
             .transition()
             .duration(2000)
