@@ -170,9 +170,16 @@ function initialise_game()
         var pillCenterX = pillPosition.transX + (pillWidth / 2);
         var pillCenterY = pillPosition.transY + (pillHeight / 2);
 
+        // Determine the edges of the flock of faces.
+        var maxY = 0;
+        var minX = svgWidth;
+        var maxX = 0;
+
         // Check each face for a collision.
         sadFaces.each(function(d)
             {
+                var currentFace = d3.select(this);  // The face being checked.
+
                 // The center of the face being checked.
                 var faceCenterX = d.transX + faceRadius;
                 var faceCenterY = d.transY + faceRadius;
@@ -184,7 +191,6 @@ function initialise_game()
                 if (Math.sqrt((distanceBetweenCentersX * distanceBetweenCentersX) + (distanceBetweenCentersY * distanceBetweenCentersY)) < (faceRadius * 2))
                 {
                     // Collision occurred, so transform the face into a happy one.
-                    var currentFace = d3.select(this);
                     var leftEye = currentFace.select(".left");
                     var rightEye = currentFace.select(".right");
                     var mouth = currentFace.select(".mouth");
@@ -203,7 +209,21 @@ function initialise_game()
                         .remove();
                     pill.remove();
                 }
+                else
+                {
+                    // No collision, so this face can be used in determining the bounds of the flock.
+                    maxY = Math.max(maxY, d.transY);
+                    minX = Math.min(minX, d.transX);
+                    maxX = Math.max(maxX, d.transX + faceDiameter);
+                }
             });
+
+        // Update the records of the edges of the flock of faces.
+        var horizontalFaceSize = faceDiameter + faceGapHorizontal;
+        var verticalFaceSize = faceDiameter + faceGapVertical;
+        bottomEdgeOfFaces = (bottomEdgeOfFaces - maxY) > faceMovementSpeed ? bottomEdgeOfFaces - verticalFaceSize : bottomEdgeOfFaces;
+        leftEdgeOfFaces = (minX - leftEdgeOfFaces) > faceMovementSpeed ? leftEdgeOfFaces + horizontalFaceSize : leftEdgeOfFaces;
+        rightEdgeOfFaces = (rightEdgeOfFaces - maxX) > faceMovementSpeed ? rightEdgeOfFaces - horizontalFaceSize : rightEdgeOfFaces;
     }
 
     function game_over()
