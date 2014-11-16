@@ -89,7 +89,7 @@ function initialise_game()
         }
     }
     bottomEdgeOfFaces = d3.max(facePositions, function(d) { return d.transY; });
-    topEdgeOfFaces = d3.min(facePositions, function(d) { return d.transY; });
+    topEdgeOfFaces = d3.min(facePositions, function(d) { return d.transY - faceDiameter; });
     leftEdgeOfFaces = d3.min(facePositions, function(d) { return d.transX; });
     rightEdgeOfFaces = d3.max(facePositions, function(d) { return d.transX + faceDiameter; });
 
@@ -369,6 +369,14 @@ function initialise_game()
             }
         }
 
+        // Check whether all faces have been shot.
+        if (shootableFaces.empty())
+        {
+            console.log("All Gone");
+            victory_message();  // Display the victory message.
+            return true;  // Kill the timer.
+        }
+
         // Check if game over has occurred from the faces reaching too low.
         if (bottomEdgeOfFaces >= gameOverHeight)
         {
@@ -379,5 +387,66 @@ function initialise_game()
             // Kill the timer.
             return true;
         }
+    }
+
+    function victory_message()
+    {
+        // Display the victory screen.
+
+        var retryButtonHeight = 50;
+        var retryButtonWidth = 100;
+        var gameOverTop = svg.append("text")
+            .text("Congratulations")
+            .classed("gameOver", true)
+            .attr("x", svgWidth / 2)
+            .attr("y", svgHeight / 4)
+            .style("font-size", "0px");
+        var gameOverBottom = svg.append("text")
+            .text("Everyone's Medicated")
+            .classed("gameOver", true)
+            .attr("x", svgWidth / 2)
+            .attr("y", svgHeight * 2 / 4)
+            .style("font-size", "0px");
+        var retryG = svg.append("g")
+            .attr("transform", "translate(" + ((svgWidth / 2) - (retryButtonWidth / 2)) + ", " + (svgHeight * 2 / 3) + ")");
+        var retryButton = retryG.append("rect")
+            .classed("retry", true)
+            .attr("x", retryButtonWidth / 2)
+            .attr("y", retryButtonHeight / 2)
+            .attr("width", 0)
+            .attr("height", 0);
+        var retryText = retryG.append("text")
+            .text("Retry")
+            .classed("retryText", true)
+            .attr("x", retryButtonWidth / 2)
+            .attr("y", retryButtonHeight / 2)
+            .style("font-size", "0px");
+        gameOverTop
+            .transition()
+            .duration(1000)
+            .style("font-size", "50px")
+            .each(function()
+                {
+                    gameOverBottom
+                        .transition()
+                        .style("font-size", "50px")
+                })
+            .each(function()
+                {
+                    retryButton
+                        .transition()
+                        .attr("x", 0)
+                        .attr("y", 0)
+                        .attr("width", retryButtonWidth)
+                        .attr("height", retryButtonHeight);
+                })
+            .each(function()
+                {
+                    retryText
+                        .transition()
+                        .style("font-size", "30px");
+                });
+        retryButton
+            .on("click", function() { gameOverTop.remove(); gameOverBottom.remove(); retryG.remove(); initialise_game(); })
     }
 }
