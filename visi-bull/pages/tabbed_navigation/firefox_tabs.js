@@ -376,6 +376,13 @@ $(document).ready(function()
                 var tabToClose = tabSet.select("#tab-container-firefox-" + d.key);
                 var dataOfClickedTab = tabToClose.datum();
 
+                // Determine which tab's data to remove.
+                var entryToRemove = 0;
+                for (var j = 0; j < numberOfTabs; j++)
+                {
+                    entryToRemove = (tabData[j].key === dataOfClickedTab.key) ? j : entryToRemove;
+                }
+
                 // If the tab to be closed is the selected one, then make the tab to its left the selected one.
                 if (dataOfClickedTab.key === selectedTab.datum().key && numberOfTabs > 1)
                 {
@@ -410,11 +417,6 @@ $(document).ready(function()
                 numberOfTabs--;
 
                 // Update the locations of the tabs and their dimensions.
-                var entryToRemove = 0;
-                for (var j = 0; j < numberOfTabs; j++)
-                {
-                    entryToRemove = (tabData[j].key === dataOfClickedTab.key) ? j : entryToRemove;
-                }
                 tabData.splice(entryToRemove, 1);
                 update_tab_data();
                 if (numberOfTabs > 0) update_tabs();
@@ -554,6 +556,7 @@ $(document).ready(function()
 
         // If the tab that is starting to be dragged is currently undergoing a transition, then stop the transition.
         selectedTab = d3.select(this);
+        selectedTabKey = d.key;
         if (currentlyTransitioning.indexOf(d.key) !== -1)
         {
             selectedTab.transition();
