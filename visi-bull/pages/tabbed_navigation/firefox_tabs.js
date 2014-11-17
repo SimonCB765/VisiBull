@@ -580,7 +580,7 @@ $(document).ready(function()
         d3.select(this)
             .attr("transform", function(d)
                 {
-                    d.transX = Math.max(tabNavigatorWidth, Math.min(svgWidth - (curveWidth * 2) - tabWidth, d3.event.x - startOfDragX));
+                    d.transX = Math.max(tabNavigatorWidth, Math.min(svgWidth - tabWidth, d3.event.x - startOfDragX));
                     return "translate(" + d.transX + "," + d.transY + ")";
                 });
 
