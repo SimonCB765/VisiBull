@@ -1,7 +1,7 @@
 /*
 Contents:
 _element    -> style declarations for all elements of a given type (html, body, table, all p tags etc.).
-_classes    -> style declarations for specific classes and elements selected by id.
+_ids        -> style declarations for specific elements identified by their ID.
 _slider     -> style declarations for the sliders.
 */
 
@@ -13,14 +13,14 @@ svg {outline: thin solid black;}  /* Add a border around the svg. */
 svg {cursor: default; display: block; margin: 0 auto;}  /* Center the SVG and always keep the cursor as a pointer. */
 
 /*
-_classes
+_ids
 */
-#change-path-scaling svg {display: inline; margin: 0 5px;}
+#change-path-scaling svg {display: inline; margin: 0 5px;}  /* Make the crossed line demo SVG elements line up on the same line. */
 
-#different-path-scaling svg {display: inline; margin: 0 5px;}
+#different-path-scaling svg {display: inline; margin: 0 5px;}  /* Make the multiple shape demo SVG elements line up on the same line. */
 
-#view-box-effects svg {display: inline; margin: 0 5px;}
-#view-box-effects svg text {alignment-baseline: middle; font-size: 10px; text-anchor: middle;}
+#view-box-effects svg {display: inline; margin: 0 5px;}  /* Make the view box effects demo SVG elements line up on the same line. */
+#view-box-effects svg text {alignment-baseline: middle; font-size: 10px; text-anchor: middle;}  /* Style the text for the view box effect demo SVG elements. */
 
 /*
 _slider
