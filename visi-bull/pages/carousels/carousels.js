@@ -37,6 +37,9 @@ $(document).ready(function()
     }
 });
 
+/*******************
+* Helper Functions *
+*******************/
 function create_patterns(rootID, defs, circleColors)
 {
     // Create a number of patterns equal to the number of circle colors supplied.
@@ -82,4 +85,16 @@ function create_patterns(rootID, defs, circleColors)
         .attr("cy", 10)
         .attr("r", innerCircleRadius)
         .style("fill", function(d) { return d; });
+}
+
+function create_svg(id, width, height)
+{
+    // Creates the given SVG element with specified width and height.
+    // id is the ID of the SVG element to create.
+    // width is the width for the created SVG element.
+    // height is the height for the created SVG element.
+
+    return d3.select("#" + id)
+        .attr("width", width)
+        .attr("height", height);
 }
