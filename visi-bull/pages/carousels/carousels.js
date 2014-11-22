@@ -1,76 +1,83 @@
 $(document).ready(function()
 {
-    // Define the colors used for the demos.
-    var colorCodes = ["#00FF00", "#FFAF1A", "#FF008C", "#AE2DE3", "#00FF7B", "#00FFFF", "#FFFF00", "#FF0000", "#FFA07A"];
-
-    create_pattern_demo("#patternDemo");
-
-    function create_pattern_demo(svgID)
-    {
-        // Definitions needed.
-        var svgWidth = 500;  // The width of the SVG element.
-        var svgHeight = 120;  // The height of the SVG element.
-        var rectSize = 100;  // The size of the rect to be filled with the pattern.
-        var rootID = "demoPattern-";  // The root of the IDs for the patterns created.
-        var circleColors = [colorCodes[2], colorCodes[3], colorCodes[4], colorCodes[5]];  // The colors to use to create patterns. One pattern per color.
-
-        // Create the SVG element.
-        var svg = d3.select(svgID)
-            .attr("width", svgWidth)
-            .attr("height", svgHeight);
-
-        // Create the patterns.
-        var defs = svg.append("defs");
-        create_patterns(rootID, defs, circleColors)
-
-        // Create the pattern filled rectangle.
-        svg.selectAll(".backingRect")
-            .data(circleColors)
-            .enter()
-            .append("rect")
-                .classed("backingRect", true)
-                .attr("x", function(d, i) { return 10 + (i * (rectSize + 10)); })
-                .attr("y", 10)
-                .attr("width", rectSize)
-                .attr("height", rectSize)
-                .style("fill", function(d) { return "url(#" + rootID + d.slice(1) + ")"; });
-    }
+    create_pattern_demo("patternDemo");
 });
+
+// Define the colors used for the demos.
+var COLORCODES = ["#00FF00", "#FFAF1A", "#FF008C", "#AE2DE3", "#00FF7B", "#00FFFF", "#FFFF00", "#FF0000", "#FFA07A"];
+
+/*************************
+* Demo Drawing Functions *
+*************************/
+function create_pattern_demo(svgID)
+{
+    // Creates just the items to how what they will look like.
+    // svgID is the id of the SVG element that should contain the demo.
+
+    // Definitions needed.
+    var svgWidth = 500;  // The width of the SVG element.
+    var svgHeight = 120;  // The height of the SVG element.
+    var rectSize = 100;  // The size of the rect to be filled with the pattern.
+    var rootID = "demoPattern-";  // The root of the IDs for the patterns created.
+    var circleColors = [COLORCODES[2], COLORCODES[3], COLORCODES[4], COLORCODES[5]];  // The colors to use to create patterns. One pattern per color.
+
+    // Create the SVG element.
+    var svg = create_svg(svgID, svgWidth, svgHeight);
+
+    // Create the items.
+    var itemData = [];
+    for (var i = 0; i < circleColors.length; i++)
+    {
+        itemData.push({"color": circleColors[i], "key": i});
+    }
+    create_items(svg, rootID, rectSize, itemData);
+}
 
 /*******************
 * Helper Functions *
 *******************/
-function create_patterns(rootID, defs, circleColors)
+function create_items(parent, rootID, rectSize, itemData)
 {
-    // Create a number of patterns equal to the number of circle colors supplied.
+    // Create a set of pattern filled rectangles to serve as items in the carousels.
+    // parent is the parent element where the items should be created.
     // rootID is the root that should be used when creating the IDs of the patterns.
-    // defs is the SVG element in which to create the patterns.
-    // circleColors is an array of the colors for the circles. One pattern is created using each color.
+    // rectSize is the height and width of the rectangular items.
+    // itemData is an array of the data used in creating the items. Each entry in the array contains:
+    //      "color": the hexadecimal color code for the pattern.
+    //      "key": an integer key assigned to each item to ensure object constancy.
 
+    // Create the containers for the items.
+    var sideOffset = 10;  // The margin from the top and the left for each item.
+    var containers = parent.selectAll(".container")
+        .data(itemData, function(d) { return d.key; })
+        .enter()
+        .append("g")
+            .attr("transform", function(d, i) { return "translate(" + (sideOffset + (i * (rectSize + sideOffset))) + "," + sideOffset + ")"; });
+
+    /********************
+    * Generate Patterns *
+    ********************/
     var outerCircleRadius = 10;  // Radius of the circle containing the rectangle.
     var rectangleSize = Math.sqrt(((2 * outerCircleRadius) * (2 * outerCircleRadius)) / 2);  // Side of a square with diagonal of (2 * outerCircleRadius).
     var innerCircleRadius = 5;  // Radius of the circle inside the rectangle.
 
     // Initialise the patterns.
-    var patterns = defs.selectAll("pattern")
-        .data(circleColors)
-        .enter()
-        .append("pattern")
-            .attr("id", function(d) { return rootID + d.slice(1); })  // Use the hex color code without the initial #.
-            .attr("x", 0)
-            .attr("y", 0)
-            .attr("width", 2 * outerCircleRadius)
-            .attr("height", 2 * outerCircleRadius)
-            .attr("patternUnits", "userSpaceOnUse");
+    var patterns = containers.append("pattern")
+        .attr("id", function(d) { return rootID + d.color.slice(1); })  // Use the hex color code without the initial #.
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("width", 2 * outerCircleRadius)
+        .attr("height", 2 * outerCircleRadius)
+        .attr("patternUnits", "userSpaceOnUse");
 
-    // Add the outer circles.
+    // Add the outer circle to the pattern.
     patterns.append("circle")
         .attr("cx", 10)
         .attr("cy", 10)
         .attr("r", outerCircleRadius)
-        .style("fill", function(d) { return d; });
+        .style("fill", function(d) { return d.color; });
 
-    // Add the rectangle.
+    // Add the rectangle to the pattern.
     patterns.append("rect")
         .attr("x", outerCircleRadius)
         .attr("y", 0)
@@ -79,12 +86,33 @@ function create_patterns(rootID, defs, circleColors)
         .attr("transform", "rotate(45 " + outerCircleRadius + " 0)")
         .style("fill", "black");
 
-    // Add the inner circle.
+    // Add the inner circle to the pattern.
     patterns.append("circle")
         .attr("cx", 10)
         .attr("cy", 10)
         .attr("r", innerCircleRadius)
-        .style("fill", function(d) { return d; });
+        .style("fill", function(d) { return d.color; });
+
+    /***************************
+    * Generate the Final Items *
+    ***************************/
+    // Add the rectangle border.
+    containers.append("rect")
+        .classed("borderRect", true)
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("width", rectSize)
+        .attr("height", rectSize)
+        .style("fill", function(d) { return "url(#" + rootID + d.color.slice(1) + ")"; });
+
+    // Add the text identifying the key of the item.
+    containers.append("text")
+        .classed("patternNumber", true)
+        .attr("x", rectSize / 2)
+        .attr("y", rectSize / 2)
+        .attr("dy", ".35em")
+        .text(function(d) { return d.key; });
+
 }
 
 function create_svg(id, width, height)

@@ -2,6 +2,7 @@
 Contents:
 _element    -> style declarations for all elements of a given type (html, body, table, all p tags etc.).
 _classes    -> style declarations for specific classes.
+_pattern	-> style declarations for the pattern squares.
 */
 
 /*
@@ -11,4 +12,9 @@ _element
 /*
 _classes
 */
-.backingRect {stroke: black; stroke-width: 1;}  /* Style the rectangles containing the pattern fill. */
+
+/*
+_pattern
+*/
+.borderRect {stroke: black; stroke-width: 1;}  /* Style the rectangles containing the pattern fill. */
+.patternNumber {fill: white; font-size: 70px; font-weight: bold; stroke: black; stroke-width: 2; text-anchor: middle;}  /* Style definitions for all text elements in and SVG element. */
