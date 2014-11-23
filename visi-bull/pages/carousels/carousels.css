@@ -2,7 +2,7 @@
 Contents:
 _element    -> style declarations for all elements of a given type (html, body, table, all p tags etc.).
 _classes    -> style declarations for specific classes.
-_pattern	-> style declarations for the pattern squares.
+_item       -> style declarations for the carousel items.
 */
 
 /*
@@ -14,7 +14,8 @@ _classes
 */
 
 /*
-_pattern
+_item
 */
 .borderRect {stroke: black; stroke-width: 1;}  /* Style the rectangles containing the pattern fill. */
+.item {cursor: default;}  /* Prevent the cursor changing when hovering over one of the carousel items. */
 .patternNumber {fill: white; font-size: 70px; font-weight: bold; stroke: black; stroke-width: 2; text-anchor: middle;}  /* Style definitions for all text elements in and SVG element. */

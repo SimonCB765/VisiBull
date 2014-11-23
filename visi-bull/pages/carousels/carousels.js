@@ -30,29 +30,34 @@ function create_pattern_demo(svgID)
     {
         itemData.push({"color": circleColors[i], "key": i});
     }
-    create_items(svg, rootID, rectSize, itemData);
+    var items = create_items(svg, rootID, rectSize, rectSize, itemData);
+
+    // Position the items.
+    var sideOffset = 10;  // The margin from the top and the left for each item.
+    items.attr("transform", function(d, i) { return "translate(" + (sideOffset + (i * (rectSize + sideOffset))) + "," + sideOffset + ")"; });
 }
 
 /*******************
 * Helper Functions *
 *******************/
-function create_items(parent, rootID, rectSize, itemData)
+function create_items(parent, rootID, itemWidth, itemHeight, itemData)
 {
     // Create a set of pattern filled rectangles to serve as items in the carousels.
     // parent is the parent element where the items should be created.
     // rootID is the root that should be used when creating the IDs of the patterns.
-    // rectSize is the height and width of the rectangular items.
+    // itemWidth is the width of the rectangular items.
+    // itemHeight is the height of the rectangular items.
     // itemData is an array of the data used in creating the items. Each entry in the array contains:
     //      "color": the hexadecimal color code for the pattern.
     //      "key": an integer key assigned to each item to ensure object constancy.
 
     // Create the containers for the items.
-    var sideOffset = 10;  // The margin from the top and the left for each item.
     var containers = parent.selectAll(".container")
         .data(itemData, function(d) { return d.key; })
         .enter()
         .append("g")
-            .attr("transform", function(d, i) { return "translate(" + (sideOffset + (i * (rectSize + sideOffset))) + "," + sideOffset + ")"; });
+            .classed("item", true)
+            .attr("transform", "translate(0,0)");
 
     /********************
     * Generate Patterns *
@@ -101,18 +106,19 @@ function create_items(parent, rootID, rectSize, itemData)
         .classed("borderRect", true)
         .attr("x", 0)
         .attr("y", 0)
-        .attr("width", rectSize)
-        .attr("height", rectSize)
+        .attr("width", itemWidth)
+        .attr("height", itemHeight)
         .style("fill", function(d) { return "url(#" + rootID + d.color.slice(1) + ")"; });
 
     // Add the text identifying the key of the item.
     containers.append("text")
         .classed("patternNumber", true)
-        .attr("x", rectSize / 2)
-        .attr("y", rectSize / 2)
+        .attr("x", itemWidth / 2)
+        .attr("y", itemHeight / 2)
         .attr("dy", ".35em")
         .text(function(d) { return d.key; });
 
+    return containers;
 }
 
 function create_svg(id, width, height)
