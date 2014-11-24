@@ -15,9 +15,13 @@
 
 {% block content %}
 <!--Block for including the content of the page within the div.content tag.-->
-<h3>Creating Items for Carousels</h3>
+<h3>Components of Carousels</h3>
 <p>Demo placeholder fill patterns to be used in the carousel demos.</p>
 <svg id="patternDemo" />
+<p>The viewport's height is equal to the item height plus the vertical padding of the items.</p>
+<p>The viewport's width is equal to the item width plus the horizontal padding of the items.</p>
+<p>For each of the width and height, two of the three variables can be provided and the other derived.</p>
+<p>An alternate choice for the width is just to specify the width, and then as many as possible will be fit in.</p>
 <br>
 <h3>Single Item Carousels</h3>
 <p>Not infinite looping (fade out arrow on side when reach end, but still allow dragging to just give empty space) (Responsive design - http://kenwheeler.github.io/slick/)</p>
@@ -26,13 +30,17 @@
 <h3>Multiple Item Carousels</h3>
 <p>Not infinite looping (fade out arrow on side when reach end, but still allow dragging to just give empty space) (Responsive design - http://kenwheeler.github.io/slick/)</p>
 <p>Infinite Looping (Multiple items - http://kenwheeler.github.io/slick/)</p>
-<p>Slide all items in viewfinder out of view on arrow click</p>
-<p>Slide a set number of items out of the viewfinder on arrow click</p>
+<p>Slide a set number of items out of the viewfinder on arrow click (give some text box where this can be changed).</p>
+<br>
+<h3>Centered Carousels</h3>
+<p>Infinite and non-infinite for all.</p>
+<p>Have the center item highlighted in some way, and make it so that the center item is really in the center (require odd number of items). (center mode - http://kenwheeler.github.io/slick/)</p>
+<p>Variable width items. The viewport width has to take into account the X widest neighbouring items, where X is the number of items in the viewport at once). (variable width - http://kenwheeler.github.io/slick/)</p>
+<p>Click on an item to center it in the carousel.</p>
 <br>
 <h3>Unique Carousels</h3>
 <p>Funky 3Dish carousel with all items in view (http://adam.co/lab/svg/carousel.html).</p>
 <p>Autoplaying carousel. Let's you drag and arrow still, but autoplays. Make it break autoplay when you mouse in, and restart when mouse out. (autoplay - http://kenwheeler.github.io/slick/)</p>
-<p>Have the center item highlighted in some way, and make it so that the center item is really in the center (require odd number of items). (center mode - http://kenwheeler.github.io/slick/)</p>
 <p>One where you can drag the individual items to reorder them and to scroll (also has arrows). i.e. mouse drags the image, mouse ets close to left edge, carousel starts turning left slowly, mouse is released, carousel stops and image drops in</p>
 <p>One with a drop down box (or maybe just a context menu on right clicking the carousel) that lets you choose item to jump to, and then rotates carousel to the item.</p>
 <p>Fade in and out on transition (best keep it to one item). (fade - http://kenwheeler.github.io/slick/)</p>
