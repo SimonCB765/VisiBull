@@ -18,10 +18,26 @@
 <h3>Components of Carousels</h3>
 <p>Demo placeholder fill patterns to be used in the carousel demos.</p>
 <svg id="patternDemo" />
-<p>The viewport's height is equal to the item height plus the vertical padding of the items.</p>
-<p>The viewport's width is equal to the item width plus the horizontal padding of the items.</p>
-<p>For each of the width and height, two of the three variables can be provided and the other derived.</p>
-<p>An alternate choice for the width is just to specify the width, and then as many as possible will be fit in.</p>
+<br>
+<p>
+	Works in three steps: first create carousel container rect, then generate items, then construct carousel around them.
+	Carousel does not care about the items, just needs them to have certain format.
+</p>
+<p>
+	Item construction needs to take:<br>
+	Number of items to show. Defaults to 1. 
+	Heights - an array that if not probided defaults to an array containing one item, which is the height of the carousel containing rect (minus the border width of the items and minus any vertical padding desired). 
+	Widths - an array that if nt provided defaults to an array containing one item, which is the width computed in order to make all items fit in the carousel. 
+	H padding - an array that if not provided defaults to an array containing only 0. 
+	V padding - an array that if not provided default to a pre-specified value (like 10 or something). 
+	Items record their own height and width as bound data, along with their horizontal and vertical padding
+</p>
+<p>
+	For carousel need to know:<br>
+	Whether to center items. 
+	Whether to loop infintiely. 
+	How many items to skip by each time you advance left or right. Defaults to 1. Can not be larger than the number of items to show. 
+</p>
 <br>
 <h3>Single Item Carousels</h3>
 <p>Not infinite looping (fade out arrow on side when reach end, but still allow dragging to just give empty space) (Responsive design - http://kenwheeler.github.io/slick/)</p>
