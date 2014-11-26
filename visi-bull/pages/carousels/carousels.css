@@ -16,6 +16,6 @@ _classes
 /*
 _item
 */
-.borderRect {stroke: black; stroke-width: 1;}  /* Style the rectangles containing the pattern fill. */
+.borderRect {stroke: none;}  /* Style the rectangles containing the pattern fill. */
 .item {cursor: default;}  /* Prevent the cursor changing when hovering over one of the carousel items. */
 .patternNumber {fill: white; font-size: 70px; font-weight: bold; stroke: black; stroke-width: 2; text-anchor: middle;}  /* Style definitions for all text elements in and SVG element. */

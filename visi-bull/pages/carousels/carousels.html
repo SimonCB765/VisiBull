@@ -20,23 +20,18 @@
 <svg id="patternDemo" />
 <br>
 <p>
-	Works in three steps: first create carousel container rect, then generate items, then construct carousel around them.
-	Carousel does not care about the items, just needs them to have certain format.
+    Each carousel consists of:<br>
+        A container in which the items are placed (and on which the effects like dragging operate).<br>
+        A set of items inside the container (each of which records its own width, horizontal padding and height).<br>
+        The effects applied to allow the carousel to move properly.<br>
+    The carousel does not care about the shape of the items, its just places and manipulates them.
 </p>
 <p>
-	Item construction needs to take:<br>
-	Number of items to show. Defaults to 1. 
-	Heights - an array that if not probided defaults to an array containing one item, which is the height of the carousel containing rect (minus the border width of the items and minus any vertical padding desired). 
-	Widths - an array that if nt provided defaults to an array containing one item, which is the width computed in order to make all items fit in the carousel. 
-	H padding - an array that if not provided defaults to an array containing only 0. 
-	V padding - an array that if not provided default to a pre-specified value (like 10 or something). 
-	Items record their own height and width as bound data, along with their horizontal and vertical padding
-</p>
-<p>
-	For carousel need to know:<br>
-	Whether to center items. 
-	Whether to loop infintiely. 
-	How many items to skip by each time you advance left or right. Defaults to 1. Can not be larger than the number of items to show. 
+    For carousel need to know:<br>
+    Whether to center items.<br>
+    Whether to loop infinitely.<br>
+    The number of items to show.<br>
+    How many items to skip by each time you advance left or right. Defaults to 1. Can not be larger than the number of items to show.
 </p>
 <br>
 <h3>Single Item Carousels</h3>
@@ -52,6 +47,7 @@
 <p>Infinite and non-infinite for all.</p>
 <p>Have the center item highlighted in some way, and make it so that the center item is really in the center (require odd number of items). (center mode - http://kenwheeler.github.io/slick/)</p>
 <p>Variable width items. The viewport width has to take into account the X widest neighbouring items, where X is the number of items in the viewport at once). (variable width - http://kenwheeler.github.io/slick/)</p>
+<p>Variable horizontal padding items.</p>
 <p>Click on an item to center it in the carousel.</p>
 <br>
 <h3>Unique Carousels</h3>
