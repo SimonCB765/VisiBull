@@ -2,6 +2,7 @@
 Contents:
 _element    -> style declarations for all elements of a given type (html, body, table, all p tags etc.).
 _classes    -> style declarations for specific classes.
+_carousel   -> style declarations for the carousel itself.
 _item       -> style declarations for the carousel items.
 */
 
@@ -12,6 +13,11 @@ _element
 /*
 _classes
 */
+
+/*
+_carousel
+*/
+.carouselContainer {fill: #F8F8F8; stroke: black; stroke-width: 1;}  /* Style the rectangle used to catch events and provide a backing for the carousel. */
 
 /*
 _item

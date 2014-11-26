@@ -51,11 +51,9 @@ function create_pattern_demo(svgID)
     var carousel = svg.append("g")
         .attr("transform", "translate(" + carouselXLoc + "," + carouselYLoc + ")");
     carousel.append("rect")
+        .classed("carouselContainer", true)
         .attr("width", itemsToShow * (rectSize + hoizontalPadding))
-        .attr("height", carouselHeight)
-        .style("fill", "none")
-        .style("stroke", "black")
-        .style("stroke-width", 1);
+        .attr("height", carouselHeight);
 
     // Create the items.
     var itemData = [];
@@ -90,11 +88,9 @@ function create_pattern_demo(svgID)
     var carousel = svg.append("g")
         .attr("transform", "translate(" + carouselXLoc + "," + carouselYLoc + ")");
     carousel.append("rect")
+        .classed("carouselContainer", true)
         .attr("width", carouselWidth)
-        .attr("height", carouselHeight)
-        .style("fill", "none")
-        .style("stroke", "black")
-        .style("stroke-width", 1);
+        .attr("height", carouselHeight);
 
     // Create the items.
     var itemData = [];
