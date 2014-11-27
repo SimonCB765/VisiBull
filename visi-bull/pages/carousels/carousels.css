@@ -17,11 +17,12 @@ _classes
 /*
 _carousel
 */
-.carouselContainer {fill: #F8F8F8; stroke: black; stroke-width: 1;}  /* Style the rectangle used to catch events and provide a backing for the carousel. */
+.carouselContainer {fill-opacity: 0; stroke: black; stroke-width: 1;}  /* Style the rectangle used to catch events and provide a backing for the carousel. */
 
 /*
 _item
 */
 .borderRect {stroke: none;}  /* Style the rectangles containing the pattern fill. */
-.item {cursor: default;}  /* Prevent the cursor changing when hovering over one of the carousel items. */
+.item {cursor: default;}
 .patternNumber {fill: white; font-size: 70px; font-weight: bold; stroke: black; stroke-width: 2; text-anchor: middle;}  /* Style definitions for all text elements in and SVG element. */
+

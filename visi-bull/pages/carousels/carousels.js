@@ -49,29 +49,25 @@ function create_pattern_demo(svgID)
 
     // Create the carousel container.
     var carousel = svg.append("g")
-        .attr("transform", "translate(" + carouselXLoc + "," + carouselYLoc + ")");
+        .datum({"transX": carouselXLoc, "transY": carouselYLoc})
+        .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
     carousel.append("rect")
         .classed("carouselContainer", true)
         .attr("width", itemsToShow * (rectSize + hoizontalPadding))
         .attr("height", carouselHeight);
+    carousel.call(STANDARDDRAG);
 
     // Create the items.
     var itemData = [];
-    for (var i = 0; i < circleColors.length; i++)
-    {
-        itemData.push({"color": circleColors[i], "height": rectSize, "hoizontalPadding": hoizontalPadding, "key": i, "width": rectSize});
-    }
-    var items = create_items(carousel, rootID, itemData);
-
-    // Position the items.
     var thisOffset;  // The offset for the current item.
     var cumulativeOffset = 0;  // The cumulative offset from the leftmost item.
-    items.attr("transform", function(d, i)
-        {
-            thisOffset = cumulativeOffset + (d.hoizontalPadding / 2);
-            cumulativeOffset += (d.hoizontalPadding + d.width);
-            return "translate(" + thisOffset + "," + ((carouselHeight - d.height) / 2) + ")";
-        });
+    for (var i = 0; i < circleColors.length; i++)
+    {
+        thisOffset = cumulativeOffset + (hoizontalPadding / 2);
+        cumulativeOffset += (hoizontalPadding + rectSize);
+        itemData.push({"color": circleColors[i], "height": rectSize, "hoizontalPadding": hoizontalPadding, "key": i, "transX": thisOffset, "transY": ((carouselHeight - rectSize) / 2), "width": rectSize});
+    }
+    var items = create_items(carousel, rootID, itemData);
 
     /**********************
     * Unequal Sized Items *
@@ -86,30 +82,56 @@ function create_pattern_demo(svgID)
 
     // Create the carousel container.
     var carousel = svg.append("g")
-        .attr("transform", "translate(" + carouselXLoc + "," + carouselYLoc + ")");
+        .datum({"transX": carouselXLoc, "transY": carouselYLoc})
+        .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
     carousel.append("rect")
         .classed("carouselContainer", true)
         .attr("width", carouselWidth)
         .attr("height", carouselHeight);
+    carousel.call(STANDARDDRAG);
 
     // Create the items.
     var itemData = [];
-    for (var i = 0; i < circleColors.length; i++)
-    {
-        itemData.push({"color": circleColors[i], "height": ((i + 1) * 40), "hoizontalPadding": ((i + 1) * 20), "key": i, "width": ((i + 1) * 20)});
-    }
-    var items = create_items(carousel, rootID, itemData);
-
-    // Position the items.
+    var thisWidth;  // The width of the current item.
+    var thisHeight;  // The height of the current item.
+    var thisPadding;  // The horizontal padding of the current item.
     var thisOffset;  // The offset for the current item.
     var cumulativeOffset = 0;  // The cumulative offset from the leftmost item.
-    items.attr("transform", function(d, i)
-        {
-            thisOffset = cumulativeOffset + (d.hoizontalPadding / 2);
-            cumulativeOffset += (d.hoizontalPadding + d.width);
-            return "translate(" + thisOffset + "," + ((carouselHeight - d.height) / 2) + ")";
-        });
+    for (var i = 0; i < circleColors.length; i++)
+    {
+        thisWidth = ((i + 1) * 20);
+        thisHeight = ((i + 1) * 40);
+        thisPadding = ((i + 1) * 20);
+        thisOffset = cumulativeOffset + (thisPadding / 2);
+        cumulativeOffset += (thisPadding + thisWidth);
+        itemData.push({"color": circleColors[i], "height": thisHeight, "hoizontalPadding": thisPadding, "key": i, "transX": thisOffset, "transY": ((carouselHeight - thisHeight) / 2), "width": thisWidth});
+    }
+    var items = create_items(carousel, rootID, itemData);
 }
+
+/*****************
+* Drag Functions *
+*****************/
+function drag_standard()
+{
+    // Get the carousel container.
+    var carousel = d3.select(this);
+
+    // Get the items in the carousel.
+    var items = carousel.selectAll(".item");
+
+    // Update the position of the items.
+    items
+        .attr("transform", function(d)
+            {
+                d.transX += d3.event.dx;
+                return "translate(" + d.transX + "," + d.transY + ")";
+            });
+}
+
+var STANDARDDRAG = d3.behavior.drag()
+    .origin(function(d) { return {"x": d3.event.x - d.transX, "y": d3.event.y - d.transY}; })  // Set the origin of the drag to be the top left of the carousel container.
+    .on("drag", drag_standard);
 
 /*******************
 * Helper Functions *
@@ -124,12 +146,12 @@ function create_items(parent, rootID, itemData)
     //      "key": an integer key assigned to each item to ensure object constancy.
 
     // Create the containers for the items.
-    var containers = parent.selectAll(".container")
+    var containers = parent.selectAll(".carouselItem")
         .data(itemData, function(d) { return d.key; })
         .enter()
         .append("g")
             .classed("item", true)
-            .attr("transform", "translate(0,0)");
+            .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
 
     /********************
     * Generate Patterns *
