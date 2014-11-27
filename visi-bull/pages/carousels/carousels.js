@@ -66,7 +66,17 @@ function create_pattern_demo(svgID)
     {
         thisOffset = cumulativeOffset + (hoizontalPadding / 2);
         cumulativeOffset += (hoizontalPadding + rectSize);
-        itemData.push({"color": circleColors[i], "height": rectSize, "hoizontalPadding": hoizontalPadding, "key": i, "transX": thisOffset, "transY": ((carouselHeight - rectSize) / 2), "width": rectSize});
+        itemData.push(
+            {
+                "color": circleColors[i],
+                "height": rectSize,  // Height of the item.
+                "hoizontalPadding": hoizontalPadding,  // Horizontal padding of the item (half on the left and half on the right).
+                "key": i,  // Unique identifier for the item.
+                "restingX": thisOffset,  // X position where the item should come to rest after being moved around.
+                "transX": thisOffset,  // Current X position of the item.
+                "transY": ((carouselHeight - rectSize) / 2),  // Current Y position of the item.
+                "width": rectSize  // Width of the item.
+            });
     }
     var items = create_items(carousel, rootID, itemData);
 
@@ -117,7 +127,16 @@ function create_pattern_demo(svgID)
         thisPadding = ((i + 1) * 20);
         thisOffset = cumulativeOffset + (thisPadding / 2);
         cumulativeOffset += (thisPadding + thisWidth);
-        itemData.push({"color": circleColors[i], "height": thisHeight, "hoizontalPadding": thisPadding, "key": i, "transX": thisOffset, "transY": ((carouselHeight - thisHeight) / 2), "width": thisWidth});
+        itemData.push(
+            {
+                "color": circleColors[i],
+                "height": thisHeight,
+                "hoizontalPadding": thisPadding,
+                "key": i,
+                "restingX": thisOffset,
+                "transX": thisOffset,
+                "transY": ((carouselHeight - thisHeight) / 2),
+                "width": thisWidth});
     }
     var items = create_items(carousel, rootID, itemData);
 
@@ -137,13 +156,19 @@ function create_pattern_demo(svgID)
 /*****************
 * Drag Functions *
 *****************/
-function drag_standard()
+function drag_standard_end(d)
 {
-    // Get the carousel container.
-    var carousel = d3.select(this);
-
     // Get the items in the carousel.
-    var items = carousel.selectAll(".item");
+    var items = d3.select(this).selectAll(".item");
+
+    // Transition the items, and clips paths, to their correct resting places.
+    update_item_positions(items);
+}
+
+function drag_standard_update()
+{
+    // Get the items in the carousel.
+    var items = d3.select(this).selectAll(".item");
 
     // Update the position of the items.
     items
@@ -154,14 +179,14 @@ function drag_standard()
             });
 
     // Update the positions of the items clip paths.
-    console.log(items.select(".carouselClip"));
     items.selectAll(".carouselClip")
         .attr("x", function(d) { return -d.transX; });
 }
 
 var STANDARDDRAG = d3.behavior.drag()
     .origin(function(d) { return {"x": d3.event.x - d.transX, "y": d3.event.y - d.transY}; })  // Set the origin of the drag to be the top left of the carousel container.
-    .on("drag", drag_standard);
+    .on("drag", drag_standard_update)
+    .on("dragend", drag_standard_end);
 
 /*******************
 * Helper Functions *
@@ -255,4 +280,26 @@ function create_svg(id, width, height)
     return d3.select("#" + id)
         .attr("width", width)
         .attr("height", height);
+}
+
+function update_item_positions(items)
+{
+    // Transition the items in the carousel to their resting places.
+    // items is a selection consisting of the carousel items to transition.
+
+    items
+        .transition()
+        .duration(function(d) { return Math.abs(d.transX - d.restingX) * 5; })
+        .tween("transform", function(d)
+                {
+                    var interpolator = d3.interpolate(d.transX, d.restingX);
+                    return function(t)
+                        {
+                            d.transX = interpolator(t);  // Determine position of the item at this point in the transition.
+                            d3.select(this)
+                                .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; })  // Update the item's position.
+                                .select(".carouselClip")
+                                    .attr("x", function(d) { return -d.transX; });  // Update the clip path.
+                        }
+                });
 }
