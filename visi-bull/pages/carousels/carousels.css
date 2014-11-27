@@ -17,7 +17,7 @@ _classes
 /*
 _carousel
 */
-.carouselContainer {fill-opacity: 0; stroke: black; stroke-width: 1;}  /* Style the rectangle used to catch events and provide a backing for the carousel. */
+.carouselContainer {fill: #444444; fill-opacity: 1; stroke: none;}  /* Style the rectangle used to catch events and provide a backing for the carousel. */
 
 /*
 _item

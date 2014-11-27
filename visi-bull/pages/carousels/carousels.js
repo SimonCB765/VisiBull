@@ -38,7 +38,6 @@ function create_pattern_demo(svgID)
     * Evenly Sized Items *
     *********************/
     // Definitions needed.
-    var carouselHeight = 110;  // The height of the carousel.
     var carouselXLoc = 30;  // The starting X coordinate for the carousel container.
     var carouselYLoc = 10;  // The starting X coordinate for the carousel container.
     var itemsToShow = circleColors.length;  // The number of items to show in the carousel.
@@ -46,6 +45,8 @@ function create_pattern_demo(svgID)
     var rectSize = 100;  // The size of the rect to be filled with the pattern.
     var hoizontalPadding = 10;  // The total horizontal padding around each item. Half the padding is on the left and half on the right.
     var verticalPadding = 10;  // The total vertical padding between the items and the carousel. Half the padding is at the top and half at the bottom.
+    var carouselHeight = 110;  // The height of the carousel.
+    var carouselWidth = itemsToShow * (rectSize + hoizontalPadding);  // The width of the carousel.
 
     // Create the carousel container.
     var carousel = svg.append("g")
@@ -53,7 +54,7 @@ function create_pattern_demo(svgID)
         .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
     carousel.append("rect")
         .classed("carouselContainer", true)
-        .attr("width", itemsToShow * (rectSize + hoizontalPadding))
+        .attr("width", carouselWidth)
         .attr("height", carouselHeight);
     carousel.call(STANDARDDRAG);
 
@@ -68,6 +69,18 @@ function create_pattern_demo(svgID)
         itemData.push({"color": circleColors[i], "height": rectSize, "hoizontalPadding": hoizontalPadding, "key": i, "transX": thisOffset, "transY": ((carouselHeight - rectSize) / 2), "width": rectSize});
     }
     var items = create_items(carousel, rootID, itemData);
+
+    // Clip the items to the carousel.
+    var clipID = "equalDemoClip-";
+    items.append("clipPath")
+        .attr("id", function(d) { return clipID + d.key; })
+        .append("rect")
+            .classed("carouselClip", true)
+            .attr("x", function(d) { return -d.transX; })
+            .attr("y", function(d) { return -d.transY; })
+            .attr("width", carouselWidth)
+            .attr("height", carouselHeight);
+    items.attr("clip-path", function(d) { return "url(#" + (clipID + d.key) + ")"; });
 
     /**********************
     * Unequal Sized Items *
@@ -107,6 +120,18 @@ function create_pattern_demo(svgID)
         itemData.push({"color": circleColors[i], "height": thisHeight, "hoizontalPadding": thisPadding, "key": i, "transX": thisOffset, "transY": ((carouselHeight - thisHeight) / 2), "width": thisWidth});
     }
     var items = create_items(carousel, rootID, itemData);
+
+    // Clip the items to the carousel.
+    var clipID = "unequalDemoClip-";
+    items.append("clipPath")
+        .attr("id", function(d) { return clipID + d.key; })
+        .append("rect")
+            .classed("carouselClip", true)
+            .attr("x", function(d) { return -d.transX; })
+            .attr("y", function(d) { return -d.transY; })
+            .attr("width", carouselWidth)
+            .attr("height", carouselHeight);
+    items.attr("clip-path", function(d) { return "url(#" + (clipID + d.key) + ")"; });
 }
 
 /*****************
@@ -127,6 +152,11 @@ function drag_standard()
                 d.transX += d3.event.dx;
                 return "translate(" + d.transX + "," + d.transY + ")";
             });
+
+    // Update the positions of the items clip paths.
+    console.log(items.select(".carouselClip"));
+    items.selectAll(".carouselClip")
+        .attr("x", function(d) { return -d.transX; });
 }
 
 var STANDARDDRAG = d3.behavior.drag()
