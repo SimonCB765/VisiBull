@@ -468,7 +468,7 @@ $(document).ready(function()
             .transition()
             .duration(transitionDuration)
             .ease("linear")
-            .each("start", function(d) { currentlyTransitioning.push(d.key); })
+            .each("start", function(d) { currentlyTransitioning.push(d.key); })  // Add the tab's key to the array of currently transitioning tabs.
             .tween("transform", function(d)
                 {
                     var interpolator = d3.interpolate(d.transX, d.restingX);
@@ -480,7 +480,7 @@ $(document).ready(function()
                             update_tab_clipping(selectedTab.datum());  // Set the clip paths after this bit of the transition.
                         }
                 })
-            .each("end", function(d) { currentlyTransitioning.splice(currentlyTransitioning.indexOf(d.key)); });
+            .each("end", function(d) { currentlyTransitioning.splice(currentlyTransitioning.indexOf(d.key)); });  // Remove the tab's key from the array of currently transitioning tabs.
     }
 
     /***********************
