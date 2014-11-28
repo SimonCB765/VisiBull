@@ -9,8 +9,10 @@ $(document).ready(function()
     carousel.append("rect").classed("carouselContainer", true);
     var items = create_squares(carousel, "demo2Root-");
     var params = {"carouselXLoc": 30, "carouselYLoc": 30, "itemsToShow": 2
-	,"carouselWidth": 500, "isCentered": true
-	};
+    ,"carouselWidth": 500
+    , "isCentered": true
+    , "isInfinite": true
+    };
     carousel = create_carousel(items, carousel, params);
 });
 
@@ -243,38 +245,70 @@ function create_carousel(items, carousel, params)
     /******************
     * Setup the Items *
     ******************/
-	var thisOffset = 0;  // The offset for the current item.
-	var cumulativeOffset = thisOffset;  // The cumulative offset from the leftmost item.
+    var thisOffset = 0;  // The offset for the current item.
+    var cumulativeOffset = thisOffset;  // The cumulative offset from the leftmost item.
     if (isCentered)
     {
-        // Determine the start position of the items if they are to be centered.
-		var numberOfItemsLeftOfCenter = itemsToShow / 2;  // Fraction of the items to the left of the mid point.
-		thisOffset = carouselWidth / 2;  // The offset for the current item.
-		for (var i = 0; i < Math.floor(numberOfItemsLeftOfCenter); i++)
-		{
-			thisOffset -= itemWidths[i];
-		}
-		if (parseInt(numberOfItemsLeftOfCenter) !== numberOfItemsLeftOfCenter)
-		{
-			// If the number of items to the left of center is not an integer (e.g. displaying 3 items with 1.5 to the left of the center).
-			thisOffset -= itemWidths[numberOfItemsLeftOfCenter + 1] / 2;
-		}
-		cumulativeOffset = thisOffset;
+        // Determine the start position of the leftmost item if the items are to be centered.
+        var numberOfItemsLeftOfCenter = itemsToShow / 2;  // Fraction of the items to the left of the mid point.
+        thisOffset = carouselWidth / 2;  // The offset for the current item.
+        for (var i = 0; i < Math.floor(numberOfItemsLeftOfCenter); i++)
+        {
+            thisOffset -= itemWidths[i];
+        }
+        if (parseInt(numberOfItemsLeftOfCenter) !== numberOfItemsLeftOfCenter)
+        {
+            // If the number of items to the left of center is not an integer (e.g. displaying 3 items with 1.5 to the left of the center).
+            thisOffset -= itemWidths[numberOfItemsLeftOfCenter + 1] / 2;
+        }
+        cumulativeOffset = thisOffset;
     }
-	
-	// Put the items in their initial positions.
-	items.attr("transform", function(d)
-		{
-			thisOffset = cumulativeOffset + (d.horizontalPadding / 2);
-			cumulativeOffset += (d.horizontalPadding + d.width);
-			d.restingX = thisOffset;
-			d.transX = thisOffset;
-			d.transY = (carouselHeight / 2) - (d.height / 2);
-			return "translate(" + d.transX + "," + d.transY + ")";
-		});
 
-	// Add the drag behaviour for items.
-	carousel.call(STANDARDDRAG);
+    // Put the items in their initial positions.
+    if (isInfinite && isCentered)
+    {
+        // Position the items if the scrolling is infinite and the items are to be centered.
+        // This is the only situation where there is a possibility of needing to show some of the final items to the left of the
+        // first ones (and only then when the width of the carousel is too large to fit all the first itemsToShow items in with no space).
+        var firstItemOffset = thisOffset;  // The offset of the first item in the carousel.
+        items.attr("transform", function(d, i)
+            {
+                if (cumulativeOffset > carouselWidth)
+                {
+                    // If the cumulativeOffset is greater than the carousel width, then the items that are still to be positioned will
+                    // be off the right hand side of the carousel. Instead of sticking these out of view to the right, they can be positioned
+                    // appropriately to the left of the first item. That way if there is space between the left edge of the carousel and the
+                    // first item, it will be appropriately filled with items and give the appearance of an infinite loop.
+                    // The items are positioned negatively from the first one, with the final item closest to the first.
+                    thisOffset = firstItemOffset - d3.sum(itemWidths.slice(i)) + (d.horizontalPadding / 2);
+                }
+                else
+                {
+                    thisOffset = cumulativeOffset + (d.horizontalPadding / 2);
+                    cumulativeOffset += (d.horizontalPadding + d.width);
+                }
+                d.restingX = thisOffset;
+                d.transX = thisOffset;
+                d.transY = (carouselHeight / 2) - (d.height / 2);
+                return "translate(" + d.transX + "," + d.transY + ")";
+            });
+    }
+    else
+    {
+        // Position the items if the scrolling is not infinite.
+        items.attr("transform", function(d)
+            {
+                thisOffset = cumulativeOffset + (d.horizontalPadding / 2);
+                cumulativeOffset += (d.horizontalPadding + d.width);
+                d.restingX = thisOffset;
+                d.transX = thisOffset;
+                d.transY = (carouselHeight / 2) - (d.height / 2);
+                return "translate(" + d.transX + "," + d.transY + ")";
+            });
+    }
+
+    // Add the drag behaviour for items.
+    carousel.call(STANDARDDRAG);
 
     // Clip the items to the carousel.
     items.select(".carouselClip")
