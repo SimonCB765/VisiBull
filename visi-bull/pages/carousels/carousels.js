@@ -250,13 +250,23 @@ function create_carousel(items, carousel, params)
     else
     {
         // Position the items if not centered.
+        var thisOffset;  // The offset for the current item.
+        var cumulativeOffset = 0;  // The cumulative offset from the leftmost item.
+        items.attr("transform", function(d)
+            {
+                thisOffset = cumulativeOffset + (d.horizontalPadding / 2);
+                cumulativeOffset += (d.horizontalPadding + d.width);
+                d.restingX = thisOffset;
+                d.transX = thisOffset;
+                d.transY = (carouselHeight / 2) - (d.height / 2);
+                return "translate(" + d.transX + "," + d.transY + ")";
+            });
 
         // Add the drag behaviour for non-centered items.
         carousel.call(STANDARDDRAG);
     }
 
     // Clip the items to the carousel.
-    console.log(items.select(".carouselClip"));
     items.select(".carouselClip")
         .append("rect")
             .classed("carouselClipRect", true)
