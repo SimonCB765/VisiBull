@@ -8,7 +8,9 @@ $(document).ready(function()
     var carousel = svg.append("g");
     carousel.append("rect").classed("carouselContainer", true);
     var items = create_squares(carousel, "demo2Root-");
-    var params = {"carouselXLoc": 30, "carouselYLoc": 30, "itemsToShow": 3};
+    var params = {"carouselXLoc": 30, "carouselYLoc": 30, "itemsToShow": 2
+	,"carouselWidth": 500, "isCentered": true
+	};
     carousel = create_carousel(items, carousel, params);
 });
 
@@ -241,30 +243,38 @@ function create_carousel(items, carousel, params)
     /******************
     * Setup the Items *
     ******************/
+	var thisOffset = 0;  // The offset for the current item.
+	var cumulativeOffset = thisOffset;  // The cumulative offset from the leftmost item.
     if (isCentered)
     {
-        // Position the items if centered.
-
-        // Add the drag behaviour for centered items.
+        // Determine the start position of the items if they are to be centered.
+		var numberOfItemsLeftOfCenter = itemsToShow / 2;  // Fraction of the items to the left of the mid point.
+		thisOffset = carouselWidth / 2;  // The offset for the current item.
+		for (var i = 0; i < Math.floor(numberOfItemsLeftOfCenter); i++)
+		{
+			thisOffset -= itemWidths[i];
+		}
+		if (parseInt(numberOfItemsLeftOfCenter) !== numberOfItemsLeftOfCenter)
+		{
+			// If the number of items to the left of center is not an integer (e.g. displaying 3 items with 1.5 to the left of the center).
+			thisOffset -= itemWidths[numberOfItemsLeftOfCenter + 1] / 2;
+		}
+		cumulativeOffset = thisOffset;
     }
-    else
-    {
-        // Position the items if not centered.
-        var thisOffset;  // The offset for the current item.
-        var cumulativeOffset = 0;  // The cumulative offset from the leftmost item.
-        items.attr("transform", function(d)
-            {
-                thisOffset = cumulativeOffset + (d.horizontalPadding / 2);
-                cumulativeOffset += (d.horizontalPadding + d.width);
-                d.restingX = thisOffset;
-                d.transX = thisOffset;
-                d.transY = (carouselHeight / 2) - (d.height / 2);
-                return "translate(" + d.transX + "," + d.transY + ")";
-            });
+	
+	// Put the items in their initial positions.
+	items.attr("transform", function(d)
+		{
+			thisOffset = cumulativeOffset + (d.horizontalPadding / 2);
+			cumulativeOffset += (d.horizontalPadding + d.width);
+			d.restingX = thisOffset;
+			d.transX = thisOffset;
+			d.transY = (carouselHeight / 2) - (d.height / 2);
+			return "translate(" + d.transX + "," + d.transY + ")";
+		});
 
-        // Add the drag behaviour for non-centered items.
-        carousel.call(STANDARDDRAG);
-    }
+	// Add the drag behaviour for items.
+	carousel.call(STANDARDDRAG);
 
     // Clip the items to the carousel.
     items.select(".carouselClip")
