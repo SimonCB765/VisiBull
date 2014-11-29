@@ -230,6 +230,8 @@ function create_carousel(items, carousel, params)
                         "isInfinite": isInfinite,
                         "itemsToScrollBy": itemsToScrollBy,
                         "itemsToShow": itemsToShow,
+                        "leftmostItem": 0,  // The left edge (including half the horizontal padding) of the leftmost item in the carousel.
+                        "rightmostItem": 0,  // The right edge (including half the horizontal padding) of the rightmost item in the carousel.
                         "transX": carouselXLoc,
                         "transY": carouselYLoc
                        }
@@ -271,6 +273,7 @@ function create_carousel(items, carousel, params)
         // This is the only situation where there is a possibility of needing to show some of the final items to the left of the
         // first ones (and only then when the width of the carousel is too large to fit all the first itemsToShow items in with no space).
         var firstItemOffset = thisOffset;  // The offset of the first item in the carousel.
+        var leftmostEdge = carouselWidth;  // The leftmost edge of the left item in the carousel.
         items.attr("transform", function(d, i)
             {
                 if (cumulativeOffset > carouselWidth)
@@ -280,10 +283,13 @@ function create_carousel(items, carousel, params)
                     // appropriately to the left of the first item. That way if there is space between the left edge of the carousel and the
                     // first item, it will be appropriately filled with items and give the appearance of an infinite loop.
                     // The items are positioned negatively from the first one, with the final item closest to the first.
-                    thisOffset = firstItemOffset - d3.sum(itemWidths.slice(i)) + (d.horizontalPadding / 2);
+                    var totalItemWidths = d3.sum(itemWidths.slice(i));
+                    thisOffset = firstItemOffset - totalItemWidths + (d.horizontalPadding / 2);
+                    leftmostEdge = Math.min(leftmostEdge, firstItemOffset - totalItemWidths);
                 }
                 else
                 {
+                    // The cumulativeOffset of the items is still within the carousel, so keep adding items to the right.
                     thisOffset = cumulativeOffset + (d.horizontalPadding / 2);
                     cumulativeOffset += (d.horizontalPadding + d.width);
                 }
@@ -292,10 +298,15 @@ function create_carousel(items, carousel, params)
                 d.transY = (carouselHeight / 2) - (d.height / 2);
                 return "translate(" + d.transX + "," + d.transY + ")";
             });
+
+            // Update the left and rightmost edges of the items in the carousel.
+            carousel.datum().leftmostItem = leftmostEdge;  // The leftmost edge in the carousel is the left edge of the first item added to the right.
+            carousel.datum().rightmostItem = cumulativeOffset;  // The rightmost edge in the carousel is the right edge of the last item added to the right.
     }
     else
     {
         // Position the items if the scrolling is not infinite.
+        carousel.datum().leftmostItem = leftmostEdge;  // The leftmost edge in the carousel is the left edge of the first item added to the right.
         items.attr("transform", function(d)
             {
                 thisOffset = cumulativeOffset + (d.horizontalPadding / 2);
@@ -305,10 +316,18 @@ function create_carousel(items, carousel, params)
                 d.transY = (carouselHeight / 2) - (d.height / 2);
                 return "translate(" + d.transX + "," + d.transY + ")";
             });
+        carousel.datum().rightmostItem = cumulativeOffset;  // The rightmost edge in the carousel is the right edge of the last item added to the right.
     }
 
     // Add the drag behaviour for items.
-    carousel.call(STANDARDDRAG);
+    if (isInfinite)
+    {
+        carousel.call(INFINITEDRAG);
+    }
+    else
+    {
+        carousel.call(STANDARDDRAG);
+    }
 
     // Clip the items to the carousel.
     items.select(".carouselClip")
@@ -325,6 +344,25 @@ function create_carousel(items, carousel, params)
 /*****************
 * Drag Functions *
 *****************/
+function drag_infinite_update(d)
+{
+    console.log(d);
+    // Get the items in the carousel.
+    var items = d3.select(this).selectAll(".item");
+
+    // Update the position of the items.
+    items
+        .attr("transform", function(itemD)
+            {
+                itemD.transX += d3.event.dx;
+                return "translate(" + itemD.transX + "," + itemD.transY + ")";
+            });
+
+    // Update the positions of the items clip paths.
+    items.selectAll(".carouselClipRect")
+        .attr("x", function(itemD) { return -itemD.transX; });
+}
+
 function drag_standard_end(d)
 {
     // Get the items in the carousel.
@@ -355,6 +393,11 @@ function drag_standard_update()
 var STANDARDDRAG = d3.behavior.drag()
     .origin(function(d) { return {"x": d3.event.x - d.transX, "y": d3.event.y - d.transY}; })  // Set the origin of the drag to be the top left of the carousel container.
     .on("drag", drag_standard_update)
+    .on("dragend", drag_standard_end);
+
+var INFINITEDRAG = d3.behavior.drag()
+    .origin(function(d) { return {"x": d3.event.x - d.transX, "y": d3.event.y - d.transY}; })  // Set the origin of the drag to be the top left of the carousel container.
+    .on("drag", drag_infinite_update)
     .on("dragend", drag_standard_end);
 
 /******************************
