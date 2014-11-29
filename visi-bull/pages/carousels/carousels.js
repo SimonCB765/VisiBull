@@ -226,6 +226,7 @@ function create_carousel(items, carousel, params)
     **********************/
     // Create the data object for the carousel.
     var carouselData = {
+                        "height": carouselHeight,
                         "isCentered": isCentered,
                         "isInfinite": isInfinite,
                         "itemsToScrollBy": itemsToScrollBy,
@@ -233,7 +234,8 @@ function create_carousel(items, carousel, params)
                         "leftmostItem": 0,  // The left edge (including half the horizontal padding) of the leftmost item in the carousel.
                         "rightmostItem": 0,  // The right edge (including half the horizontal padding) of the rightmost item in the carousel.
                         "transX": carouselXLoc,
-                        "transY": carouselYLoc
+                        "transY": carouselYLoc,
+                        "width": carouselWidth
                        }
 
     // Create the carousel container.
@@ -241,8 +243,8 @@ function create_carousel(items, carousel, params)
         .datum(carouselData)
         .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
     carousel.select(".carouselContainer")
-        .attr("width", carouselWidth)
-        .attr("height", carouselHeight);
+        .attr("width", function(d) { return d.width; })
+        .attr("height", function(d) { return d.height; });
 
     /******************
     * Setup the Items *
@@ -351,6 +353,10 @@ function drag_infinite_update(d)
     // Update the left and rightmost item positions in the carousel.
     d.leftmostItem += changeInPosition;
     d.rightmostItem += changeInPosition;
+
+    // Determine whether any items need to switch to the opposite side of the carousel.
+    var swapToLeft = d.leftmostItem >= -10;  // Whether the rightmost item needs to swap to out of view on the left side of the carousel.
+    var swapToRight = d.rightmostItem <= d.width + 10;  // Whether the leftmost item needs to swap to out of view on the right side of the carousel.
 
     // Get the items in the carousel.
     var items = d3.select(this).selectAll(".item");
