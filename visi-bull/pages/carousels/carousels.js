@@ -229,6 +229,7 @@ function create_carousel(items, carousel, params)
                         "height": carouselHeight,
                         "isCentered": isCentered,
                         "isInfinite": isInfinite,
+						"itemOrder": [],  // The keys of the item in the order (from left to right) that their corresponding items appear in the carousel.
                         "itemsToScrollBy": itemsToScrollBy,
                         "itemsToShow": itemsToShow,
                         "leftmostItem": null,  // The current leftmost item in the carousel.
@@ -251,6 +252,7 @@ function create_carousel(items, carousel, params)
     ******************/
     var thisOffset = 0;  // The offset for the current item.
     var cumulativeOffset = thisOffset;  // The cumulative offset from the leftmost item.
+	var itemOrder = [];  // The keys of the items in the order (from right to left) that their corresponding items appear in the carousel.
     if (isCentered)
     {
         // Determine the start position of the leftmost item if the items are to be centered.
@@ -276,6 +278,8 @@ function create_carousel(items, carousel, params)
         // first ones (and only then when the width of the carousel is too large to fit all the first itemsToShow items in with no space).
         var firstItemOffset = thisOffset;  // The offset of the first item in the carousel.
         var leftmostItemIndex = -1;  // The index of the leftmost item in the carousel.
+		var leftItems = [];  // The items that are added to the left of the first item.
+		var rightItems = [];  // The items, starting from the first item, that are added to the right of the first item.
         items.attr("transform", function(d, i)
             {
                 if (cumulativeOffset > carouselWidth)
@@ -288,12 +292,14 @@ function create_carousel(items, carousel, params)
                     var totalItemWidths = d3.sum(itemWidths.slice(i));
                     thisOffset = firstItemOffset - totalItemWidths + (d.horizontalPadding / 2);
                     leftmostItemIndex = (leftmostItemIndex === -1) ? i : leftmostItemIndex;
+					leftItems.push(d.key);
                 }
                 else
                 {
                     // The cumulativeOffset of the items is still within the carousel, so keep adding items to the right.
                     thisOffset = cumulativeOffset + (d.horizontalPadding / 2);
                     cumulativeOffset += (d.horizontalPadding + d.width);
+					rightItems.push(d.key);
                 }
                 d.restingX = thisOffset;
                 d.transX = thisOffset;
@@ -302,6 +308,7 @@ function create_carousel(items, carousel, params)
             });
             carousel.datum().leftmostItem = d3.select(items[0][leftmostItemIndex]);
             carousel.datum().rightmostItem = d3.select(items[0][leftmostItemIndex - 1]);
+			itemOrder = leftItems.concat(rightItems);
     }
     else
     {
@@ -313,11 +320,13 @@ function create_carousel(items, carousel, params)
                 d.restingX = thisOffset;
                 d.transX = thisOffset;
                 d.transY = (carouselHeight / 2) - (d.height / 2);
+				itemOrder.push(d.key);
                 return "translate(" + d.transX + "," + d.transY + ")";
             });
             carousel.datum().leftmostItem = d3.select(items[0][0]);
             carousel.datum().rightmostItem = d3.select(items[0].slice(-1));
     }
+	carousel.datum().itemOrder = itemOrder;
 
     // Add the drag behaviour for items.
     if (isInfinite)
