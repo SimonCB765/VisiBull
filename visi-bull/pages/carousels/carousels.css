@@ -3,6 +3,7 @@ Contents:
 _element    -> style declarations for all elements of a given type (html, body, table, all p tags etc.).
 _classes    -> style declarations for specific classes.
 _carousel   -> style declarations for the carousel itself.
+_navig		-> style declarations for the navigation buttons.
 _item       -> style declarations for the carousel items.
 */
 
@@ -18,6 +19,15 @@ _classes
 _carousel
 */
 .carouselContainer {fill: #444444; fill-opacity: 1; stroke: none;}  /* Style the rectangle used to catch events and provide a backing for the carousel. */
+
+/*
+_navig
+*/
+.navButton  {opacity: 0;}  /* The default style of the navigation buttons is to be invisible. */
+.navButton.visible {opacity: .7;}  /* The navigation buttons should be slightly visible when the carousel is rolled over. */
+.navButton.highlight {opacity: 1}  /* When hovered over the navigation buttons should be fully visible. */
+.navButton circle {fill: white; stroke: black; stroke-width: 2;}  /* Style the circle that serves as the background for the navigation button. */
+.navButton path {fill: none; stroke: black; stroke-linecap: round; stroke-width: 4;}  /* Style the arrow in the navigation button. */
 
 /*
 _item

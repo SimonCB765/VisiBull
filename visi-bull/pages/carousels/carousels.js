@@ -231,6 +231,7 @@ function create_carousel(items, carousel, params)
                         "isInfinite": isInfinite,
                         "itemOrder": [],  // The keys of the item in the order (from left to right) that their corresponding items appear in the carousel.
                         "itemsInCarousel": items[0].length,  // The number of items in the carousel.
+                        "itemsInView": [],  // The itemsToShow items that are currently in view.
                         "itemsToScrollBy": itemsToScrollBy,
                         "itemsToShow": itemsToShow,
                         "leftmostItem": null,  // The current leftmost item in the carousel.
@@ -328,7 +329,64 @@ function create_carousel(items, carousel, params)
             carousel.datum().rightmostItem = d3.select(items[0].slice(-1));
     }
     carousel.datum().itemOrder = itemOrder;
+    carousel.datum().itemsInView = d3.selectAll(items[0].slice(0, itemsToShow));
 
+    // Clip the items to the carousel.
+    items.select(".carouselClip")
+        .append("rect")
+            .classed("carouselClipRect", true)
+            .attr("x", function(d) { return -d.transX; })
+            .attr("y", function(d) { return -d.transY; })
+            .attr("width", carouselWidth)
+            .attr("height", carouselHeight);
+
+    /***************************
+    * Add the Scrolling Arrows *
+    ***************************/
+    var navButtonRadius = 10;  // The radius of the navigation buttons.
+    var arrowArmLength = Math.cos(Math.PI / 4) * (navButtonRadius * 0.8);  // The length of each arm of the navigation button arrow.
+
+    // Create the left navigation button.
+    var leftNavButton = carousel.append("g")
+        .classed({"navButton": true, "left": true})
+        .attr("transform", "translate(" + navButtonRadius + "," + ((carouselHeight / 2) - navButtonRadius) + ")");
+    leftNavButton.append("circle")
+        .attr("r", navButtonRadius)
+        .attr("cx", navButtonRadius)
+        .attr("cy", navButtonRadius);
+    leftNavButton.append("path")
+        .attr("d",
+            "M" + (navButtonRadius + (arrowArmLength / 3)) + "," + (navButtonRadius - arrowArmLength) +
+            "l" + -arrowArmLength + "," + arrowArmLength +
+            "l" + arrowArmLength + "," + arrowArmLength);
+
+    // Create the right navigation button.
+    var rightNavButton = carousel.append("g")
+        .classed({"navButton": true, "right": true})
+        .attr("transform", "translate(" + (carouselWidth - (3 * navButtonRadius)) + "," + ((carouselHeight / 2) - navButtonRadius) + ")");
+    rightNavButton.append("circle")
+        .attr("r", navButtonRadius)
+        .attr("cx", navButtonRadius)
+        .attr("cy", navButtonRadius);
+    rightNavButton.append("path")
+        .attr("d",
+            "M" + (navButtonRadius - (arrowArmLength / 3)) + "," + (navButtonRadius - arrowArmLength) +
+            "l" + arrowArmLength + "," + arrowArmLength +
+            "l" + -arrowArmLength + "," + arrowArmLength);
+
+    // Setup the carousel to make the navigation buttons slightly visible when the mouse is over the carousel.
+    carousel
+        .on("mouseover", function() { d3.select(this).selectAll(".navButton").classed("visible", true); })
+        .on("mouseout", function() { d3.select(this).selectAll(".navButton").classed("visible", false); });
+
+    // Setup the navigation buttons to be fully visible when the mouse is over them.
+    carousel.selectAll(".navButton")
+        .on("mouseover", function() { d3.select(this).classed("highlight", true); })
+        .on("mouseout", function() { d3.select(this).classed("highlight", false); });
+
+    /*************************************
+    * Add the Click/Drag/etc. Behaviours *
+    *************************************/
     // Add the drag behaviour for items.
     if (isInfinite)
     {
@@ -339,14 +397,7 @@ function create_carousel(items, carousel, params)
         carousel.call(STANDARDDRAG);
     }
 
-    // Clip the items to the carousel.
-    items.select(".carouselClip")
-        .append("rect")
-            .classed("carouselClipRect", true)
-            .attr("x", function(d) { return -d.transX; })
-            .attr("y", function(d) { return -d.transY; })
-            .attr("width", carouselWidth)
-            .attr("height", carouselHeight);
+    // Add the click behaviour.
 
     return carousel;
 }
@@ -529,13 +580,13 @@ function transition_item_positions(items)
 
 function update_resting_positions(items, amountToShift)
 {
-	// Update the resting positions of the items.
+    // Update the resting positions of the items.
     // items is a selection consisting of the carousel items.
-	// amountToShift is the distance by which the items should be shifted (negative for left shifting).
-	
-	console.log("Updating resting positions");
-	items.attribute("transform", function(d) { d.restingX += amountToShift; });
-	
+    // amountToShift is the distance by which the items should be shifted (negative for left shifting).
+
+    console.log("Updating resting positions");
+    items.attribute("transform", function(d) { d.restingX += amountToShift; });
+
 }
 
 /*******************
