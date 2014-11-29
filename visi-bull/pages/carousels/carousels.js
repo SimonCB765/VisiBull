@@ -376,42 +376,42 @@ function drag_infinite_update(d)
     var swapToLeft = leftmostItemData.transX >= -leftmostItemData.horizontalPadding;  // Whether the rightmost item needs to switch to out of view on the left side of the carousel.
     var swapToRight = (rightmostItemData.transX + rightmostItemData.width) <= d.width + rightmostItemData.horizontalPadding;  // Whether the leftmost item switch to swap to out of view on the right side of the carousel.
 
-	// Reposition items on the ends if needed.
-	if (swapToRight)
-	{
-		// If the leftmost item needs to be swapped to the right-hand side of the carousel, and this is the leftmost item.
-		// The leftmost item becomes the rightmost, and the item second from left becomes the leftmost.
+    // Reposition items on the ends if needed.
+    if (swapToRight)
+    {
+        // If the leftmost item needs to be swapped to the right-hand side of the carousel, and this is the leftmost item.
+        // The leftmost item becomes the rightmost, and the item second from left becomes the leftmost.
 
-		// Determine the position for the new rightmost (old leftmost) item.
-		leftmostItemData.restingX = rightmostItemData.restingX + rightmostItemData.width + (rightmostItemData.horizontalPadding / 2) + (leftmostItemData.horizontalPadding / 2);
-		leftmostItemData.transX = rightmostItemData.transX + rightmostItemData.width + (rightmostItemData.horizontalPadding / 2) + (leftmostItemData.horizontalPadding / 2);
+        // Determine the position for the new rightmost (old leftmost) item.
+        leftmostItemData.restingX = rightmostItemData.restingX + rightmostItemData.width + (rightmostItemData.horizontalPadding / 2) + (leftmostItemData.horizontalPadding / 2);
+        leftmostItemData.transX = rightmostItemData.transX + rightmostItemData.width + (rightmostItemData.horizontalPadding / 2) + (leftmostItemData.horizontalPadding / 2);
 
-		// Update the pointers and the item order.
-		d.rightmostItem = d.leftmostItem;
-		d.leftmostItem = items.filter(function(itemD) { return itemD.key === d.itemOrder[1]; })
-		d.itemOrder = d.itemOrder.slice(1).concat(leftmostItemData.key);
-		
-		// Swap the new rightmost item to the right.
-		d.rightmostItem.attr("transform", function(itemD) { return "translate(" + itemD.transX + "," + itemD.transY + ")"; });
-	}
-	else if (swapToLeft)
-	{
-		// If the rightmost item needs to be swapped to the left-hand side of the carousel, and this is the rightmost item.
-		// The rightmost item becomes the leftmost, and the item second from right becomes the rightmost.
+        // Update the pointers and the item order.
+        d.rightmostItem = d.leftmostItem;
+        d.leftmostItem = items.filter(function(itemD) { return itemD.key === d.itemOrder[1]; })
+        d.itemOrder = d.itemOrder.slice(1).concat(leftmostItemData.key);
 
-		// Determine the position for the new leftmost (old rightmost) item.
-		rightmostItemData.restingX = leftmostItemData.restingX - (leftmostItemData.horizontalPadding / 2) - (rightmostItemData.horizontalPadding / 2) - rightmostItemData.width;
-		rightmostItemData.transX = leftmostItemData.transX - ((leftmostItemData.horizontalPadding / 2) + (rightmostItemData.horizontalPadding / 2) + rightmostItemData.width);
+        // Swap the new rightmost item to the right.
+        d.rightmostItem.attr("transform", function(itemD) { return "translate(" + itemD.transX + "," + itemD.transY + ")"; });
+    }
+    else if (swapToLeft)
+    {
+        // If the rightmost item needs to be swapped to the left-hand side of the carousel, and this is the rightmost item.
+        // The rightmost item becomes the leftmost, and the item second from right becomes the rightmost.
 
-		// Update the pointers and the item order.
-		d.leftmostItem = d.rightmostItem;
-		d.rightmostItem = items.filter(function(itemD) { return itemD.key === d.itemOrder[d.itemsInCarousel - 2]; })
-		d.itemOrder = [rightmostItemData.key].concat(d.itemOrder.slice(0, -1));
-		
-		// Swap the new leftmost item to the left.
-		d.leftmostItem.attr("transform", function(itemD) { return "translate(" + itemD.transX + "," + itemD.transY + ")"; });
-	}
-	
+        // Determine the position for the new leftmost (old rightmost) item.
+        rightmostItemData.restingX = leftmostItemData.restingX - (leftmostItemData.horizontalPadding / 2) - (rightmostItemData.horizontalPadding / 2) - rightmostItemData.width;
+        rightmostItemData.transX = leftmostItemData.transX - ((leftmostItemData.horizontalPadding / 2) + (rightmostItemData.horizontalPadding / 2) + rightmostItemData.width);
+
+        // Update the pointers and the item order.
+        d.leftmostItem = d.rightmostItem;
+        d.rightmostItem = items.filter(function(itemD) { return itemD.key === d.itemOrder[d.itemsInCarousel - 2]; })
+        d.itemOrder = [rightmostItemData.key].concat(d.itemOrder.slice(0, -1));
+
+        // Swap the new leftmost item to the left.
+        d.leftmostItem.attr("transform", function(itemD) { return "translate(" + itemD.transX + "," + itemD.transY + ")"; });
+    }
+
     // Update the positions of the items clip paths.
     items.selectAll(".carouselClipRect")
         .attr("x", function(itemD) { return -itemD.transX; });
@@ -423,7 +423,7 @@ function drag_standard_end(d)
     var items = d3.select(this).selectAll(".item");
 
     // Transition the items, and clips paths, to their correct resting places.
-    update_item_positions(items);
+    transition_item_positions(items);
 }
 
 function drag_standard_update()
@@ -499,6 +499,43 @@ function create_squares(parent, rootID)
     items.attr("clip-path", function(d) { return "url(#" + (clipID + d.key) + ")"; });
 
     return items;
+}
+
+/***********************************
+* Item Position Updating Functions *
+***********************************/
+function transition_item_positions(items)
+{
+    // Transition the items in the carousel to their resting places.
+    // items is a selection consisting of the carousel items to transition.
+
+    items
+        .transition()
+        .duration(300)
+        .ease("cubic-out")
+        .tween("transform", function(d)
+                {
+                    var interpolator = d3.interpolate(d.transX, d.restingX);
+                    return function(t)
+                        {
+                            d.transX = interpolator(t);  // Determine position of the item at this point in the transition.
+                            d3.select(this)
+                                .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; })  // Update the item's position.
+                                .select(".carouselClipRect")
+                                    .attr("x", function(d) { return -d.transX; });  // Update the clip path.
+                        }
+                });
+}
+
+function update_resting_positions(items, amountToShift)
+{
+	// Update the resting positions of the items.
+    // items is a selection consisting of the carousel items.
+	// amountToShift is the distance by which the items should be shifted (negative for left shifting).
+	
+	console.log("Updating resting positions");
+	items.attribute("transform", function(d) { d.restingX += amountToShift; });
+	
 }
 
 /*******************
@@ -593,27 +630,4 @@ function create_svg(id, width, height)
     return d3.select("#" + id)
         .attr("width", width)
         .attr("height", height);
-}
-
-function update_item_positions(items)
-{
-    // Transition the items in the carousel to their resting places.
-    // items is a selection consisting of the carousel items to transition.
-
-    items
-        .transition()
-        .duration(300)
-        .ease("cubic-out")
-        .tween("transform", function(d)
-                {
-                    var interpolator = d3.interpolate(d.transX, d.restingX);
-                    return function(t)
-                        {
-                            d.transX = interpolator(t);  // Determine position of the item at this point in the transition.
-                            d3.select(this)
-                                .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; })  // Update the item's position.
-                                .select(".carouselClipRect")
-                                    .attr("x", function(d) { return -d.transX; });  // Update the clip path.
-                        }
-                });
 }
