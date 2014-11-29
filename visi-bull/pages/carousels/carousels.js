@@ -231,8 +231,8 @@ function create_carousel(items, carousel, params)
                         "isInfinite": isInfinite,
                         "itemsToScrollBy": itemsToScrollBy,
                         "itemsToShow": itemsToShow,
-                        "leftmostItem": 0,  // The left edge (including half the horizontal padding) of the leftmost item in the carousel.
-                        "rightmostItem": 0,  // The right edge (including half the horizontal padding) of the rightmost item in the carousel.
+                        "leftmostItem": null,  // The current leftmost item in the carousel.
+                        "rightmostItem": null,  // The current rightmost item in the carousel.
                         "transX": carouselXLoc,
                         "transY": carouselYLoc,
                         "width": carouselWidth
@@ -275,7 +275,7 @@ function create_carousel(items, carousel, params)
         // This is the only situation where there is a possibility of needing to show some of the final items to the left of the
         // first ones (and only then when the width of the carousel is too large to fit all the first itemsToShow items in with no space).
         var firstItemOffset = thisOffset;  // The offset of the first item in the carousel.
-        var leftmostEdge = carouselWidth;  // The leftmost edge of the left item in the carousel.
+        var leftmostItemIndex = -1;  // The index of the leftmost item in the carousel.
         items.attr("transform", function(d, i)
             {
                 if (cumulativeOffset > carouselWidth)
@@ -287,7 +287,7 @@ function create_carousel(items, carousel, params)
                     // The items are positioned negatively from the first one, with the final item closest to the first.
                     var totalItemWidths = d3.sum(itemWidths.slice(i));
                     thisOffset = firstItemOffset - totalItemWidths + (d.horizontalPadding / 2);
-                    leftmostEdge = Math.min(leftmostEdge, firstItemOffset - totalItemWidths);
+                    leftmostItemIndex = (leftmostItemIndex === -1) ? i : leftmostItemIndex;
                 }
                 else
                 {
@@ -300,15 +300,12 @@ function create_carousel(items, carousel, params)
                 d.transY = (carouselHeight / 2) - (d.height / 2);
                 return "translate(" + d.transX + "," + d.transY + ")";
             });
-
-            // Update the left and rightmost edges of the items in the carousel.
-            carousel.datum().leftmostItem = leftmostEdge;  // The leftmost edge in the carousel is the left edge of the first item added to the right.
-            carousel.datum().rightmostItem = cumulativeOffset;  // The rightmost edge in the carousel is the right edge of the last item added to the right.
+            carousel.datum().leftmostItem = d3.select(items[0][leftmostItemIndex]);
+            carousel.datum().rightmostItem = d3.select(items[0][leftmostItemIndex - 1]);
     }
     else
     {
         // Position the items if the scrolling is not infinite.
-        carousel.datum().leftmostItem = leftmostEdge;  // The leftmost edge in the carousel is the left edge of the first item added to the right.
         items.attr("transform", function(d)
             {
                 thisOffset = cumulativeOffset + (d.horizontalPadding / 2);
@@ -318,7 +315,8 @@ function create_carousel(items, carousel, params)
                 d.transY = (carouselHeight / 2) - (d.height / 2);
                 return "translate(" + d.transX + "," + d.transY + ")";
             });
-        carousel.datum().rightmostItem = cumulativeOffset;  // The rightmost edge in the carousel is the right edge of the last item added to the right.
+            carousel.datum().leftmostItem = d3.select(items[0][0]);
+            carousel.datum().rightmostItem = d3.select(items[0].slice(-1));
     }
 
     // Add the drag behaviour for items.
@@ -351,12 +349,12 @@ function drag_infinite_update(d)
     var changeInPosition = d3.event.dx;  // The movement caused by the dragging.
 
     // Update the left and rightmost item positions in the carousel.
-    d.leftmostItem += changeInPosition;
-    d.rightmostItem += changeInPosition;
+    var leftmostItemData = d.leftmostItem.datum();
+    var rightmostItemData = d.rightmostItem.datum();
 
     // Determine whether any items need to switch to the opposite side of the carousel.
-    var swapToLeft = d.leftmostItem >= -10;  // Whether the rightmost item needs to swap to out of view on the left side of the carousel.
-    var swapToRight = d.rightmostItem <= d.width + 10;  // Whether the leftmost item needs to swap to out of view on the right side of the carousel.
+    var swapToLeft = leftmostItemData.transX >= -leftmostItemData.horizontalPadding;  // Whether the rightmost item needs to switch to out of view on the left side of the carousel.
+    var swapToRight = (rightmostItemData.transX + rightmostItemData.width) <= d.width + rightmostItemData.horizontalPadding;  // Whether the leftmost item switch to swap to out of view on the right side of the carousel.
 
     // Get the items in the carousel.
     var items = d3.select(this).selectAll(".item");
@@ -366,8 +364,30 @@ function drag_infinite_update(d)
         .attr("transform", function(itemD)
             {
                 itemD.transX += changeInPosition;
+                if (swapToRight && this == d.leftmostItem.node())
+                {
+                    // If the leftmost item needs to be swapped to the right-hand side of the carousel, and this is the leftmost item.
+                    console.log("swap me", leftmostItemData.key);
+                }
+                else if (swapToLeft && this == d.rightmostItem.node())
+                {
+                    // If the rightmost item needs to be swapped to the left-hand side of the carousel, and this is the rightmost item.
+                    console.log("swap me", rightmostItemData.key);
+                }
+/*
+                if (swapToRight && itemD.transX === (d.leftmostEdge + (itemD.horizontalPadding / 2)))
+                {
+                    itemD.restingX = d.rightmostResting + (itemD.horizontalPadding / 2);
+                    itemD.transX = d.rightmostEdge + (itemD.horizontalPadding / 2);
+                    d.rightmostEdge += (itemD.width + itemD.horizontalPadding);
+                    d.leftmostEdge += (itemD.width + itemD.horizontalPadding);
+                    swapToRight = false;
+                }
+*/
                 return "translate(" + itemD.transX + "," + itemD.transY + ")";
             });
+
+//  console.log(items.data().map(function(dd) { return dd.restingX; }));
 
     // Update the positions of the items clip paths.
     items.selectAll(".carouselClipRect")
@@ -380,35 +400,27 @@ function drag_standard_end(d)
     var items = d3.select(this).selectAll(".item");
 
     // Transition the items, and clips paths, to their correct resting places.
-    var edges = update_item_positions(items);
-
-    // Update the left and rightmost item positions in the carousel.
-    d.leftmostItem = edges.leftmostItem;
-    d.rightmostItem = edges.rightmostItem;
+    update_item_positions(items);
 }
 
-function drag_standard_update(d)
+function drag_standard_update()
 {
     var changeInPosition = d3.event.dx;  // The movement caused by the dragging.
-
-    // Update the left and rightmost item positions in the carousel.
-    d.leftmostItem += changeInPosition;
-    d.rightmostItem += changeInPosition;
 
     // Get the items in the carousel.
     var items = d3.select(this).selectAll(".item");
 
     // Update the position of the items.
     items
-        .attr("transform", function(itemD)
+        .attr("transform", function(d)
             {
-                itemD.transX += changeInPosition;
-                return "translate(" + itemD.transX + "," + itemD.transY + ")";
+                d.transX += changeInPosition;
+                return "translate(" + d.transX + "," + d.transY + ")";
             });
 
     // Update the positions of the items clip paths.
     items.selectAll(".carouselClipRect")
-        .attr("x", function(itemD) { return -itemD.transX; });
+        .attr("x", function(d) { return -d.transX; });
 }
 
 var STANDARDDRAG = d3.behavior.drag()
@@ -581,13 +593,4 @@ function update_item_positions(items)
                                     .attr("x", function(d) { return -d.transX; });  // Update the clip path.
                         }
                 });
-
-    // Record the left and rightmost edges of the items in the carousel.
-    // The leftmost edge is not the leftmost edge of the visual portion of the leftmost item. Rather, it is this position minus half the
-    // item's horizontal padding. Similar for the rightmost edge, but instead half the horizontal padding is added.
-    var itemData = items.data();
-    var leftmostItemEdge = d3.min(itemData.map(function(d) { return d.restingX - (d.horizontalPadding / 2); }));
-    var rightmostItemEdge = d3.max(itemData.map(function(d) { return d.restingX + (d.horizontalPadding / 2) + d.width; }));
-
-    return {"leftmostItem": leftmostItemEdge, "rightmostItem": rightmostItemEdge};
 }
