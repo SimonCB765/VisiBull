@@ -376,58 +376,42 @@ function drag_infinite_update(d)
     var swapToLeft = leftmostItemData.transX >= -leftmostItemData.horizontalPadding;  // Whether the rightmost item needs to switch to out of view on the left side of the carousel.
     var swapToRight = (rightmostItemData.transX + rightmostItemData.width) <= d.width + rightmostItemData.horizontalPadding;  // Whether the leftmost item switch to swap to out of view on the right side of the carousel.
 
-    // Update the position of the items.
-    items
-        .attr("transform", function(itemD)
-            {
-                if (swapToRight && this == d.leftmostItem.node())
-                {
-                    console.log("swap to right");
-                    // If the leftmost item needs to be swapped to the right-hand side of the carousel, and this is the leftmost item.
-                    // The leftmost item becomes the rightmost, and the item second from left becomes the leftmost.
+	// Reposition items on the ends if needed.
+	if (swapToRight)
+	{
+		// If the leftmost item needs to be swapped to the right-hand side of the carousel, and this is the leftmost item.
+		// The leftmost item becomes the rightmost, and the item second from left becomes the leftmost.
 
-                    // Reposition the new rightmost (old leftmost) item.
-                    leftmostItemData.restingX = rightmostItemData.restingX + rightmostItemData.width + (rightmostItemData.horizontalPadding / 2) + (leftmostItemData.horizontalPadding / 2);
-                    leftmostItemData.transX = rightmostItemData.transX + rightmostItemData.width + (rightmostItemData.horizontalPadding / 2) + (leftmostItemData.horizontalPadding / 2);
+		// Determine the position for the new rightmost (old leftmost) item.
+		leftmostItemData.restingX = rightmostItemData.restingX + rightmostItemData.width + (rightmostItemData.horizontalPadding / 2) + (leftmostItemData.horizontalPadding / 2);
+		leftmostItemData.transX = rightmostItemData.transX + rightmostItemData.width + (rightmostItemData.horizontalPadding / 2) + (leftmostItemData.horizontalPadding / 2);
 
-                    // Update the pointers and the item order.
-//                  console.log(leftmostItemData.key, rightmostItemData.key, d.itemOrder[1], d.itemOrder);
-                    d.rightmostItem = d.leftmostItem;
-                    d.leftmostItem = items.filter(function(filterD) { return filterD.key === d.itemOrder[1]; })
-                    d.itemOrder = d.itemOrder.slice(1).concat(leftmostItemData.key);
-//                  console.log(d.leftmostItem.datum().key, d.rightmostItem.datum().key, d.itemOrder[1], d.itemOrder);
+		// Update the pointers and the item order.
+		d.rightmostItem = d.leftmostItem;
+		d.leftmostItem = items.filter(function(itemD) { return itemD.key === d.itemOrder[1]; })
+		d.itemOrder = d.itemOrder.slice(1).concat(leftmostItemData.key);
+		
+		// Swap the new rightmost item to the right.
+		d.rightmostItem.attr("transform", function(itemD) { return "translate(" + itemD.transX + "," + itemD.transY + ")"; });
+	}
+	else if (swapToLeft)
+	{
+		// If the rightmost item needs to be swapped to the left-hand side of the carousel, and this is the rightmost item.
+		// The rightmost item becomes the leftmost, and the item second from right becomes the rightmost.
 
-                    swapToRight = false;
-                }
-                else if (swapToLeft && this == d.rightmostItem.node())
-                {
-                    console.log("swap to left");
-                    // If the rightmost item needs to be swapped to the left-hand side of the carousel, and this is the rightmost item.
-                    // The rightmost item becomes the leftmost, and the item second from right becomes the rightmost.
+		// Determine the position for the new leftmost (old rightmost) item.
+		rightmostItemData.restingX = leftmostItemData.restingX - (leftmostItemData.horizontalPadding / 2) - (rightmostItemData.horizontalPadding / 2) - rightmostItemData.width;
+		rightmostItemData.transX = leftmostItemData.transX - ((leftmostItemData.horizontalPadding / 2) + (rightmostItemData.horizontalPadding / 2) + rightmostItemData.width);
 
-                    // Reposition the new leftmost (old rightmost) item.
-                    console.log(leftmostItemData.restingX, leftmostItemData.transX);
-                    console.log((leftmostItemData.horizontalPadding / 2) + (rightmostItemData.horizontalPadding / 2) + rightmostItemData.width);
-                    rightmostItemData.restingX = leftmostItemData.restingX - (leftmostItemData.horizontalPadding / 2) - (rightmostItemData.horizontalPadding / 2) - rightmostItemData.width;
-                    rightmostItemData.transX = leftmostItemData.transX - ((leftmostItemData.horizontalPadding / 2) + (rightmostItemData.horizontalPadding / 2) + rightmostItemData.width);
-                    console.log(rightmostItemData.restingX, rightmostItemData.transX);
-
-                    // Update the pointers and the item order.
-//                  console.log(rightmostItemData.key, d.itemOrder[d.itemsInCarousel - 2], [rightmostItemData.key].concat(d.itemOrder.slice(0, -1)));
-                    d.leftmostItem = d.rightmostItem;
-                    d.rightmostItem = items.filter(function(filterD) { return filterD.key === d.itemOrder[d.itemsInCarousel - 2]; })
-                    d.itemOrder = [rightmostItemData.key].concat(d.itemOrder.slice(0, -1));
-//                  console.log(d.leftmostItem.datum().key, d.rightmostItem.datum().key, d.itemOrder[1], d.itemOrder);
-
-                    console.log(itemD.key, itemD.transX, d.leftmostItem.datum().key, d.leftmostItem.datum().transX);
-
-                    swapToLeft = false;
-                }
-                return "translate(" + itemD.transX + "," + itemD.transY + ")";
-            });
-
-//  console.log(items.data().map(function(dd) { return dd.restingX; }));
-
+		// Update the pointers and the item order.
+		d.leftmostItem = d.rightmostItem;
+		d.rightmostItem = items.filter(function(itemD) { return itemD.key === d.itemOrder[d.itemsInCarousel - 2]; })
+		d.itemOrder = [rightmostItemData.key].concat(d.itemOrder.slice(0, -1));
+		
+		// Swap the new leftmost item to the left.
+		d.leftmostItem.attr("transform", function(itemD) { return "translate(" + itemD.transX + "," + itemD.transY + ")"; });
+	}
+	
     // Update the positions of the items clip paths.
     items.selectAll(".carouselClipRect")
         .attr("x", function(itemD) { return -itemD.transX; });
