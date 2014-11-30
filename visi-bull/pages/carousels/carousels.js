@@ -11,7 +11,7 @@ $(document).ready(function()
     var params = {"carouselXLoc": 30, "carouselYLoc": 30, "itemsToShow": 2
     , "itemsToScrollBy": 3
     , "carouselWidth": 500
-    , "isCentered": true
+    , "isCentered": false
     , "isInfinite": true
     };
     carousel = create_carousel(items, carousel, params);
@@ -327,7 +327,7 @@ function create_carousel(items, carousel, params)
                 return "translate(" + d.transX + "," + d.transY + ")";
             });
             carousel.datum().leftmostItem = d3.select(items[0][0]);
-            carousel.datum().rightmostItem = d3.select(items[0].slice(-1));
+            carousel.datum().rightmostItem = d3.select(items[0].slice(-1)[0]);
     }
     carousel.datum().itemOrder = itemOrder;
     carousel.datum().itemsInView = d3.selectAll(items[0].slice(0, itemsToShow));
