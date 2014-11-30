@@ -9,7 +9,8 @@ $(document).ready(function()
     carousel.append("rect").classed("carouselContainer", true);
     var items = create_squares(carousel, "demo2Root-");
     var params = {"carouselXLoc": 30, "carouselYLoc": 30, "itemsToShow": 2
-    ,"carouselWidth": 500
+    , "itemsToScrollBy": 3
+    , "carouselWidth": 500
     , "isCentered": true
     , "isInfinite": true
     };
@@ -373,14 +374,15 @@ function create_carousel(items, carousel, params)
             "M" + (navButtonRadius - (arrowArmLength / 3)) + "," + (navButtonRadius - arrowArmLength) +
             "l" + arrowArmLength + "," + arrowArmLength +
             "l" + -arrowArmLength + "," + arrowArmLength);
+    var navigationButtons = carousel.selectAll(".navButton");
 
     // Setup the carousel to make the navigation buttons slightly visible when the mouse is over the carousel.
     carousel
-        .on("mouseover", function() { d3.select(this).selectAll(".navButton").classed("visible", true); })
-        .on("mouseout", function() { d3.select(this).selectAll(".navButton").classed("visible", false); });
+        .on("mouseover", function() { navigationButtons.classed("visible", true); })
+        .on("mouseout", function() { navigationButtons.classed("visible", false); });
 
     // Setup the navigation buttons to be fully visible when the mouse is over them.
-    carousel.selectAll(".navButton")
+    navigationButtons
         .on("mouseover", function() { d3.select(this).classed("highlight", true); })
         .on("mouseout", function() { d3.select(this).classed("highlight", false); });
 
@@ -398,13 +400,14 @@ function create_carousel(items, carousel, params)
     }
 
     // Add the click behaviour.
+    navigationButtons.on("click", scroll_carousel);
 
     return carousel;
 }
 
-/*****************
-* Drag Functions *
-*****************/
+/**************************
+* Drag Carousel Functions *
+**************************/
 function drag_infinite_update(d)
 {
     // Get the items in the carousel.
@@ -587,6 +590,76 @@ function update_resting_positions(items, amountToShift)
     console.log("Updating resting positions");
     items.attribute("transform", function(d) { d.restingX += amountToShift; });
 
+}
+
+/****************************
+* Scroll Carousel Functions *
+****************************/
+function scroll_carousel()
+{
+    // Scroll the carousel left or right following a click on one of the navigation buttons.
+
+    var navButton = d3.select(this);  // The navigation button clicked on.
+
+    // Determine whether the carousel is being scrolled left or right.
+    var isScrollLeft = navButton.classed("left");
+
+    // Get the information about the carousel parent of the navigation button.
+    var carousel = d3.select(this.parentNode);
+    var carouselData = carousel.datum();
+
+    console.log("Scrolling", isScrollLeft, carouselData);
+
+    // Get the items that will be scrolled into view.
+    if (isScrollLeft)
+    {
+        // Get information about the leftmost item in view.
+        var leftmostInView = d3.select(carouselData.itemsInView[0][0]);
+        var leftmostKey = leftmostInView.datum().key;
+        var leftmostPosition = carouselData.itemOrder.indexOf(leftmostKey)
+
+        // Get the items to the left of the current ones in view.
+        var itemsToLeft = carouselData.itemOrder.slice(Math.max(0, leftmostPosition - carouselData.itemsToScrollBy), leftmostPosition);
+        if (carouselData.isInfinite)
+        {
+            // If infinite scrolling is on, then you can bring items from the right to the left in order to fill out enough items to scroll by.
+            var itemsFromRightNeeded = carouselData.itemsToScrollBy - itemsToLeft.length;
+            var itemsFromRight;
+            while (itemsFromRightNeeded > 0)
+            {
+                itemsFromRight = carouselData.itemOrder.slice(-itemsFromRightNeeded);
+                itemsToLeft = itemsFromRight.concat(itemsToLeft);
+                itemsFromRightNeeded = carouselData.itemsToScrollBy - itemsToLeft.length;
+            }
+        }
+
+        console.log(leftmostKey, leftmostPosition, itemsToLeft);
+    }
+    else
+    {
+        // Get information about the rightmost item in view.
+        var rightmostInView = d3.select(carouselData.itemsInView[0].slice(-1)[0]);
+        var rightmostKey = rightmostInView.datum().key;
+        var rightmostPosition = carouselData.itemOrder.indexOf(rightmostKey)
+
+        // Get the items to the right of the current ones in view.
+        var itemsToRight = carouselData.itemOrder.slice(rightmostPosition + 1, rightmostPosition + carouselData.itemsToScrollBy + 1);
+        if (carouselData.isInfinite)
+        {
+            // If infinite scrolling is on, then you can bring items from the left to the right in order to fill out enough items to scroll by.
+            var itemsFromLeftNeeded = carouselData.itemsToScrollBy - itemsToRight.length;
+            var itemsFromLeft;
+            while (itemsFromLeftNeeded > 0)
+            {
+                itemsFromLeft = carouselData.itemOrder.slice(0, itemsFromLeftNeeded);
+                itemsToRight = itemsToRight.concat(itemsFromLeft);
+                itemsFromLeftNeeded = carouselData.itemsToScrollBy - itemsToRight.length;
+            }
+        }
+
+
+        console.log(rightmostKey, rightmostPosition, itemsToRight);
+    }
 }
 
 /*******************
