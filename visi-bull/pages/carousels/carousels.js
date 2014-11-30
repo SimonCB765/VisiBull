@@ -10,9 +10,9 @@ $(document).ready(function()
     var items = create_squares(carousel, "demo2Root-");
     var params = {"carouselXLoc": 30, "carouselYLoc": 30, "itemsToShow": 2
     , "itemsToScrollBy": 3
-    , "carouselWidth": 500
-    , "isCentered": false
-    , "isInfinite": true
+    , "carouselWidth": 600
+    , "isCentered": true
+    , "isInfinite": false
     };
     carousel = create_carousel(items, carousel, params);
 });
@@ -592,6 +592,44 @@ function update_resting_positions(items, amountToShift)
 
 }
 
+function wiggle_item_positions(items, amountToWiggle)
+{
+    // Wiggle the positions of the items (one way then back).
+    // items is a selection consisting of the carousel items.
+    // amountToWiggle is the distance by which the items should be wiggled (negative for left then right wiggles).
+
+    items
+        .transition()
+        .duration(200)
+        .ease("cubic-in")
+        .tween("transform", function(d)
+            {
+                var interpolator = d3.interpolate(d.transX, d.transX + amountToWiggle);
+                return function(t)
+                    {
+                        d.transX = interpolator(t);  // Determine position of the item at this point in the transition.
+                        d3.select(this)
+                            .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; })  // Update the item's position.
+                            .select(".carouselClipRect")
+                                .attr("x", function(d) { return -d.transX; });  // Update the clip path.
+                    }
+            })
+        .transition()
+        .ease("cubic-out")
+        .tween("transform", function(d)
+            {
+                var interpolator = d3.interpolate(d.transX, d.transX - amountToWiggle);
+                return function(t)
+                    {
+                        d.transX = interpolator(t);  // Determine position of the item at this point in the transition.
+                        d3.select(this)
+                            .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; })  // Update the item's position.
+                            .select(".carouselClipRect")
+                                .attr("x", function(d) { return -d.transX; });  // Update the clip path.
+                    }
+            });
+}
+
 /****************************
 * Scroll Carousel Functions *
 ****************************/
@@ -607,6 +645,9 @@ function scroll_carousel()
     // Get the information about the carousel parent of the navigation button.
     var carousel = d3.select(this.parentNode);
     var carouselData = carousel.datum();
+
+    // Get the items in the carousel.
+    var items = carousel.selectAll(".item");
 
     console.log("Scrolling", isScrollLeft, carouselData);
 
@@ -633,6 +674,9 @@ function scroll_carousel()
             }
         }
 
+        // Do a little transition wiggle if there are no items to bring into view.
+        if (itemsToLeft.length === 0) { wiggle_item_positions(items, 15); }
+
         console.log(leftmostKey, leftmostPosition, itemsToLeft);
     }
     else
@@ -657,6 +701,8 @@ function scroll_carousel()
             }
         }
 
+        // Do a little transition wiggle if there are no items to bring into view.
+        if (itemsToRight.length === 0) { wiggle_item_positions(items, 15); }
 
         console.log(rightmostKey, rightmostPosition, itemsToRight);
     }
