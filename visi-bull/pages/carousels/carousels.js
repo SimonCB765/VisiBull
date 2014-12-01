@@ -11,7 +11,7 @@ $(document).ready(function()
     var params = {"carouselXLoc": 30, "carouselYLoc": 30, "itemsToShow": 2
     , "itemsToScrollBy": 3
     , "carouselWidth": 600
-    , "isCentered": true
+    , "isCentered": false
     , "isInfinite": false
     };
     carousel = create_carousel(items, carousel, params);
@@ -587,9 +587,8 @@ function update_resting_positions(items, amountToShift)
     // items is a selection consisting of the carousel items.
     // amountToShift is the distance by which the items should be shifted (negative for left shifting).
 
-    console.log("Updating resting positions");
-    items.attribute("transform", function(d) { d.restingX += amountToShift; });
-
+    items.each(function(d) { d.restingX += amountToShift; });
+    transition_item_positions(items);
 }
 
 function wiggle_item_positions(items, amountToWiggle)
@@ -648,14 +647,15 @@ function scroll_carousel()
 
     // Get the items in the carousel.
     var items = carousel.selectAll(".item");
+    var leftmostInView = d3.select(carouselData.itemsInView[0][0]);
+    var rightmostInView = d3.select(carouselData.itemsInView[0].slice(-1)[0]);
 
-    console.log("Scrolling", isScrollLeft, carouselData);
+    console.log("Scrolling", isScrollLeft ? " Left" : " Right", carouselData);
 
     // Get the items that will be scrolled into view.
     if (isScrollLeft)
     {
         // Get information about the leftmost item in view.
-        var leftmostInView = d3.select(carouselData.itemsInView[0][0]);
         var leftmostKey = leftmostInView.datum().key;
         var leftmostPosition = carouselData.itemOrder.indexOf(leftmostKey)
 
@@ -673,21 +673,44 @@ function scroll_carousel()
                 itemsFromRightNeeded = carouselData.itemsToScrollBy - itemsToLeft.length;
             }
         }
+        else
+        {
+            if (itemsToLeft.length === 0)
+            {
+                // Do a little transition wiggle if there are no items to bring into view.
+                wiggle_item_positions(items, 15);
+            }
+            else if (carouselData.isCentered)
+            {
+            }
+            else
+            {
+                // Carousel is neither centered nor infinite.
+                var newItemsInView = itemsToLeft.slice(0, carouselData.itemsToShow);  // The keys of the items to bring into view.
+                var leftmostNewItem = newItemsInView[0];  // The leftmost item that will be scrolled into view.
 
-        // Do a little transition wiggle if there are no items to bring into view.
-        if (itemsToLeft.length === 0) { wiggle_item_positions(items, 15); }
+                // Get the amount by which to shift all resting positions.
+                var leftmostNewItem = items.filter(function(d) { return d.key === leftmostNewItem; })
+                var distanceToScroll = leftmostInView.datum().restingX - leftmostNewItem.datum().restingX;
+
+                // Update the positions of the items.
+                update_resting_positions(items, distanceToScroll)
+
+                // Update the record of the items that are in view.
+                carouselData.itemsInView = items.filter(function(d) { return newItemsInView.indexOf(d.key) !== -1; })
+            }
+        }
 
         console.log(leftmostKey, leftmostPosition, itemsToLeft);
     }
     else
     {
         // Get information about the rightmost item in view.
-        var rightmostInView = d3.select(carouselData.itemsInView[0].slice(-1)[0]);
         var rightmostKey = rightmostInView.datum().key;
         var rightmostPosition = carouselData.itemOrder.indexOf(rightmostKey)
 
-        // Get the items to the right of the current ones in view.
-        var itemsToRight = carouselData.itemOrder.slice(rightmostPosition + 1, rightmostPosition + carouselData.itemsToScrollBy + 1);
+        // Move the items to their new locations.
+        var itemsToRight = carouselData.itemOrder.slice(rightmostPosition + 1, rightmostPosition + carouselData.itemsToScrollBy + 1);  // The items to the right of the ones currently in view.
         if (carouselData.isInfinite)
         {
             // If infinite scrolling is on, then you can bring items from the left to the right in order to fill out enough items to scroll by.
@@ -700,9 +723,33 @@ function scroll_carousel()
                 itemsFromLeftNeeded = carouselData.itemsToScrollBy - itemsToRight.length;
             }
         }
+        else
+        {
+            if (itemsToRight.length === 0)
+            {
+                // Do a little transition wiggle if there are no items to bring into view.
+                wiggle_item_positions(items, -15);
+            }
+            else if (carouselData.isCentered)
+            {
+            }
+            else
+            {
+                // Carousel is neither centered nor infinite.
+                var newItemsInView = itemsToRight.slice(-carouselData.itemsToShow);  // The keys of the items to bring into view.
+                var leftmostNewItem = newItemsInView[0];  // The leftmost item that will be scrolled into view.
 
-        // Do a little transition wiggle if there are no items to bring into view.
-        if (itemsToRight.length === 0) { wiggle_item_positions(items, 15); }
+                // Get the amount by which to shift all resting positions.
+                var leftmostNewItem = items.filter(function(d) { return d.key === leftmostNewItem; })
+                var distanceToScroll = leftmostInView.datum().restingX - leftmostNewItem.datum().restingX;
+
+                // Update the positions of the items.
+                update_resting_positions(items, distanceToScroll)
+
+                // Update the record of the items that are in view.
+                carouselData.itemsInView = items.filter(function(d) { return newItemsInView.indexOf(d.key) !== -1; })
+            }
+        }
 
         console.log(rightmostKey, rightmostPosition, itemsToRight);
     }
