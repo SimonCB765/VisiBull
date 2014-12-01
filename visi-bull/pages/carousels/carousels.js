@@ -11,7 +11,7 @@ $(document).ready(function()
     var params = {"carouselXLoc": 30, "carouselYLoc": 30, "itemsToShow": 2
     , "itemsToScrollBy": 3
     , "carouselWidth": 600
-    , "isCentered": true
+    , "isCentered": false
     , "isInfinite": false
     };
     carousel = create_carousel(items, carousel, params);
@@ -717,17 +717,7 @@ function scroll_carousel()
             {
                 // Carousel is neither centered nor infinite.
                 var newKeysInView = itemsToLeft.slice(0, carouselData.itemsToShow);  // The keys of the items to bring into view.
-                var leftmostNewItem = newKeysInView[0];  // The leftmost item that will be scrolled into view.
-
-                // Get the amount by which to shift all resting positions.
-                var leftmostNewItem = items.filter(function(d) { return d.key === leftmostNewItem; });
-                var distanceToScroll = leftmostInView.datum().restingX - leftmostNewItem.datum().restingX;
-
-                // Update the positions of the items.
-                update_resting_positions(items, distanceToScroll);
-
-                // Update the record of the items that are in view.
-                carouselData.itemsInView = items.filter(function(d) { return newKeysInView.indexOf(d.key) !== -1; });
+                scroll_noncentered_noninfinite(carouselData, items, leftmostInView, newKeysInView);
             }
         }
 
@@ -797,22 +787,33 @@ function scroll_carousel()
             {
                 // Carousel is neither centered nor infinite.
                 var newKeysInView = itemsToRight.slice(-carouselData.itemsToShow);  // The keys of the items to bring into view.
-                var leftmostNewItem = newKeysInView[0];  // The leftmost item that will be scrolled into view.
-
-                // Get the amount by which to shift all resting positions.
-                var leftmostNewItem = items.filter(function(d) { return d.key === leftmostNewItem; });
-                var distanceToScroll = leftmostInView.datum().restingX - leftmostNewItem.datum().restingX;
-
-                // Update the positions of the items.
-                update_resting_positions(items, distanceToScroll);
-
-                // Update the record of the items that are in view.
-                carouselData.itemsInView = items.filter(function(d) { return newKeysInView.indexOf(d.key) !== -1; });
+                scroll_noncentered_noninfinite(carouselData, items, leftmostInView, newKeysInView);
             }
         }
 
         console.log(rightmostKey, rightmostPosition, itemsToRight);
     }
+}
+
+function scroll_noncentered_noninfinite(carouselData, items, leftmostInView, newKeysInView)
+{
+    // Scroll a carousel that is neither infinite nor centered.
+    // carouselData is the data object for the carousel.
+    // items is a selection consisting of the carousel items.
+    // leftmostInView is the current leftmost item in view.
+    // newKeysInView is the keys of the items that are to be scrolled into view.
+
+    var leftmostNewItem = newKeysInView[0];  // The leftmost item that will be scrolled into view.
+
+    // Get the amount by which to shift all resting positions.
+    var leftmostNewItem = items.filter(function(d) { return d.key === leftmostNewItem; });
+    var distanceToScroll = leftmostInView.datum().restingX - leftmostNewItem.datum().restingX;
+
+    // Update the positions of the items.
+    update_resting_positions(items, distanceToScroll);
+
+    // Update the record of the items that are in view.
+    carouselData.itemsInView = items.filter(function(d) { return newKeysInView.indexOf(d.key) !== -1; });
 }
 
 /*******************
