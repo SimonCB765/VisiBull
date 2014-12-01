@@ -11,7 +11,7 @@ $(document).ready(function()
     var params = {"carouselXLoc": 30, "carouselYLoc": 30, "itemsToShow": 2
     , "itemsToScrollBy": 4
     , "carouselWidth": 600
-    , "isCentered": false
+    , "isCentered": true
     , "isInfinite": true
     };
     carousel = create_carousel(items, carousel, params);
@@ -648,7 +648,12 @@ function scroll_carousel()
     var leftmostInView = d3.select(carouselData.itemsInView[0][0]);
     var rightmostInView = d3.select(carouselData.itemsInView[0].slice(-1)[0]);
 
-    console.log("Scrolling", isScrollLeft ? " Left" : " Right", carouselData);
+    // Map the keys of the items to the actual DOM elements.
+    var keyToNodeMap = {};
+    items.each(function(d)
+        {
+            keyToNodeMap[d.key] = this;
+        });
 
     // Get the items that will be scrolled into view.
     if (isScrollLeft)
@@ -693,10 +698,33 @@ function scroll_carousel()
             }
 
             var newKeysInView = itemsToLeft.slice(0, carouselData.itemsToShow);  // The keys of the items to bring into view.
+            var newItemsInView = d3.selectAll(newKeysInView.map(function(k) { return keyToNodeMap[k]; }));    // The new items in view.
 
             // Handle the widths of the current and new items in view.
             if (carouselData.isCentered)
             {
+                // The carousel has infinite scrolling and the items are centered.
+
+                // Calculate the portion of the items in view that are left of center.
+                var currentLeftOfCenter = (carouselData.width / 2) - (leftmostInView.datum().restingX - (leftmostInView.datum().horizontalPadding / 2));
+                scrollDistance += currentLeftOfCenter;
+
+                // Calculate the portion of the new items that will be in the view that will be right of center.
+                var numberOfItemsRightOfCenter = newKeysInView.length / 2;  // Fraction of the items to the right of the mid point.
+                newItemsInView.each(function(d, i)
+                    {
+                        if (i > Math.ceil(numberOfItemsRightOfCenter))
+                        {
+                            scrollDistance += (d.width + d.horizontalPadding);
+                        }
+                        else if (i > numberOfItemsRightOfCenter)
+                        {
+                            // If the number of items to the right of center is not an integer (e.g. displaying 3 items with 1.5 to the left of the center),
+                            // then one index will be less than the fraction of items left of center, but not less than the floor of the fraction
+                            // (index 1 in the case of 3 items).
+                            scrollDistance += ((d.width + d.horizontalPadding) / 2);
+                        }
+                    });
             }
             else
             {
@@ -709,7 +737,7 @@ function scroll_carousel()
             transition_item_positions_infinite(items, scrollDistance);
 
             // Update the record of the items that are in view.
-            carouselData.itemsInView = items.filter(function(d) { return newKeysInView.indexOf(d.key) !== -1; });
+            carouselData.itemsInView = newItemsInView;
         }
         else
         {
@@ -731,8 +759,6 @@ function scroll_carousel()
                 scroll_noncentered_noninfinite(carouselData, items, leftmostInView, newKeysInView);
             }
         }
-
-        console.log(leftmostKey, leftmostPosition, itemsToLeft);
     }
     else
     {
@@ -776,10 +802,33 @@ function scroll_carousel()
             }
 
             var newKeysInView = itemsToRight.slice(-carouselData.itemsToShow);  // The keys of the items to bring into view.
+            var newItemsInView = d3.selectAll(newKeysInView.map(function(k) { return keyToNodeMap[k]; }));    // The new items in view.
 
             // Handle the widths of the current and new items in view.
             if (carouselData.isCentered)
             {
+                // The carousel has infinite scrolling and the items are centered.
+
+                // Calculate the portion of the items in view that are right of center.
+                var currentRightOfCenter = (rightmostInView.datum().restingX + rightmostInView.datum().width + (rightmostInView.datum().horizontalPadding / 2)) - (carouselData.width / 2);
+                scrollDistance += currentRightOfCenter;
+
+                // Calculate the portion of the new items that will be in the view that will be left of center.
+                var numberOfItemsLeftOfCenter = newKeysInView.length / 2;  // Fraction of the items to the left of the mid point.
+                newItemsInView.each(function(d, i)
+                    {
+                        if (i < Math.floor(numberOfItemsLeftOfCenter))
+                        {
+                            scrollDistance += (d.width + d.horizontalPadding);
+                        }
+                        else if (i < numberOfItemsLeftOfCenter)
+                        {
+                            // If the number of items to the left of center is not an integer (e.g. displaying 3 items with 1.5 to the left of the center),
+                            // then one index will be less than the fraction of items left of center, but not less than the floor of the fraction
+                            // (index 1 in the case of 3 items).
+                            scrollDistance += ((d.width + d.horizontalPadding) / 2);
+                        }
+                    });
             }
             else
             {
@@ -793,7 +842,7 @@ function scroll_carousel()
             transition_item_positions_infinite(items, -scrollDistance);
 
             // Update the record of the items that are in view.
-            carouselData.itemsInView = items.filter(function(d) { return newKeysInView.indexOf(d.key) !== -1; });
+            carouselData.itemsInView = newItemsInView;
         }
         else
         {
@@ -815,8 +864,6 @@ function scroll_carousel()
                 scroll_noncentered_noninfinite(carouselData, items, leftmostInView, newKeysInView);
             }
         }
-
-        console.log(rightmostKey, rightmostPosition, itemsToRight);
     }
 }
 
@@ -898,8 +945,6 @@ function check_swap_left(items, carouselData)
     // Reposition and item to the left if needed.
     if (swapToLeft)
     {
-        console.log(leftmostItemData.key, rightmostItemData.key);
-
         // If the rightmost item needs to be swapped to the left-hand side of the carousel, and this is the rightmost item.
         // The rightmost item becomes the leftmost, and the item second from right becomes the rightmost.
 
@@ -914,8 +959,6 @@ function check_swap_left(items, carouselData)
 
         // Swap the new leftmost item to the left.
         carouselData.leftmostItem.attr("transform", function(itemD) { return "translate(" + itemD.transX + "," + itemD.transY + ")"; });
-
-        console.log(carouselData.leftmostItem.datum().key, carouselData.rightmostItem.datum().key);
     }
 }
 
@@ -949,8 +992,6 @@ function check_swap_right(items, carouselData)
 
         // Swap the new rightmost item to the right.
         carouselData.rightmostItem.attr("transform", function(itemD) { return "translate(" + itemD.transX + "," + itemD.transY + ")"; });
-
-        console.log(leftmostItemData.key, rightmostItemData.key, carouselData.leftmostItem.datum().key, carouselData.rightmostItem.datum().key, carouselData.rightmostItem.datum().transX, carouselData.rightmostItem.datum().restingX);
     }
 }
 
