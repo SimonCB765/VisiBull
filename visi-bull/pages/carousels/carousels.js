@@ -9,10 +9,10 @@ $(document).ready(function()
     carousel.append("rect").classed("carouselContainer", true);
     var items = create_squares(carousel, "demo2Root-");
     var params = {"carouselXLoc": 30, "carouselYLoc": 30, "itemsToShow": 2
-    , "itemsToScrollBy": 3
+    , "itemsToScrollBy": 4
     , "carouselWidth": 600
-    , "isCentered": true
-    , "isInfinite": false
+    , "isCentered": false
+    , "isInfinite": true
     };
     carousel = create_carousel(items, carousel, params);
 });
@@ -422,49 +422,8 @@ function drag_infinite_update(d)
                 return "translate(" + itemD.transX + "," + itemD.transY + ")";
             });
 
-    // Update the left and rightmost item positions in the carousel.
-    var leftmostItemData = d.leftmostItem.datum();
-    var rightmostItemData = d.rightmostItem.datum();
-
-    // Determine whether any items need to switch to the opposite side of the carousel.
-    var swapToLeft = leftmostItemData.transX >= -leftmostItemData.horizontalPadding;  // Whether the rightmost item needs to switch to out of view on the left side of the carousel.
-    var swapToRight = (rightmostItemData.transX + rightmostItemData.width) <= d.width + rightmostItemData.horizontalPadding;  // Whether the leftmost item switch to swap to out of view on the right side of the carousel.
-
-    // Reposition items on the ends if needed.
-    if (swapToRight)
-    {
-        // If the leftmost item needs to be swapped to the right-hand side of the carousel, and this is the leftmost item.
-        // The leftmost item becomes the rightmost, and the item second from left becomes the leftmost.
-
-        // Determine the position for the new rightmost (old leftmost) item.
-        leftmostItemData.restingX = rightmostItemData.restingX + rightmostItemData.width + (rightmostItemData.horizontalPadding / 2) + (leftmostItemData.horizontalPadding / 2);
-        leftmostItemData.transX = rightmostItemData.transX + rightmostItemData.width + (rightmostItemData.horizontalPadding / 2) + (leftmostItemData.horizontalPadding / 2);
-
-        // Update the pointers and the item order.
-        d.rightmostItem = d.leftmostItem;
-        d.leftmostItem = items.filter(function(itemD) { return itemD.key === d.itemOrder[1]; })
-        d.itemOrder = d.itemOrder.slice(1).concat(leftmostItemData.key);
-
-        // Swap the new rightmost item to the right.
-        d.rightmostItem.attr("transform", function(itemD) { return "translate(" + itemD.transX + "," + itemD.transY + ")"; });
-    }
-    else if (swapToLeft)
-    {
-        // If the rightmost item needs to be swapped to the left-hand side of the carousel, and this is the rightmost item.
-        // The rightmost item becomes the leftmost, and the item second from right becomes the rightmost.
-
-        // Determine the position for the new leftmost (old rightmost) item.
-        rightmostItemData.restingX = leftmostItemData.restingX - (leftmostItemData.horizontalPadding / 2) - (rightmostItemData.horizontalPadding / 2) - rightmostItemData.width;
-        rightmostItemData.transX = leftmostItemData.transX - ((leftmostItemData.horizontalPadding / 2) + (rightmostItemData.horizontalPadding / 2) + rightmostItemData.width);
-
-        // Update the pointers and the item order.
-        d.leftmostItem = d.rightmostItem;
-        d.rightmostItem = items.filter(function(itemD) { return itemD.key === d.itemOrder[d.itemsInCarousel - 2]; })
-        d.itemOrder = [rightmostItemData.key].concat(d.itemOrder.slice(0, -1));
-
-        // Swap the new leftmost item to the left.
-        d.leftmostItem.attr("transform", function(itemD) { return "translate(" + itemD.transX + "," + itemD.transY + ")"; });
-    }
+    // Swap items to the other side of the carousel if needed.
+    infinite_item_swap(items, d);
 
     // Update the positions of the items clip paths.
     items.selectAll(".carouselClipRect")
@@ -581,6 +540,43 @@ function transition_item_positions(items)
                 });
 }
 
+function transition_item_positions_infinite(items, amountToShift)
+{
+    // Transition the items in the carousel to their resting places.
+    // items is a selection consisting of the carousel items to transition.
+    // amountToShift is the distance by which the items should be shifted (negative for left shifting).
+
+    items
+        .transition()
+        .duration(300)
+        .ease("cubic-out")
+        .tween("transform", function(d, i)
+                {
+                    // Initialise state for the tween.
+                    var interpolator = d3.interpolate(0, amountToShift);
+                    var interpolatedValue;
+                    var originalRestingValue = d.restingX;  // The resting position of the item at the start of the transition.
+                    var originalTransX = d.transX;  // The current position of the item at the start of the transition.
+
+                    return function(t)
+                        {
+                            // Determine position of the item at this point in the transition.
+                            interpolatedValue = interpolator(t);
+                            d.restingX = originalRestingValue + interpolator(t);
+                            d.transX = originalTransX + interpolator(t);
+
+                            // Move the items.
+                            d3.select(this)
+                                .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; })  // Update the item's position.
+                                .select(".carouselClipRect")
+                                    .attr("x", function(d) { return -d.transX; });  // Update the clip path.
+
+                            // Swap items between right and left if needed.
+                            infinite_item_swap(items, d3.select(this.parentNode).datum());
+                        }
+                });
+}
+
 function update_resting_positions(items, amountToShift)
 {
     // Update the resting positions of the items.
@@ -672,6 +668,46 @@ function scroll_carousel()
                 itemsToLeft = itemsFromRight.concat(itemsToLeft);
                 itemsFromRightNeeded = carouselData.itemsToScrollBy - itemsToLeft.length;
             }
+
+            // Determine the width and horizontal padding of all items.
+            var itemData = items.data();
+            var keyToWidthMap = {};  // A mapping of the item keys to their widths and horixontal paddings.
+            var thisItemData;
+            for (var i = 0; i < itemData.length; i++)
+            {
+                thisItemData = itemData[i];
+                keyToWidthMap[thisItemData.key] = {"width": thisItemData.width, "horizontalPadding": thisItemData.horizontalPadding};
+            }
+
+            /*******************************
+            * Calculate Distance to Scroll *
+            *******************************/
+            // First determine total width of all items to scroll past.
+            var scrollDistance = 0;
+            for (var i = carouselData.itemsToShow - 1; i < itemsToLeft.length; i++)
+            {
+                var itemKey = itemsToLeft[i];
+                scrollDistance += (keyToWidthMap[itemKey].width + keyToWidthMap[itemKey].horizontalPadding);
+            }
+
+            var newKeysInView = itemsToLeft.slice(0, carouselData.itemsToShow);  // The keys of the items to bring into view.
+
+            // Handle the widths of the current and new items in view.
+            if (carouselData.isCentered)
+            {
+            }
+            else
+            {
+                // The carousel has infinite scrolling, but the items are not centered.
+                scrollDistance += leftmostInView.datum().horizontalPadding / 2;  // Add half the horizontal padding of the current leftmost item in view.
+                scrollDistance += (keyToWidthMap[newKeysInView[0]].width + (keyToWidthMap[newKeysInView[0]].horizontalPadding / 2));  // Add the width and half the horizontal padding of the new leftmost item in view.
+            }
+
+            // Now scroll through the items.
+            transition_item_positions_infinite(items, scrollDistance);
+
+            // Update the record of the items that are in view.
+            carouselData.itemsInView = items.filter(function(d) { return newKeysInView.indexOf(d.key) !== -1; });
         }
         else
         {
@@ -715,6 +751,47 @@ function scroll_carousel()
                 itemsToRight = itemsToRight.concat(itemsFromLeft);
                 itemsFromLeftNeeded = carouselData.itemsToScrollBy - itemsToRight.length;
             }
+
+            // Determine the width and horizontal padding of all items.
+            var itemData = items.data();
+            var keyToWidthMap = {};  // A mapping of the item keys to their widths and horixontal paddings.
+            var thisItemData;
+            for (var i = 0; i < itemData.length; i++)
+            {
+                thisItemData = itemData[i];
+                keyToWidthMap[thisItemData.key] = {"width": thisItemData.width, "horizontalPadding": thisItemData.horizontalPadding};
+            }
+
+            /*******************************
+            * Calculate Distance to Scroll *
+            *******************************/
+            // First determine total width of all items to scroll past.
+            var scrollDistance = 0;
+            for (var i = 0; i < itemsToRight.length - carouselData.itemsToShow; i++)
+            {
+                var itemKey = itemsToRight[i];
+                scrollDistance += (keyToWidthMap[itemKey].width + keyToWidthMap[itemKey].horizontalPadding);
+            }
+
+            var newKeysInView = itemsToRight.slice(-carouselData.itemsToShow);  // The keys of the items to bring into view.
+
+            // Handle the widths of the current and new items in view.
+            if (carouselData.isCentered)
+            {
+            }
+            else
+            {
+                // The carousel has infinite scrolling, but the items are not centered.
+                scrollDistance -= leftmostInView.datum().horizontalPadding / 2;  // Subtract half the horizontal padding of the current leftmost item in view.
+                carouselData.itemsInView.each(function(d) { scrollDistance += (d.width + d.horizontalPadding); });  // Add the total width of all items in view.
+                scrollDistance += (keyToWidthMap[newKeysInView[0]].horizontalPadding / 2);  // Add half the horizontal padding of the new leftmost item in view.
+            }
+
+            // Now scroll through the items.
+            transition_item_positions_infinite(items, -scrollDistance);
+
+            // Update the record of the items that are in view.
+            carouselData.itemsInView = items.filter(function(d) { return newKeysInView.indexOf(d.key) !== -1; });
         }
         else
         {
@@ -798,6 +875,60 @@ function scroll_noncentered_noninfinite(carouselData, items, leftmostInView, new
 
     // Update the record of the items that are in view.
     carouselData.itemsInView = items.filter(function(d) { return newKeysInView.indexOf(d.key) !== -1; });
+}
+
+/***************************
+* Items Swapping Functions *
+***************************/
+function infinite_item_swap(items, carouselData)
+{
+    // Swaps items from one side of the carousel (out of view) to the other (still out of view).
+    // items is a selection consisting of the carousel items.
+    // carouselData is the data object for the carousel.
+
+    // Update the left and rightmost item positions in the carousel.
+    var leftmostItemData = carouselData.leftmostItem.datum();
+    var rightmostItemData = carouselData.rightmostItem.datum();
+
+    // Determine whether any items need to switch to the opposite side of the carousel.
+    var swapToLeft = leftmostItemData.transX >= -leftmostItemData.horizontalPadding;  // Whether the rightmost item needs to switch to out of view on the left side of the carousel.
+    var swapToRight = (rightmostItemData.transX + rightmostItemData.width) <= carouselData.width + rightmostItemData.horizontalPadding;  // Whether the leftmost item switch to swap to out of view on the right side of the carousel.
+
+    // Reposition items on the ends if needed.
+    if (swapToRight)
+    {
+        // If the leftmost item needs to be swapped to the right-hand side of the carousel, and this is the leftmost item.
+        // The leftmost item becomes the rightmost, and the item second from left becomes the leftmost.
+
+        // Determine the position for the new rightmost (old leftmost) item.
+        leftmostItemData.restingX = rightmostItemData.restingX + rightmostItemData.width + (rightmostItemData.horizontalPadding / 2) + (leftmostItemData.horizontalPadding / 2);
+        leftmostItemData.transX = rightmostItemData.transX + rightmostItemData.width + (rightmostItemData.horizontalPadding / 2) + (leftmostItemData.horizontalPadding / 2);
+
+        // Update the pointers and the item order.
+        carouselData.rightmostItem = carouselData.leftmostItem;
+        carouselData.leftmostItem = items.filter(function(itemD) { return itemD.key === carouselData.itemOrder[1]; })
+        carouselData.itemOrder = carouselData.itemOrder.slice(1).concat(leftmostItemData.key);
+
+        // Swap the new rightmost item to the right.
+        carouselData.rightmostItem.attr("transform", function(itemD) { return "translate(" + itemD.transX + "," + itemD.transY + ")"; });
+    }
+    else if (swapToLeft)
+    {
+        // If the rightmost item needs to be swapped to the left-hand side of the carousel, and this is the rightmost item.
+        // The rightmost item becomes the leftmost, and the item second from right becomes the rightmost.
+
+        // Determine the position for the new leftmost (old rightmost) item.
+        rightmostItemData.restingX = leftmostItemData.restingX - (leftmostItemData.horizontalPadding / 2) - (rightmostItemData.horizontalPadding / 2) - rightmostItemData.width;
+        rightmostItemData.transX = leftmostItemData.transX - ((leftmostItemData.horizontalPadding / 2) + (rightmostItemData.horizontalPadding / 2) + rightmostItemData.width);
+
+        // Update the pointers and the item order.
+        carouselData.leftmostItem = carouselData.rightmostItem;
+        carouselData.rightmostItem = items.filter(function(itemD) { return itemD.key === carouselData.itemOrder[carouselData.itemsInCarousel - 2]; })
+        carouselData.itemOrder = [rightmostItemData.key].concat(carouselData.itemOrder.slice(0, -1));
+
+        // Swap the new leftmost item to the left.
+        carouselData.leftmostItem.attr("transform", function(itemD) { return "translate(" + itemD.transX + "," + itemD.transY + ")"; });
+    }
 }
 
 /*******************
