@@ -11,7 +11,7 @@ $(document).ready(function()
     var params = {"carouselXLoc": 30, "carouselYLoc": 30, "itemsToShow": 2
     , "itemsToScrollBy": 3
     , "carouselWidth": 600
-    , "isCentered": false
+    , "isCentered": true
     , "isInfinite": false
     };
     carousel = create_carousel(items, carousel, params);
@@ -682,22 +682,52 @@ function scroll_carousel()
             }
             else if (carouselData.isCentered)
             {
+                // Carousel is centered and not infinite.
+                var newKeysInView = itemsToLeft.slice(0, carouselData.itemsToShow);  // The keys of the items to bring into view.
+                var newItemsInView = items.filter(function(d) { return newKeysInView.indexOf(d.key) !== -1; });  // The new items in view.
+
+                // Get the midpoint of the new items in view.
+                var leftOfCenter = -leftmostInView.datum().horizontalPadding / 2;  // The total width of the items (and their padding) left of center.
+                var numberOfItemsLeftOfCenter = newKeysInView.length / 2;  // Fraction of the items to the left of the mid point.
+
+                newItemsInView.each(function(d, i)
+                    {
+                        if (i < Math.floor(numberOfItemsLeftOfCenter))
+                        {
+                            leftOfCenter += (d.width + d.horizontalPadding);
+                        }
+                        else if (i < numberOfItemsLeftOfCenter)
+                        {
+                            // If the number of items to the left of center is not an integer (e.g. displaying 3 items with 1.5 to the left of the center),
+                            // then one index will be less than the fraction of items left of center, but not less than the floor of the fraction
+                            // (index 1 in the case of 3 items).
+                            leftOfCenter += ((d.width + d.horizontalPadding) / 2);
+                        }
+                    });
+                var currentCenterOfNewItems = (d3.select(newItemsInView[0][0]).datum().restingX + leftOfCenter);
+                var distanceToScroll = (carouselData.width / 2) - currentCenterOfNewItems;
+
+                // Update the positions of the items.
+                update_resting_positions(items, distanceToScroll);
+
+                // Update the record of the items that are in view.
+                carouselData.itemsInView = newItemsInView;
             }
             else
             {
                 // Carousel is neither centered nor infinite.
-                var newItemsInView = itemsToLeft.slice(0, carouselData.itemsToShow);  // The keys of the items to bring into view.
-                var leftmostNewItem = newItemsInView[0];  // The leftmost item that will be scrolled into view.
+                var newKeysInView = itemsToLeft.slice(0, carouselData.itemsToShow);  // The keys of the items to bring into view.
+                var leftmostNewItem = newKeysInView[0];  // The leftmost item that will be scrolled into view.
 
                 // Get the amount by which to shift all resting positions.
-                var leftmostNewItem = items.filter(function(d) { return d.key === leftmostNewItem; })
+                var leftmostNewItem = items.filter(function(d) { return d.key === leftmostNewItem; });
                 var distanceToScroll = leftmostInView.datum().restingX - leftmostNewItem.datum().restingX;
 
                 // Update the positions of the items.
-                update_resting_positions(items, distanceToScroll)
+                update_resting_positions(items, distanceToScroll);
 
                 // Update the record of the items that are in view.
-                carouselData.itemsInView = items.filter(function(d) { return newItemsInView.indexOf(d.key) !== -1; })
+                carouselData.itemsInView = items.filter(function(d) { return newKeysInView.indexOf(d.key) !== -1; });
             }
         }
 
@@ -732,22 +762,52 @@ function scroll_carousel()
             }
             else if (carouselData.isCentered)
             {
+                // Carousel is centered and not infinite.
+                var newKeysInView = itemsToRight.slice(-carouselData.itemsToShow);  // The keys of the items to bring into view.
+                var newItemsInView = items.filter(function(d) { return newKeysInView.indexOf(d.key) !== -1; });  // The new items in view.
+
+                // Get the midpoint of the new items in view.
+                var leftOfCenter = -leftmostInView.datum().horizontalPadding / 2;  // The total width of the items (and their padding) left of center.
+                var numberOfItemsLeftOfCenter = newKeysInView.length / 2;  // Fraction of the items to the left of the mid point.
+
+                newItemsInView.each(function(d, i)
+                    {
+                        if (i < Math.floor(numberOfItemsLeftOfCenter))
+                        {
+                            leftOfCenter += (d.width + d.horizontalPadding);
+                        }
+                        else if (i < numberOfItemsLeftOfCenter)
+                        {
+                            // If the number of items to the left of center is not an integer (e.g. displaying 3 items with 1.5 to the left of the center),
+                            // then one index will be less than the fraction of items left of center, but not less than the floor of the fraction
+                            // (index 1 in the case of 3 items).
+                            leftOfCenter += ((d.width + d.horizontalPadding) / 2);
+                        }
+                    });
+                var currentCenterOfNewItems = (d3.select(newItemsInView[0][0]).datum().restingX + leftOfCenter);
+                var distanceToScroll = (carouselData.width / 2) - currentCenterOfNewItems;
+
+                // Update the positions of the items.
+                update_resting_positions(items, distanceToScroll);
+
+                // Update the record of the items that are in view.
+                carouselData.itemsInView = newItemsInView;
             }
             else
             {
                 // Carousel is neither centered nor infinite.
-                var newItemsInView = itemsToRight.slice(-carouselData.itemsToShow);  // The keys of the items to bring into view.
-                var leftmostNewItem = newItemsInView[0];  // The leftmost item that will be scrolled into view.
+                var newKeysInView = itemsToRight.slice(-carouselData.itemsToShow);  // The keys of the items to bring into view.
+                var leftmostNewItem = newKeysInView[0];  // The leftmost item that will be scrolled into view.
 
                 // Get the amount by which to shift all resting positions.
-                var leftmostNewItem = items.filter(function(d) { return d.key === leftmostNewItem; })
+                var leftmostNewItem = items.filter(function(d) { return d.key === leftmostNewItem; });
                 var distanceToScroll = leftmostInView.datum().restingX - leftmostNewItem.datum().restingX;
 
                 // Update the positions of the items.
-                update_resting_positions(items, distanceToScroll)
+                update_resting_positions(items, distanceToScroll);
 
                 // Update the record of the items that are in view.
-                carouselData.itemsInView = items.filter(function(d) { return newItemsInView.indexOf(d.key) !== -1; })
+                carouselData.itemsInView = items.filter(function(d) { return newKeysInView.indexOf(d.key) !== -1; });
             }
         }
 
