@@ -11,7 +11,7 @@ $(document).ready(function()
     var params = {"carouselXLoc": 30, "carouselYLoc": 30, "itemsToShow": 2
     , "itemsToScrollBy": 3
     , "carouselWidth": 600
-    , "isCentered": false
+    , "isCentered": true
     , "isInfinite": false
     };
     carousel = create_carousel(items, carousel, params);
@@ -684,34 +684,7 @@ function scroll_carousel()
             {
                 // Carousel is centered and not infinite.
                 var newKeysInView = itemsToLeft.slice(0, carouselData.itemsToShow);  // The keys of the items to bring into view.
-                var newItemsInView = items.filter(function(d) { return newKeysInView.indexOf(d.key) !== -1; });  // The new items in view.
-
-                // Get the midpoint of the new items in view.
-                var leftOfCenter = -leftmostInView.datum().horizontalPadding / 2;  // The total width of the items (and their padding) left of center.
-                var numberOfItemsLeftOfCenter = newKeysInView.length / 2;  // Fraction of the items to the left of the mid point.
-
-                newItemsInView.each(function(d, i)
-                    {
-                        if (i < Math.floor(numberOfItemsLeftOfCenter))
-                        {
-                            leftOfCenter += (d.width + d.horizontalPadding);
-                        }
-                        else if (i < numberOfItemsLeftOfCenter)
-                        {
-                            // If the number of items to the left of center is not an integer (e.g. displaying 3 items with 1.5 to the left of the center),
-                            // then one index will be less than the fraction of items left of center, but not less than the floor of the fraction
-                            // (index 1 in the case of 3 items).
-                            leftOfCenter += ((d.width + d.horizontalPadding) / 2);
-                        }
-                    });
-                var currentCenterOfNewItems = (d3.select(newItemsInView[0][0]).datum().restingX + leftOfCenter);
-                var distanceToScroll = (carouselData.width / 2) - currentCenterOfNewItems;
-
-                // Update the positions of the items.
-                update_resting_positions(items, distanceToScroll);
-
-                // Update the record of the items that are in view.
-                carouselData.itemsInView = newItemsInView;
+                scroll_centered_noninfinite(carouselData, items, leftmostInView, newKeysInView);
             }
             else
             {
@@ -754,34 +727,7 @@ function scroll_carousel()
             {
                 // Carousel is centered and not infinite.
                 var newKeysInView = itemsToRight.slice(-carouselData.itemsToShow);  // The keys of the items to bring into view.
-                var newItemsInView = items.filter(function(d) { return newKeysInView.indexOf(d.key) !== -1; });  // The new items in view.
-
-                // Get the midpoint of the new items in view.
-                var leftOfCenter = -leftmostInView.datum().horizontalPadding / 2;  // The total width of the items (and their padding) left of center.
-                var numberOfItemsLeftOfCenter = newKeysInView.length / 2;  // Fraction of the items to the left of the mid point.
-
-                newItemsInView.each(function(d, i)
-                    {
-                        if (i < Math.floor(numberOfItemsLeftOfCenter))
-                        {
-                            leftOfCenter += (d.width + d.horizontalPadding);
-                        }
-                        else if (i < numberOfItemsLeftOfCenter)
-                        {
-                            // If the number of items to the left of center is not an integer (e.g. displaying 3 items with 1.5 to the left of the center),
-                            // then one index will be less than the fraction of items left of center, but not less than the floor of the fraction
-                            // (index 1 in the case of 3 items).
-                            leftOfCenter += ((d.width + d.horizontalPadding) / 2);
-                        }
-                    });
-                var currentCenterOfNewItems = (d3.select(newItemsInView[0][0]).datum().restingX + leftOfCenter);
-                var distanceToScroll = (carouselData.width / 2) - currentCenterOfNewItems;
-
-                // Update the positions of the items.
-                update_resting_positions(items, distanceToScroll);
-
-                // Update the record of the items that are in view.
-                carouselData.itemsInView = newItemsInView;
+                scroll_centered_noninfinite(carouselData, items, leftmostInView, newKeysInView);
             }
             else
             {
@@ -793,6 +739,44 @@ function scroll_carousel()
 
         console.log(rightmostKey, rightmostPosition, itemsToRight);
     }
+}
+
+function scroll_centered_noninfinite(carouselData, items, leftmostInView, newKeysInView)
+{
+    // Scroll a carousel that is centered but not infinite.
+    // carouselData is the data object for the carousel.
+    // items is a selection consisting of the carousel items.
+    // leftmostInView is the current leftmost item in view.
+    // newKeysInView is the keys of the items that are to be scrolled into view.
+
+    var newItemsInView = items.filter(function(d) { return newKeysInView.indexOf(d.key) !== -1; });  // The new items in view.
+
+    // Get the midpoint of the new items in view.
+    var leftOfCenter = -leftmostInView.datum().horizontalPadding / 2;  // The total width of the items (and their padding) left of center.
+    var numberOfItemsLeftOfCenter = newKeysInView.length / 2;  // Fraction of the items to the left of the mid point.
+
+    newItemsInView.each(function(d, i)
+        {
+            if (i < Math.floor(numberOfItemsLeftOfCenter))
+            {
+                leftOfCenter += (d.width + d.horizontalPadding);
+            }
+            else if (i < numberOfItemsLeftOfCenter)
+            {
+                // If the number of items to the left of center is not an integer (e.g. displaying 3 items with 1.5 to the left of the center),
+                // then one index will be less than the fraction of items left of center, but not less than the floor of the fraction
+                // (index 1 in the case of 3 items).
+                leftOfCenter += ((d.width + d.horizontalPadding) / 2);
+            }
+        });
+    var currentCenterOfNewItems = (d3.select(newItemsInView[0][0]).datum().restingX + leftOfCenter);
+    var distanceToScroll = (carouselData.width / 2) - currentCenterOfNewItems;
+
+    // Update the positions of the items.
+    update_resting_positions(items, distanceToScroll);
+
+    // Update the record of the items that are in view.
+    carouselData.itemsInView = newItemsInView;
 }
 
 function scroll_noncentered_noninfinite(carouselData, items, leftmostInView, newKeysInView)
