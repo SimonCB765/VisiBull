@@ -548,22 +548,24 @@ function transition_item_positions_infinite(items, amountToShift)
 
     items
         .transition()
-        .duration(300)
+        .duration(3000)
         .ease("cubic-out")
         .tween("transform", function(d, i)
                 {
                     // Initialise state for the tween.
                     var interpolator = d3.interpolate(0, amountToShift);
-                    var interpolatedValue;
-                    var originalRestingValue = d.restingX;  // The resting position of the item at the start of the transition.
-                    var originalTransX = d.transX;  // The current position of the item at the start of the transition.
+                    var currentInterpolatedValue;  // The interpolated value for the current time point.
+                    var lastInterpolatedValue = 0;  // The interpolated value for the last time point.
+                    var swapFunction = (amountToShift < 0) ? check_swap_right : check_swap_left;  // Only need to check swapping in one direction.
+                                                                                                  // Left if shifting items to the right, and right otherwise.
 
                     return function(t)
                         {
                             // Determine position of the item at this point in the transition.
-                            interpolatedValue = interpolator(t);
-                            d.restingX = originalRestingValue + interpolator(t);
-                            d.transX = originalTransX + interpolator(t);
+                            currentInterpolatedValue = interpolator(t);
+                            d.restingX += (currentInterpolatedValue - lastInterpolatedValue);
+                            d.transX += (currentInterpolatedValue - lastInterpolatedValue);
+                            lastInterpolatedValue = currentInterpolatedValue;
 
                             // Move the items.
                             d3.select(this)
@@ -572,7 +574,7 @@ function transition_item_positions_infinite(items, amountToShift)
                                     .attr("x", function(d) { return -d.transX; });  // Update the clip path.
 
                             // Swap items between right and left if needed.
-                            infinite_item_swap(items, d3.select(this.parentNode).datum());
+                            swapFunction(items, d3.select(this.parentNode).datum());
                         }
                 });
 }
@@ -880,21 +882,57 @@ function scroll_noncentered_noninfinite(carouselData, items, leftmostInView, new
 /***************************
 * Items Swapping Functions *
 ***************************/
-function infinite_item_swap(items, carouselData)
+function check_swap_left(items, carouselData)
 {
-    // Swaps items from one side of the carousel (out of view) to the other (still out of view).
+    // Checks whether an item needs to be swapped to the left side of the carousel.
     // items is a selection consisting of the carousel items.
     // carouselData is the data object for the carousel.
 
-    // Update the left and rightmost item positions in the carousel.
+    // Get the data of the leftmost and rightmost items in the carousel.
     var leftmostItemData = carouselData.leftmostItem.datum();
     var rightmostItemData = carouselData.rightmostItem.datum();
 
-    // Determine whether any items need to switch to the opposite side of the carousel.
+    // Determine whether an item needs to switch to the left side of the carousel.
     var swapToLeft = leftmostItemData.transX >= -leftmostItemData.horizontalPadding;  // Whether the rightmost item needs to switch to out of view on the left side of the carousel.
+
+    // Reposition and item to the left if needed.
+    if (swapToLeft)
+    {
+        console.log(leftmostItemData.key, rightmostItemData.key);
+
+        // If the rightmost item needs to be swapped to the left-hand side of the carousel, and this is the rightmost item.
+        // The rightmost item becomes the leftmost, and the item second from right becomes the rightmost.
+
+        // Determine the position for the new leftmost (old rightmost) item.
+        rightmostItemData.restingX = leftmostItemData.restingX - (leftmostItemData.horizontalPadding / 2) - (rightmostItemData.horizontalPadding / 2) - rightmostItemData.width;
+        rightmostItemData.transX = leftmostItemData.transX - ((leftmostItemData.horizontalPadding / 2) + (rightmostItemData.horizontalPadding / 2) + rightmostItemData.width);
+
+        // Update the pointers and the item order.
+        carouselData.leftmostItem = carouselData.rightmostItem;
+        carouselData.rightmostItem = items.filter(function(itemD) { return itemD.key === carouselData.itemOrder[carouselData.itemsInCarousel - 2]; })
+        carouselData.itemOrder = [rightmostItemData.key].concat(carouselData.itemOrder.slice(0, -1));
+
+        // Swap the new leftmost item to the left.
+        carouselData.leftmostItem.attr("transform", function(itemD) { return "translate(" + itemD.transX + "," + itemD.transY + ")"; });
+
+        console.log(carouselData.leftmostItem.datum().key, carouselData.rightmostItem.datum().key);
+    }
+}
+
+function check_swap_right(items, carouselData)
+{
+    // Checks whether an item needs to be swapped to the right side of the carousel.
+    // items is a selection consisting of the carousel items.
+    // carouselData is the data object for the carousel.
+
+    // Get the data of the leftmost and rightmost items in the carousel.
+    var leftmostItemData = carouselData.leftmostItem.datum();
+    var rightmostItemData = carouselData.rightmostItem.datum();
+
+    // Determine whether an item needs to switch to the right side of the carousel.
     var swapToRight = (rightmostItemData.transX + rightmostItemData.width) <= carouselData.width + rightmostItemData.horizontalPadding;  // Whether the leftmost item switch to swap to out of view on the right side of the carousel.
 
-    // Reposition items on the ends if needed.
+    // Reposition and item to the right if needed.
     if (swapToRight)
     {
         // If the leftmost item needs to be swapped to the right-hand side of the carousel, and this is the leftmost item.
@@ -911,24 +949,19 @@ function infinite_item_swap(items, carouselData)
 
         // Swap the new rightmost item to the right.
         carouselData.rightmostItem.attr("transform", function(itemD) { return "translate(" + itemD.transX + "," + itemD.transY + ")"; });
+
+        console.log(leftmostItemData.key, rightmostItemData.key, carouselData.leftmostItem.datum().key, carouselData.rightmostItem.datum().key, carouselData.rightmostItem.datum().transX, carouselData.rightmostItem.datum().restingX);
     }
-    else if (swapToLeft)
-    {
-        // If the rightmost item needs to be swapped to the left-hand side of the carousel, and this is the rightmost item.
-        // The rightmost item becomes the leftmost, and the item second from right becomes the rightmost.
+}
 
-        // Determine the position for the new leftmost (old rightmost) item.
-        rightmostItemData.restingX = leftmostItemData.restingX - (leftmostItemData.horizontalPadding / 2) - (rightmostItemData.horizontalPadding / 2) - rightmostItemData.width;
-        rightmostItemData.transX = leftmostItemData.transX - ((leftmostItemData.horizontalPadding / 2) + (rightmostItemData.horizontalPadding / 2) + rightmostItemData.width);
+function infinite_item_swap(items, carouselData)
+{
+    // Swaps items from one side of the carousel (out of view) to the other (still out of view).
+    // items is a selection consisting of the carousel items.
+    // carouselData is the data object for the carousel.
 
-        // Update the pointers and the item order.
-        carouselData.leftmostItem = carouselData.rightmostItem;
-        carouselData.rightmostItem = items.filter(function(itemD) { return itemD.key === carouselData.itemOrder[carouselData.itemsInCarousel - 2]; })
-        carouselData.itemOrder = [rightmostItemData.key].concat(carouselData.itemOrder.slice(0, -1));
-
-        // Swap the new leftmost item to the left.
-        carouselData.leftmostItem.attr("transform", function(itemD) { return "translate(" + itemD.transX + "," + itemD.transY + ")"; });
-    }
+    check_swap_left(items, carouselData);
+    check_swap_right(items, carouselData);
 }
 
 /*******************
