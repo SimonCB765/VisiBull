@@ -25,7 +25,9 @@ _navig
 */
 .navButton  {opacity: 0;}  /* The default style of the navigation buttons is to be invisible. */
 .navButton.visible {opacity: .7;}  /* The navigation buttons should be slightly visible when the carousel is rolled over. */
+.navButton.visible.inactive  {opacity: .2;}  /* The navigation buttons should be barely visible when unusable. */
 .navButton.highlight {opacity: 1}  /* When hovered over the navigation buttons should be fully visible. */
+.navButton.highlight.inactive {opacity: .2}  /* When hovered over, an inactive navigation buttons should barely be visible. */
 .navButton circle {fill: white; stroke: black; stroke-width: 2;}  /* Style the circle that serves as the background for the navigation button. */
 .navButton path {fill: none; stroke: black; stroke-linecap: round; stroke-width: 4;}  /* Style the arrow in the navigation button. */
 

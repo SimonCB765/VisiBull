@@ -12,7 +12,7 @@ $(document).ready(function()
     , "itemsToScrollBy": 4
     , "carouselWidth": 600
     , "isCentered": true
-    , "isInfinite": true
+    , "isInfinite": false
     };
     carousel = create_carousel(items, carousel, params);
 });
@@ -349,7 +349,7 @@ function create_carousel(items, carousel, params)
 
     // Create the left navigation button.
     var leftNavButton = carousel.append("g")
-        .classed({"navButton": true, "left": true})
+        .classed({"navButton": true, "left": true, "inactive": true})  // The left button is inactive at the start.
         .attr("transform", "translate(" + navButtonRadius + "," + ((carouselHeight / 2) - navButtonRadius) + ")");
     leftNavButton.append("circle")
         .attr("r", navButtonRadius)
@@ -589,52 +589,24 @@ function update_resting_positions(items, amountToShift)
     transition_item_positions(items);
 }
 
-function wiggle_item_positions(items, amountToWiggle)
-{
-    // Wiggle the positions of the items (one way then back).
-    // items is a selection consisting of the carousel items.
-    // amountToWiggle is the distance by which the items should be wiggled (negative for left then right wiggles).
-
-    items
-        .transition()
-        .duration(200)
-        .ease("cubic-in")
-        .tween("transform", function(d)
-            {
-                var interpolator = d3.interpolate(d.transX, d.transX + amountToWiggle);
-                return function(t)
-                    {
-                        d.transX = interpolator(t);  // Determine position of the item at this point in the transition.
-                        d3.select(this)
-                            .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; })  // Update the item's position.
-                            .select(".carouselClipRect")
-                                .attr("x", function(d) { return -d.transX; });  // Update the clip path.
-                    }
-            })
-        .transition()
-        .ease("cubic-out")
-        .tween("transform", function(d)
-            {
-                var interpolator = d3.interpolate(d.transX, d.transX - amountToWiggle);
-                return function(t)
-                    {
-                        d.transX = interpolator(t);  // Determine position of the item at this point in the transition.
-                        d3.select(this)
-                            .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; })  // Update the item's position.
-                            .select(".carouselClipRect")
-                                .attr("x", function(d) { return -d.transX; });  // Update the clip path.
-                    }
-            });
-}
-
 /****************************
 * Scroll Carousel Functions *
 ****************************/
 function scroll_carousel()
 {
+    console.log("Scrolling");
+
     // Scroll the carousel left or right following a click on one of the navigation buttons.
 
     var navButton = d3.select(this);  // The navigation button clicked on.
+
+    // Determine whether the navigation button is active.
+    if (navButton.classed("inactive"))
+    {
+        return;  // The navigation button is not active, so don't do any scrolling.
+    }
+
+    console.log("Really Scrolling");
 
     // Determine whether the carousel is being scrolled left or right.
     var isScrollLeft = navButton.classed("left");
@@ -743,8 +715,7 @@ function scroll_carousel()
         {
             if (itemsToLeft.length === 0)
             {
-                // Do a little transition wiggle if there are no items to bring into view.
-                wiggle_item_positions(items, 15);
+                // Do nothing as there are no items to bring into view.
             }
             else if (carouselData.isCentered)
             {
@@ -848,8 +819,7 @@ function scroll_carousel()
         {
             if (itemsToRight.length === 0)
             {
-                // Do a little transition wiggle if there are no items to bring into view.
-                wiggle_item_positions(items, -15);
+                // Do nothing as there are no items to bring into view.
             }
             else if (carouselData.isCentered)
             {
