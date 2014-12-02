@@ -8,11 +8,11 @@ $(document).ready(function()
     var carousel = svg.append("g");
     carousel.append("rect").classed("carouselContainer", true);
     var items = create_squares(carousel, "demo2Root-");
-    var params = {"carouselXLoc": 30, "carouselYLoc": 30, "itemsToShow": 2
-    , "itemsToScrollBy": 4
+    var params = {"carouselXLoc": 30, "carouselYLoc": 30, "itemsToShow": 3
+    , "itemsToScrollBy": 1
     , "carouselWidth": 600
     , "isCentered": true
-    , "isInfinite": false
+    , "isInfinite": true
     };
     carousel = create_carousel(items, carousel, params);
 });
@@ -169,8 +169,8 @@ function create_carousel(items, carousel, params)
     // param is a configuration object with the following accepted values:
     //      carouselXLoc - The starting X coordinate for the carousel container.
     //      carouselYLoc - The starting X coordinate for the carousel container.
-    //      itemsToScrollBy - The number of items to scroll by in the carousel.
-    //      itemsToShow - The number of items to show in the carousel.
+    //      itemsToScrollBy - The number of items to scroll by in the carousel. Can't be less than 1.
+    //      itemsToShow - The number of items to show in the carousel. Can't be less than 1.
     //      carouselHeight - The height of the carousel.
     //      carouselWidth - The width of the carousel.
     //      isInfinite - Whether the scrolling should be an infinite loop.
@@ -179,7 +179,7 @@ function create_carousel(items, carousel, params)
     // Definitions needed.
     var carouselXLoc = 0;  // The starting X coordinate for the carousel container.
     var carouselYLoc = 0;  // The starting X coordinate for the carousel container.
-    var itemsToScrollBy = 1;  // The number of items to scroll by in the carousel. Can't be less than itemsToShow.
+    var itemsToScrollBy = 1;  // The number of items to scroll by in the carousel. Can't be less than 1.
     var itemsToShow = 1;  // The number of items to show in the carousel. Can't be less than 1.
     var carouselHeight;  // The height of the carousel.
     var carouselWidth;  // The width of the carousel.
@@ -192,7 +192,7 @@ function create_carousel(items, carousel, params)
     if (typeof params.carouselXLoc !== "undefined") carouselXLoc = params.carouselXLoc;
     if (typeof params.carouselYLoc !== "undefined") carouselYLoc = params.carouselYLoc;
     if (typeof params.itemsToShow !== "undefined") itemsToShow = Math.max(params.itemsToShow, 1);
-    if (typeof params.itemsToScrollBy !== "undefined") itemsToScrollBy = d3.max([params.itemsToScrollBy, itemsToShow, 1]);
+    if (typeof params.itemsToScrollBy !== "undefined") itemsToScrollBy = Math.max(params.itemsToScrollBy, 1);
     if (typeof params.isInfinite !== "undefined") isInfinite = params.isInfinite;
     if (typeof params.isCentered !== "undefined") isCentered = params.isCentered;
 
@@ -222,6 +222,41 @@ function create_carousel(items, carousel, params)
         carouselWidth = maxWidthWindow;
     }
 
+    /********************************************
+    * Determine all Possible Views of the Items *
+    ********************************************/
+    var itemsInCarousel = items[0].length;  // The number of items in the carousel.
+    var keys = [];  // The keys of the items, ordered in the same order as the items were passed in.
+    items.each(function(d) { keys.push(d.key); });
+    var visibleSets = [keys.slice(0, itemsToShow)];  // The visible sets of items that can appear in the carousel's view.
+    var startKey = keys[0];  // The key of the leftmost item in the initial view.
+    var currentIndex = itemsToScrollBy;  // The index of the current leftmost item in the view being determined.
+    var currentKey = keys[currentIndex];  // The key of the current leftmost item in the view being determined.
+    var currentViewSet;  // An array containing the items in the current view being determined.
+    while (currentKey !== startKey)
+    {
+        // Loop until the currentKey is the same as the starting one, and therefore until all possible views have been determined.
+        // This may require going past the end of the key array, and starting to gather keys from the beginning.
+
+        currentViewSet = keys.slice(currentIndex, currentIndex + itemsToShow);
+        console.log(currentIndex);
+
+        // Determine if more keys are needed than there are spots in the array to the right of the currentIndex. If more are needed, then loop back
+        // to the start of the key array to get them. Keep looping back until the required number of keys are acquired.
+        var keysNeeded = itemsToShow - currentViewSet.length;
+        while (keysNeeded > 0)
+        {
+            console.log(keysNeeded, currentKey, currentIndex, currentViewSet);
+            currentViewSet = currentViewSet.concat((keys.slice(0, keysNeeded)));  // Add the new items to the array containing the keys in this visible set.
+            keysNeeded = itemsToShow - currentViewSet.length;
+        }
+        visibleSets.push(currentViewSet);  // Update the array of visible sets.
+
+        currentIndex = (currentIndex + itemsToScrollBy) % keys.length;  // Update the current index.
+        currentKey = keys[currentIndex];  // Update the current key.
+    }
+    console.log(visibleSets);
+
     /**********************
     * Create the Carousel *
     **********************/
@@ -231,7 +266,7 @@ function create_carousel(items, carousel, params)
                         "isCentered": isCentered,
                         "isInfinite": isInfinite,
                         "itemOrder": [],  // The keys of the item in the order (from left to right) that their corresponding items appear in the carousel.
-                        "itemsInCarousel": items[0].length,  // The number of items in the carousel.
+                        "itemsInCarousel": itemsInCarousel,  // The number of items in the carousel.
                         "itemsInView": [],  // The itemsToShow items that are currently in view.
                         "itemsToScrollBy": itemsToScrollBy,
                         "itemsToShow": itemsToShow,
@@ -349,7 +384,7 @@ function create_carousel(items, carousel, params)
 
     // Create the left navigation button.
     var leftNavButton = carousel.append("g")
-        .classed({"navButton": true, "left": true, "inactive": true})  // The left button is inactive at the start.
+        .classed({"navButton": true, "left": true, "inactive": (isInfinite ? false : true)})  // The left button is inactive at the start if infinite scrolling is not used.
         .attr("transform", "translate(" + navButtonRadius + "," + ((carouselHeight / 2) - navButtonRadius) + ")");
     leftNavButton.append("circle")
         .attr("r", navButtonRadius)
@@ -548,7 +583,7 @@ function transition_item_positions_infinite(items, amountToShift)
 
     items
         .transition()
-        .duration(3000)
+        .duration(300)
         .ease("cubic-out")
         .tween("transform", function(d, i)
                 {
