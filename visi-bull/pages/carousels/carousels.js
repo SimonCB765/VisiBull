@@ -12,7 +12,7 @@ $(document).ready(function()
     , "itemsToScrollBy": 1
     , "carouselWidth": 600
     , "isCentered": true
-    , "isInfinite": true
+    , "isInfinite": false
     };
     carousel = create_carousel(items, carousel, params);
 });
@@ -303,7 +303,7 @@ function create_carousel(items, carousel, params)
         if (parseInt(numberOfItemsLeftOfCenter) !== numberOfItemsLeftOfCenter)
         {
             // If the number of items to the left of center is not an integer (e.g. displaying 3 items with 1.5 to the left of the center).
-            thisOffset -= itemWidths[numberOfItemsLeftOfCenter + 1] / 2;
+            thisOffset -= itemWidths[Math.ceil(numberOfItemsLeftOfCenter) + 1] / 2;
         }
         cumulativeOffset = thisOffset;
     }
