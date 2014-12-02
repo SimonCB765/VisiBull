@@ -186,9 +186,9 @@ function create_carousel(items, carousel, params)
     var isInfinite = false;  // Whether the scrolling should be an infinite loop.
     var isCentered = false;  // Whether the displayed items should be centered.
     var isDots = false;  // Whether to display dots below the items to indicate where you are in the carousel
-    var dotContainerWidth;  // The width of the g element containing the dots.
-    var dotContainerHeight = 20;  // The height of the g element containing the dots.
-    var dotContainerPadding = 10;  // The vertical padding of the g element containing the dots (half above and half below).
+    var dotContainerHeight = 20;  // The height of the g element containing the navigation dots.
+    var dotRadius = 3;  // The radius of the navigation dots.
+    var dotGap = 20;  // The distance between the navigation dots.
 
     /*****************************
     * Parse the Input Parameters *
@@ -200,6 +200,9 @@ function create_carousel(items, carousel, params)
     if (typeof params.isInfinite !== "undefined") isInfinite = params.isInfinite;
     if (typeof params.isCentered !== "undefined") isCentered = params.isCentered;
     if (typeof params.isDots !== "undefined") isDots = params.isDots;
+    if (typeof params.dotContainerHeight !== "undefined") dotContainerHeight = params.dotContainerHeight;
+    if (typeof params.dotRadius !== "undefined") dotRadius = params.dotRadius;
+    if (typeof params.dotGap !== "undefined") dotGap = params.dotGap;
 
     // If the height and width are not specified, then they are set dynamically to fit the desired number of items in.
     // The height will be set to the value that accommodates the tallest item (its height plus its vertical padding).
@@ -230,6 +233,10 @@ function create_carousel(items, carousel, params)
     /********************************************
     * Determine all Possible Views of the Items *
     ********************************************/
+    // Depending on the number of items and the values of itemsToShow and itemsToScrollBy, there will be a certain number of sets of items
+    // that can be made visible when scrolling through the carousel. For example, with 8 items, 2 itemsToShow and 2 itemsToScrollBy, there are
+    // 4 sets of items that can be visible at any one time (indices [0,1], [2,3], [4,5] and [6,7]).
+
     var itemsInCarousel = items[0].length;  // The number of items in the carousel.
     var keys = [];  // The keys of the items, ordered in the same order as the items were passed in.
     items.each(function(d) { keys.push(d.key); });
@@ -241,19 +248,18 @@ function create_carousel(items, carousel, params)
     while (currentKey !== startKey)
     {
         // Loop until the currentKey is the same as the starting one, and therefore until all possible views have been determined.
-        // This may require going past the end of the key array, and starting to gather keys from the beginning.
+        // This may require going past the end of the key array, and starting to gather keys from the beginning possibly multiple times
+        // if the itemsToScrollBy is really large).
 
-        currentViewSet = keys.slice(currentIndex, currentIndex + itemsToShow);
-        console.log(currentIndex);
+        currentViewSet = keys.slice(currentIndex, currentIndex + itemsToShow);  // The items at the end of the key array that are in the new view.
 
         // Determine if more keys are needed than there are spots in the array to the right of the currentIndex. If more are needed, then loop back
         // to the start of the key array to get them. Keep looping back until the required number of keys are acquired.
         var keysNeeded = itemsToShow - currentViewSet.length;
         while (keysNeeded > 0)
         {
-            console.log(keysNeeded, currentKey, currentIndex, currentViewSet);
             currentViewSet = currentViewSet.concat((keys.slice(0, keysNeeded)));  // Add the new items to the array containing the keys in this visible set.
-            keysNeeded = itemsToShow - currentViewSet.length;
+            keysNeeded = itemsToShow - currentViewSet.length;  // Update the number of keys that are still needed.
         }
         visibleSets.push(currentViewSet);  // Update the array of visible sets.
 
@@ -279,12 +285,14 @@ function create_carousel(items, carousel, params)
                         "rightmostItem": null,  // The current rightmost item in the carousel.
                         "transX": carouselXLoc,
                         "transY": carouselYLoc,
+                        "visibleSets": visibleSets,  // Array of arrays of item keys. Each sub-array is one of the possible visible sets of items that can be shown.
                         "width": carouselWidth
                        }
 
     // Create the carousel container.
     carousel
         .datum(carouselData)
+        .classed("carousel", true)
         .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
     carousel.insert("rect", ":first-child")
         .classed("carouselContainer", true)
@@ -294,6 +302,40 @@ function create_carousel(items, carousel, params)
     /**************************
     * Add the Navigation Dots *
     **************************/
+    // Determine the positions of the dots.
+    var numberOfDotsLeftOfCenter = visibleSets.length / 2;  // Fraction of the dots to the left of the carousel mid point.
+    var leftDotLoc = carouselWidth / 2;  // The X location for the leftmost dot.
+    for (var i = 0; i < Math.floor(numberOfDotsLeftOfCenter); i++)
+    {
+        leftDotLoc -= (dotRadius + dotGap);
+    }
+    if (parseInt(numberOfDotsLeftOfCenter) !== numberOfDotsLeftOfCenter)
+    {
+        // If the number of items to the left of center is not an integer (e.g. displaying 3 items with 1.5 to the left of the center).
+        leftDotLoc -= ((dotRadius + dotGap) / 2);
+    }
+    var dotPositions = []
+    for (var i = 0; i < visibleSets.length; i++)
+    {
+        dotPositions.push({"x": leftDotLoc + (i * (dotRadius + dotRadius + dotGap)), "y": dotContainerHeight / 2});
+    }
+
+    // Add the dots.
+    var dotContainer = carousel.append("g")
+        .datum({"transX": 0, "transY": carouselHeight})
+        .classed("dotContainer", true)
+        .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+    dotContainer.append("rect")
+            .attr("width", carouselWidth)
+            .attr("height", dotContainerHeight);
+    dotContainer.selectAll(".dots")
+        .data(dotPositions)
+        .enter()
+        .append("circle")
+            .attr("class", function(d, i) { return "navDot" + (i === 0 ? " selected" : ""); })  // The first navigation dot is selected.
+            .attr("cx", function(d) { return d.x; })
+            .attr("cy", function(d) { return d.y; })
+            .attr("r", dotRadius);
 
     /******************
     * Setup the Items *
