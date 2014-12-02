@@ -158,7 +158,7 @@ function create_carousel(items, carousel, params)
     var dotPositions = []
     for (var i = 0; i < visibleSets.length; i++)
     {
-        dotPositions.push({"x": leftDotLoc + (i * (dotRadius + dotRadius + dotGap)), "y": dotContainerHeight / 2});
+        dotPositions.push({"key": i, "x": leftDotLoc + (i * (dotRadius + dotRadius + dotGap)), "y": dotContainerHeight / 2});
     }
 
     // Add the dots.
@@ -173,7 +173,7 @@ function create_carousel(items, carousel, params)
         .data(dotPositions)
         .enter()
         .append("circle")
-            .attr("class", function(d, i) { return "navDot" + (i === 0 ? " selected" : ""); })  // The first navigation dot is selected.
+            .attr("class", function(d) { return "navDot" + (d.key === 0 ? " selected" : ""); })  // The first navigation dot is selected.
             .attr("cx", function(d) { return d.x; })
             .attr("cy", function(d) { return d.y; })
             .attr("r", dotRadius);
