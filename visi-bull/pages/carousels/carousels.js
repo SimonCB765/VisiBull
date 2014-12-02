@@ -6,13 +6,12 @@ $(document).ready(function()
     var svg = create_svg("demo2", 800, 300);
     svg.style("border", "thin solid black");
     var carousel = svg.append("g");
-    carousel.append("rect").classed("carouselContainer", true);
     var items = create_squares(carousel, "demo2Root-");
     var params = {"carouselXLoc": 30, "carouselYLoc": 30, "itemsToShow": 3
     , "itemsToScrollBy": 1
     , "carouselWidth": 600
     , "isCentered": true
-    , "isInfinite": false
+    , "isInfinite": true
     };
     carousel = create_carousel(items, carousel, params);
 });
@@ -175,6 +174,7 @@ function create_carousel(items, carousel, params)
     //      carouselWidth - The width of the carousel.
     //      isInfinite - Whether the scrolling should be an infinite loop.
     //      isCentered - Whether the displayed items should be centered.
+    //      isDots - Whether to display dots below the items to indicate where you are in the carousel
 
     // Definitions needed.
     var carouselXLoc = 0;  // The starting X coordinate for the carousel container.
@@ -185,6 +185,10 @@ function create_carousel(items, carousel, params)
     var carouselWidth;  // The width of the carousel.
     var isInfinite = false;  // Whether the scrolling should be an infinite loop.
     var isCentered = false;  // Whether the displayed items should be centered.
+    var isDots = false;  // Whether to display dots below the items to indicate where you are in the carousel
+    var dotContainerWidth;  // The width of the g element containing the dots.
+    var dotContainerHeight = 20;  // The height of the g element containing the dots.
+    var dotContainerPadding = 10;  // The vertical padding of the g element containing the dots (half above and half below).
 
     /*****************************
     * Parse the Input Parameters *
@@ -195,6 +199,7 @@ function create_carousel(items, carousel, params)
     if (typeof params.itemsToScrollBy !== "undefined") itemsToScrollBy = Math.max(params.itemsToScrollBy, 1);
     if (typeof params.isInfinite !== "undefined") isInfinite = params.isInfinite;
     if (typeof params.isCentered !== "undefined") isCentered = params.isCentered;
+    if (typeof params.isDots !== "undefined") isDots = params.isDots;
 
     // If the height and width are not specified, then they are set dynamically to fit the desired number of items in.
     // The height will be set to the value that accommodates the tallest item (its height plus its vertical padding).
@@ -281,9 +286,14 @@ function create_carousel(items, carousel, params)
     carousel
         .datum(carouselData)
         .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
-    carousel.select(".carouselContainer")
+    carousel.insert("rect", ":first-child")
+        .classed("carouselContainer", true)
         .attr("width", function(d) { return d.width; })
         .attr("height", function(d) { return d.height; });
+
+    /**************************
+    * Add the Navigation Dots *
+    **************************/
 
     /******************
     * Setup the Items *
@@ -368,13 +378,16 @@ function create_carousel(items, carousel, params)
     carousel.datum().itemsInView = d3.selectAll(items[0].slice(0, itemsToShow));
 
     // Clip the items to the carousel.
-    items.select(".carouselClip")
+    items.append("clipPath")
+        .classed("carouselClip", true)
+        .attr("id", function(d) { return d.rootID + "clip-" + d.key; })
         .append("rect")
             .classed("carouselClipRect", true)
             .attr("x", function(d) { return -d.transX; })
             .attr("y", function(d) { return -d.transY; })
             .attr("width", carouselWidth)
             .attr("height", carouselHeight);
+    items.attr("clip-path", function(d) { return "url(#" + (d.rootID + "clip-" + d.key) + ")"; });
 
     /***************************
     * Add the Scrolling Arrows *
@@ -529,6 +542,7 @@ function create_squares(parent, rootID)
                 "horizontalPadding": horizontalPadding,  // Horizontal padding of the item (half on the left and half on the right).
                 "key": i,  // Unique identifier for the item.
                 "restingX": 0,  // X position where the item should come to rest after being moved around.
+                "rootID": rootID,  // The root of the ID used to refer to the item clip paths.
                 "transX": 0,  // Current X position of the item.
                 "transY": 0,  // Current Y position of the item.
                 "verticalPadding": verticalPadding,  // Vertical padding of the item (half on top and half on the bottom).
@@ -538,13 +552,6 @@ function create_squares(parent, rootID)
 
     // Create the items.
     var items = create_items(parent, rootID + "pattern-", itemData);
-
-    // Initialise the items clippaths (these will then have the actual path added when the carousel is created).
-    var clipID = rootID + "clip-";
-    items.append("clipPath")
-        .classed("carouselClip", true)
-        .attr("id", function(d) { return clipID + d.key; });
-    items.attr("clip-path", function(d) { return "url(#" + (clipID + d.key) + ")"; });
 
     return items;
 }
