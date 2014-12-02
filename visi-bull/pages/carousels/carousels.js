@@ -594,8 +594,6 @@ function update_resting_positions(items, amountToShift)
 ****************************/
 function scroll_carousel()
 {
-    console.log("Scrolling");
-
     // Scroll the carousel left or right following a click on one of the navigation buttons.
 
     var navButton = d3.select(this);  // The navigation button clicked on.
@@ -605,8 +603,6 @@ function scroll_carousel()
     {
         return;  // The navigation button is not active, so don't do any scrolling.
     }
-
-    console.log("Really Scrolling");
 
     // Determine whether the carousel is being scrolled left or right.
     var isScrollLeft = navButton.classed("left");
@@ -729,6 +725,9 @@ function scroll_carousel()
                 var newKeysInView = itemsToLeft.slice(0, carouselData.itemsToShow);  // The keys of the items to bring into view.
                 scroll_noncentered_noninfinite(carouselData, items, leftmostInView, newKeysInView);
             }
+
+            // Update the scrollable status of the navigation buttons.
+            scrollable_check(carousel);
         }
     }
     else
@@ -833,6 +832,9 @@ function scroll_carousel()
                 var newKeysInView = itemsToRight.slice(-carouselData.itemsToShow);  // The keys of the items to bring into view.
                 scroll_noncentered_noninfinite(carouselData, items, leftmostInView, newKeysInView);
             }
+
+            // Update the scrollable status of the navigation buttons.
+            scrollable_check(carousel);
         }
     }
 }
@@ -894,6 +896,41 @@ function scroll_noncentered_noninfinite(carouselData, items, leftmostInView, new
 
     // Update the record of the items that are in view.
     carouselData.itemsInView = items.filter(function(d) { return newKeysInView.indexOf(d.key) !== -1; });
+}
+
+function scrollable_check(carousel)
+{
+    // Determine what the active/inactive status of the navigation buttons should be.
+    // carousel is a selection containing the carousel.
+
+    var carouselData = carousel.datum();
+    var elementsInView = carouselData.itemsInView[0].map(function(item) { return item; });
+
+    // Active or inactivate the left navigation button.
+    var leftmostElement = carouselData.leftmostItem.node();
+    if (elementsInView.indexOf(leftmostElement) !== -1)
+    {
+        // The rightmost item is in view, therefore the carousel cannot be scrolled right.
+        carousel.select(".navButton.left").classed("inactive", true);
+    }
+    else
+    {
+        // The rightmost item is not in view, therefore the carousel can be scrolled right.
+        carousel.select(".navButton.left").classed("inactive", false);
+    }
+
+    // Active or inactivate the right navigation button.
+    var rightmostElement = carouselData.rightmostItem.node();
+    if (elementsInView.indexOf(rightmostElement) !== -1)
+    {
+        // The rightmost item is in view, therefore the carousel cannot be scrolled right.
+        carousel.select(".navButton.right").classed("inactive", true);
+    }
+    else
+    {
+        // The rightmost item is not in view, therefore the carousel can be scrolled right.
+        carousel.select(".navButton.right").classed("inactive", false);
+    }
 }
 
 /***************************
