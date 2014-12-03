@@ -105,16 +105,29 @@ function carousel(items)
         var scrollPathLength;  // The length of the path along which the scrolling will occur.
         if (scrollPath === "flat")
         {
-            // Determine the length of the path to scroll along.
-            scrollPathLength = d3.sum(itemWidths.slice(0, -1)) + d3.sum(itemPaddings.slice(0, -1)) + (itemPaddings[items.length - 1] / 2) - (itemPaddings[0] / 2);
-            scrollPathLength *= 2;
-            console.log(scrollPathLength);
+            if (isInfinite)
+            {
+                // Determine the length of the path to scroll along.
+                scrollPathLength = d3.sum(itemWidths) + d3.sum(itemPaddings);
 
-            // Determine the starting point of the path to scroll along.
-            scrollPathStartX = leftViewItemStartX - (scrollPathLength / 2);
+                // Determine the starting point of the path to scroll along.
+                scrollPathStartX = (width + 10) - scrollPathLength;  // Want the path to end at width + 10.
 
-            // Determine the starting point of the leftmost item in the view in terms of its distance along the path.
-            leftViewItemStartDist = leftViewItemStartX + (scrollPathLength / 2)
+                // Determine the starting point of the leftmost item in the view in terms of its distance along the path.
+                leftViewItemStartDist = leftViewItemStartX - scrollPathStartX;
+            }
+            else
+            {
+                // Determine the length of the path to scroll along.
+                scrollPathLength = d3.sum(itemWidths.slice(0, -1)) + d3.sum(itemPaddings.slice(0, -1)) + (itemPaddings[items.length - 1] / 2) - (itemPaddings[0] / 2);
+                scrollPathLength *= 2;
+
+                // Determine the starting point of the path to scroll along.
+                scrollPathStartX = leftViewItemStartX - (scrollPathLength / 2);
+
+                // Determine the starting point of the leftmost item in the view in terms of its distance along the path.
+                leftViewItemStartDist = leftViewItemStartX + (scrollPathLength / 2);
+            }
 
             // Create the path to scroll along.
             pathToScrollAlong.attr("d", "M" + scrollPathStartX + "," + scrollPathStartY + "h" + scrollPathLength);
