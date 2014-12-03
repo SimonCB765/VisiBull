@@ -8,7 +8,9 @@ $(document).ready(function()
     var items = create_squares(svg, "demo2Root-");
 	var c = carousel(items)
 		.width(600)
-		.height(200);
+		.height(200)
+		.xLoc(50)
+		.yLoc(50);
 	svg.call(c);
 	
 	
