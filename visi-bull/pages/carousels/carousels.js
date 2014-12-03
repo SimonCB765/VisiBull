@@ -13,7 +13,8 @@ function carousel(items)
         isInfinite = false,  // Whether the scrolling should be an infinite loop.
         isCentered = false,  // Whether the displayed items should be centered.
         isDots = false,  // Whether to display dots below the items to indicate where you are in the carousel.
-        isArrows = true  // Whether to display arrows at the sides of the carousel that scroll the carousel when clicked.
+        isArrows = true,  // Whether to display arrows at the sides of the carousel that scroll the carousel when clicked.
+		dotContainerHeight = 20  // The height of the g element containing the navigation dots. Should be at least twice the dotRadius.
         ;
 
     /*****************************
@@ -57,7 +58,7 @@ function carousel(items)
         if (height === null)
         {
             // The width was not pre-specified, so set it dynamically.
-            height = maxItemHeight;
+            height = maxItemHeight + (isDots ? dotContainerHeight : 0);
         }
 
         // Create the backing rectangle to catch events. Create it before transferring the items in order to ensure it is below them.
@@ -153,6 +154,14 @@ function carousel(items)
     {
         if (!arguments.length) return isArrows;
         isArrows = _;
+        return create;
+    }
+	
+	// Navigation dot container height.
+    create.dotContainerHeight = function(_)
+    {
+        if (!arguments.length) return dotContainerHeight;
+        dotContainerHeight = _;
         return create;
     }
 

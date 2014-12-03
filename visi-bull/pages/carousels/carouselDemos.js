@@ -10,7 +10,8 @@ $(document).ready(function()
 		//.width(600)
 		//.height(200)
 		.xLoc(50)
-		.yLoc(50);
+		.yLoc(50)
+		.isDots(true);
 	svg.call(c);
 	console.log(c.width(), c.height());
 	
