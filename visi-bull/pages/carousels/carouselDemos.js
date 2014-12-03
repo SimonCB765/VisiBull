@@ -11,9 +11,11 @@ $(document).ready(function()
 		//.height(200)
 		.xLoc(50)
 		.yLoc(50)
-		.isDots(true);
+		.isDots(true)
+		//.itemsToShow(3)
+		//.itemsToScrollBy(3)
+		;
 	svg.call(c);
-	console.log(c.width(), c.height());
 	
 	
 	
