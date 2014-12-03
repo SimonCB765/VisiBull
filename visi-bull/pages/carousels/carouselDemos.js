@@ -7,11 +7,12 @@ $(document).ready(function()
     svg.style("border", "thin solid black");
     var items = create_squares(svg, "demo2Root-");
 	var c = carousel(items)
-		.width(600)
-		.height(200)
+		//.width(600)
+		//.height(200)
 		.xLoc(50)
 		.yLoc(50);
 	svg.call(c);
+	console.log(c.width(), c.height());
 	
 	
 	
@@ -188,13 +189,13 @@ function create_squares(parent, rootID)
             {
                 "color": COLORCODES[i],
                 "height": itemSize,  // Height of the item.
-                "horizontalPadding": horizontalPadding,  // Horizontal padding of the item (half on the left and half on the right).
+                "padding": horizontalPadding,  // Horizontal padding of the item (half on the left and half on the right).
                 "key": i,  // Unique identifier for the item.
                 "restingX": 0,  // X position where the item should come to rest after being moved around.
                 "rootID": rootID,  // The root of the ID used to refer to the item clip paths.
                 "transX": 0,  // Current X position of the item.
                 "transY": 0,  // Current Y position of the item.
-                "verticalPadding": verticalPadding,  // Vertical padding of the item (half on top and half on the bottom).
+//                "verticalPadding": verticalPadding,  // Vertical padding of the item (half on top and half on the bottom).
                 "width": itemSize  // Width of the item.
             });
     }
