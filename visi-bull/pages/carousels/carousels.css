@@ -3,8 +3,8 @@ Contents:
 _element    -> style declarations for all elements of a given type (html, body, table, all p tags etc.).
 _classes    -> style declarations for specific classes.
 _carousel   -> style declarations for the carousel itself.
-_dot		-> style declarations for the navigation dots.
-_navig		-> style declarations for the navigation buttons.
+_dot        -> style declarations for the navigation dots.
+_navig      -> style declarations for the navigation buttons.
 _item       -> style declarations for the carousel items.
 */
 
@@ -20,12 +20,15 @@ _classes
 _carousel
 */
 .carousel {fill: #444444; fill-opacity: 1; stroke: none;}  /* Style the carousel. A fill is needed in order to make the carousel catch events nicely. */
+.scrollPath {fill: none; stroke: orange; stroke-width: 2;}  /* Style declarations for the path along which the items are scrolled. */
 
 /*
 _dot
 */
 .navDot {fill: white; stroke: none;}  /* Style the non-selected navigation dots (i.e. the dots not corresponding to the current visible items). */
+.navDot:hover {cursor: pointer;}  /* Change the mouse to a pointer when hovering over the navigation dots. */
 .navDot.selected {fill: red;}  /* Style the selected navigation dot (i.e. the dot corresponding to the current visible items). */
+.navDot rect {opacity: 0;}  /* Make the backing rectangle invisible. */
 
 /*
 _navig
@@ -33,8 +36,8 @@ _navig
 .navButton  {opacity: 0;}  /* The default style of the navigation buttons is to be invisible. */
 .navButton.visible {opacity: .7;}  /* The navigation buttons should be slightly visible when the carousel is rolled over. */
 .navButton.visible.inactive  {opacity: .2;}  /* The navigation buttons should be barely visible when unusable. */
-.navButton.highlight {opacity: 1}  /* When hovered over the navigation buttons should be fully visible. */
-.navButton.highlight.inactive {opacity: .2}  /* When hovered over, an inactive navigation buttons should barely be visible. */
+.navButton.highlight {opacity: 1; cursor: pointer;}  /* When hovered over the navigation buttons should be fully visible. */
+.navButton.highlight.inactive {opacity: .2; cursor: default;}  /* When hovered over, an inactive navigation buttons should barely be visible. */
 .navButton circle {fill: white; stroke: black; stroke-width: 2;}  /* Style the circle that serves as the background for the navigation button. */
 .navButton path {fill: none; stroke: black; stroke-linecap: round; stroke-width: 4;}  /* Style the arrow in the navigation button. */
 

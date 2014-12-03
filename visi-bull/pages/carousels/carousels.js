@@ -14,7 +14,11 @@ function carousel(items)
         isCentered = false,  // Whether the displayed items should be centered.
         isDots = false,  // Whether to display dots below the items to indicate where you are in the carousel.
         isArrows = true,  // Whether to display arrows at the sides of the carousel that scroll the carousel when clicked.
-        dotContainerHeight = 20  // The height of the g element containing the navigation dots. Should be at least twice the dotRadius.
+        dotContainerHeight = 20,  // The height of the g element containing the navigation dots. Should be at least twice the dotRadius.
+        scrollPath = "flat"  // The path along which the items will be scrolled. "flat" corresponds to a straight line, "loop" to an ellipse.
+                             // Straight line paths can use infinite or non-infinite scrolling.
+                             // Looped paths must use infinite scrolling.
+                             // Alternatively, a custom paath can be provided.
         ;
 
     /*****************************
@@ -31,15 +35,17 @@ function carousel(items)
             .attr("transform", function(d) { return "translate(" + xLoc + "," + yLoc + ")"; });
 
         // Determine the width of each item (taking into account its padding), and the maximum height of all items.
-        var maxItemHeight = 0;  // The maximum height of all the items.
-        var itemWidths = [];  // The width + padding for all the items. The total width of the item with index i is found at index i in this array.
+        var maxItemHeight = 0;  // The maximum height (including vertical padding) of all the items.
+        var itemWidths = [];  // The width for all the items. The width of the item with index i is found at index i in this array.
+        var itemPaddings = [];  // The horizontal padding for all the items. The horizontal padding of the item with index i is found at index i in this array.
         var itemData = items.data();
         var currentItemData;
         for (var i = 0; i < itemData.length; i++)
         {
             currentItemData = itemData[i];
-            maxItemHeight = Math.max(maxItemHeight, currentItemData.height);
-            itemWidths.push(currentItemData.width + currentItemData.padding);
+            maxItemHeight = Math.max(maxItemHeight, currentItemData.height + currentItemData.verticalPadding);
+            itemWidths.push(currentItemData.width);
+            itemPaddings.push(currentItemData.horizontalPadding);
         }
 
         // Determine the necessary height and width of the carousel. If they're not specified, then they are set dynamically to fit the
@@ -51,14 +57,14 @@ function carousel(items)
             var maxWidthWindow = 0;
             for (var i = 0; i < itemWidths.length - (itemsToShow - 1); i++)
             {
-                maxWidthWindow = Math.max(maxWidthWindow, d3.sum(itemWidths.slice(i, i + itemsToShow)));
+                maxWidthWindow = Math.max(maxWidthWindow, d3.sum(itemWidths.slice(i, i + itemsToShow)) + d3.sum(itemPaddings.slice(i, i + itemsToShow)));
             }
-            width = maxWidthWindow;
+            width = (scrollPath === "flat") ? maxWidthWindow : ((items.size() / 4) * maxWidthWindow);
         }
         if (height === null)
         {
             // The width was not pre-specified, so set it dynamically.
-            height = maxItemHeight + (isDots ? dotContainerHeight : 0);
+            height = ((scrollPath === "flat") ? maxItemHeight : ((items.size() / 4) * maxItemHeight)) + (isDots ? dotContainerHeight : 0);
         }
 
         // Create the backing rectangle to catch events. Create it before transferring the items in order to ensure it is below them.
@@ -67,11 +73,91 @@ function carousel(items)
             .attr("width", width)
             .attr("height", height);
 
-        // Transfer the items into the carousel from wherever they currently are.
-        items.each(function() { carousel.node().appendChild(this); });
-
         // Determine the visible sets of items.
         var visibleItemSets = determine_visible_item_sets();
+
+        // Determine starting location of the leftmost item.
+        var leftViewItemStartX = 0;  // The X location of the leftmost item in the view.
+        if (isCentered)
+        {
+            var numberOfItemsLeftOfCenter = itemsToShow / 2;  // Fraction of the items to the left of the mid point.
+            leftViewItemStartX = width / 2;  // The offset for the current item.
+            for (var i = 0; i < Math.floor(numberOfItemsLeftOfCenter); i++)
+            {
+                leftViewItemStartX -= itemWidths[i];
+            }
+            if (parseInt(numberOfItemsLeftOfCenter) !== numberOfItemsLeftOfCenter)
+            {
+                // If the number of items to the left of center is not an integer (e.g. displaying 3 items with 1.5 to the left of the center).
+                leftViewItemStartX -= itemWidths[Math.ceil(numberOfItemsLeftOfCenter) + 1] / 2;
+            }
+        }
+        else
+        {
+            leftViewItemStartX = (itemPaddings[0] / 2)
+        }
+
+        // Setup the scroll path.
+        var pathToScrollAlong = carousel.append("path").classed("scrollPath", true);
+        var leftViewItemStartDist = 0;  // The location of the leftmost item in the view in terms of its distance along the path.
+        var scrollPathStartX;  // The X location of the start of the scroll path.
+        var scrollPathStartY = (height - (isDots ? dotContainerHeight : 0)) / 2;  // The Y location of the start of the scroll path.
+        var scrollPathLength;  // The length of the path along which the scrolling will occur.
+        if (scrollPath === "flat")
+        {
+            // Determine the length of the path to scroll along.
+            scrollPathLength = d3.sum(itemWidths.slice(0, -1)) + d3.sum(itemPaddings.slice(0, -1)) + (itemPaddings[items.length - 1] / 2) - (itemPaddings[0] / 2);
+            scrollPathLength *= 2;
+            console.log(scrollPathLength);
+
+            // Determine the starting point of the path to scroll along.
+            scrollPathStartX = leftViewItemStartX - (scrollPathLength / 2);
+
+            // Determine the starting point of the leftmost item in the view in terms of its distance along the path.
+            leftViewItemStartDist = leftViewItemStartX + (scrollPathLength / 2)
+
+            // Create the path to scroll along.
+            pathToScrollAlong.attr("d", "M" + scrollPathStartX + "," + scrollPathStartY + "h" + scrollPathLength);
+        }
+        else if (scrollPath === "loop")
+        {
+            isInfinite = true;  // Looped paths must use infinite scrolling.
+
+            // Determine the widest item and its padding.
+            var widestItem = 0;
+            var widestItemPadding = 0;
+            items.each(function(d)
+                {
+                    if (d.width + d.horizontalPadding > widestItem + widestItemPadding)
+                    {
+                        widestItem = d.width;
+                        widestItemPadding = d.horizontalPadding;
+                    }
+                });
+
+            // Create the looping path.
+            var cx = (width / 2) - (widestItem / 2);
+            var cy = ((height - (isDots ? dotContainerHeight : 0)) / 2);
+            var xRadius = (width / 2) - ((widestItem + widestItemPadding) / 2);
+            var yRadius = ((height - (isDots ? dotContainerHeight : 0)) / 2) - (maxItemHeight / 2);
+            pathToScrollAlong.attr("d",
+                "M" + (cx - xRadius) + "," + cy +
+                "a" + xRadius + "," + yRadius + ",0,1,0," + (xRadius * 2) + ",0" +
+                "a" + xRadius + "," + yRadius + ",0,1,0," + (-xRadius * 2) + ",0"
+                );
+            scrollPathLength = pathToScrollAlong.node().getTotalLength();
+            leftViewItemStartDist = scrollPathLength * 0.25;  // A quarter of the way around to get to the bottom in the middle.
+        }
+        else
+        {
+            // Using a custom path. The leftmost item in the view starts at the origin of the path.
+            pathToScrollAlong.attr("d", scrollPath);
+            scrollPathLength = pathToScrollAlong.node().getTotalLength();
+            leftViewItemStartDist = 0;
+        }
+
+        // Transfer the items into the carousel from wherever they currently are.
+        items.each(function() { carousel.node().appendChild(this); });
 
 
         function determine_visible_item_sets()
@@ -123,11 +209,14 @@ function carousel(items)
                 // have view sets of indices [0,1], [3,4], [6,7], and then a left over index 8. In order to handle this, when there is a left over that is
                 // smaller than a full view set, you just pad it with previous items. So, in the previous example, the final view set is not [8], but [7,8].
 
-                for (var i = 0; i < Math.floor(itemsInCarousel / itemsToScrollBy); i++)
+                var numberOfFullSets = Math.floor(itemsInCarousel / itemsToScrollBy);  // The number of full sets that can be made.
+                var numberOfSets = Math.ceil(itemsInCarousel / itemsToScrollBy);  // The number of sets needed (max of 1 more than numberOfFullSets).
+
+                for (var i = 0; i < numberOfFullSets; i++)
                 {
                     visibleSets.push(keys.slice(i * itemsToScrollBy, (i * itemsToScrollBy) + itemsToShow));
                 }
-                if (Math.floor(itemsInCarousel / itemsToScrollBy) !== (itemsInCarousel / itemsToScrollBy))
+                if (numberOfFullSets !== numberOfSets)
                 {
                     visibleSets.push(keys.slice(-itemsToShow));
                 }
@@ -225,6 +314,14 @@ function carousel(items)
     {
         if (!arguments.length) return dotContainerHeight;
         dotContainerHeight = _;
+        return create;
+    }
+
+    // Scroll path.
+    create.scrollPath = function(_)
+    {
+        if (!arguments.length) return scrollPath;
+        scrollPath = _;
         return create;
     }
 
