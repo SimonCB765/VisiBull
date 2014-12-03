@@ -1,19 +1,26 @@
 $(document).ready(function()
 {
-    create_pattern_demo("patternDemo");
+//    create_pattern_demo("patternDemo");
 
 
     var svg = create_svg("demo2", 800, 300);
     svg.style("border", "thin solid black");
-    var carousel = svg.append("g");
-    var items = create_squares(carousel, "demo2Root-");
+    var items = create_squares(svg, "demo2Root-");
+	var c = carousel(items)
+		.width(600)
+		.height(200);
+	svg.call(c);
+	
+	
+	
+	
     var params = {"carouselXLoc": 30, "carouselYLoc": 30, "itemsToShow": 3
     , "itemsToScrollBy": 1
     , "carouselWidth": 600
     , "isCentered": true
     , "isInfinite": true
     };
-    carousel = create_carousel(items, carousel, params);
+//    carousel = create_carousel(items, carousel, params);
 });
 
 // Define the colors used for the demos.
