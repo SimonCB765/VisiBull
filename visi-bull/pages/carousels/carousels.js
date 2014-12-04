@@ -185,16 +185,15 @@ function carouselCreator(items)
                     {
                         // If the item is not the first one.
                         currentItemDist += (d.horizontalPadding / 2);
-                        currentItemDist %= scrollPathLength;
                     }
+                    currentItemDist = (scrollPathLength + currentItemDist) % scrollPathLength;  // Wrap the item's position around to the left of the items in view if necessary.
 
                     // Get the coordinates of the position currentItemDist along the path.
                     positionAlongPath = pathToScrollAlong.node().getPointAtLength(currentItemDist);
-                    console.log(leftViewItemStartX, currentItemDist, scrollPathLength);
-                    console.log(positionAlongPath);
 
                     // Update item position.
-                    d.restingX = positionAlongPath.x;
+                    d.distAlongPath = currentItemDist;  // Add an attribute to the item's data recording the distance along the path it currently is.
+                    d.resting = currentItemDist;  // Add an attribute recording the distance along the path where the item should come to rest.
                     d.transX = positionAlongPath.x;
                     d.transY = positionAlongPath.y - (d.height / 2);
 
@@ -215,14 +214,20 @@ function carouselCreator(items)
                     {
                         // If the item is not the first one.
                         currentItemDist += distanceBetweenItems;
-                        currentItemDist %= scrollPathLength;
                     }
+                    else
+                    {
+                        // If the item is the first one.
+                        currentItemDist -= (d.width / 2);
+                    }
+                    currentItemDist = (scrollPathLength + currentItemDist) % scrollPathLength;  // Wrap the item's position around to the left of the items in view if necessary.
 
                     // Get the coordinates of the position currentItemDist along the path.
                     positionAlongPath = pathToScrollAlong.node().getPointAtLength(currentItemDist);
 
                     // Update item position.
-                    d.restingX = positionAlongPath.x;
+                    d.distAlongPath = currentItemDist;  // Add an attribute to the item's data recording the distance along the path it currently is.
+                    d.resting = currentItemDist;  // Add an attribute recording the distance along the path where the item should come to rest.
                     d.transX = positionAlongPath.x;
                     d.transY = positionAlongPath.y - (d.height / 2);
 
@@ -230,6 +235,7 @@ function carouselCreator(items)
                 });
         }
 
+/*
         // Clip the items to the carousel.
         items.append("clipPath")
             .classed("carouselClip", true)
@@ -241,7 +247,99 @@ function carouselCreator(items)
                 .attr("width", width)
                 .attr("height", height);
         items.attr("clip-path", function(d) { return "url(#" + (d.rootID + "clip-" + d.key) + ")"; });
+*/
 
+        // Add drag behaviour.
+        console.log(carousel);
+        var dragBehaviour = d3.behavior.drag()
+            .origin(function(d) { return {"x": d3.event.x - xLoc, "y": d3.event.y - yLoc}; })  // Set the origin of the drag to be the top left of the carousel container.
+            .on("dragend", drag_end);
+        if (isInfinite)
+        {
+            dragBehaviour
+                .on("drag", drag_update_infinite);
+        }
+        else
+        {
+            dragBehaviour
+                .on("drag", drag_update_standard);
+        }
+        carousel.call(dragBehaviour);
+
+        /*****************
+        * Drag Functions *
+        *****************/
+        function drag_end(d)
+        {
+        }
+
+        function drag_update_infinite(d)
+        {
+            var changeInPosition = d3.event.dx;  // The movement caused by the dragging.
+
+            // Get the items in the carousel.
+            var items = d3.select(this).selectAll(".item");
+
+            // Update the position of the items.
+            items
+                .attr("transform", function(d)
+                    {
+                        // The items are able to rotate infinitely around a non-infinite path (made to look infinite by being a closed loop) by
+                        // mapping any distance that goes beyond tge end of the path back to the start, and vice versa for an item that goes beyond
+                        // the start of the path.
+
+                        d.distAlongPath += changeInPosition;
+                        d.distAlongPath = (scrollPathLength + d.distAlongPath) % scrollPathLength;
+                        var positionAlongPath = pathToScrollAlong.node().getPointAtLength(d.distAlongPath);
+                        d.transX = positionAlongPath.x;
+                        d.transY = positionAlongPath.y - (d.height / 2);
+                        return "translate(" + d.transX + "," + d.transY + ")";
+                    });
+/*
+            // Update the positions of the items clip paths.
+            items.selectAll(".carouselClipRect")
+                .attr("x", function(d) { return -d.transX; });
+*/
+        }
+
+        function drag_update_standard(d)
+        {
+            var changeInPosition = d3.event.dx;  // The movement caused by the dragging.
+
+            // Get the items in the carousel.
+            var items = d3.select(this).selectAll(".item");
+
+            // Update the position of the items.
+            items
+                .attr("transform", function(d)
+                    {
+                        // The items need to be able to be dragged as far offscreen as is desired, but to be able to snap back into the correct
+                        // positions once released. When the distance along the path is negative, the transformed location must be stuck at 0.
+                        // This is because the getPointAtLength point of a position that is a -ve distance along a path, is treated as its absolute
+                        // distance along the path (e.g. getPointAtLength(10) === getPointAtLength(-10)). As the user can scroll the items so far to
+                        // the left that their distance along the path becomes negative (as there is no limit on how far left the items can be scrolled
+                        // they will go off the path and get a -ve distance), the transformation is treated as 0 distance along the path whenever the
+                        // distance is -ve. See the demos at http://visi-bull.appspot.com/carousels for pictographic demos.
+
+                        d.distAlongPath += changeInPosition;
+                        var positionAlongPath = pathToScrollAlong.node().getPointAtLength(Math.max(0, d.distAlongPath));
+                        d.transX = positionAlongPath.x;
+                        return "translate(" + d.transX + "," + d.transY + ")";
+                    });
+/*
+            // Update the positions of the items clip paths.
+            items.selectAll(".carouselClipRect")
+                .attr("x", function(d) { return -d.transX; });
+*/
+        }
+
+        /*******************
+		* Transition Items *
+		*******************/
+		
+		/*******************
+        * Helper Functions *
+        *******************/
         function determine_visible_item_sets()
         {
             // Depending on the number of items and the values of itemsToShow and itemsToScrollBy, there will be a certain number of sets of items

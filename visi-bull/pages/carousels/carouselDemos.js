@@ -7,15 +7,15 @@ $(document).ready(function()
     svg.style("border", "thin solid black");
     var items = create_squares(svg, "demo2Root-");
 	var carousel = carouselCreator(items)
-		.width(600)
+		//.width(600)
 		//.height(200)
-		.xLoc(100)
+		.xLoc(370)
 		.yLoc(50)
 		//.isDots(true)
 		.itemsToShow(3)
 		//.itemsToScrollBy(3)
-		.isInfinite(true)
-		.isCentered(true)
+		//.isInfinite(true)
+		//.isCentered(true)
 		//.scrollPath("loop")
 		;
 	svg.call(carousel);
@@ -33,7 +33,7 @@ $(document).ready(function()
 });
 
 // Define the colors used for the demos.
-var COLORCODES = ["#00FF00", "#FFAF1A", "#FF008C", "#AE2DE3", "#00FF7B", "#00FFFF", "#FFFF00", "#FF0000", "#FFA07A"];
+var COLORCODES = ["#00FF00", "#FFAF1A", "#FF008C", "#AE2DE3", "#00FF7B"];//, "#00FFFF", "#FFFF00", "#FF0000", "#FFA07A"];
 
 /*************************
 * Demo Drawing Functions *
@@ -183,7 +183,7 @@ function create_squares(parent, rootID)
     // rootID is the root that should be used when creating the IDs of the patterns and clippaths.
 
     // Item sizing definitions.
-    var itemSize = 100;  // The height and width of the items.
+    var itemSize = 60;  // The height and width of the items.
     var horizontalPadding = 10;  // The total horizontal padding around each item. Half the padding is on the left and half on the right.
     var verticalPadding = 10;  // The total vertical padding around each item. Half the padding is at the top and half at the bottom.
 
@@ -197,7 +197,7 @@ function create_squares(parent, rootID)
                 "height": itemSize,  // Height of the item.
                 "horizontalPadding": horizontalPadding,  // Horizontal padding of the item (half on the left and half on the right).
                 "key": i,  // Unique identifier for the item.
-                "restingX": 0,  // X position where the item should come to rest after being moved around.
+//                "restingX": 0,  // X position where the item should come to rest after being moved around.
                 "rootID": rootID,  // The root of the ID used to refer to the item clip paths.
                 "transX": 0,  // Current X position of the item.
                 "transY": 0,  // Current Y position of the item.
