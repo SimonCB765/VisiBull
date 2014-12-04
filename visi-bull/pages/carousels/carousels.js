@@ -15,6 +15,7 @@ function carouselCreator(items)
         isDots = false,  // Whether to display dots below the items to indicate where you are in the carousel.
         isArrows = true,  // Whether to display arrows at the sides of the carousel that scroll the carousel when clicked.
         dotContainerHeight = 20,  // The height of the g element containing the navigation dots. Should be at least twice the dotRadius.
+        itemSnapSpeed = 300,  // The duration that the items take when snapping back into place.
         scrollPath = "flat"  // The path along which the items will be scrolled. "flat" corresponds to a straight line, "loop" to an ellipse.
                              // Straight line paths can use infinite or non-infinite scrolling.
                              // Looped paths must use infinite scrolling.
@@ -253,6 +254,7 @@ function carouselCreator(items)
         console.log(carousel);
         var dragBehaviour = d3.behavior.drag()
             .origin(function(d) { return {"x": d3.event.x - xLoc, "y": d3.event.y - yLoc}; })  // Set the origin of the drag to be the top left of the carousel container.
+            .on("dragstart", drag_start)
             .on("dragend", drag_end);
         if (isInfinite)
         {
@@ -269,13 +271,26 @@ function carouselCreator(items)
         /*****************
         * Drag Functions *
         *****************/
+        var totalDistanceDragged;  // The total distance that the user has dragged the carousel (used to determine which direction to snap the items back to resting).
         function drag_end(d)
         {
+            // Transition the items, and clips paths, to their correct resting places.
+            transition_items();
+        }
+
+        function drag_start()
+        {
+            totalDistanceDragged = 0;  // Initialise the distance the items have been dragged.
+            items
+                .interrupt() // Cancel any transitions running on the items.
+                .transition(); // Pre-empt any scheduled transitions on the items.
         }
 
         function drag_update_infinite(d)
         {
+            // Drag items that scroll infinitely.
             var changeInPosition = d3.event.dx;  // The movement caused by the dragging.
+            totalDistanceDragged += changeInPosition;
 
             // Get the items in the carousel.
             var items = d3.select(this).selectAll(".item");
@@ -304,7 +319,9 @@ function carouselCreator(items)
 
         function drag_update_standard(d)
         {
+            // Drag items that do not scroll infinitely.
             var changeInPosition = d3.event.dx;  // The movement caused by the dragging.
+            totalDistanceDragged += changeInPosition;
 
             // Get the items in the carousel.
             var items = d3.select(this).selectAll(".item");
@@ -334,10 +351,76 @@ function carouselCreator(items)
         }
 
         /*******************
-		* Transition Items *
-		*******************/
-		
-		/*******************
+        * Transition Items *
+        *******************/
+        function transition_items()
+        {
+            // Transition items back to their resting locations from wherever they are.
+            items
+                .transition()
+                .duration(3000)
+                .ease("cubic-out")
+                .tween("transform", function(d)
+                    {
+                        var interpolator;
+                        if (totalDistanceDragged < 0)
+                        {
+                            // The dragging has been predominantly to the left.
+                            if (d.distAlongPath < d.resting)
+                            {
+                                // If the current position of the item is to the left of its resting place, then you want to
+                                // snap the items back by scrolling right.
+                                interpolator = d3.interpolate(d.distAlongPath, d.resting);
+                            }
+                            else
+                            {
+                                // If the current position of the item is to the right of its resting place, then the item has looped
+                                // all the way around to the right side of the carousel, and you therefore want it to scroll back by:
+                                // 1)   Scrolling right towards the end of the path.
+                                // 2)   Upon reaching the end of the path, loop back to the beginning of the path.
+                                // 3)   Scrolling right towards its resting place.
+                                var distanceToTravel = (scrollPathLength - d.distAlongPath) + d.resting;
+                                interpolator = d3.interpolate(d.distAlongPath, d.distAlongPath + distanceToTravel);
+                            }
+                        }
+                        else
+                        {
+                            // The dragging has been predominantly to the right.
+                            if (d.distAlongPath < d.resting)
+                            {
+                                // If the current position of the item is to the left of its resting place, then the item has looped
+                                // all the way around to the left side of the carousel, and you therefore want it to scroll back by:
+                                // 1)   Scrolling left towards the beginning of the path.
+                                // 2)   Upon reaching the beginning of the path, loop back to the end of the path.
+                                // 3)   Scrolling left towards its resting place.
+                                var distanceToTravel = d.distAlongPath + (scrollPathLength - d.resting);
+                                interpolator = d3.interpolate(d.distAlongPath, d.distAlongPath - distanceToTravel);
+                            }
+                            else
+                            {
+                                // If the current position of the item is to the right of its resting place, then you want to
+                                // snap the items back by scrolling left.
+                                interpolator = d3.interpolate(d.distAlongPath, d.resting);
+                            }
+                        }
+
+                        var currentPoint;
+                        return function(t)
+                            {
+                                d.distAlongPath = (scrollPathLength + interpolator(t)) % scrollPathLength;
+                                currentPoint = pathToScrollAlong.node().getPointAtLength(d.distAlongPath);
+                                d.transX = currentPoint.x;  // Determine position of the item at this point in the transition.
+                                d.transY = currentPoint.y - (d.height / 2);  // Determine position of the item at this point in the transition.
+                                d3.select(this)
+                                    .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; })  // Update the item's position.
+                                    ;
+//                                  .select(".carouselClipRect")
+//                                      .attr("x", function(d) { return -d.transX; });  // Update the clip path.
+                            }
+                    });
+        }
+
+        /*******************
         * Helper Functions *
         *******************/
         function determine_visible_item_sets()
@@ -494,6 +577,14 @@ function carouselCreator(items)
     {
         if (!arguments.length) return dotContainerHeight;
         dotContainerHeight = _;
+        return carousel;
+    }
+
+    // Item snap back transition duration.
+    carousel.itemSnapSpeed = function(_)
+    {
+        if (!arguments.length) return itemSnapSpeed;
+        itemSnapSpeed = _;
         return carousel;
     }
 
