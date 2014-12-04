@@ -6,7 +6,7 @@ $(document).ready(function()
     var svg = create_svg("demo2", 800, 300);
     svg.style("border", "thin solid black");
     var items = create_squares(svg, "demo2Root-");
-	var c = carousel(items)
+	var carousel = carouselCreator(items)
 		//.width(600)
 		//.height(200)
 		.xLoc(100)
@@ -18,7 +18,7 @@ $(document).ready(function()
 		//.isCentered(true)
 		//.scrollPath("loop")
 		;
-	svg.call(c);
+	svg.call(carousel);
 	
 	
 	

@@ -1,4 +1,4 @@
-function carousel(items)
+function carouselCreator(items)
 {
     /***************************
     * Default Parameter Values *
@@ -24,7 +24,7 @@ function carousel(items)
     /*****************************
     * Carousel Creation Function *
     *****************************/
-    function create(selection)
+    function carousel(selection)
     {
         // Create the carousel. The selection passed in must contain only one element.
         if (selection.size() !== 1) { console.log("Selection to create carousel in must contain only one element."); return; }
@@ -99,7 +99,7 @@ function carousel(items)
 
         // Setup the scroll path.
         var pathToScrollAlong = carousel.append("path").classed("scrollPath", true);
-        var leftViewItemStartDist = 0;  // The location of the leftmost item in the view in terms of its distance along the path.
+        var leftViewItemStartDist = 0;  // The location of the leftmost item in the view in terms of its fractional distance along the path.
         var scrollPathStartX;  // The X location of the start of the scroll path.
         var scrollPathStartY = (height - (isDots ? dotContainerHeight : 0)) / 2;  // The Y location of the start of the scroll path.
         var scrollPathLength;  // The length of the path along which the scrolling will occur.
@@ -172,7 +172,6 @@ function carousel(items)
         // Transfer the items into the carousel from wherever they currently are.
         items.each(function() { carousel.node().appendChild(this); });
 
-
         function determine_visible_item_sets()
         {
             // Depending on the number of items and the values of itemsToShow and itemsToScrollBy, there will be a certain number of sets of items
@@ -243,100 +242,100 @@ function carousel(items)
     * Getters and Setters *
     **********************/
     // Carousel width.
-    create.width = function(_)
+    carousel.width = function(_)
     {
         if (!arguments.length) return width;
         width = _;
-        return create;
+        return carousel;
     }
 
     // Carousel height.
-    create.height = function(_)
+    carousel.height = function(_)
     {
         if (!arguments.length) return height;
         height = _;
-        return create;
+        return carousel;
     }
 
     // Carousel X location.
-    create.xLoc = function(_)
+    carousel.xLoc = function(_)
     {
         if (!arguments.length) return xLoc;
         xLoc = _;
-        return create;
+        return carousel;
     }
 
     // Carousel Y location.
-    create.yLoc = function(_)
+    carousel.yLoc = function(_)
     {
         if (!arguments.length) return yLoc;
         yLoc = _;
-        return create;
+        return carousel;
     }
 
     // Items to show.
-    create.itemsToShow = function(_)
+    carousel.itemsToShow = function(_)
     {
         if (!arguments.length) return itemsToShow;
         itemsToShow = _;
-        return create;
+        return carousel;
     }
 
     // Items to scroll by.
-    create.itemsToScrollBy = function(_)
+    carousel.itemsToScrollBy = function(_)
     {
         if (!arguments.length) return itemsToScrollBy;
         itemsToScrollBy = _;
-        return create;
+        return carousel;
     }
 
     // Infinite scrolling.
-    create.isInfinite = function(_)
+    carousel.isInfinite = function(_)
     {
         if (!arguments.length) return isInfinite;
         isInfinite = _;
-        return create;
+        return carousel;
     }
 
     // Centered items.
-    create.isCentered = function(_)
+    carousel.isCentered = function(_)
     {
         if (!arguments.length) return isCentered;
         isCentered = _;
-        return create;
+        return carousel;
     }
 
     // Navigation dots.
-    create.isDots = function(_)
+    carousel.isDots = function(_)
     {
         if (!arguments.length) return isDots;
         isDots = _;
-        return create;
+        return carousel;
     }
 
     // Navigation arrows.
-    create.isArrows = function(_)
+    carousel.isArrows = function(_)
     {
         if (!arguments.length) return isArrows;
         isArrows = _;
-        return create;
+        return carousel;
     }
 
     // Navigation dot container height.
-    create.dotContainerHeight = function(_)
+    carousel.dotContainerHeight = function(_)
     {
         if (!arguments.length) return dotContainerHeight;
         dotContainerHeight = _;
-        return create;
+        return carousel;
     }
 
     // Scroll path.
-    create.scrollPath = function(_)
+    carousel.scrollPath = function(_)
     {
         if (!arguments.length) return scrollPath;
         scrollPath = _;
-        return create;
+        return carousel;
     }
 
-    return create;
+    return carousel;
 }
