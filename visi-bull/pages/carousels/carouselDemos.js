@@ -7,15 +7,15 @@ $(document).ready(function()
     svg.style("border", "thin solid black");
     var items = create_squares(svg, "demo2Root-");
 	var carousel = carouselCreator(items)
-		//.width(600)
+		.width(600)
 		//.height(200)
 		.xLoc(100)
 		.yLoc(50)
 		//.isDots(true)
-		//.itemsToShow(3)
+		.itemsToShow(3)
 		//.itemsToScrollBy(3)
-		//.isInfinite(true)
-		//.isCentered(true)
+		.isInfinite(true)
+		.isCentered(true)
 		//.scrollPath("loop")
 		;
 	svg.call(carousel);

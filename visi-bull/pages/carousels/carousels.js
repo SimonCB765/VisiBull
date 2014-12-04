@@ -94,7 +94,7 @@ function carouselCreator(items)
         }
         else
         {
-            leftViewItemStartX = (itemPaddings[0] / 2)
+            leftViewItemStartX = (itemPaddings[0] / 2);
         }
 
         // Setup the scroll path.
@@ -119,14 +119,14 @@ function carouselCreator(items)
             else
             {
                 // Determine the length of the path to scroll along.
-                scrollPathLength = d3.sum(itemWidths.slice(0, -1)) + d3.sum(itemPaddings.slice(0, -1)) + (itemPaddings[items.length - 1] / 2) - (itemPaddings[0] / 2);
+                scrollPathLength = d3.sum(itemWidths) + d3.sum(itemPaddings);
                 scrollPathLength *= 2;
 
                 // Determine the starting point of the path to scroll along.
                 scrollPathStartX = leftViewItemStartX - (scrollPathLength / 2);
 
                 // Determine the starting point of the leftmost item in the view in terms of its distance along the path.
-                leftViewItemStartDist = leftViewItemStartX + (scrollPathLength / 2);
+                leftViewItemStartDist = (scrollPathLength / 2);
             }
 
             // Create the path to scroll along.
@@ -171,6 +171,76 @@ function carouselCreator(items)
 
         // Transfer the items into the carousel from wherever they currently are.
         items.each(function() { carousel.node().appendChild(this); });
+
+        // Put the items in the initial places.
+        var currentItemDist = leftViewItemStartDist;  // Distance along the path of the current item.
+        var positionAlongPath;  // The position of the point on the path at a distance of currentItemDist along it.
+        if (scrollPath === "flat")
+        {
+            // Place the items along a flat scrolling path.
+            items.attr("transform", function(d, i)
+                {
+                    // Update the currentItemDist to position the current item.
+                    if (i !== 0)
+                    {
+                        // If the item is not the first one.
+                        currentItemDist += (d.horizontalPadding / 2);
+                        currentItemDist %= scrollPathLength;
+                    }
+
+                    // Get the coordinates of the position currentItemDist along the path.
+                    positionAlongPath = pathToScrollAlong.node().getPointAtLength(currentItemDist);
+                    console.log(leftViewItemStartX, currentItemDist, scrollPathLength);
+                    console.log(positionAlongPath);
+
+                    // Update item position.
+                    d.restingX = positionAlongPath.x;
+                    d.transX = positionAlongPath.x;
+                    d.transY = positionAlongPath.y - (d.height / 2);
+
+                    // Set position for next item.
+                    currentItemDist += (d.width + (d.horizontalPadding / 2));
+
+                    return "translate(" + d.transX + "," + d.transY + ")";
+                });
+        }
+        else
+        {
+            // Place the items evenly along some path.
+            var distanceBetweenItems = scrollPathLength / items.size();
+            items.attr("transform", function(d, i)
+                {
+                    // Update the currentItemDist to position the current item.
+                    if (i !== 0)
+                    {
+                        // If the item is not the first one.
+                        currentItemDist += distanceBetweenItems;
+                        currentItemDist %= scrollPathLength;
+                    }
+
+                    // Get the coordinates of the position currentItemDist along the path.
+                    positionAlongPath = pathToScrollAlong.node().getPointAtLength(currentItemDist);
+
+                    // Update item position.
+                    d.restingX = positionAlongPath.x;
+                    d.transX = positionAlongPath.x;
+                    d.transY = positionAlongPath.y - (d.height / 2);
+
+                    return "translate(" + d.transX + "," + d.transY + ")";
+                });
+        }
+
+        // Clip the items to the carousel.
+        items.append("clipPath")
+            .classed("carouselClip", true)
+            .attr("id", function(d) { return d.rootID + "clip-" + d.key; })
+            .append("rect")
+                .classed("carouselClipRect", true)
+                .attr("x", function(d) { return -d.transX; })
+                .attr("y", function(d) { return -d.transY; })
+                .attr("width", width)
+                .attr("height", height);
+        items.attr("clip-path", function(d) { return "url(#" + (d.rootID + "clip-" + d.key) + ")"; });
 
         function determine_visible_item_sets()
         {
