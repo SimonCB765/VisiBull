@@ -17,6 +17,8 @@ $(document).ready(function()
 		//.isInfinite(true)
 		//.isCentered(true)
 		//.scrollPath("loop")
+		.navArrowWidth(25)
+		.navArrowHeight(50)
 		;
 	svg.call(carousel);
 	

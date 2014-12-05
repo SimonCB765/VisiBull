@@ -16,10 +16,12 @@ function carouselCreator(items)
         isArrows = true,  // Whether to display arrows at the sides of the carousel that scroll the carousel when clicked.
         dotContainerHeight = 20,  // The height of the g element containing the navigation dots. Should be at least twice the dotRadius.
         itemSnapSpeed = 300,  // The duration that the items take when snapping back into place.
-        scrollPath = "flat"  // The path along which the items will be scrolled. "flat" corresponds to a straight line, "loop" to an ellipse.
-                             // Straight line paths can use infinite or non-infinite scrolling.
-                             // Looped paths must use infinite scrolling.
-                             // Alternatively, a custom paath can be provided.
+        scrollPath = "flat",  // The path along which the items will be scrolled. "flat" corresponds to a straight line, "loop" to an ellipse.
+                              // Straight line paths can use infinite or non-infinite scrolling.
+                              // Looped paths must use infinite scrolling.
+                              // Alternatively, a custom paath can be provided.
+        navArrowWidth = null,  // The width of the navigation arrow.
+        navArrowHeight = null  // The height of the navigation arrow.
         ;
 
     /*****************************
@@ -251,22 +253,59 @@ function carouselCreator(items)
 */
 
         // Add drag behaviour.
-        console.log(carousel);
         var dragBehaviour = d3.behavior.drag()
             .origin(function(d) { return {"x": d3.event.x - xLoc, "y": d3.event.y - yLoc}; })  // Set the origin of the drag to be the top left of the carousel container.
             .on("dragstart", drag_start)
             .on("dragend", drag_end);
         if (isInfinite)
         {
-            dragBehaviour
-                .on("drag", drag_update_infinite);
+            dragBehaviour.on("drag", drag_update_infinite);
         }
         else
         {
-            dragBehaviour
-                .on("drag", drag_update_standard);
+            dragBehaviour.on("drag", drag_update_standard);
         }
         carousel.call(dragBehaviour);
+
+        // Create the navigation arrows.
+        if (isArrows)
+        {
+            // Determine whether default values are needed for the navigation arrow width and height.
+            if (navArrowWidth === null) navArrowWidth = Math.min(20, width / 4);
+            if (navArrowHeight === null) navArrowHeight = Math.min(40, (height - (isDots ? dotContainerHeight : 0)) / 2);
+
+            var navArrowOffset = 10;  // The offset of each navigation arrow from its respective edge of the carousel.
+
+            // Create the left navigation arrow.
+            // The left arrow is inactive at the start if infinite scrolling is not used.
+            var leftNavArrowContainer = carousel.append("g")
+                .classed({"navArrow": true, "left": true, "inactive": (isInfinite ? false : true)})
+                .on("mouseover", function() { d3.select(this).classed("highlight", true); })
+                .on("mouseout", function() { d3.select(this).classed("highlight", false); })
+                .attr("transform", "translate(" + navArrowOffset + "," + (((height - (isDots ? dotContainerHeight : 0)) / 2) - (navArrowHeight / 2)) + ")");
+            leftNavArrowContainer.append("rect")
+                .attr("width", navArrowWidth)
+                .attr("height", navArrowHeight);
+            leftNavArrowContainer.append("path")
+                .attr("d", "M" + navArrowWidth + ",0" + "L0," + (navArrowHeight / 2) + "L" + navArrowWidth + "," + navArrowHeight);
+
+            // Create the right navigation arrow.
+            var rightNavArrowContainer = carousel.append("g")
+                .classed({"navArrow": true, "right": true})
+                .on("mouseover", function() { d3.select(this).classed("highlight", true); })
+                .on("mouseout", function() { d3.select(this).classed("highlight", false); })
+                .attr("transform", "translate(" + (width - navArrowWidth - navArrowOffset) + "," + (((height - (isDots ? dotContainerHeight : 0)) / 2) - (navArrowHeight / 2)) + ")");
+            rightNavArrowContainer.append("rect")
+                .attr("width", navArrowWidth)
+                .attr("height", navArrowHeight);
+            rightNavArrowContainer.append("path")
+                .attr("d", "M0,0" + "L" + navArrowWidth + "," + (navArrowHeight / 2) + "L0," + navArrowHeight);
+
+            // Setup the carousel to make the navigation buttons slightly visible when the mouse is over the carousel.
+            carousel
+                .on("mouseover", function() { leftNavArrowContainer.classed("visible", true); rightNavArrowContainer.classed("visible", true); })
+                .on("mouseout", function() { leftNavArrowContainer.classed("visible", false); rightNavArrowContainer.classed("visible", false); });
+        }
 
         /*****************
         * Drag Functions *
@@ -593,6 +632,22 @@ function carouselCreator(items)
     {
         if (!arguments.length) return scrollPath;
         scrollPath = _;
+        return carousel;
+    }
+
+    // Navigation arrow width.
+    carousel.navArrowWidth = function(_)
+    {
+        if (!arguments.length) return navArrowWidth;
+        navArrowWidth = _;
+        return carousel;
+    }
+
+    // Navigation arrow height.
+    carousel.navArrowHeight = function(_)
+    {
+        if (!arguments.length) return navArrowHeight;
+        navArrowHeight = _;
         return carousel;
     }
 

@@ -3,8 +3,8 @@ Contents:
 _element    -> style declarations for all elements of a given type (html, body, table, all p tags etc.).
 _classes    -> style declarations for specific classes.
 _carousel   -> style declarations for the carousel itself.
-_dot        -> style declarations for the navigation dots.
-_navig      -> style declarations for the navigation buttons.
+_navArrow	-> style declarations for the navigation arrows.
+_navDot     -> style declarations for the navigation dots.
 _item       -> style declarations for the carousel items.
 */
 
@@ -23,23 +23,23 @@ _carousel
 .scrollPath {fill: none; stroke: orange; stroke-width: 2;}  /* Style declarations for the path along which the items are scrolled. */
 
 /*
-_dot
+_navArrow
+*/
+.navArrow  {opacity: 0;}  /* The default style of the navigation arrows is to be invisible. */
+.navArrow.visible {opacity: .7;}  /* The navigation arrows should be slightly visible when the carousel is rolled over. */
+.navArrow.visible.inactive  {opacity: .2;}  /* The navigation arrows should be barely visible when unusable. */
+.navArrow.highlight {opacity: 1; cursor: pointer;}  /* When hovered over the navigation arrows should be fully visible. */
+.navArrow.highlight.inactive {opacity: .2; cursor: default;}  /* When hovered over, an inactive navigation arrows should barely be visible. */
+.navArrow rect {fill: white; fill-opacity: 1; stroke: none;}  /* Style the rectangle that catches events. */
+.navArrow path {fill: none; stroke: #585858; stroke-width: 4;}  /* Style the arrow itself. */
+
+/*
+_navDot
 */
 .navDot {fill: white; stroke: none;}  /* Style the non-selected navigation dots (i.e. the dots not corresponding to the current visible items). */
 .navDot:hover {cursor: pointer;}  /* Change the mouse to a pointer when hovering over the navigation dots. */
 .navDot.selected {fill: red;}  /* Style the selected navigation dot (i.e. the dot corresponding to the current visible items). */
 .navDot rect {opacity: 0;}  /* Make the backing rectangle invisible. */
-
-/*
-_navig
-*/
-.navButton  {opacity: 0;}  /* The default style of the navigation buttons is to be invisible. */
-.navButton.visible {opacity: .7;}  /* The navigation buttons should be slightly visible when the carousel is rolled over. */
-.navButton.visible.inactive  {opacity: .2;}  /* The navigation buttons should be barely visible when unusable. */
-.navButton.highlight {opacity: 1; cursor: pointer;}  /* When hovered over the navigation buttons should be fully visible. */
-.navButton.highlight.inactive {opacity: .2; cursor: default;}  /* When hovered over, an inactive navigation buttons should barely be visible. */
-.navButton circle {fill: white; stroke: black; stroke-width: 2;}  /* Style the circle that serves as the background for the navigation button. */
-.navButton path {fill: none; stroke: black; stroke-linecap: round; stroke-width: 4;}  /* Style the arrow in the navigation button. */
 
 /*
 _item
