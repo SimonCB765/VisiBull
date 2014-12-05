@@ -390,10 +390,13 @@ function carouselCreator(items)
         /*****************
         * Drag Functions *
         *****************/
-        var totalDistanceDragged;  // The total distance that the user has dragged the carousel (used to determine which direction to snap the items back to resting).
+        var totalDistanceDragged = 0;  // The total distance that the user has dragged the carousel (used to determine which direction to snap the items back to resting).
+        var lastDistanceDragged;  // The distance dragged during the previous drag (only needed when a click on the carousel (drag distance 0) interrupts
+                                  // the items as they are transitioning to their resting positions.
         function drag_end(d)
         {
             // Transition the items, and clips paths, to their correct resting places.
+            totalDistanceDragged = (totalDistanceDragged === 0) ? lastDistanceDragged : totalDistanceDragged;
             transition_items();
 
             // Add back the highlighting for the navigation arrows.
@@ -404,6 +407,7 @@ function carouselCreator(items)
 
         function drag_start()
         {
+            lastDistanceDragged = totalDistanceDragged;
             totalDistanceDragged = 0;  // Initialise the distance the items have been dragged.
             items
                 .interrupt() // Cancel any transitions running on the items.
@@ -555,10 +559,16 @@ function carouselCreator(items)
                             }
                         }
 
+                        // Determine how to update the item locations. Infinite transitioning can make use of wrapping around the path.
+                        // Non-infinite updating must not wrap around. Instead it should stay clamped between 0 and scrollPathLength.
+                        var updater;
+                        if (isInfinite) { updater = function(t) { return (scrollPathLength + interpolator(t)) % scrollPathLength; }; }
+                        else { updater = function(t) { return Math.min(scrollPathLength, Math.max(0, interpolator(t))); }; }
+
                         var currentPoint;
                         return function(t)
                             {
-                                d.distAlongPath = Math.min(scrollPathLength, Math.max(0, interpolator(t)));  // Clamp the perceived distance to be between [0,scrollPathLength].
+                                d.distAlongPath = updater(t);
                                 currentPoint = pathToScrollAlong.node().getPointAtLength(d.distAlongPath);
                                 d.transX = currentPoint.x;  // Determine position of the item at this point in the transition.
                                 d.transY = currentPoint.y - (d.height / 2);  // Determine position of the item at this point in the transition.
