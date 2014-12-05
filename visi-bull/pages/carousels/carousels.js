@@ -532,16 +532,43 @@ function carouselCreator(items)
                 itemPositions.push(restingPositions[i].resting);
             }
 
-            // Rotate the positions of the items.
-            if (isLeft)
+            // Determine the new positions.
+            if (isInfinite)
             {
-                // If the left navigation arrow was clicked on, then scroll items to the right.
-                itemPositions = rotate_array(itemPositions, itemsToScrollBy);
+                // Rotate the positions of the items.
+                if (isLeft)
+                {
+                    // If the left navigation arrow was clicked on, then scroll items to the right.
+                    itemPositions = rotate_array(itemPositions, itemsToScrollBy);
+                }
+                else
+                {
+                    // If the right navigation arrow was clicked on, then scroll items to the left.
+                    itemPositions = rotate_array(itemPositions, -itemsToScrollBy);
+                }
             }
             else
             {
-                // If the right navigation arrow was clicked on, then scroll items to the left.
-                itemPositions = rotate_array(itemPositions, -itemsToScrollBy);
+                // Get the data for the old and new leftmost items in the old and new sets of visible items.
+                var oldLeftmost = visibleItemSets[currentVisibleSetIndex][0];
+                var newLeftmost = visibleItemSets[newVisibleSetIndex][0];
+                var oldLeftmostResting;  // The resting position for the item that currently is the leftmost item in view.
+                var newLeftmostResting;  // The resting position for the item that will become the leftmost item in view.
+                items.each(function(d)
+                    {
+                        if (d.key === newLeftmost)
+                        {
+                            newLeftmostResting = d.resting;
+                        }
+                        else if (d.key === oldLeftmost)
+                        {
+                            oldLeftmostResting = d.resting;
+                        }
+                    });
+
+                // Determine the distance to scroll the items.
+                var distanceToScroll = oldLeftmostResting - newLeftmostResting;
+                itemPositions = itemPositions.map(function(v) { return v + distanceToScroll; });
             }
 
             // Update the positions of the items.
