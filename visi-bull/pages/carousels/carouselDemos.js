@@ -13,7 +13,7 @@ $(document).ready(function()
 		.yLoc(50)
 		//.isDots(true)
 		.itemsToShow(3)
-		//.itemsToScrollBy(3)
+		.itemsToScrollBy(3)
 		//.isInfinite(true)
 		//.isCentered(true)
 		//.scrollPath("loop")
@@ -21,6 +21,7 @@ $(document).ready(function()
 		.navArrowHeight(50)
 		;
 	svg.call(carousel);
+	console.log(carousel.isInfinite(), carousel.isCentered());
 	
 	
 	

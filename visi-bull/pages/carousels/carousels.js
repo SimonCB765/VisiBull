@@ -20,7 +20,7 @@ function carouselCreator(items)
                               // Straight line paths can use infinite or non-infinite scrolling.
                               // Looped paths must use infinite scrolling.
                               // Alternatively, a custom paath can be provided.
-		customScrollFraction = 0,  // The fractional [0,1] distance along the path at which to place the first item. Only works with custom paths.
+        customScrollFraction = 0,  // The fractional [0,1] distance along the path at which to place the first item. Only works with custom paths.
         navArrowWidth = null,  // The width of the navigation arrow.
         navArrowHeight = null  // The height of the navigation arrow.
         ;
@@ -447,7 +447,7 @@ function carouselCreator(items)
                         var currentPoint;
                         return function(t)
                             {
-                                d.distAlongPath = (scrollPathLength + interpolator(t)) % scrollPathLength;
+                                d.distAlongPath = Math.min(scrollPathLength, Math.max(0, interpolator(t)));  // Clamp the perceived distance to be between [0,scrollPathLength].
                                 currentPoint = pathToScrollAlong.node().getPointAtLength(d.distAlongPath);
                                 d.transX = currentPoint.x;  // Determine position of the item at this point in the transition.
                                 d.transY = currentPoint.y - (d.height / 2);  // Determine position of the item at this point in the transition.
@@ -635,8 +635,8 @@ function carouselCreator(items)
         scrollPath = _;
         return carousel;
     }
-	
-	// Custom scroll path fractional start distance.
+
+    // Custom scroll path fractional start distance.
     carousel.customScrollFraction = function(_)
     {
         if (!arguments.length) return customScrollFraction;
