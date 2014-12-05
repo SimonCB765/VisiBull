@@ -332,6 +332,12 @@ function carouselCreator(items)
                 .on("mouseover", function() { leftNavArrowContainer.classed("visible", true); rightNavArrowContainer.classed("visible", true); })
                 .on("mouseout", function() { leftNavArrowContainer.classed("visible", false); rightNavArrowContainer.classed("visible", false); });
         }
+        var navigationArrows = carousel.selectAll(".navArrow");
+
+        // Create the navigation dots.
+        if (isDots)
+        {
+        }
 
         /*****************
         * Drag Functions *
@@ -341,6 +347,11 @@ function carouselCreator(items)
         {
             // Transition the items, and clips paths, to their correct resting places.
             transition_items();
+
+            // Add back the highlighting for the navigation arrows.
+            navigationArrows
+                .on("mouseover", function() { d3.select(this).classed("highlight", true); })
+                .on("mouseout", function() { d3.select(this).classed("highlight", false); })
         }
 
         function drag_start()
@@ -349,6 +360,11 @@ function carouselCreator(items)
             items
                 .interrupt() // Cancel any transitions running on the items.
                 .transition(); // Pre-empt any scheduled transitions on the items.
+
+            // Remove the highlighting of the navigation arrows.
+            navigationArrows
+                .on("mouseover", null)
+                .on("mouseout", null)
         }
 
         function drag_update_infinite(d)

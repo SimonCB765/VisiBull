@@ -11,7 +11,8 @@ $(document).ready(function()
 		//.height(200)
 		.xLoc(370)
 		.yLoc(50)
-		//.isDots(true)
+		//.isArrows(false)
+		.isDots(true)
 		.itemsToShow(3)
 		.itemsToScrollBy(3)
 		//.isInfinite(true)
@@ -185,7 +186,7 @@ function create_squares(parent, rootID)
     // rootID is the root that should be used when creating the IDs of the patterns and clippaths.
 
     // Item sizing definitions.
-    var itemSize = 100;  // The height and width of the items.
+    var itemSize = 60;  // The height and width of the items.
     var horizontalPadding = 10;  // The total horizontal padding around each item. Half the padding is on the left and half on the right.
     var verticalPadding = 10;  // The total vertical padding around each item. Half the padding is at the top and half at the bottom.
 

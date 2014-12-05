@@ -30,7 +30,7 @@ _navArrow
 .navArrow path {fill: lightgrey; stroke: none;}  /* Style the arrow itself. */
 .navArrow.visible {opacity: .8;}  /* The navigation arrows should be slightly visible when the carousel is rolled over. */
 .navArrow.visible.inactive  {opacity: .2;}  /* The navigation arrows should be barely visible when unusable. */
-.navArrow.highlight {opacity: 1; cursor: pointer;}  /* When hovered over the navigation arrows should be fully visible. */
+.navArrow.highlight {opacity: .9; cursor: pointer;}  /* When hovered over the navigation arrows should be fully visible. */
 .navArrow.highlight.inactive {opacity: .2; cursor: default;}  /* When hovered over, an inactive navigation arrows should barely be visible. */
 .navArrow.highlight path {fill: white;}  /* Style the arrow when highlighted. */
 
