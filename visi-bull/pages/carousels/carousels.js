@@ -489,70 +489,71 @@ function carouselCreator(items)
         *******************/
         function scroll_carousel_arrow()
         {
-			// Determine if the arrow clicked on is active.
-			var arrow = d3.select(this);
-			if (arrow.classed("inactive")) return;
-			
+            // Determine if the arrow clicked on is active.
+            var arrow = d3.select(this);
+            if (arrow.classed("inactive")) return;
+
             // Determine if the scrolling is to the left.
             var isLeft = arrow.classed("left");
-			
-			console.log("Scroll Arrow " + (isLeft ? "Left" : "Right"), currentVisibleSetIndex);
+
+            console.log("Scroll Arrow " + (isLeft ? "Left" : "Right"), currentVisibleSetIndex);
 
             // Determine index of next visible set.
-			newVisibleSetIndex = currentVisibleSetIndex + (isLeft ? -1 : 1);
+            newVisibleSetIndex = currentVisibleSetIndex + (isLeft ? -1 : 1);
             newVisibleSetIndex = (visibleItemSets.length + newVisibleSetIndex) % visibleItemSets.length;
-			
-			// Inactivate and activate the navigation arrows as needed.
-			carousel.select(".navArrow.right")
-				.classed("inactive", newVisibleSetIndex + 1 === visibleItemSets.length);
-			carousel.select(".navArrow.left")
-				.classed("inactive", newVisibleSetIndex === 0);
-			
-			// Get the data for the old and new leftmost items in the old and new sets of visible items.
-			var oldLeftmost = visibleItemSets[currentVisibleSetIndex][0];
-			var newLeftmost = visibleItemSets[newVisibleSetIndex][0];
-			var oldLeftmostData;  // The data for the item that currently is the leftmost item in view.
-			var newLeftmostData;  // The data for the item that will become the leftmost item in view.
-			items.each(function(d)
-				{
-					if (d.key === newLeftmost)
-					{
-						newLeftmostData = d;
-					}
-					else if (d.key === oldLeftmost)
-					{
-						oldLeftmostData = d;
-					}
-				});
-			
-			// Determine the distance to scroll the items.
-			var distanceToMove;
-			if (isLeft)
-			{
-				// If the left navigation arrow was clicked on, then scroll items to the right.
-			}
-			else
-			{
-				// If the right navigation arrow was clicked on, then scroll items to the left.
-				if (oldLeftmostData.resting < newLeftmostData.distAlongPath)
-				{
-					// The current position of the leftmost item that is to be scrolled into view is to the right of the leftmost item in the view.
-					distanceToMove = newLeftmostData.distAlongPath - oldLeftmostData.resting;
-				}
-				else
-				{
-					// The current position of the leftmost item that is to be scrolled into view is to the left of the leftmost item in the view.
-					distanceToMove = newLeftmostData.distAlongPath + (scrollPathLength - oldLeftmostData.resting);
-				}
-				distanceToMove *= -1;
-			}
-			
-			// Update the positions of the items.
-			items.each(function(d) { d.resting += distanceToMove; });
-			transition_items(-distanceToMove);
-			
-			// Update the current visible index.
-			currentVisibleSetIndex = newVisibleSetIndex;
+
+            // Inactivate and activate the navigation arrows as needed.
+            if (!isInfinite)
+            {
+                carousel.select(".navArrow.right")
+                    .classed("inactive", newVisibleSetIndex + 1 === visibleItemSets.length);
+                carousel.select(".navArrow.left")
+                    .classed("inactive", newVisibleSetIndex === 0);
+            }
+
+            // Get the current resting positions of all items.
+            var restingPositions = [];
+            items.each(function(d) { restingPositions.push({"key": d.key, "resting": d.resting}); });
+
+            // Sort the items by their position on the path.
+            restingPositions.sort(function (a, b)
+                {
+                    if (a.resting > b.resting) { return 1; }
+                    else if (a.resting < b.resting) { return -1; }
+                    else { return 0; }
+                });
+
+            // Separate the keys and positions.
+            var itemKeys = {};
+            var itemPositions = [];
+            for (var i = 0; i < restingPositions.length; i++)
+            {
+                itemKeys[restingPositions[i].key] = i;
+                itemPositions.push(restingPositions[i].resting);
+            }
+
+            // Rotate the positions of the items.
+            if (isLeft)
+            {
+                // If the left navigation arrow was clicked on, then scroll items to the right.
+                itemPositions = rotate_array(itemPositions, itemsToScrollBy);
+            }
+            else
+            {
+                // If the right navigation arrow was clicked on, then scroll items to the left.
+                itemPositions = rotate_array(itemPositions, -itemsToScrollBy);
+            }
+
+            // Update the positions of the items.
+            items.each(function(d)
+                {
+                    var itemIndex = itemKeys[d.key];
+                    d.resting = itemPositions[itemKeys[d.key]];
+                });
+            transition_items(isLeft ? true : false);
+
+            // Update the current visible index.
+            currentVisibleSetIndex = newVisibleSetIndex;
         }
 
         function scroll_carousel_dot()
@@ -643,6 +644,22 @@ function carouselCreator(items)
 //                                      .attr("x", function(d) { return -d.transX; });  // Update the clip path.
                             }
                     });
+        }
+
+        /****************
+        *  Rotate Array *
+        ****************/
+        function rotate_array(array, step)
+        {
+            // Rotate an array by step positions in a circular fashion. A positive step value will rotate all array values to the left.
+            // A negative step value will rotate array values to the right.
+
+            var returnArray = [];
+            for (var i = 0; i < array.length; i++)
+            {
+                returnArray.push(array[(array.length + i + step) % (array.length)]);
+            }
+            return returnArray
         }
 
         /******************************
