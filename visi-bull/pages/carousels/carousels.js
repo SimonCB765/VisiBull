@@ -283,15 +283,15 @@ function carouselCreator(items)
         if (isArrows)
         {
             // Determine whether default values are needed for the navigation arrow width and height.
-            if (navArrowWidth === null) navArrowWidth = Math.min(20, width / 4);
-            if (navArrowHeight === null) navArrowHeight = Math.min(40, (height - (isDots ? dotContainerHeight : 0)) / 2);
+            if (navArrowHeight === null) navArrowHeight = (height - (isDots ? dotContainerHeight : 0)) / 2;
+            if (navArrowWidth === null) navArrowWidth = navArrowHeight;
 
             var navArrowOffset = 10;  // The offset of each navigation arrow from its respective edge of the carousel.
 
             // Create the left navigation arrow.
             // The left arrow is inactive at the start if infinite scrolling is not used.
             var leftNavArrowContainer = carousel.append("g")
-                .classed({"navArrow": true, "left": true, "inactive": (isInfinite ? false : true)})
+                .classed({"navArrow": true, "left": true, "inactive": (isInfinite ? false : false)})
                 .on("mouseover", function() { d3.select(this).classed("highlight", true); })
                 .on("mouseout", function() { d3.select(this).classed("highlight", false); })
                 .attr("transform", "translate(" + navArrowOffset + "," + (((height - (isDots ? dotContainerHeight : 0)) / 2) - (navArrowHeight / 2)) + ")");
@@ -299,7 +299,14 @@ function carouselCreator(items)
                 .attr("width", navArrowWidth)
                 .attr("height", navArrowHeight);
             leftNavArrowContainer.append("path")
-                .attr("d", "M" + navArrowWidth + ",0" + "L0," + (navArrowHeight / 2) + "L" + navArrowWidth + "," + navArrowHeight);
+                .attr("d", "M" + (navArrowWidth * 3 / 5) + ",0" +
+                           "L" + (navArrowWidth / 6) + "," + (navArrowHeight / 2) +
+                           "L" + (navArrowWidth * 3 / 5) + "," + navArrowHeight +
+                           "H" + (navArrowWidth * 4 / 5) +
+                           "L" + (navArrowWidth * 3 / 7) + "," + (navArrowHeight / 2) +
+                           "L" + (navArrowWidth * 4 / 5) + ",0" +
+                           "Z"
+                     );
 
             // Create the right navigation arrow.
             var rightNavArrowContainer = carousel.append("g")
@@ -311,7 +318,14 @@ function carouselCreator(items)
                 .attr("width", navArrowWidth)
                 .attr("height", navArrowHeight);
             rightNavArrowContainer.append("path")
-                .attr("d", "M0,0" + "L" + navArrowWidth + "," + (navArrowHeight / 2) + "L0," + navArrowHeight);
+                .attr("d", "M" + (navArrowWidth * 2 / 5) + ",0" +
+                           "L" + (navArrowWidth * 5 / 6) + "," + (navArrowHeight / 2) +
+                           "L" + (navArrowWidth * 2 / 5) + "," + navArrowHeight +
+                           "H" + (navArrowWidth / 5) +
+                           "L" + (navArrowWidth * 4 / 7) + "," + (navArrowHeight / 2) +
+                           "L" + (navArrowWidth / 5) + ",0" +
+                           "Z"
+                     );
 
             // Setup the carousel to make the navigation buttons slightly visible when the mouse is over the carousel.
             carousel
