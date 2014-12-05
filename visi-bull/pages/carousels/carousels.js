@@ -20,6 +20,7 @@ function carouselCreator(items)
                               // Straight line paths can use infinite or non-infinite scrolling.
                               // Looped paths must use infinite scrolling.
                               // Alternatively, a custom paath can be provided.
+		customScrollFraction = 0,  // The fractional [0,1] distance along the path at which to place the first item. Only works with custom paths.
         navArrowWidth = null,  // The width of the navigation arrow.
         navArrowHeight = null  // The height of the navigation arrow.
         ;
@@ -169,7 +170,7 @@ function carouselCreator(items)
             // Using a custom path. The leftmost item in the view starts at the origin of the path.
             pathToScrollAlong.attr("d", scrollPath);
             scrollPathLength = pathToScrollAlong.node().getTotalLength();
-            leftViewItemStartDist = 0;
+            leftViewItemStartDist = customScrollFraction * scrollPathLength;
         }
 
         // Transfer the items into the carousel from wherever they currently are.
@@ -632,6 +633,14 @@ function carouselCreator(items)
     {
         if (!arguments.length) return scrollPath;
         scrollPath = _;
+        return carousel;
+    }
+	
+	// Custom scroll path fractional start distance.
+    carousel.customScrollFraction = function(_)
+    {
+        if (!arguments.length) return customScrollFraction;
+        customScrollFraction = _;
         return carousel;
     }
 
