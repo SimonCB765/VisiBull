@@ -82,6 +82,12 @@ function carouselCreator(items)
 
         // Determine the visible sets of items.
         var visibleItemSets = determine_visible_item_sets();
+        var currentVisibleSetIndex = 0;  // The index of the visible set currently in view.
+
+        for (var i = 0; i < visibleItemSets.length; i++)
+        {
+            console.log(visibleItemSets[i]);
+        }
 
         // Determine starting location of the leftmost item.
         var leftViewItemStartX = 0;  // The X location of the leftmost item in the view.
@@ -357,7 +363,7 @@ function carouselCreator(items)
             for (var i = 0; i < visibleItemSets.length; i++)
             {
                 currentDotXLoc += navDotRadius;
-                dotPositions.push({"items": visibleItemSets[i], "key": i, "transX": currentDotXLoc, "transY": (dotContainerHeight / 2) - navDotRadius});
+                dotPositions.push({"transX": currentDotXLoc, "transY": (dotContainerHeight / 2) - navDotRadius});
                 currentDotXLoc += (3 * navDotRadius);
             }
 
@@ -373,7 +379,7 @@ function carouselCreator(items)
                 .data(dotPositions)
                 .enter()
                 .append("g")
-                    .attr("class", function(d) { return "navDot" + (d.key === 0 ? " selected" : ""); })  // The first navigation dot is selected.
+                    .attr("class", function(d, i) { return "navDot" + (i === 0 ? " selected" : ""); })  // The first navigation dot is selected.
                     .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; })
                     .on("click", scroll_carousel_dot);
             navDots.append("rect")
@@ -488,7 +494,16 @@ function carouselCreator(items)
         *******************/
         function scroll_carousel_arrow()
         {
-            console.log("Scroll Arrow");
+            // Determine if the scrolling is to the left.
+            var isLeft = d3.select(this).classed("left");
+
+            console.log("Scroll Arrow " + (isLeft ? "Left" : "Right"), currentVisibleSetIndex);
+
+            // Determine index of next visible set.
+            currentVisibleSetIndex += (isLeft ? -1 : 1);
+            currentVisibleSetIndex = (visibleItemSets.length + currentVisibleSetIndex) % visibleItemSets.length;
+
+            console.log(currentVisibleSetIndex);
         }
 
         function scroll_carousel_dot()
@@ -593,16 +608,18 @@ function carouselCreator(items)
             var itemsInCarousel = items[0].length;  // The number of items in the carousel.
             var keys = [];  // The keys of the items, ordered in the same order as the items were passed in.
             items.each(function(d) { keys.push(d.key); });
-            var visibleSets = [keys.slice(0, itemsToShow)];  // The visible sets of items that can appear in the carousel's view.
-            var startKey = keys[0];  // The key of the leftmost item in the initial view.
-            var currentIndex = itemsToScrollBy;  // The index of the current leftmost item in the view being determined.
-            var currentKey = keys[currentIndex];  // The key of the current leftmost item in the view being determined.
-            var currentViewSet;  // An array containing the items in the current view being determined.
+            var visibleSets = [];  // The visible sets of items that can appear in the carousel's view.
             if (isInfinite)
             {
                 // If the scrolling is infinite, then the possible view sets can involve wrapping around the end of the array of items and starting
                 // again from the beginning. Therefore, the view sets only stop when the first item in the next viewset is the same as the first
                 // item in the first view set, as you've now reached the beginning of the cycle again.
+
+                visibleSets = [keys.slice(0, itemsToShow)];
+                var startKey = keys[0];  // The key of the leftmost item in the initial view.
+                var currentIndex = itemsToScrollBy;  // The index of the current leftmost item in the view being determined.
+                var currentKey = keys[currentIndex];  // The key of the current leftmost item in the view being determined.
+                var currentViewSet;  // An array containing the items in the current view being determined.
 
                 while (currentKey !== startKey)
                 {
@@ -633,14 +650,12 @@ function carouselCreator(items)
                 // have view sets of indices [0,1], [3,4], [6,7], and then a left over index 8. In order to handle this, when there is a left over that is
                 // smaller than a full view set, you just pad it with previous items. So, in the previous example, the final view set is not [8], but [7,8].
 
-                var numberOfFullSets = Math.floor(itemsInCarousel / itemsToScrollBy);  // The number of full sets that can be made.
-                var numberOfSets = Math.ceil(itemsInCarousel / itemsToScrollBy);  // The number of sets needed (max of 1 more than numberOfFullSets).
-
-                for (var i = 0; i < numberOfFullSets; i++)
+                var i;
+                for (i = 0; i < itemsInCarousel - itemsToShow; i += itemsToScrollBy)
                 {
-                    visibleSets.push(keys.slice(i * itemsToScrollBy, (i * itemsToScrollBy) + itemsToShow));
+                    visibleSets.push(keys.slice(i, i + itemsToShow));
                 }
-                if (numberOfFullSets !== numberOfSets)
+                if (i + itemsToShow - itemsToScrollBy !== itemsInCarousel)
                 {
                     visibleSets.push(keys.slice(-itemsToShow));
                 }
