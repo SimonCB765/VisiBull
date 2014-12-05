@@ -86,14 +86,25 @@ function carouselCreator(items)
         {
             var numberOfItemsLeftOfCenter = itemsToShow / 2;  // Fraction of the items to the left of the mid point.
             leftViewItemStartX = width / 2;  // The offset for the current item.
-            for (var i = 0; i < Math.floor(numberOfItemsLeftOfCenter); i++)
+            if (itemsToShow === 1)
             {
-                leftViewItemStartX -= itemWidths[i];
+                // Only have one centered item.
+                leftViewItemStartX -= (itemWidths[0] / 2);
             }
-            if (parseInt(numberOfItemsLeftOfCenter) !== numberOfItemsLeftOfCenter)
+            else
             {
-                // If the number of items to the left of center is not an integer (e.g. displaying 3 items with 1.5 to the left of the center).
-                leftViewItemStartX -= itemWidths[Math.ceil(numberOfItemsLeftOfCenter) + 1] / 2;
+                // Multiple itemsToShow.
+                leftViewItemStartX -= (itemWidths[0] + (itemPaddings[0] / 2));
+                for (var i = 1; i < Math.floor(numberOfItemsLeftOfCenter); i++)
+                {
+                    leftViewItemStartX -= (itemWidths[i] + itemPaddings[i]);
+                }
+                if (parseInt(numberOfItemsLeftOfCenter) !== numberOfItemsLeftOfCenter)
+                {
+                    // If the number of items to the left of center is not an integer (e.g. displaying 3 items with 1.5 to the left of the center).
+                    var itemStraddlingMidPoint = Math.floor(numberOfItemsLeftOfCenter);
+                    leftViewItemStartX -= ((itemWidths[itemStraddlingMidPoint] + itemPaddings[itemStraddlingMidPoint]) / 2);
+                }
             }
         }
         else
