@@ -37,10 +37,10 @@ _navArrow
 /*
 _navDot
 */
-.navDot {fill: white; stroke: none;}  /* Style the non-selected navigation dots (i.e. the dots not corresponding to the current visible items). */
+.navDotContainer {fill: white; stroke: none;}  /* Style the non-selected navigation dots (i.e. the dots not corresponding to the current visible items). */
+.navDotContainer rect {opacity: 0;}  /* Make the backing rectangle invisible. */
 .navDot:hover {cursor: pointer;}  /* Change the mouse to a pointer when hovering over the navigation dots. */
 .navDot.selected {fill: red;}  /* Style the selected navigation dot (i.e. the dot corresponding to the current visible items). */
-.navDot rect {opacity: 0;}  /* Make the backing rectangle invisible. */
 
 /*
 _item

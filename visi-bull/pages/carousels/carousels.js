@@ -22,7 +22,8 @@ function carouselCreator(items)
                               // Alternatively, a custom paath can be provided.
         customScrollFraction = 0,  // The fractional [0,1] distance along the path at which to place the first item. Only works with custom paths.
         navArrowWidth = null,  // The width of the navigation arrow.
-        navArrowHeight = null  // The height of the navigation arrow.
+        navArrowHeight = null,  // The height of the navigation arrow.
+        navDotRadius = 5  // The radius of the navigation dots.
         ;
 
     /*****************************
@@ -37,6 +38,8 @@ function carouselCreator(items)
         var carousel = selection.append("g")
             .classed("carousel", true)
             .attr("transform", function(d) { return "translate(" + xLoc + "," + yLoc + ")"; });
+        var itemContainer = carousel.append("g")
+            .classed("itemContainer", true);
 
         // Determine the width of each item (taking into account its padding), and the maximum height of all items.
         var maxItemHeight = 0;  // The maximum height (including vertical padding) of all the items.
@@ -72,7 +75,7 @@ function carouselCreator(items)
         }
 
         // Create the backing rectangle to catch events. Create it before transferring the items in order to ensure it is below them.
-        carousel.append("rect")
+        itemContainer.append("rect")
             .classed("backingRect", true)
             .attr("width", width)
             .attr("height", height);
@@ -113,7 +116,7 @@ function carouselCreator(items)
         }
 
         // Setup the scroll path.
-        var pathToScrollAlong = carousel.append("path").classed("scrollPath", true);
+        var pathToScrollAlong = itemContainer.append("path").classed("scrollPath", true);
         var leftViewItemStartDist = 0;  // The location of the leftmost item in the view in terms of its fractional distance along the path.
         var scrollPathStartX;  // The X location of the start of the scroll path.
         var scrollPathStartY = (height - (isDots ? dotContainerHeight : 0)) / 2;  // The Y location of the start of the scroll path.
@@ -185,7 +188,7 @@ function carouselCreator(items)
         }
 
         // Transfer the items into the carousel from wherever they currently are.
-        items.each(function() { carousel.node().appendChild(this); });
+        items.each(function() { itemContainer.node().appendChild(this); });
 
         // Put the items in the initial places.
         var currentItemDist = leftViewItemStartDist;  // Distance along the path of the current item.
@@ -277,7 +280,7 @@ function carouselCreator(items)
         {
             dragBehaviour.on("drag", drag_update_standard);
         }
-        carousel.call(dragBehaviour);
+        itemContainer.call(dragBehaviour);
 
         // Create the navigation arrows.
         if (isArrows)
@@ -290,7 +293,7 @@ function carouselCreator(items)
 
             // Create the left navigation arrow.
             // The left arrow is inactive at the start if infinite scrolling is not used.
-            var leftNavArrowContainer = carousel.append("g")
+            var leftNavArrowContainer = itemContainer.append("g")
                 .classed({"navArrow": true, "left": true, "inactive": (isInfinite ? false : false)})
                 .on("mouseover", function() { d3.select(this).classed("highlight", true); })
                 .on("mouseout", function() { d3.select(this).classed("highlight", false); })
@@ -309,7 +312,7 @@ function carouselCreator(items)
                      );
 
             // Create the right navigation arrow.
-            var rightNavArrowContainer = carousel.append("g")
+            var rightNavArrowContainer = itemContainer.append("g")
                 .classed({"navArrow": true, "right": true})
                 .on("mouseover", function() { d3.select(this).classed("highlight", true); })
                 .on("mouseout", function() { d3.select(this).classed("highlight", false); })
@@ -328,15 +331,60 @@ function carouselCreator(items)
                      );
 
             // Setup the carousel to make the navigation buttons slightly visible when the mouse is over the carousel.
-            carousel
+            itemContainer
                 .on("mouseover", function() { leftNavArrowContainer.classed("visible", true); rightNavArrowContainer.classed("visible", true); })
                 .on("mouseout", function() { leftNavArrowContainer.classed("visible", false); rightNavArrowContainer.classed("visible", false); });
         }
-        var navigationArrows = carousel.selectAll(".navArrow");
+        var navigationArrows = itemContainer.selectAll(".navArrow").on("click", scroll_carousel_arrow);;
 
         // Create the navigation dots.
         if (isDots)
         {
+            // Determine the positions of the dots.
+            var numberOfDotsLeftOfCenter = visibleItemSets.length / 2;  // Fraction of the dots to the left of the carousel mid point.
+            var leftDotLoc = width / 2;  // The X location for the leftmost dot.
+            for (var i = 0; i < Math.floor(numberOfDotsLeftOfCenter); i++)
+            {
+                leftDotLoc -= (4 * navDotRadius);
+            }
+            if (parseInt(numberOfDotsLeftOfCenter) !== numberOfDotsLeftOfCenter)
+            {
+                // If the number of items to the left of center is not an integer (e.g. displaying 3 items with 1.5 to the left of the center).
+                leftDotLoc -= (2 * navDotRadius);
+            }
+            var dotPositions = [];
+            var currentDotXLoc = leftDotLoc;
+            for (var i = 0; i < visibleItemSets.length; i++)
+            {
+                currentDotXLoc += navDotRadius;
+                dotPositions.push({"items": visibleItemSets[i], "key": i, "transX": currentDotXLoc, "transY": (dotContainerHeight / 2) - navDotRadius});
+                currentDotXLoc += (3 * navDotRadius);
+            }
+
+            // Add the dots.
+            var dotContainer = carousel.append("g")
+                .datum({"transX": 0, "transY": height - dotContainerHeight})
+                .classed("navDotContainer", true)
+                .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+            dotContainer.append("rect")
+                    .attr("width", width)
+                    .attr("height", dotContainerHeight);
+            var navDots = dotContainer.selectAll(".navDot")
+                .data(dotPositions)
+                .enter()
+                .append("g")
+                    .attr("class", function(d) { return "navDot" + (d.key === 0 ? " selected" : ""); })  // The first navigation dot is selected.
+                    .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; })
+                    .on("click", scroll_carousel_dot);
+            navDots.append("rect")
+                .attr("x", -navDotRadius / 2)
+                .attr("y", -navDotRadius / 2)
+                .attr("width", (3 * navDotRadius))
+                .attr("height", (3 * navDotRadius));
+            navDots.append("circle")
+                .attr("cx", navDotRadius)
+                .attr("cy", navDotRadius)
+                .attr("r", navDotRadius);
         }
 
         /*****************
@@ -432,6 +480,28 @@ function carouselCreator(items)
         }
 
         /*******************
+        * Scroll Functions *
+        *******************/
+        function scroll_carousel_arrow()
+        {
+            console.log("Scroll Arrow");
+        }
+
+        function scroll_carousel_dot()
+        {
+            // Scroll the carousel left or right following a click on one of the navigation dots.
+            console.log("Scroll Dot");
+
+            var dotContainer = d3.select(this.parentNode);  // Get the element containing all the dots.
+
+            // Highlight the clicked on dot. Must use selectAll here not select (even though there will only ever be one selected dot) as selection.select is
+            // a non-grouping operator and so will cause the child to inherit the data of the parent. I don't want this as the child has its own unrelated
+            // data.
+            dotContainer.selectAll(".selected").classed("selected", false);
+            d3.select(this).classed("selected", true);
+        }
+
+        /*******************
         * Transition Items *
         *******************/
         function transition_items()
@@ -501,9 +571,9 @@ function carouselCreator(items)
                     });
         }
 
-        /*******************
-        * Helper Functions *
-        *******************/
+        /******************************
+        * Determine Visible Item Sets *
+        ******************************/
         function determine_visible_item_sets()
         {
             // Depending on the number of items and the values of itemsToShow and itemsToScrollBy, there will be a certain number of sets of items
@@ -698,6 +768,14 @@ function carouselCreator(items)
     {
         if (!arguments.length) return navArrowHeight;
         navArrowHeight = _;
+        return carousel;
+    }
+
+    // Navigation arrow height.
+    carousel.navDotRadius = function(_)
+    {
+        if (!arguments.length) return navDotRadius;
+        navDotRadius = _;
         return carousel;
     }
 
