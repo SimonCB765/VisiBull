@@ -388,17 +388,17 @@ function carouselCreator(items)
                 .attr("r", navDotRadius);
         }
 
-        /*****************
-        * Drag Functions *
-        *****************/
-        var totalDistanceDragged = 0;  // The total distance that the user has dragged the carousel (used to determine which direction to snap the items back to resting).
-        var lastDistanceDragged;  // The distance dragged during the previous drag (only needed when a click on the carousel (drag distance 0) interrupts
-                                  // the items as they are transitioning to their resting positions.
+        /***************************
+        * Item Scrolling Functions *
+        ***************************/
+        var totalDistanceMoved = 0;  // The total distance that the user has dragged/scrolled the carousel (used to determine which direction to snap the items back to resting).
+        var lastDistanceMoved;  // The distance dragged/scrolled during the previous drag (only needed when a click on the carousel
+                                // (drag distance 0) interrupts the items as they are transitioning to their resting positions.
         function drag_end(d)
         {
             // Transition the items, and clips paths, to their correct resting places.
-            totalDistanceDragged = (totalDistanceDragged === 0) ? lastDistanceDragged : totalDistanceDragged;
-            transition_items(totalDistanceDragged < 0);
+            totalDistanceMoved = (totalDistanceMoved === 0) ? lastDistanceMoved : totalDistanceMoved;
+            transition_items(totalDistanceMoved < 0);
 
             // Add back the highlighting for the navigation arrows.
             navigationArrows
@@ -408,8 +408,8 @@ function carouselCreator(items)
 
         function drag_start()
         {
-            lastDistanceDragged = totalDistanceDragged;
-            totalDistanceDragged = 0;  // Initialise the distance the items have been dragged.
+            lastDistanceMoved = totalDistanceMoved;
+            totalDistanceMoved = 0;  // Initialise the distance the items have been dragged.
             items
                 .interrupt() // Cancel any transitions running on the items.
                 .transition(); // Pre-empt any scheduled transitions on the items.
@@ -424,7 +424,7 @@ function carouselCreator(items)
         {
             // Drag items that scroll infinitely.
             var changeInPosition = d3.event.dx;  // The movement caused by the dragging.
-            totalDistanceDragged += changeInPosition;
+            totalDistanceMoved += changeInPosition;
 
             // Get the items in the carousel.
             var items = d3.select(this).selectAll(".item");
@@ -455,7 +455,7 @@ function carouselCreator(items)
         {
             // Drag items that do not scroll infinitely.
             var changeInPosition = d3.event.dx;  // The movement caused by the dragging.
-            totalDistanceDragged += changeInPosition;
+            totalDistanceMoved += changeInPosition;
 
             // Get the items in the carousel.
             var items = d3.select(this).selectAll(".item");
@@ -484,9 +484,6 @@ function carouselCreator(items)
 */
         }
 
-        /*******************
-        * Scroll Functions *
-        *******************/
         function scroll_carousel_arrow()
         {
             // Determine if the arrow clicked on is active.
@@ -495,8 +492,6 @@ function carouselCreator(items)
 
             // Determine if the scrolling is to the left.
             var isLeft = arrow.classed("left");
-
-            console.log("Scroll Arrow " + (isLeft ? "Left" : "Right"), currentVisibleSetIndex);
 
             // Determine index of next visible set.
             newVisibleSetIndex = currentVisibleSetIndex + (isLeft ? -1 : 1);
@@ -568,6 +563,8 @@ function carouselCreator(items)
 
                 // Determine the distance to scroll the items.
                 var distanceToScroll = oldLeftmostResting - newLeftmostResting;
+                totalDistanceMoved = -distanceToScroll;  // Negative as if you've scrolled the items left (which is a positive distanceToScroll),
+                                                         // then the items have moved left (which is a negative totalDistanceMoved).
                 itemPositions = itemPositions.map(function(v) { return v + distanceToScroll; });
             }
 
@@ -597,9 +594,9 @@ function carouselCreator(items)
             d3.select(this).classed("selected", true);
         }
 
-        /*******************
-        * Transition Items *
-        *******************/
+        /********************
+        *  Helper Functions *
+        ********************/
         function transition_items(isScrollRight)
         {
             // Transition items back to their resting locations from wherever they are.
@@ -673,9 +670,6 @@ function carouselCreator(items)
                     });
         }
 
-        /****************
-        *  Rotate Array *
-        ****************/
         function rotate_array(array, step)
         {
             // Rotate an array by step positions in a circular fashion. A positive step value will rotate all array values to the left.
@@ -689,9 +683,6 @@ function carouselCreator(items)
             return returnArray
         }
 
-        /******************************
-        * Determine Visible Item Sets *
-        ******************************/
         function determine_visible_item_sets()
         {
             // Depending on the number of items and the values of itemsToShow and itemsToScrollBy, there will be a certain number of sets of items
