@@ -391,14 +391,10 @@ function carouselCreator(items)
         /***************************
         * Item Scrolling Functions *
         ***************************/
-        var totalDistanceMoved = 0;  // The total distance that the user has dragged/scrolled the carousel (used to determine which direction to snap the items back to resting).
-        var lastDistanceMoved;  // The distance dragged/scrolled during the previous drag (only needed when a click on the carousel
-                                // (drag distance 0) interrupts the items as they are transitioning to their resting positions.
         function drag_end(d)
         {
             // Transition the items, and clips paths, to their correct resting places.
-            totalDistanceMoved = (totalDistanceMoved === 0) ? lastDistanceMoved : totalDistanceMoved;
-            transition_items(totalDistanceMoved < 0);
+            transition_items();
 
             // Add back the highlighting for the navigation arrows.
             navigationArrows
@@ -408,8 +404,6 @@ function carouselCreator(items)
 
         function drag_start()
         {
-            lastDistanceMoved = totalDistanceMoved;
-            totalDistanceMoved = 0;  // Initialise the distance the items have been dragged.
             items
                 .interrupt() // Cancel any transitions running on the items.
                 .transition(); // Pre-empt any scheduled transitions on the items.
@@ -424,7 +418,6 @@ function carouselCreator(items)
         {
             // Drag items that scroll infinitely.
             var changeInPosition = d3.event.dx;  // The movement caused by the dragging.
-            totalDistanceMoved += changeInPosition;
 
             // Get the items in the carousel.
             var items = d3.select(this).selectAll(".item");
@@ -455,7 +448,6 @@ function carouselCreator(items)
         {
             // Drag items that do not scroll infinitely.
             var changeInPosition = d3.event.dx;  // The movement caused by the dragging.
-            totalDistanceMoved += changeInPosition;
 
             // Get the items in the carousel.
             var items = d3.select(this).selectAll(".item");
@@ -535,7 +527,7 @@ function carouselCreator(items)
             var numberItemsToScrollBy;
             if (isInfinite)
             {
-                // If infinite scrolling is used.
+                // Infinite scrolling is used.
 
                 // Determine whether we are scrolling left.
                 isLeft = distanceGoingLeft < distanceGoingRight ? true : false;
@@ -644,8 +636,26 @@ function carouselCreator(items)
         /********************
         *  Helper Functions *
         ********************/
-        function transition_items(isScrollRight)
+        function transition_items()
         {
+            // Determine whether to scroll left or right.
+            var leftItemData = items.data()[0];
+            var isScrollRight;
+            if (isInfinite)
+            {
+                // If infinite scrolling is used, then scroll in the shorter direction.
+                var isNewRestingLeft = leftItemData.resting < leftItemData.distAlongPath;
+                var distanceGoingLeft = (isNewRestingLeft) ? leftItemData.distAlongPath - leftItemData.resting : leftItemData.distAlongPath + (scrollPathLength - leftItemData.resting);
+                var distanceGoingRight = (isNewRestingLeft) ? (scrollPathLength - leftItemData.distAlongPath) + leftItemData.resting : leftItemData.resting - leftItemData.distAlongPath;
+                isScrollRight = distanceGoingRight < distanceGoingLeft;
+            }
+            else
+            {
+                // If scrolling is not infinite, then simply scroll right if the items are currently to the left of where they need to be, and
+                // left otherwise.
+                isScrollRight = leftItemData.distAlongPath < leftItemData.resting;
+            }
+
             // Transition items back to their resting locations from wherever they are.
             items
                 .transition()
@@ -656,7 +666,6 @@ function carouselCreator(items)
                         var interpolator;
                         if (isScrollRight)
                         {
-                            // The dragging has been predominantly to the left, so you are going to scroll to the right.
                             if (d.distAlongPath < d.resting)
                             {
                                 // If the current position of the item is to the left of its resting place, then you want to
@@ -676,7 +685,6 @@ function carouselCreator(items)
                         }
                         else
                         {
-                            // The dragging has been predominantly to the right, so you are going to scroll to the left.
                             if (d.distAlongPath < d.resting)
                             {
                                 // If the current position of the item is to the left of its resting place, then the item has looped
