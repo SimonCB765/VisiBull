@@ -358,7 +358,7 @@ function carouselCreator(items)
             for (var i = 0; i < visibleItemSets.length; i++)
             {
                 currentDotXLoc += navDotRadius;
-                dotPositions.push({"transX": currentDotXLoc, "transY": (dotContainerHeight / 2) - navDotRadius});
+                dotPositions.push({"key": i, "transX": currentDotXLoc, "transY": (dotContainerHeight / 2) - navDotRadius});
                 currentDotXLoc += (3 * navDotRadius);
             }
 
@@ -484,26 +484,24 @@ function carouselCreator(items)
 */
         }
 
-        function scroll_carousel_arrow()
+        function scroll_carousel(newVisibleSetIndex)
         {
-            // Determine if the arrow clicked on is active.
-            var arrow = d3.select(this);
-            if (arrow.classed("inactive")) return;
+            // Scroll the carousel to display a new set of items.
+            // newVisibleSetIndex is the index of the new set of visible items to display.
 
-            // Determine if the scrolling is to the left.
-            var isLeft = arrow.classed("left");
-
-            // Determine index of next visible set.
-            newVisibleSetIndex = currentVisibleSetIndex + (isLeft ? -1 : 1);
-            newVisibleSetIndex = (visibleItemSets.length + newVisibleSetIndex) % visibleItemSets.length;
-
-            // Inactivate and activate the navigation arrows as needed.
-            if (!isInfinite)
+            if (isDots)
             {
-                carousel.select(".navArrow.right")
-                    .classed("inactive", newVisibleSetIndex + 1 === visibleItemSets.length);
-                carousel.select(".navArrow.left")
-                    .classed("inactive", newVisibleSetIndex === 0);
+                // Highlight the clicked on dot. Must use selectAll here not select (even though there will only ever be one selected dot) as selection.select
+                // is a non-grouping operator and so will cause the child to inherit the data of the parent. I don't want this as the child has its own
+                // unrelated data.
+                var navDots = dotContainer.selectAll(".navDot").classed("selected", false);
+                navDots.each(function(d)
+                    {
+                        if (d.key === newVisibleSetIndex)
+                        {
+                            d3.select(this).classed("selected", true);
+                        }
+                    });
             }
 
             // Get the current resting positions of all items.
@@ -527,27 +525,50 @@ function carouselCreator(items)
                 itemPositions.push(restingPositions[i].resting);
             }
 
-            // Determine the new positions.
+            // Determine whether getting to the new visible set by going left or right covers a shorter distance.
+            var isCurrentIndexGreater = currentVisibleSetIndex > newVisibleSetIndex;
+            var distanceGoingLeft = (isCurrentIndexGreater) ? currentVisibleSetIndex - newVisibleSetIndex : currentVisibleSetIndex + (visibleItemSets.length - newVisibleSetIndex) ;
+            var distanceGoingRight = (isCurrentIndexGreater) ? (visibleItemSets.length - currentVisibleSetIndex) + newVisibleSetIndex : newVisibleSetIndex - currentVisibleSetIndex;
+            var isLeft;
+
+            // Determine the new positions of the items.
+            var numberItemsToScrollBy;
             if (isInfinite)
             {
-                // Rotate the positions of the items.
+                // If infinite scrolling is used.
+
+                // Determine whether we are scrolling left.
+                isLeft = distanceGoingLeft < distanceGoingRight ? true : false;
+
+                // Determine the number of items to scroll by.
+                numberItemsToScrollBy = itemsToScrollBy * Math.min(distanceGoingLeft, distanceGoingRight);
+
+                // Determine the new positions for the items.
                 if (isLeft)
                 {
-                    // If the left navigation arrow was clicked on, then scroll items to the right.
-                    itemPositions = rotate_array(itemPositions, itemsToScrollBy);
+                    // The new index is to the left of the current index, so the carousel is being scrolled left, and the items
+                    // should therefore move to the right. A positive value for rotate_array will move rotate the values in the array
+                    // to the left, and will therefore rotate the array of resting positions in such a way that the items will
+                    // scroll to the right.
+                    itemPositions = rotate_array(itemPositions, numberItemsToScrollBy);
                 }
                 else
                 {
-                    // If the right navigation arrow was clicked on, then scroll items to the left.
-                    itemPositions = rotate_array(itemPositions, -itemsToScrollBy);
+                    // The new index is to the right of the current index, so the carousel is being scrolled right, and the items
+                    // should therefore move to the left. A negative value for rotate_array will move rotate the values in the array
+                    // to the right, and will therefore rotate the array of resting positions in such a way that the items will
+                    // scroll to the left.
+                    itemPositions = rotate_array(itemPositions, -numberItemsToScrollBy);
                 }
             }
             else
             {
-                // Get the data for the old and new leftmost items in the old and new sets of visible items.
-                var oldLeftmost = visibleItemSets[currentVisibleSetIndex][0];
+                // Non-infinite scrolling is used.
+
+                // Determine the leftmost item in the current and new visible set of items.
+                var currentLeftmost = visibleItemSets[currentVisibleSetIndex][0];
                 var newLeftmost = visibleItemSets[newVisibleSetIndex][0];
-                var oldLeftmostResting;  // The resting position for the item that currently is the leftmost item in view.
+                var currentLeftmostResting;  // The resting position for the item that currently is the leftmost item in view.
                 var newLeftmostResting;  // The resting position for the item that will become the leftmost item in view.
                 items.each(function(d)
                     {
@@ -555,18 +576,25 @@ function carouselCreator(items)
                         {
                             newLeftmostResting = d.resting;
                         }
-                        else if (d.key === oldLeftmost)
+                        else if (d.key === currentLeftmost)
                         {
-                            oldLeftmostResting = d.resting;
+                            currentLeftmostResting = d.resting;
                         }
                     });
 
-                // Determine the distance to scroll the items.
-                var distanceToScroll = oldLeftmostResting - newLeftmostResting;
-                totalDistanceMoved = -distanceToScroll;  // Negative as if you've scrolled the items left (which is a positive distanceToScroll),
-                                                         // then the items have moved left (which is a negative totalDistanceMoved).
-                itemPositions = itemPositions.map(function(v) { return v + distanceToScroll; });
+                // Determine the distance to scroll.
+                var distanceToScroll = currentLeftmostResting - newLeftmostResting;
+
+                // Determine the direction we are scrolling. Scrolling left if the current visible set index is greater than the new one.
+                isLeft = distanceToScroll > 0;
+
+                // Add the distance to scroll to all resting positions.
+                for (var i = 0; i < itemPositions.length; i++)
+                {
+                    itemPositions[i] += distanceToScroll;
+                }
             }
+
 
             // Update the positions of the items.
             items.each(function(d)
@@ -574,24 +602,43 @@ function carouselCreator(items)
                     var itemIndex = itemKeys[d.key];
                     d.resting = itemPositions[itemKeys[d.key]];
                 });
+            console.log("isLeft", isLeft);
             transition_items(isLeft ? true : false);
 
             // Update the current visible index.
             currentVisibleSetIndex = newVisibleSetIndex;
         }
 
-        function scroll_carousel_dot()
+        function scroll_carousel_arrow()
+        {
+            // Determine if the arrow clicked on is active.
+            var arrow = d3.select(this);
+            if (arrow.classed("inactive")) return;
+
+            // Determine if the scrolling is to the left.
+            var isLeft = arrow.classed("left");
+
+            // Determine index of next visible set.
+            newVisibleSetIndex = currentVisibleSetIndex + (isLeft ? -1 : 1);
+            newVisibleSetIndex = (visibleItemSets.length + newVisibleSetIndex) % visibleItemSets.length;
+
+            // Inactivate and activate the navigation arrows as needed.
+            if (!isInfinite)
+            {
+                carousel.select(".navArrow.right")
+                    .classed("inactive", newVisibleSetIndex + 1 === visibleItemSets.length);
+                carousel.select(".navArrow.left")
+                    .classed("inactive", newVisibleSetIndex === 0);
+            }
+
+            // Scroll the carousel.
+            scroll_carousel(newVisibleSetIndex);
+        }
+
+        function scroll_carousel_dot(d)
         {
             // Scroll the carousel left or right following a click on one of the navigation dots.
-            console.log("Scroll Dot");
-
-            var dotContainer = d3.select(this.parentNode);  // Get the element containing all the dots.
-
-            // Highlight the clicked on dot. Must use selectAll here not select (even though there will only ever be one selected dot) as selection.select is
-            // a non-grouping operator and so will cause the child to inherit the data of the parent. I don't want this as the child has its own unrelated
-            // data.
-            dotContainer.selectAll(".selected").classed("selected", false);
-            d3.select(this).classed("selected", true);
+            scroll_carousel(d.key);
         }
 
         /********************
@@ -675,11 +722,26 @@ function carouselCreator(items)
             // Rotate an array by step positions in a circular fashion. A positive step value will rotate all array values to the left.
             // A negative step value will rotate array values to the right.
 
+            // Determine the offset to apply in order to bring the index within the permissible range.
+            var offset = step < 0 ? Math.ceil(step / array.length) * array.length : Math.floor(step / array.length) * array.length;
+
+            // Correct for -ve step values.
+            if (step < 0)
+            {
+                // Negative steps can't be used directly as array[-ve] is an error. Therefore, when a negative
+                // step is used, the step value must be corrected.
+                // This is done by converting the -ve step to an equivalent +ve step. For example, with an array of [0,1,2,3,4]
+                // a -ve step of -6 is equivalent to a +ve step of 4. Both give a rotated array of [4,0,1,2,3].
+                step += (Math.ceil(Math.abs(step) / array.length) * array.length);
+            }
+
+            // Rotate the array.
             var returnArray = [];
             for (var i = 0; i < array.length; i++)
             {
-                returnArray.push(array[(array.length + i + step) % (array.length)]);
+                returnArray.push(array[(i + step) % (array.length)]);
             }
+
             return returnArray
         }
 
