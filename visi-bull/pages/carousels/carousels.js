@@ -388,13 +388,27 @@ function carouselCreator(items)
                 .attr("r", navDotRadius);
         }
 
-        /***************************
-        * Item Scrolling Functions *
-        ***************************/
+        /**************************
+        * Item Dragging Functions *
+        **************************/
         function drag_end(d)
         {
-            // Transition the items, and clips paths, to their correct resting places.
-            transition_items();
+            // Search through all sets of items to find the one with the leftmost item that is closest to the starting item locaton.
+            var currentShortestDistance = width;
+            var closestSetIndex = 0;
+            for (var i = 0; i < visibleItemSets.length; i++)
+            {
+                var leftmostItem = items.filter(function(d) { return d.key == visibleItemSets[i][0]; });
+                var leftmostDist = Math.abs(leftViewItemStartDist - leftmostItem.datum().distAlongPath);
+                if (leftmostDist < currentShortestDistance)
+                {
+                    currentShortestDistance = leftmostDist;
+                    closestSetIndex = i;
+                }
+            }
+
+            // Scroll the carousel.
+            scroll_carousel(closestSetIndex);
 
             // Add back the highlighting for the navigation arrows.
             navigationArrows
@@ -476,6 +490,9 @@ function carouselCreator(items)
 */
         }
 
+        /***************************
+        * Item Scrolling Functions *
+        ***************************/
         function scroll_carousel(newVisibleSetIndex)
         {
             // Scroll the carousel to display a new set of items.
@@ -587,15 +604,13 @@ function carouselCreator(items)
                 }
             }
 
-
             // Update the positions of the items.
             items.each(function(d)
                 {
                     var itemIndex = itemKeys[d.key];
                     d.resting = itemPositions[itemKeys[d.key]];
                 });
-            console.log("isLeft", isLeft);
-            transition_items(isLeft ? true : false);
+            transition_items();
 
             // Update the current visible index.
             currentVisibleSetIndex = newVisibleSetIndex;
