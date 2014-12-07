@@ -1,9 +1,23 @@
 /*
 Contents:
+_element    -> style declarations for all elements of a given type (html, body, table, all p tags etc.).
+_classes    -> style declarations for specific classes.
 _carousel   -> style declarations for the carousel itself.
-_navArrow	-> style declarations for the navigation arrows.
-_navDot     -> style declarations for the navigation dots.
+_carousel_navArrow		-> style declarations for the navigation arrows.
+_carousel_navDot		-> style declarations for the navigation dots.
 */
+
+/*
+_element
+*/
+h3 {margin: 1em 0;}
+
+/*
+_classes
+*/
+.adj {display: inline-block;}
+.centerText {text-align: center;}
+.code.inline {margin: 1em;}  /* Styling to bring the code blocks back in line. */
 
 /*
 _carousel
@@ -12,7 +26,7 @@ _carousel
 .scrollPath {fill: none; stroke: orange; stroke-width: 2;}  /* Style declarations for the path along which the items are scrolled. */
 
 /*
-_navArrow
+_carousel_navArrow
 */
 .navArrow  {opacity: 0;}  /* The default style of the navigation arrows is to be invisible. */
 .navArrow rect {fill: black; fill-opacity: 0; stroke: none;}  /* Style the rectangle that catches events. */
@@ -24,7 +38,7 @@ _navArrow
 .navArrow.highlight path {fill: white;}  /* Style the arrow when highlighted. */
 
 /*
-_navDot
+_carousel_navDot
 */
 .navDotContainer {fill: white; stroke: none;}  /* Style the non-selected navigation dots (i.e. the dots not corresponding to the current visible items). */
 .navDotContainer rect {opacity: 0;}  /* Make the backing rectangle invisible. */

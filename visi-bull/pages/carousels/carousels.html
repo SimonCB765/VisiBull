@@ -26,52 +26,185 @@
     The carousel does not care about the shape of the items, its just places and manipulates them.
 </p>
 <p>
-    TODO<br>
-    Scroll by different to number in view.
+    With centered items it is often best to manually define the carousel size (otherwise can't tell that it is centered).
 </p>
 <br>
-<h3>Single Item Carousels</h3>
-<p>Not infinite looping.</p>
-<svg id="Single-Non-Inf" />
-<p>Infinite Looping</p>
-<svg id="Single-Inf" />
+<h2>Single Item Carousels</h3>
+<div>
+    <div class="adj">
+        <h3 class="centerText">Non-infinite Scrolling</h3>
+        <svg id="Single-Non-Inf" />
+        <pre class="code inline"><code class="javascript"><span class="keyword">var</span> svg = d3.select(...).append(<span class="string">"svg"</span>);
+<span class="keyword">var</span> items = ...  <span class="comment">// Create the items.</span>
+<span class="keyword">var</span> carousel = carouselCreator(items)
+    ...
+    .isInfinite(<span class="keyword">false</span>)
+    .itemsToShow(<span class="number">1</span>)
+    .itemsToScrollBy(<span class="number">1</span>)
+    ...
+svg.call(carousel);</code></pre>
+    </div>
+    <div class="adj">
+        <h3 class="centerText">Infinite Scrolling</h3>
+        <svg id="Single-Inf" />
+        <pre class="code inline"><code class="javascript"><span class="keyword">var</span> svg = d3.select(...).append(<span class="string">"svg"</span>);
+<span class="keyword">var</span> items = ...  <span class="comment">// Create the items.</span>
+<span class="keyword">var</span> carousel = carouselCreator(items)
+    ...
+    .isInfinite(<span class="keyword">true</span>)
+    .itemsToShow(<span class="number">1</span>)
+    .itemsToScrollBy(<span class="number">1</span>)
+    ...
+svg.call(carousel);</code></pre>
+    </div>
+</div>
 <br>
-<h3>Multiple Item Carousels</h3>
-<p>Not infinite looping.</p>
-<svg id="Multi-Non-Inf" />
-<p>Infinite Looping</p>
-<svg id="Multi-Inf" />
+<h2>Multiple Item Carousels</h3>
+<div>
+    <div class="adj">
+        <h3 class="centerText">Non-infinite Scrolling (Uneven Items Sets)</h3>
+        <svg id="Multi-Non-Inf" />
+        <pre class="code inline"><code class="javascript"><span class="keyword">var</span> svg = d3.select(...).append(<span class="string">"svg"</span>);
+<span class="keyword">var</span> items = ...  <span class="comment">// Create the items.</span>
+<span class="keyword">var</span> carousel = carouselCreator(items)
+    ...
+    .isInfinite(<span class="keyword">false</span>)
+    .itemsToShow(<span class="number">4</span>)
+    .itemsToScrollBy(<span class="number">4</span>)
+    ...
+svg.call(carousel);</code></pre>
+    </div>
+    <div class="adj">
+        <h3 class="centerText">Infinite Scrolling</h3>
+        <svg id="Multi-Inf" />
+        <pre class="code inline"><code class="javascript"><span class="keyword">var</span> svg = d3.select(...).append(<span class="string">"svg"</span>);
+<span class="keyword">var</span> items = ...  <span class="comment">// Create the items.</span>
+<span class="keyword">var</span> carousel = carouselCreator(items)
+    ...
+    .isInfinite(<span class="keyword">true</span>)
+    .itemsToShow(<span class="number">2</span>)
+    .itemsToScrollBy(<span class="number">2</span>)
+    ...
+svg.call(carousel);</code></pre>
+    </div>
+</div>
 <br>
-<h3>Centered Carousels</h3>
-<p>Also show the carousel width being set manually (to contain more than one item)</p>
-<p>Infinite and non-infinite for all.</p>
-<p>Have the center item highlighted in some way, and make it so that the center item is really in the center (require odd number of items). (center mode - http://kenwheeler.github.io/slick/)</p>
-<p>Variable width items. (variable width - http://kenwheeler.github.io/slick/)</p>
-<svg id="Single-Var-Width" />
-<svg id="Multi-Var-Width" />
-<p>Variable horizontal padding items.</p>
-<svg id="Single-Var-Pad" />
-<svg id="Multi-Var-Pad" />
+<h2>Centered Carousels</h3>
+<div>
+    <div class="adj">
+        <h3 class="centerText">Non-infinite Scrolling (Manual Width)</h3>
+        <svg id="Center-Non-Inf" />
+        <pre class="code inline"><code class="javascript"><span class="keyword">var</span> svg = d3.select(...).append(<span class="string">"svg"</span>);
+<span class="keyword">var</span> items = ...  <span class="comment">// Create the items.</span>
+<span class="keyword">var</span> carousel = carouselCreator(items)
+    ...
+    .width(<span class="number">420</span>)
+    .isInfinite(<span class="keyword">false</span>)
+    .isCentered(<span class="keyword">true</span>)
+    .itemsToShow(<span class="number">2</span>)
+    .itemsToScrollBy(<span class="number">1</span>)
+    ...
+svg.call(carousel);</code></pre>
+    </div>
+    <div class="adj">
+        <h3 class="centerText">Infinite Scrolling (Manual Width)</h3>
+        <svg id="Center-Inf" />
+        <pre class="code inline"><code class="javascript"><span class="keyword">var</span> svg = d3.select(...).append(<span class="string">"svg"</span>);
+<span class="keyword">var</span> items = ...  <span class="comment">// Create the items.</span>
+<span class="keyword">var</span> carousel = carouselCreator(items)
+    ...
+    .width(<span class="number">420</span>)
+    .isInfinite(<span class="keyword">true</span>)
+    .isCentered(<span class="keyword">true</span>)
+    .itemsToShow(<span class="number">3</span>)
+    .itemsToScrollBy(<span class="number">2</span>)
+    ...
+svg.call(carousel);</code></pre>
+    </div>
+</div>
 <br>
-<h3>Strange Shaped Items</h3>
+<h2>Variable Item Size and Padding Carousels</h3>
+<div>
+    <div class="adj">
+        <h3 class="centerText">Variable Size Items (Non-Infinite Scrolling)</h3>
+        <svg id="Var-Size-Non-Inf" />
+        <pre class="code inline"><code class="javascript"><span class="keyword">var</span> svg = d3.select(...).append(<span class="string">"svg"</span>);
+<span class="keyword">var</span> items = ...  <span class="comment">// Create the items.</span>
+<span class="keyword">var</span> carousel = carouselCreator(items)
+    ...
+    .width(<span class="number">420</span>)
+    .isInfinite(<span class="keyword">false</span>)
+    .isCentered(<span class="keyword">false</span>)
+    .itemsToShow(<span class="number">1</span>)
+    .itemsToScrollBy(<span class="number">1</span>)
+    ...
+svg.call(carousel);</code></pre>
+    </div>
+    <div class="adj">
+        <h3 class="centerText">Variable Size Items (Infinite Scrolling)</h3>
+        <svg id="Var-Size-Inf" />
+        <pre class="code inline"><code class="javascript"><span class="keyword">var</span> svg = d3.select(...).append(<span class="string">"svg"</span>);
+<span class="keyword">var</span> items = ...  <span class="comment">// Create the items.</span>
+<span class="keyword">var</span> carousel = carouselCreator(items)
+    ...
+    .width(<span class="number">420</span>)
+    .isInfinite(<span class="keyword">true</span>)
+    .isCentered(<span class="keyword">true</span>)
+    .itemsToShow(<span class="number">1</span>)
+    .itemsToScrollBy(<span class="number">1</span>)
+    ...
+svg.call(carousel);</code></pre>
+    </div>
+</div>
+<div>
+    <div class="adj">
+        <h3 class="centerText">Variable Padding Items (Non-Infinite Scrolling)</h3>
+        <svg id="Var-Pad-Non-Inf" />
+        <pre class="code inline"><code class="javascript"><span class="keyword">var</span> svg = d3.select(...).append(<span class="string">"svg"</span>);
+<span class="keyword">var</span> items = ...  <span class="comment">// Create the items.</span>
+<span class="keyword">var</span> carousel = carouselCreator(items)
+    ...
+    .width(<span class="number">420</span>)
+    .isInfinite(<span class="keyword">false</span>)
+    .isCentered(<span class="keyword">false</span>)
+    .itemsToShow(<span class="number">1</span>)
+    .itemsToScrollBy(<span class="number">1</span>)
+    ...
+svg.call(carousel);</code></pre>
+    </div>
+    <div class="adj">
+        <h3 class="centerText">Variable Padding Items (Infinite Scrolling)</h3>
+        <svg id="Var-Pad-Inf" />
+        <pre class="code inline"><code class="javascript"><span class="keyword">var</span> svg = d3.select(...).append(<span class="string">"svg"</span>);
+<span class="keyword">var</span> items = ...  <span class="comment">// Create the items.</span>
+<span class="keyword">var</span> carousel = carouselCreator(items)
+    ...
+    .width(<span class="number">420</span>)
+    .isInfinite(<span class="keyword">true</span>)
+    .isCentered(<span class="keyword">true</span>)
+    .itemsToShow(<span class="number">1</span>)
+    .itemsToScrollBy(<span class="number">1</span>)
+    ...
+svg.call(carousel);</code></pre>
+    </div>
+</div>
 <br>
-<h3>Non-standard path carousels</h3>
+<h2>Non-standard Item Shape Carousels</h3>
+<br>
+<h2>Non-standard Scroll Path Carousels</h3>
 <p>Auto-generated loop path</p>
 <p>Custom triangle path</p>
 <p>Custom squiggly line path</p>
 <br>
-<h3>Individual Controllable Items</h3>
+<h2>Individual Controllable Items</h3>
 <p>One where you can drag the individual items to reorder them and to scroll (also has arrows). i.e. mouse drags the image, mouse ets close to left edge, carousel starts turning left slowly, mouse is released, carousel stops and image drops in</p>
 <p>Add and remove items (add & remove - http://kenwheeler.github.io/slick/).</p>
 <p>One that lets you permanently take items out, closes the gaps, and then lets you stick it back in later.</p>
 <br>
-<h3>Unique Carousels</h3>
+<h2>Unique Carousels</h3>
 <p>One with a drop down box (or maybe just a context menu on right clicking the carousel) that lets you choose item to jump to, and then rotates carousel to the item.</p>
 <p>Filter items in some way. (filtering - http://kenwheeler.github.io/slick/).</p>
 <br>
-<h3>Optional Extras</h3>
-<p>Autoplaying carousel. Let's you drag and arrow still, but autoplays. Make it break autoplay when you mouse in, and restart when mouse out. (autoplay - http://kenwheeler.github.io/slick/)</p>
-<p>Funky 3Dish carousel with all items in view (http://adam.co/lab/svg/carousel.html).</p>
-<p>Fade in and out on transition (best keep it to one item). (fade - http://kenwheeler.github.io/slick/)</p>
+<h2>Optional Extras</h3>
 <p>Sync two sliders, one smaller than the other, like a small overview and closeup on focussed on. (Slider syncing - http://kenwheeler.github.io/slick/)</p>
 {% endblock %}
