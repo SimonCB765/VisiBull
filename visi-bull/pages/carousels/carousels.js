@@ -294,7 +294,7 @@ function carouselCreator(items)
 
             // Create the left navigation arrow.
             // The left arrow is inactive at the start if infinite scrolling is not used.
-            var leftNavArrowContainer = itemContainer.append("g")
+            var leftNavArrowContainer = carousel.append("g")
                 .classed({"navArrow": true, "left": true, "inactive": (isInfinite ? false : true)})
                 .on("mouseover", function() { d3.select(this).classed("highlight", true); })
                 .on("mouseout", function() { d3.select(this).classed("highlight", false); })
@@ -313,7 +313,7 @@ function carouselCreator(items)
                      );
 
             // Create the right navigation arrow.
-            var rightNavArrowContainer = itemContainer.append("g")
+            var rightNavArrowContainer = carousel.append("g")
                 .classed({"navArrow": true, "right": true})
                 .on("mouseover", function() { d3.select(this).classed("highlight", true); })
                 .on("mouseout", function() { d3.select(this).classed("highlight", false); })
@@ -330,13 +330,8 @@ function carouselCreator(items)
                            "L" + (navArrowWidth / 5) + ",0" +
                            "Z"
                      );
-
-            // Setup the carousel to make the navigation buttons slightly visible when the mouse is over the carousel.
-            itemContainer
-                .on("mouseover", function() { leftNavArrowContainer.classed("visible", true); rightNavArrowContainer.classed("visible", true); })
-                .on("mouseout", function() { leftNavArrowContainer.classed("visible", false); rightNavArrowContainer.classed("visible", false); });
         }
-        var navigationArrows = itemContainer.selectAll(".navArrow").on("click", scroll_carousel_arrow);;
+        var navigationArrows = carousel.selectAll(".navArrow").on("click", scroll_carousel_arrow);;
 
         // Create the navigation dots.
         if (isDots)
@@ -387,6 +382,12 @@ function carouselCreator(items)
                 .attr("cy", navDotRadius)
                 .attr("r", navDotRadius);
         }
+
+        // Add the mouseover effects to the carousel.
+        // Setup the carousel to make the navigation buttons slightly visible when the mouse is over the carousel.
+        carousel
+            .on("mouseover", function() { leftNavArrowContainer.classed("visible", true); rightNavArrowContainer.classed("visible", true); })
+            .on("mouseout", function() { leftNavArrowContainer.classed("visible", false); rightNavArrowContainer.classed("visible", false); });
 
         /**************************
         * Item Dragging Functions *
