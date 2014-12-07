@@ -499,9 +499,19 @@ function carouselCreator(items)
             // Scroll the carousel to display a new set of items.
             // newVisibleSetIndex is the index of the new set of visible items to display.
 
+            // Inactivate and activate the navigation arrows as needed.
+            if (!isInfinite)
+            {
+                carousel.select(".navArrow.right")
+                    .classed("inactive", newVisibleSetIndex + 1 === visibleItemSets.length);
+                carousel.select(".navArrow.left")
+                    .classed("inactive", newVisibleSetIndex === 0);
+            }
+
+            // Highlight the clicked on dot.
             if (isDots)
             {
-                // Highlight the clicked on dot. Must use selectAll here not select (even though there will only ever be one selected dot) as selection.select
+                // Must use selectAll here not select (even though there will only ever be one selected dot) as selection.select
                 // is a non-grouping operator and so will cause the child to inherit the data of the parent. I don't want this as the child has its own
                 // unrelated data.
                 var navDots = dotContainer.selectAll(".navDot").classed("selected", false);
@@ -634,15 +644,6 @@ function carouselCreator(items)
             // Determine index of next visible set.
             newVisibleSetIndex = currentVisibleSetIndex + (isLeft ? -1 : 1);
             newVisibleSetIndex = (visibleItemSets.length + newVisibleSetIndex) % visibleItemSets.length;
-
-            // Inactivate and activate the navigation arrows as needed.
-            if (!isInfinite)
-            {
-                carousel.select(".navArrow.right")
-                    .classed("inactive", newVisibleSetIndex + 1 === visibleItemSets.length);
-                carousel.select(".navArrow.left")
-                    .classed("inactive", newVisibleSetIndex === 0);
-            }
 
             // Scroll the carousel.
             scroll_carousel(newVisibleSetIndex);
