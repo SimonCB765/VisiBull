@@ -543,7 +543,12 @@ function carouselCreator(items)
 
             // Determine the new positions of the items.
             var numberItemsToScrollBy;
-            if (isInfinite)
+            if (currentVisibleSetIndex === newVisibleSetIndex)
+            {
+                // Catches events where a drag that didn't move the items far enough to switch to a new visible item set ends.
+                // No change in resting positions is needed.
+            }
+            else if (isInfinite)
             {
                 // Infinite scrolling is used.
 
