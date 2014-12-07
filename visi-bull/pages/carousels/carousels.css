@@ -1,25 +1,14 @@
 /*
 Contents:
-_element    -> style declarations for all elements of a given type (html, body, table, all p tags etc.).
-_classes    -> style declarations for specific classes.
 _carousel   -> style declarations for the carousel itself.
 _navArrow	-> style declarations for the navigation arrows.
 _navDot     -> style declarations for the navigation dots.
-_item       -> style declarations for the carousel items.
-*/
-
-/*
-_element
-*/
-
-/*
-_classes
 */
 
 /*
 _carousel
 */
-.carousel {fill: #444444; fill-opacity: 1; stroke: none;}  /* Style the carousel. A fill is needed in order to make the carousel catch events nicely. */
+.carousel {cursor: default; fill: #444444; fill-opacity: 1; stroke: none;}  /* Style the carousel. A fill is needed in order to make the carousel catch events nicely. */
 .scrollPath {fill: none; stroke: orange; stroke-width: 2;}  /* Style declarations for the path along which the items are scrolled. */
 
 /*
@@ -41,11 +30,3 @@ _navDot
 .navDotContainer rect {opacity: 0;}  /* Make the backing rectangle invisible. */
 .navDot:hover {cursor: pointer;}  /* Change the mouse to a pointer when hovering over the navigation dots. */
 .navDot.selected {fill: red;}  /* Style the selected navigation dot (i.e. the dot corresponding to the current visible items). */
-
-/*
-_item
-*/
-.borderRect {stroke: none;}  /* Style the rectangles containing the pattern fill. */
-.item {cursor: default;}
-.patternNumber {fill: white; font-size: 70px; font-weight: bold; stroke: black; stroke-width: 2; text-anchor: middle;}  /* Style definitions for all text elements in and SVG element. */
-
