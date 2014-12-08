@@ -21,10 +21,6 @@ $(document).ready(function()
     // Create the variable item width/height demos.
     var_size("Var-Size-Non-Inf", false, false);
     var_size("Var-Size-Inf", true, true);
-
-    // Create the variable padding demos.
-    var_padding("Var-Pad-Non-Inf", false, false);
-    var_padding("Var-Pad-Inf", true, true);
 });
 
 // Define the colors used for the demos.
@@ -476,76 +472,6 @@ function var_size(svgID, makeInf, centerIt)
         .width(420)
         .xLoc(20)
         .yLoc(0)
-        .isInfinite(makeInf)
-        .isCentered(centerIt)
-        .isDots(true)
-        .itemsToShow(1)
-        .itemsToScrollBy(1)
-        .dotContainerHeight(30)
-        .navArrowWidth(40)
-        .navArrowHeight(40);
-    svg.call(carousel);
-}
-
-function var_padding(svgID, makeInf, centerIt)
-{
-
-    var svg = d3.select("#" + svgID)
-        .attr("width", 450)
-        .attr("height", 150);
-
-    // Setup data used to create the items.
-    var itemWidth = 75;
-    var itemData = [];
-    for (var i = 0; i < 6; i++)
-    {
-        itemData.push(
-            {
-                "height": 50,  // Height of the item.
-                "horizontalPadding": 10,  // Horizontal padding of the item (half on the left and half on the right).
-                "key": i,  // Unique identifier for the item.
-                "rootID": svgID,  // The root of the ID used to refer to the item clip paths.
-                "transX": 0,  // Current X position of the item.
-                "transY": 0,  // Current Y position of the item.
-                "verticalPadding": 10,  // Vertical padding of the item (half on top and half on the bottom).
-                "width": itemWidth  // Width of the item.
-            });
-    }
-    itemData[0].horizontalPadding = 60
-    itemData[1].horizontalPadding = 25
-    itemData[2].horizontalPadding = 40
-    itemData[3].horizontalPadding = 15
-    itemData[4].horizontalPadding = 2
-    itemData[5].horizontalPadding = 30
-
-    // Create the items.
-    var items = svg.selectAll(".item")
-        .data(itemData)
-        .enter()
-        .append("g")
-            .classed("item", true)
-            .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
-    items.append("rect")
-        .attr("width", function(d) { return d.width; })
-        .attr("height", function(d) { return d.height; })
-        .style("fill", fillColor)
-        .style("stroke", strokeType);
-    items.append("text")
-        .attr("x", function(d) { return d.width / 2; })
-        .attr("y", function(d) { return d.height / 2; })
-        .attr("dy", ".35em")
-        .style("text-anchor", "middle")
-        .style("fill", numberFill)
-        .style("font-size", 15)
-        .style("font-weight", numberFontWeight)
-        .style("stroke", numberStroke)
-        .text(function(d) { return "H Pad-" + d.horizontalPadding; });
-
-    // Create the carousel.
-    var carousel = carouselCreator(items)
-        .width(420)
-        .xLoc(20)
-        .yLoc(5)
         .isInfinite(makeInf)
         .isCentered(centerIt)
         .isDots(true)

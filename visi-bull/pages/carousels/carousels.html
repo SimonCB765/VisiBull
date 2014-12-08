@@ -156,43 +156,10 @@ svg.call(carousel);</code></pre>
 svg.call(carousel);</code></pre>
     </div>
 </div>
-<div>
-    <div class="adj">
-        <h3 class="centerText">Variable Padding Items (Non-Infinite Scrolling)</h3>
-        <svg id="Var-Pad-Non-Inf" />
-        <pre class="code inline"><code class="javascript"><span class="keyword">var</span> svg = d3.select(...).append(<span class="string">"svg"</span>);
-<span class="keyword">var</span> items = ...  <span class="comment">// Create the items.</span>
-<span class="keyword">var</span> carousel = carouselCreator(items)
-    ...
-    .width(<span class="number">420</span>)
-    .isInfinite(<span class="keyword">false</span>)
-    .isCentered(<span class="keyword">false</span>)
-    .itemsToShow(<span class="number">1</span>)
-    .itemsToScrollBy(<span class="number">1</span>)
-    ...
-svg.call(carousel);</code></pre>
-    </div>
-    <div class="adj">
-        <h3 class="centerText">Variable Padding Items (Infinite Scrolling)</h3>
-        <svg id="Var-Pad-Inf" />
-        <pre class="code inline"><code class="javascript"><span class="keyword">var</span> svg = d3.select(...).append(<span class="string">"svg"</span>);
-<span class="keyword">var</span> items = ...  <span class="comment">// Create the items.</span>
-<span class="keyword">var</span> carousel = carouselCreator(items)
-    ...
-    .width(<span class="number">420</span>)
-    .isInfinite(<span class="keyword">true</span>)
-    .isCentered(<span class="keyword">true</span>)
-    .itemsToShow(<span class="number">1</span>)
-    .itemsToScrollBy(<span class="number">1</span>)
-    ...
-svg.call(carousel);</code></pre>
-    </div>
-</div>
 <br>
 <h2>Non-standard Item Shape Carousels</h3>
 <br>
 <h2>Non-standard Scroll Path Carousels</h3>
-<p>Auto-generated loop path</p>
 <p>Custom triangle path</p>
 <p>Custom squiggly line path</p>
 <br>
@@ -207,4 +174,5 @@ svg.call(carousel);</code></pre>
 <br>
 <h2>Optional Extras</h3>
 <p>Sync two sliders, one smaller than the other, like a small overview and closeup on focussed on. (Slider syncing - http://kenwheeler.github.io/slick/)</p>
+<p>Slide filtering through some sort of context menu thing</p>
 {% endblock %}

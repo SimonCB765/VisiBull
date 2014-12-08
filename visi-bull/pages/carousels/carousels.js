@@ -16,10 +16,9 @@ function carouselCreator(items)
         isArrows = true,  // Whether to display arrows at the sides of the carousel that scroll the carousel when clicked.
         dotContainerHeight = 20,  // The height of the g element containing the navigation dots. Should be at least twice the dotRadius.
         itemSnapSpeed = 300,  // The duration that the items take when snapping back into place.
-        scrollPath = "flat",  // The path along which the items will be scrolled. "flat" corresponds to a straight line, "loop" to an ellipse.
+        scrollPath = "flat",  // The path along which the items will be scrolled. "flat" corresponds to the default straight line.
                               // Straight line paths can use infinite or non-infinite scrolling.
-                              // Looped paths must use infinite scrolling.
-                              // Alternatively, a custom paath can be provided.
+                              // Alternatively, a custom path can be provided.
         customScrollFraction = 0,  // The fractional [0,1] distance along the path at which to place the first item. Only works with custom paths.
         navArrowWidth = null,  // The width of the navigation arrow.
         navArrowHeight = null,  // The height of the navigation arrow.
@@ -31,8 +30,11 @@ function carouselCreator(items)
     *****************************/
     function carousel(selection)
     {
-        // Create the carousel. The selection passed in must contain only one element.
+        // The selection passed in must contain only one element.
         if (selection.size() !== 1) { console.log("Selection to create carousel in must contain only one element."); return; }
+
+        // If a custom path has been provided, then the width and height must also be provided.
+        if (((width === null) || (height === null)) && scrollPath !== "flat") { console.log("The width and height must be set manually with custom paths."); return; }
 
         // Setup the carousel container.
         var carousel = selection.append("g")
@@ -66,12 +68,12 @@ function carouselCreator(items)
             {
                 maxWidthWindow = Math.max(maxWidthWindow, d3.sum(itemWidths.slice(i, i + itemsToShow)) + d3.sum(itemPaddings.slice(i, i + itemsToShow)));
             }
-            width = (scrollPath === "flat") ? maxWidthWindow : ((items.size() / 4) * maxWidthWindow);
+            width = maxWidthWindow;
         }
         if (height === null)
         {
             // The width was not pre-specified, so set it dynamically.
-            height = ((scrollPath === "flat") ? maxItemHeight : ((items.size() / 4) * maxItemHeight)) + (isDots ? dotContainerHeight : 0);
+            height = maxItemHeight + (isDots ? dotContainerHeight : 0);
         }
 
         // Create the backing rectangle to catch events. Create it before transferring the items in order to ensure it is below them.
@@ -150,35 +152,6 @@ function carouselCreator(items)
 
             // Create the path to scroll along.
             pathToScrollAlong.attr("d", "M" + scrollPathStartX + "," + scrollPathStartY + "h" + scrollPathLength);
-        }
-        else if (scrollPath === "loop")
-        {
-            isInfinite = true;  // Looped paths must use infinite scrolling.
-
-            // Determine the widest item and its padding.
-            var widestItem = 0;
-            var widestItemPadding = 0;
-            items.each(function(d)
-                {
-                    if (d.width + d.horizontalPadding > widestItem + widestItemPadding)
-                    {
-                        widestItem = d.width;
-                        widestItemPadding = d.horizontalPadding;
-                    }
-                });
-
-            // Create the looping path.
-            var cx = (width / 2) - (widestItem / 2);
-            var cy = ((height - (isDots ? dotContainerHeight : 0)) / 2);
-            var xRadius = (width / 2) - ((widestItem + widestItemPadding) / 2);
-            var yRadius = ((height - (isDots ? dotContainerHeight : 0)) / 2) - (maxItemHeight / 2);
-            pathToScrollAlong.attr("d",
-                "M" + (cx - xRadius) + "," + cy +
-                "a" + xRadius + "," + yRadius + ",0,1,0," + (xRadius * 2) + ",0" +
-                "a" + xRadius + "," + yRadius + ",0,1,0," + (-xRadius * 2) + ",0"
-                );
-            scrollPathLength = pathToScrollAlong.node().getTotalLength();
-            leftViewItemStartDist = scrollPathLength * 0.25;  // A quarter of the way around to get to the bottom in the middle.
         }
         else
         {
