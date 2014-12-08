@@ -22,9 +22,13 @@ $(document).ready(function()
     var_size("Var-Size-Non-Inf", false, false);
     var_size("Var-Size-Inf", true, true);
 
-    // Create the variable shaped item demo.
+    // Create the variable shaped item demos.
     var_shape("Var-Shape-Non-Inf", false, false);
     var_shape("Var-Shape-Inf", true, true);
+
+    // Create the custom scroll path demos.
+    triangle_path("Triangle-Path");
+    sine_path("Sine-Path");
 });
 
 // Define the colors used for the demos.
@@ -280,6 +284,87 @@ function multi_non_infinite(svgID)
     svg.call(carousel);
 }
 
+function sine_path(svgID)
+{
+
+    var svg = d3.select("#" + svgID)
+        .attr("width", 600)
+        .attr("height", 250);
+
+    // Setup data used to create the items.
+    var itemWidth = 100;
+    var itemData = [];
+    for (var i = 0; i < 6; i++)
+    {
+        itemData.push(
+            {
+                "height": 100,  // Height of the item.
+                "key": i,  // Unique identifier for the item.
+                "rootID": svgID,  // The root of the ID used to refer to the item clip paths.
+                "transX": 0,  // Current X position of the item.
+                "transY": 0,  // Current Y position of the item.
+                "width": itemWidth  // Width of the item.
+            });
+    }
+
+    // Create the items.
+    var items = svg.selectAll(".item")
+        .data(itemData)
+        .enter()
+        .append("g")
+            .classed("item", true)
+            .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+    items.append("rect")
+        .attr("width", function(d) { return d.width; })
+        .attr("height", function(d) { return d.height; })
+        .style("fill", fillColor)
+        .style("stroke", strokeType);
+    items.append("text")
+        .attr("x", function(d) { return d.width / 2; })
+        .attr("y", function(d) { return d.height / 2; })
+        .attr("dy", ".35em")
+        .style("text-anchor", "middle")
+        .style("fill", numberFill)
+        .style("font-size", numberFont)
+        .style("font-weight", numberFontWeight)
+        .style("stroke", numberStroke)
+        .text(function(d) { return d.key; });
+
+    // Create the 'sine wave'.
+    function sine_wave()
+    {
+        var returnString = "M300," + (110 + (40 * Math.sin(300 / 10)));
+        console.log(returnString);
+        console.log();
+        for (var i = 301; i < 611; i++)
+        {
+            returnString += "L" + i + "," + (110 + (40 * Math.sin(i / 10)));
+        }
+        returnString += "M-200," + Math.sin(-200 / 10);
+        for (var i = -199; i < 301; i++)
+        {
+            returnString += "L" + i + "," + (110 + (40 * Math.sin(i / 10)));
+        }
+        return returnString;
+    }
+
+    // Create the carousel.
+    var carousel = carouselCreator(items)
+        .width(600)
+        .height(250)
+        .scrollPath(sine_wave())
+        .customScrollFraction(0)
+        .xLoc(15)
+        .yLoc(5)
+        .itemsToShow(1)
+        .itemsToScrollBy(1)
+        .isDots(true)
+        .dotContainerHeight(30)
+        .navArrowWidth(40)
+        .navArrowHeight(40);
+    svg.call(carousel);
+}
+
 function single_infinite(svgID)
 {
 
@@ -393,6 +478,69 @@ function single_non_infinite(svgID)
         .isDots(true)
         .itemsToShow(1)
         .itemsToScrollBy(1)
+        .dotContainerHeight(30)
+        .navArrowWidth(40)
+        .navArrowHeight(40);
+    svg.call(carousel);
+}
+
+function triangle_path(svgID)
+{
+
+    var svg = d3.select("#" + svgID)
+        .attr("width", 800)
+        .attr("height", 450);
+
+    // Setup data used to create the items.
+    var itemWidth = 100;
+    var itemData = [];
+    for (var i = 0; i < 6; i++)
+    {
+        itemData.push(
+            {
+                "height": 100,  // Height of the item.
+                "key": i,  // Unique identifier for the item.
+                "rootID": svgID,  // The root of the ID used to refer to the item clip paths.
+                "transX": 0,  // Current X position of the item.
+                "transY": 0,  // Current Y position of the item.
+                "width": itemWidth  // Width of the item.
+            });
+    }
+
+    // Create the items.
+    var items = svg.selectAll(".item")
+        .data(itemData)
+        .enter()
+        .append("g")
+            .classed("item", true)
+            .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+    items.append("rect")
+        .attr("width", function(d) { return d.width; })
+        .attr("height", function(d) { return d.height; })
+        .style("fill", fillColor)
+        .style("stroke", strokeType);
+    items.append("text")
+        .attr("x", function(d) { return d.width / 2; })
+        .attr("y", function(d) { return d.height / 2; })
+        .attr("dy", ".35em")
+        .style("text-anchor", "middle")
+        .style("fill", numberFill)
+        .style("font-size", numberFont)
+        .style("font-weight", numberFontWeight)
+        .style("stroke", numberStroke)
+        .text(function(d) { return d.key; });
+
+    // Create the carousel.
+    var carousel = carouselCreator(items)
+        .width(800)
+        .height(450)
+        .scrollPath("M400,350L690,350L400,50L110,350Z")
+        .customScrollFraction(0)
+        .xLoc(15)
+        .yLoc(5)
+        .itemsToShow(1)
+        .itemsToScrollBy(1)
+        .isDots(true)
         .dotContainerHeight(30)
         .navArrowWidth(40)
         .navArrowHeight(40);

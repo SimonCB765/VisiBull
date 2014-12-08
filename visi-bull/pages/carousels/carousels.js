@@ -18,16 +18,16 @@ function carouselCreator(items)
         isCentered = false,  // Whether the displayed items should be centered.
         isDots = false,  // Whether to display dots below the items to indicate where you are in the carousel.
         isArrows = true,  // Whether to display arrows at the sides of the carousel that scroll the carousel when clicked.
-        dotContainerHeight = 20,  // The height of the g element containing the navigation dots. Should be at least twice the dotRadius.
+        dotContainerHeight = 30,  // The height of the g element containing the navigation dots. Should be at least twice the dotRadius.
         itemSnapSpeed = 300,  // The duration that the items take when snapping back into place.
         scrollPath = "flat",  // The path along which the items will be scrolled. "flat" corresponds to the default straight line.
                               // Straight line paths can use infinite or non-infinite scrolling.
                               // Alternatively, a custom path can be provided.
         customScrollFraction = 0,  // The fractional [0,1] distance along the path at which to place the first item. Only works with custom paths.
+                                   // It is the left edge of the first item that gets placed at a distance this fraction along the path.
         navArrowWidth = null,  // The width of the navigation arrow.
         navArrowHeight = null,  // The height of the navigation arrow.
-        navDotRadius = 5  // The radius of the navigation dots.
-        ;
+        navDotRadius = 5;  // The radius of the navigation dots.
 
     /*****************************
     * Carousel Creation Function *
@@ -41,7 +41,7 @@ function carouselCreator(items)
         if (((width === null) || (height === null)) && scrollPath !== "flat") { console.log("The width and height must be set manually with custom paths."); return; }
 
         // If a custom path is provided, then centering is not an option and the scrolling must be infinite.
-        if (scrollPath !== "flat") { isCentered = false; isInfinite = false; }
+        if (scrollPath !== "flat") { isCentered = false; isInfinite = true; }
 
         // Setup the carousel container.
         var carousel = selection.append("g")
@@ -200,11 +200,6 @@ function carouselCreator(items)
                     {
                         // If the item is not the first one.
                         currentItemDist += distanceBetweenItems;
-                    }
-                    else
-                    {
-                        // If the item is the first one.
-                        currentItemDist -= (d.width / 2);
                     }
                     currentItemDist = (scrollPathLength + currentItemDist) % scrollPathLength;  // Wrap the item's position around to the left of the items in view if necessary.
 
@@ -527,102 +522,102 @@ function carouselCreator(items)
             }
             else
             {
-				if (isCentered)
-				{
-					// The items are centered.
+                if (isCentered)
+                {
+                    // The items are centered.
 
-					// Determine the width (plus padding) of the items in the new visible set of items.
-					var newVisibleSet = visibleItemSets[newVisibleSetIndex];
-					var newLeftmostResting;  // The resting position for the item that will become the leftmost item in view.
-					var newSetWidth = 0;  // The width (and padding) for all items in the new visible set.
-					items.each(function(d)
-						{
-							if (d.key === newVisibleSet[0])
-							{
-								newLeftmostResting = d.resting;
-								newSetWidth += d.width;
-							}
-							else if (newVisibleSet.indexOf(d.key) !== -1)
-							{
-								newSetWidth += d.width;
-							}
-						});
-					newSetWidth += ((newVisibleSet.length - 1) * horizontalPadding);
+                    // Determine the width (plus padding) of the items in the new visible set of items.
+                    var newVisibleSet = visibleItemSets[newVisibleSetIndex];
+                    var newLeftmostResting;  // The resting position for the item that will become the leftmost item in view.
+                    var newSetWidth = 0;  // The width (and padding) for all items in the new visible set.
+                    items.each(function(d)
+                        {
+                            if (d.key === newVisibleSet[0])
+                            {
+                                newLeftmostResting = d.resting;
+                                newSetWidth += d.width;
+                            }
+                            else if (newVisibleSet.indexOf(d.key) !== -1)
+                            {
+                                newSetWidth += d.width;
+                            }
+                        });
+                    newSetWidth += ((newVisibleSet.length - 1) * horizontalPadding);
 
-					// Determine the center of the new visible set.
-					var newCenter = newLeftmostResting + (newSetWidth / 2);
+                    // Determine the center of the new visible set.
+                    var newCenter = newLeftmostResting + (newSetWidth / 2);
 
-					// Determine the distance to scroll.
-					var distanceToScroll = centerViewDist - newCenter;
+                    // Determine the distance to scroll.
+                    var distanceToScroll = centerViewDist - newCenter;
 
-					// Determine the new positions of the items.
-					if (isInfinite)
-					{
-						for (var i = 0; i < itemPositions.length; i++)
-						{
-							itemPositions[i] = (scrollPathLength + (itemPositions[i] + distanceToScroll)) % scrollPathLength;
-						}
-					}
-					else
-					{
-						for (var i = 0; i < itemPositions.length; i++)
-						{
-							itemPositions[i] += distanceToScroll;
-						}
-					}
-				}
-				else
-				{
-					// The items are not centered.
+                    // Determine the new positions of the items.
+                    if (isInfinite)
+                    {
+                        for (var i = 0; i < itemPositions.length; i++)
+                        {
+                            itemPositions[i] = (scrollPathLength + (itemPositions[i] + distanceToScroll)) % scrollPathLength;
+                        }
+                    }
+                    else
+                    {
+                        for (var i = 0; i < itemPositions.length; i++)
+                        {
+                            itemPositions[i] += distanceToScroll;
+                        }
+                    }
+                }
+                else
+                {
+                    // The items are not centered.
 
-					// Determine the leftmost item in the current and new visible set of items.
-					var currentLeftmost = visibleItemSets[currentVisibleSetIndex][0];
-					var newLeftmost = visibleItemSets[newVisibleSetIndex][0];
-					var currentLeftmostResting;  // The resting position for the item that currently is the leftmost item in view.
-					var newLeftmostResting;  // The resting position for the item that will become the leftmost item in view.
-					items.each(function(d)
-						{
-							if (d.key === newLeftmost)
-							{
-								newLeftmostResting = d.resting;
-							}
-							else if (d.key === currentLeftmost)
-							{
-								currentLeftmostResting = d.resting;
-							}
-						});
+                    // Determine the leftmost item in the current and new visible set of items.
+                    var currentLeftmost = visibleItemSets[currentVisibleSetIndex][0];
+                    var newLeftmost = visibleItemSets[newVisibleSetIndex][0];
+                    var currentLeftmostResting;  // The resting position for the item that currently is the leftmost item in view.
+                    var newLeftmostResting;  // The resting position for the item that will become the leftmost item in view.
+                    items.each(function(d)
+                        {
+                            if (d.key === newLeftmost)
+                            {
+                                newLeftmostResting = d.resting;
+                            }
+                            else if (d.key === currentLeftmost)
+                            {
+                                currentLeftmostResting = d.resting;
+                            }
+                        });
 
-					// Determine the distance to scroll.
-					var distanceToScroll = currentLeftmostResting - newLeftmostResting;
+                    // Determine the distance to scroll.
+                    var distanceToScroll = currentLeftmostResting - newLeftmostResting;
 
-					// Determine the new positions of the items.
-					if (isInfinite)
-					{
-						for (var i = 0; i < itemPositions.length; i++)
-						{
-							itemPositions[i] = (scrollPathLength + (itemPositions[i] + distanceToScroll)) % scrollPathLength;
-						}
-					}
-					else
-					{
-						for (var i = 0; i < itemPositions.length; i++)
-						{
-							itemPositions[i] += distanceToScroll;
-						}
-					}
-				}
+                    // Determine the new positions of the items.
+                    if (isInfinite)
+                    {
+                        for (var i = 0; i < itemPositions.length; i++)
+                        {
+                            itemPositions[i] = (scrollPathLength + (itemPositions[i] + distanceToScroll)) % scrollPathLength;
+                        }
+                    }
+                    else
+                    {
+                        for (var i = 0; i < itemPositions.length; i++)
+                        {
+                            itemPositions[i] += distanceToScroll;
+                        }
+                    }
+                }
 
-				// Update the positions of the items.
-				items.each(function(d)
-					{
-						var itemIndex = itemKeys[d.key];
-						d.resting = itemPositions[itemKeys[d.key]];
-					});
-				transition_items();
+                // Update the positions of the items.
+                items.each(function(d)
+                    {
+                        var itemIndex = itemKeys[d.key];
+                        d.resting = itemPositions[itemKeys[d.key]];
+                    });
+                transition_items();
 
-				// Update the current visible index.
-				currentVisibleSetIndex = newVisibleSetIndex;
-			}
+                // Update the current visible index.
+                currentVisibleSetIndex = newVisibleSetIndex;
+            }
         }
 
         function scroll_carousel_arrow()
@@ -653,9 +648,9 @@ function carouselCreator(items)
         ********************/
         function transition_items()
         {
-			// Transition the items from their current positions to their resting positions. If there is no transition to be made
-			// (because the items are already at their resting positions), then the behaviour may be erratic.
-			
+            // Transition the items from their current positions to their resting positions. If there is no transition to be made
+            // (because the items are already at their resting positions), then the behaviour may be erratic.
+
             // Determine whether to scroll left or right.
             var leftItemData = items.data()[0];
             var isScrollRight;
