@@ -505,7 +505,7 @@ function var_shape(svgID, makeInf, centerIt)
         .classed("item", true)
         .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
     item.append("path")
-        .attr("d", "M0,30L45,90L90,30L0,30M0,60L45,0L90,60L0,60")
+        .attr("d", "M0,45L45,90L90,45L45,0Z")
         .style("fill", fillColor)
         .style("stroke", strokeType);
     item = svg.append("g")
