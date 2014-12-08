@@ -16,8 +16,6 @@
 
 {% block content %}
 <!--Block for including the content of the page within the div.content tag.-->
-<svg id="demo2"/>
-<br>
 <p>
     Each carousel consists of:<br>
         A container in which the items are placed (and on which the effects like dragging operate).<br>
@@ -123,10 +121,10 @@ svg.call(carousel);</code></pre>
     </div>
 </div>
 <br>
-<h2>Variable Item Size and Padding Carousels</h3>
+<h2>Carousels With Items of Different Sizes and Shapes</h3>
 <div>
     <div class="adj">
-        <h3 class="centerText">Variable Size Items (Non-Infinite Scrolling)</h3>
+        <h3 class="centerText">Variable Size Items</h3>
         <svg id="Var-Size-Non-Inf" />
         <pre class="code inline"><code class="javascript"><span class="keyword">var</span> svg = d3.select(...).append(<span class="string">"svg"</span>);
 <span class="keyword">var</span> items = ...  <span class="comment">// Create the items.</span>
@@ -141,7 +139,7 @@ svg.call(carousel);</code></pre>
 svg.call(carousel);</code></pre>
     </div>
     <div class="adj">
-        <h3 class="centerText">Variable Size Items (Infinite Scrolling)</h3>
+        <h3 class="centerText">Variable Size Items</h3>
         <svg id="Var-Size-Inf" />
         <pre class="code inline"><code class="javascript"><span class="keyword">var</span> svg = d3.select(...).append(<span class="string">"svg"</span>);
 <span class="keyword">var</span> items = ...  <span class="comment">// Create the items.</span>
@@ -156,8 +154,38 @@ svg.call(carousel);</code></pre>
 svg.call(carousel);</code></pre>
     </div>
 </div>
-<br>
-<h2>Non-standard Item Shape Carousels</h3>
+<div>
+    <div class="adj">
+        <h3 class="centerText">Variable Shape Items</h3>
+        <svg id="Var-Shape-Non-Inf" />
+        <pre class="code inline"><code class="javascript"><span class="keyword">var</span> svg = d3.select(...).append(<span class="string">"svg"</span>);
+<span class="keyword">var</span> items = ...  <span class="comment">// Create the items.</span>
+<span class="keyword">var</span> carousel = carouselCreator(items)
+    ...
+    .width(<span class="number">420</span>)
+    .isInfinite(<span class="keyword">false</span>)
+    .isCentered(<span class="keyword">false</span>)
+    .itemsToShow(<span class="number">1</span>)
+    .itemsToScrollBy(<span class="number">1</span>)
+    ...
+svg.call(carousel);</code></pre>
+    </div>
+    <div class="adj">
+        <h3 class="centerText">Variable Shape Items</h3>
+        <svg id="Var-Shape-Inf" />
+        <pre class="code inline"><code class="javascript"><span class="keyword">var</span> svg = d3.select(...).append(<span class="string">"svg"</span>);
+<span class="keyword">var</span> items = ...  <span class="comment">// Create the items.</span>
+<span class="keyword">var</span> carousel = carouselCreator(items)
+    ...
+    .width(<span class="number">420</span>)
+    .isInfinite(<span class="keyword">true</span>)
+    .isCentered(<span class="keyword">true</span>)
+    .itemsToShow(<span class="number">1</span>)
+    .itemsToScrollBy(<span class="number">1</span>)
+    ...
+svg.call(carousel);</code></pre>
+    </div>
+</div>
 <br>
 <h2>Non-standard Scroll Path Carousels</h3>
 <p>Custom triangle path</p>
@@ -170,9 +198,8 @@ svg.call(carousel);</code></pre>
 <br>
 <h2>Unique Carousels</h3>
 <p>One with a drop down box (or maybe just a context menu on right clicking the carousel) that lets you choose item to jump to, and then rotates carousel to the item.</p>
-<p>Filter items in some way. (filtering - http://kenwheeler.github.io/slick/).</p>
 <br>
 <h2>Optional Extras</h3>
 <p>Sync two sliders, one smaller than the other, like a small overview and closeup on focussed on. (Slider syncing - http://kenwheeler.github.io/slick/)</p>
-<p>Slide filtering through some sort of context menu thing</p>
+<p>Filter items in some way (maybe context menu). (filtering - http://kenwheeler.github.io/slick/).</p>
 {% endblock %}

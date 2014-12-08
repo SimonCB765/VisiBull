@@ -1,8 +1,5 @@
 $(document).ready(function()
 {
-	var_size("demo2", true, true);
-
-
     // Create the single item non-infinite scrolling demo.
     single_non_infinite("Single-Non-Inf");
 
@@ -24,6 +21,10 @@ $(document).ready(function()
     // Create the variable item width/height demos.
     var_size("Var-Size-Non-Inf", false, false);
     var_size("Var-Size-Inf", true, true);
+
+    // Create the variable shaped item demo.
+    var_shape("Var-Shape-Non-Inf", false, false);
+    var_shape("Var-Shape-Inf", true, true);
 });
 
 // Define the colors used for the demos.
@@ -402,8 +403,8 @@ function var_size(svgID, makeInf, centerIt)
 {
 
     var svg = d3.select("#" + svgID)
-        .attr("width", 900)
-        .attr("height", 200);
+        .attr("width", 450)
+        .attr("height", 150);
 
     // Setup data used to create the items.
     var itemWidth = 0;
@@ -420,17 +421,17 @@ function var_size(svgID, makeInf, centerIt)
                 "width": itemWidth  // Width of the item.
             });
     }
-    itemData[0].width = 50
+    itemData[0].width = 200
     itemData[0].height = 50
-    itemData[1].width = 30
+    itemData[1].width = 100
     itemData[1].height = 75
     itemData[2].width = 75
     itemData[2].height = 40
-    itemData[3].width = 55
+    itemData[3].width = 225
     itemData[3].height = 100
-    itemData[4].width = 40
+    itemData[4].width = 300
     itemData[4].height = 110
-    itemData[5].width = 60
+    itemData[5].width = 180
     itemData[5].height = 90
 
     // Create the items.
@@ -454,19 +455,110 @@ function var_size(svgID, makeInf, centerIt)
         .style("font-size", 15)
         .style("font-weight", numberFontWeight)
         .style("stroke", numberStroke)
-        .text(function(d) { return "W" + d.width + ",H" + d.height; })
-		.text(function(d) { return d.key; });
+        .text(function(d) { return "W" + d.width + ",H" + d.height; });
 
     // Create the carousel.
     var carousel = carouselCreator(items)
-        .width(275)
-        .xLoc(200)
+        .width(420)
+        .xLoc(20)
         .yLoc(0)
-        .isInfinite(true)
-        .isCentered(true)
+        .isInfinite(makeInf)
+        .isCentered(centerIt)
         .isDots(true)
-        .itemsToShow(3)
-        .itemsToScrollBy(3)
+        .itemsToShow(1)
+        .itemsToScrollBy(1)
+        .dotContainerHeight(30)
+        .navArrowWidth(40)
+        .navArrowHeight(40);
+    svg.call(carousel);
+}
+
+function var_shape(svgID, makeInf, centerIt)
+{
+
+    var svg = d3.select("#" + svgID)
+        .attr("width", 450)
+        .attr("height", 150);
+
+    // Setup data used to create the items.
+    var item = svg.append("g")
+        .datum({"height": 100, "key": 0, "rootID": svgID, "transX": 0, "transY": 0, "width": 100})
+        .classed("item", true)
+        .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+    item.append("rect")
+        .attr("width", function(d) { return d.width; })
+        .attr("height", function(d) { return d.height; })
+        .style("fill", fillColor)
+        .style("stroke", strokeType);
+    item = svg.append("g")
+        .datum({"height": 80, "key": 1, "rootID": svgID, "transX": 0, "transY": 0, "width": 80})
+        .classed("item", true)
+        .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+    item.append("circle")
+        .attr("r", 40)
+        .attr("cx", 40)
+        .attr("cy", 40)
+        .style("fill", fillColor)
+        .style("stroke", strokeType);
+    item = svg.append("g")
+        .datum({"height": 90, "key": 2, "rootID": svgID, "transX": 0, "transY": 0, "width": 90})
+        .classed("item", true)
+        .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+    item.append("path")
+        .attr("d", "M0,30L45,90L90,30L0,30M0,60L45,0L90,60L0,60")
+        .style("fill", fillColor)
+        .style("stroke", strokeType);
+    item = svg.append("g")
+        .datum({"height": 40, "key": 3, "rootID": svgID, "transX": 0, "transY": 0, "width": 80})
+        .classed("item", true)
+        .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+    item.append("ellipse")
+        .attr("rx", 40)
+        .attr("ry", 20)
+        .attr("cx", 40)
+        .attr("cy", 20)
+        .style("fill", fillColor)
+        .style("stroke", strokeType);
+    item = svg.append("g")
+        .datum({"height": 80, "key": 4, "rootID": svgID, "transX": 0, "transY": 0, "width": 40})
+        .classed("item", true)
+        .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+    item.append("ellipse")
+        .attr("rx", 20)
+        .attr("ry", 40)
+        .attr("cx", 20)
+        .attr("cy", 40)
+        .style("fill", fillColor)
+        .style("stroke", strokeType);
+    item = svg.append("g")
+        .datum({"height": 50, "key": 5, "rootID": svgID, "transX": 0, "transY": 0, "width": 100})
+        .classed("item", true)
+        .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+    item.append("rect")
+        .attr("width", function(d) { return d.width; })
+        .attr("height", function(d) { return d.height; })
+        .style("fill", fillColor)
+        .style("stroke", strokeType);
+    item = svg.append("g")
+        .datum({"height": 80, "key": 6, "rootID": svgID, "transX": 0, "transY": 0, "width": 80})
+        .classed("item", true)
+        .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+    item.append("path")
+        .attr("d", "M0,0L40,80L80,0Z")
+        .style("fill", fillColor)
+        .style("stroke", strokeType);
+
+    // Create the carousel.
+    var items = svg.selectAll(".item");
+    var carousel = carouselCreator(items)
+        .width(420)
+        .xLoc(20)
+        .yLoc(0)
+        .isInfinite(makeInf)
+        .isCentered(centerIt)
+        .isDots(true)
+        .itemsToShow(1)
+        .itemsToScrollBy(1)
         .dotContainerHeight(30)
         .navArrowWidth(40)
         .navArrowHeight(40);
