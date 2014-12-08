@@ -19,10 +19,7 @@ function carouselCreator(items)
         isDots = false,  // Whether to display dots below the items to indicate where you are in the carousel.
         isArrows = true,  // Whether to display arrows at the sides of the carousel that scroll the carousel when clicked.
         dotContainerHeight = 30,  // The height of the g element containing the navigation dots. Should be at least twice the dotRadius.
-        itemSnapSpeed = 300,  // The duration that the items take when snapping back into place.
-        scrollPath = "flat",  // The path along which the items will be scrolled. "flat" corresponds to the default straight line.
-                              // Straight line paths can use infinite or non-infinite scrolling.
-                              // Alternatively, a custom path can be provided.
+        itemSnapSpeed = 3000,  // The duration that the items take when snapping back into place.
         customScrollFraction = 0,  // The fractional [0,1] distance along the path at which to place the first item. Only works with custom paths.
                                    // It is the left edge of the first item that gets placed at a distance this fraction along the path.
         navArrowWidth = null,  // The width of the navigation arrow.
@@ -36,12 +33,6 @@ function carouselCreator(items)
     {
         // The selection passed in must contain only one element.
         if (selection.size() !== 1) { console.log("Selection to create carousel in must contain only one element."); return; }
-
-        // If a custom path has been provided, then the width and height must also be provided.
-        if (((width === null) || (height === null)) && scrollPath !== "flat") { console.log("The width and height must be set manually with custom paths."); return; }
-
-        // If a custom path is provided, then centering is not an option and the scrolling must be infinite.
-        if (scrollPath !== "flat") { isCentered = false; isInfinite = true; }
 
         // Setup the carousel container.
         var carousel = selection.append("g")
@@ -77,7 +68,7 @@ function carouselCreator(items)
         }
         if (height === null)
         {
-            // The width was not pre-specified, so set it dynamically.
+            // The height was not pre-specified, so set it dynamically.
             height = maxItemHeight + (isDots ? dotContainerHeight : 0);
         }
 
@@ -95,7 +86,7 @@ function carouselCreator(items)
         var leftViewItemStartX = 0;  // The X location of the leftmost item in the view.
         if (isCentered)
         {
-            var itemSetWidth = 0;  // The width of each of the items in the first viisble item set.
+            var itemSetWidth = 0;  // The width of each of the items in the first visisble item set.
             for (var i = 0; i < itemsToShow; i++)
             {
                 itemSetWidth += itemWidths[i];
@@ -109,51 +100,41 @@ function carouselCreator(items)
         }
 
         // Setup the scroll path.
-        var pathToScrollAlong = itemContainer.append("path").classed("scrollPath", true);
         var leftViewItemStartDist = 0;  // The location of the leftmost item in the view in terms of its fractional distance along the path.
         var scrollPathStartX;  // The X location of the start of the scroll path.
         var scrollPathStartY = (height - (isDots ? dotContainerHeight : 0)) / 2;  // The Y location of the start of the scroll path.
         var scrollPathLength;  // The length of the path along which the scrolling will occur.
-        var centerViewDist;  // The distance along the path that represents the center of the carousel view (i.e. width / 2).
-        if (scrollPath === "flat")
+        if (isInfinite)
         {
-            if (isInfinite)
-            {
-                // Determine the length of the path to scroll along.
-                scrollPathLength = d3.sum(itemWidths) + (horizontalPadding * items.size());
+            // Determine the length of the path to scroll along.
+            scrollPathLength = d3.sum(itemWidths) + (horizontalPadding * items.size());
 
-                // Determine the starting point of the path to scroll along.
-                scrollPathStartX = (width + 10) - scrollPathLength;  // Want the path to end at width + 10.
+            // Determine the starting point of the path to scroll along.
+            scrollPathStartX = (width + 10) - scrollPathLength;  // Want the path to end at width + 10.
 
-                // Determine the starting point of the leftmost item in the view in terms of its distance along the path.
-                leftViewItemStartDist = leftViewItemStartX - scrollPathStartX;
-            }
-            else
-            {
-                // Determine the length of the path to scroll along.
-                scrollPathLength = d3.sum(itemWidths) + (horizontalPadding * items.size());
-                scrollPathLength *= 2;
-
-                // Determine the starting point of the path to scroll along.
-                scrollPathStartX = leftViewItemStartX - (scrollPathLength / 2);
-
-                // Determine the starting point of the leftmost item in the view in terms of its distance along the path.
-                leftViewItemStartDist = (scrollPathLength / 2);
-            }
-
-            // Determine the center of the carousel in terms of its distance along the path.
-            centerViewDist = (width / 2) - scrollPathStartX;
-
-            // Create the path to scroll along.
-            pathToScrollAlong.attr("d", "M" + scrollPathStartX + "," + scrollPathStartY + "h" + scrollPathLength);
+            // Determine the starting point of the leftmost item in the view in terms of its distance along the path.
+            leftViewItemStartDist = leftViewItemStartX - scrollPathStartX;
         }
         else
         {
-            // Using a custom path. The leftmost item in the view starts at the origin of the path.
-            pathToScrollAlong.attr("d", scrollPath);
-            scrollPathLength = pathToScrollAlong.node().getTotalLength();
-            leftViewItemStartDist = customScrollFraction * scrollPathLength;
+            // Determine the length of the path to scroll along.
+            scrollPathLength = d3.sum(itemWidths) + (horizontalPadding * items.size());
+            scrollPathLength *= 2;
+
+            // Determine the starting point of the path to scroll along.
+            scrollPathStartX = leftViewItemStartX - (scrollPathLength / 2);
+
+            // Determine the starting point of the leftmost item in the view in terms of its distance along the path.
+            leftViewItemStartDist = (scrollPathLength / 2);
         }
+
+        // Determine the center of the carousel in terms of its distance along the path.
+        var centerViewDist = (width / 2) - scrollPathStartX;  // The distance along the path that represents the center of the carousel view (i.e. width / 2).
+
+        // Create the path to scroll along.
+        var pathToScrollAlong = itemContainer.append("path")
+            .classed("scrollPath", true)
+            .attr("d", "M" + scrollPathStartX + "," + scrollPathStartY + "h" + scrollPathLength);
 
         // Transfer the items into the carousel from wherever they currently are.
         items.each(function() { itemContainer.node().appendChild(this); });
@@ -161,60 +142,31 @@ function carouselCreator(items)
         // Put the items in the initial places.
         var currentItemDist = leftViewItemStartDist;  // Distance along the path of the current item.
         var positionAlongPath;  // The position of the point on the path at a distance of currentItemDist along it.
-        if (scrollPath === "flat")
-        {
-            // Place the items along a flat scrolling path.
-            items.attr("transform", function(d, i)
+        // Place the items along a flat scrolling path.
+        items.attr("transform", function(d, i)
+            {
+                // Update the currentItemDist to position the current item.
+                if (i !== 0)
                 {
-                    // Update the currentItemDist to position the current item.
-                    if (i !== 0)
-                    {
-                        // If the item is not the first one.
-                        currentItemDist += (horizontalPadding / 2);
-                    }
-                    currentItemDist = (scrollPathLength + currentItemDist) % scrollPathLength;  // Wrap the item's position around to the left of the items in view if necessary.
+                    // If the item is not the first one.
+                    currentItemDist += (horizontalPadding / 2);
+                }
+                currentItemDist = (scrollPathLength + currentItemDist) % scrollPathLength;  // Wrap the item's position around to the left of the items in view if necessary.
 
-                    // Get the coordinates of the position currentItemDist along the path.
-                    positionAlongPath = pathToScrollAlong.node().getPointAtLength(currentItemDist);
+                // Get the coordinates of the position currentItemDist along the path.
+                positionAlongPath = pathToScrollAlong.node().getPointAtLength(currentItemDist);
 
-                    // Update item position.
-                    d.distAlongPath = currentItemDist;  // Add an attribute to the item's data recording the distance along the path it currently is.
-                    d.resting = currentItemDist;  // Add an attribute recording the distance along the path where the item should come to rest.
-                    d.transX = positionAlongPath.x;
-                    d.transY = positionAlongPath.y - (d.height / 2);
+                // Update item position.
+                d.distAlongPath = currentItemDist;  // Add an attribute to the item's data recording the distance along the path it currently is.
+                d.resting = currentItemDist;  // Add an attribute recording the distance along the path where the item should come to rest.
+                d.transX = positionAlongPath.x;
+                d.transY = positionAlongPath.y - (d.height / 2);
 
-                    // Set position for next item.
-                    currentItemDist += (d.width + (horizontalPadding / 2));
+                // Set position for next item.
+                currentItemDist += (d.width + (horizontalPadding / 2));
 
-                    return "translate(" + d.transX + "," + d.transY + ")";
-                });
-        }
-        else
-        {
-            // Place the items evenly along some path.
-            var distanceBetweenItems = scrollPathLength / items.size();
-            items.attr("transform", function(d, i)
-                {
-                    // Update the currentItemDist to position the current item.
-                    if (i !== 0)
-                    {
-                        // If the item is not the first one.
-                        currentItemDist += distanceBetweenItems;
-                    }
-                    currentItemDist = (scrollPathLength + currentItemDist) % scrollPathLength;  // Wrap the item's position around to the left of the items in view if necessary.
-
-                    // Get the coordinates of the position currentItemDist along the path.
-                    positionAlongPath = pathToScrollAlong.node().getPointAtLength(currentItemDist);
-
-                    // Update item position.
-                    d.distAlongPath = currentItemDist;  // Add an attribute to the item's data recording the distance along the path it currently is.
-                    d.resting = currentItemDist;  // Add an attribute recording the distance along the path where the item should come to rest.
-                    d.transX = positionAlongPath.x;
-                    d.transY = positionAlongPath.y - (d.height / 2);
-
-                    return "translate(" + d.transX + "," + d.transY + ")";
-                });
-        }
+                return "translate(" + d.transX + "," + d.transY + ")";
+            });
 
 /*
         // Clip the items to the carousel.
@@ -356,7 +308,7 @@ function carouselCreator(items)
         **************************/
         function drag_end(d)
         {
-            // Search through all sets of items to find the one with the leftmost item that is closest to the starting item locaton.
+            // Search through all sets of items to find the one to scroll to.
             var currentShortestDistance = scrollPathLength;
             var closestSetIndex = 0;
             for (var i = 0; i < visibleItemSets.length; i++)
@@ -697,7 +649,7 @@ function carouselCreator(items)
             // Transition items back to their resting locations from wherever they are.
             items
                 .transition()
-                .duration(3000)
+                .duration(itemSnapSpeed)
                 .ease("cubic-out")
                 .tween("transform", function(d)
                     {
@@ -941,14 +893,6 @@ function carouselCreator(items)
     {
         if (!arguments.length) return itemSnapSpeed;
         itemSnapSpeed = _;
-        return carousel;
-    }
-
-    // Scroll path.
-    carousel.scrollPath = function(_)
-    {
-        if (!arguments.length) return scrollPath;
-        scrollPath = _;
         return carousel;
     }
 
