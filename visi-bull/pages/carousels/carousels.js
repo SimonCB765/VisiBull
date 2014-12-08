@@ -357,12 +357,38 @@ function carouselCreator(items)
         function drag_end(d)
         {
             // Search through all sets of items to find the one with the leftmost item that is closest to the starting item locaton.
-            var currentShortestDistance = width;
+            var currentShortestDistance = scrollPathLength;
             var closestSetIndex = 0;
             for (var i = 0; i < visibleItemSets.length; i++)
             {
                 var leftmostItem = items.filter(function(d) { return d.key == visibleItemSets[i][0]; });
-                var leftmostDist = Math.abs(leftViewItemStartDist - leftmostItem.datum().distAlongPath);
+                var leftmostDist;
+                if (isInfinite)
+                {
+                    // Can either go left or right along the path in order to get to a desired point. Therefore, use the distance in the direction
+                    // with the shorter distance.
+                    var rawDist;
+                    if (isCentered)
+                    {
+                        rawDist = Math.abs(centerViewDist - leftmostItem.datum().distAlongPath);
+                    }
+                    else
+                    {
+                        rawDist = Math.abs(leftViewItemStartDist - leftmostItem.datum().distAlongPath);
+                    }
+                    leftmostDist = Math.min(rawDist, scrollPathLength - rawDist);
+                }
+                else
+                {
+                    if (isCentered)
+                    {
+                        leftmostDist = Math.abs(centerViewDist - leftmostItem.datum().distAlongPath);
+                    }
+                    else
+                    {
+                        leftmostDist = Math.abs(leftViewItemStartDist - leftmostItem.datum().distAlongPath);
+                    }
+                }
                 if (leftmostDist < currentShortestDistance)
                 {
                     currentShortestDistance = leftmostDist;
@@ -515,13 +541,10 @@ function carouselCreator(items)
 
             // Determine the new positions of the items.
             var numberItemsToScrollBy;
-            if (currentVisibleSetIndex === newVisibleSetIndex)
+            if (currentVisibleSetIndex !== newVisibleSetIndex)
             {
-                // Catches events where a drag that didn't move the items far enough to switch to a new visible item set ends.
-                // No change in resting positions is needed.
-            }
-            else
-            {
+                // Items in view have changed, so must update the resting positions.
+
                 if (isCentered)
                 {
                     // The items are centered.
@@ -613,11 +636,13 @@ function carouselCreator(items)
                         var itemIndex = itemKeys[d.key];
                         d.resting = itemPositions[itemKeys[d.key]];
                     });
-                transition_items();
-
-                // Update the current visible index.
-                currentVisibleSetIndex = newVisibleSetIndex;
             }
+
+            // Move the items.
+            transition_items();
+
+            // Update the current visible index.
+            currentVisibleSetIndex = newVisibleSetIndex;
         }
 
         function scroll_carousel_arrow()
@@ -679,7 +704,7 @@ function carouselCreator(items)
                         var interpolator;
                         if (isScrollRight)
                         {
-                            if (d.distAlongPath < d.resting)
+                            if (d.distAlongPath <= d.resting)
                             {
                                 // If the current position of the item is to the left of its resting place, then you want to
                                 // snap the items back by scrolling right.
@@ -710,8 +735,8 @@ function carouselCreator(items)
                             }
                             else
                             {
-                                // If the current position of the item is to the right of its resting place, then you want to
-                                // snap the items back by scrolling left.
+                                // If the current position of the item is to the right of its resting place (or is the same as its resting place),
+                                // then you want to snap the items back by scrolling left.
                                 interpolator = d3.interpolate(d.distAlongPath, d.resting);
                             }
                         }

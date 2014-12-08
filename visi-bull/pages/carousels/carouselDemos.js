@@ -334,7 +334,6 @@ function sine_path(svgID)
     function sine_wave()
     {
         var returnString = "M300," + (110 + (40 * Math.sin(300 / 10)));
-        console.log(returnString);
         console.log();
         for (var i = 301; i < 611; i++)
         {
