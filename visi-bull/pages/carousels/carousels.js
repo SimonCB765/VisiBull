@@ -10,6 +10,10 @@ function carouselCreator(items)
         items = items,  // The items to put in the carousel.
         itemsToShow = 2,  // The number of items to show in the carousel. Can't be less than 1.
         itemsToScrollBy = 2,  // The number of items to scroll by in the carousel. Can't be less than 1.
+        horizontalPadding = 10,  // The amount of padding to put on the left and right of the item. Half the padding goes on the left and half on the right.
+        verticalPadding = 10,  // The amount of padding to put above and below the item. Half the padding goes above and half below.
+                               // Shorter items may appear to have more space around them than the value of verticalPadding says they should. This is
+                               // because shorter items will be centered in the carousel, and will therefore have extra space above and below them.
         isInfinite = false,  // Whether the scrolling should be an infinite loop.
         isCentered = false,  // Whether the displayed items should be centered.
         isDots = false,  // Whether to display dots below the items to indicate where you are in the carousel.
@@ -46,15 +50,13 @@ function carouselCreator(items)
         // Determine the width of each item (taking into account its padding), and the maximum height of all items.
         var maxItemHeight = 0;  // The maximum height (including vertical padding) of all the items.
         var itemWidths = [];  // The width for all the items. The width of the item with index i is found at index i in this array.
-        var itemPaddings = [];  // The horizontal padding for all the items. The horizontal padding of the item with index i is found at index i in this array.
         var itemData = items.data();
         var currentItemData;
         for (var i = 0; i < itemData.length; i++)
         {
             currentItemData = itemData[i];
-            maxItemHeight = Math.max(maxItemHeight, currentItemData.height + currentItemData.verticalPadding);
+            maxItemHeight = Math.max(maxItemHeight, currentItemData.height + verticalPadding);
             itemWidths.push(currentItemData.width);
-            itemPaddings.push(currentItemData.horizontalPadding);
         }
 
         // Determine the necessary height and width of the carousel. If they're not specified, then they are set dynamically to fit the
@@ -66,7 +68,7 @@ function carouselCreator(items)
             var maxWidthWindow = 0;
             for (var i = 0; i < itemWidths.length - (itemsToShow - 1); i++)
             {
-                maxWidthWindow = Math.max(maxWidthWindow, d3.sum(itemWidths.slice(i, i + itemsToShow)) + d3.sum(itemPaddings.slice(i, i + itemsToShow)));
+                maxWidthWindow = Math.max(maxWidthWindow, d3.sum(itemWidths.slice(i, i + itemsToShow)) + (itemsToShow * horizontalPadding));
             }
             width = maxWidthWindow;
         }
@@ -100,22 +102,22 @@ function carouselCreator(items)
             else
             {
                 // Multiple itemsToShow.
-                leftViewItemStartX -= (itemWidths[0] + (itemPaddings[0] / 2));
+                leftViewItemStartX -= (itemWidths[0] + (horizontalPadding / 2));
                 for (var i = 1; i < Math.floor(numberOfItemsLeftOfCenter); i++)
                 {
-                    leftViewItemStartX -= (itemWidths[i] + itemPaddings[i]);
+                    leftViewItemStartX -= (itemWidths[i] + horizontalPadding);
                 }
                 if (parseInt(numberOfItemsLeftOfCenter) !== numberOfItemsLeftOfCenter)
                 {
                     // If the number of items to the left of center is not an integer (e.g. displaying 3 items with 1.5 to the left of the center).
                     var itemStraddlingMidPoint = Math.floor(numberOfItemsLeftOfCenter);
-                    leftViewItemStartX -= ((itemWidths[itemStraddlingMidPoint] + itemPaddings[itemStraddlingMidPoint]) / 2);
+                    leftViewItemStartX -= ((itemWidths[itemStraddlingMidPoint] + horizontalPadding) / 2);
                 }
             }
         }
         else
         {
-            leftViewItemStartX = (itemPaddings[0] / 2);
+            leftViewItemStartX = (horizontalPadding / 2);
         }
 
         // Setup the scroll path.
@@ -129,7 +131,7 @@ function carouselCreator(items)
             if (isInfinite)
             {
                 // Determine the length of the path to scroll along.
-                scrollPathLength = d3.sum(itemWidths) + d3.sum(itemPaddings);
+                scrollPathLength = d3.sum(itemWidths) + (horizontalPadding * items.size());
 
                 // Determine the starting point of the path to scroll along.
                 scrollPathStartX = (width + 10) - scrollPathLength;  // Want the path to end at width + 10.
@@ -140,7 +142,7 @@ function carouselCreator(items)
             else
             {
                 // Determine the length of the path to scroll along.
-                scrollPathLength = d3.sum(itemWidths) + d3.sum(itemPaddings);
+                scrollPathLength = d3.sum(itemWidths) + (horizontalPadding * items.size());
                 scrollPathLength *= 2;
 
                 // Determine the starting point of the path to scroll along.
@@ -176,7 +178,7 @@ function carouselCreator(items)
                     if (i !== 0)
                     {
                         // If the item is not the first one.
-                        currentItemDist += (d.horizontalPadding / 2);
+                        currentItemDist += (horizontalPadding / 2);
                     }
                     currentItemDist = (scrollPathLength + currentItemDist) % scrollPathLength;  // Wrap the item's position around to the left of the items in view if necessary.
 
@@ -190,7 +192,7 @@ function carouselCreator(items)
                     d.transY = positionAlongPath.y - (d.height / 2);
 
                     // Set position for next item.
-                    currentItemDist += (d.width + (d.horizontalPadding / 2));
+                    currentItemDist += (d.width + (horizontalPadding / 2));
 
                     return "translate(" + d.transX + "," + d.transY + ")";
                 });
@@ -862,6 +864,22 @@ function carouselCreator(items)
     {
         if (!arguments.length) return itemsToScrollBy;
         itemsToScrollBy = _;
+        return carousel;
+    }
+
+    // Horizontal padding.
+    carousel.horizontalPadding = function(_)
+    {
+        if (!arguments.length) return horizontalPadding;
+        horizontalPadding = _;
+        return carousel;
+    }
+
+    // Vertical padding.
+    carousel.verticalPadding = function(_)
+    {
+        if (!arguments.length) return verticalPadding;
+        verticalPadding = _;
         return carousel;
     }
 

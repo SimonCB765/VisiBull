@@ -49,12 +49,10 @@ function center_infinite(svgID)
         itemData.push(
             {
                 "height": 100,  // Height of the item.
-                "horizontalPadding": 10,  // Horizontal padding of the item (half on the left and half on the right).
                 "key": i,  // Unique identifier for the item.
                 "rootID": svgID,  // The root of the ID used to refer to the item clip paths.
                 "transX": 0,  // Current X position of the item.
                 "transY": 0,  // Current Y position of the item.
-                "verticalPadding": 10,  // Vertical padding of the item (half on top and half on the bottom).
                 "width": itemWidth  // Width of the item.
             });
     }
@@ -113,12 +111,10 @@ function center_non_infinite(svgID)
         itemData.push(
             {
                 "height": 100,  // Height of the item.
-                "horizontalPadding": 10,  // Horizontal padding of the item (half on the left and half on the right).
                 "key": i,  // Unique identifier for the item.
                 "rootID": svgID,  // The root of the ID used to refer to the item clip paths.
                 "transX": 0,  // Current X position of the item.
                 "transY": 0,  // Current Y position of the item.
-                "verticalPadding": 10,  // Vertical padding of the item (half on top and half on the bottom).
                 "width": itemWidth  // Width of the item.
             });
     }
@@ -176,12 +172,10 @@ function multi_infinite(svgID)
         itemData.push(
             {
                 "height": 100,  // Height of the item.
-                "horizontalPadding": 10,  // Horizontal padding of the item (half on the left and half on the right).
                 "key": i,  // Unique identifier for the item.
                 "rootID": svgID,  // The root of the ID used to refer to the item clip paths.
                 "transX": 0,  // Current X position of the item.
                 "transY": 0,  // Current Y position of the item.
-                "verticalPadding": 10,  // Vertical padding of the item (half on top and half on the bottom).
                 "width": itemWidth  // Width of the item.
             });
     }
@@ -238,12 +232,10 @@ function multi_non_infinite(svgID)
         itemData.push(
             {
                 "height": 100,  // Height of the item.
-                "horizontalPadding": 10,  // Horizontal padding of the item (half on the left and half on the right).
                 "key": i,  // Unique identifier for the item.
                 "rootID": svgID,  // The root of the ID used to refer to the item clip paths.
                 "transX": 0,  // Current X position of the item.
                 "transY": 0,  // Current Y position of the item.
-                "verticalPadding": 10,  // Vertical padding of the item (half on top and half on the bottom).
                 "width": itemWidth  // Width of the item.
             });
     }
@@ -299,12 +291,10 @@ function single_infinite(svgID)
         itemData.push(
             {
                 "height": 100,  // Height of the item.
-                "horizontalPadding": 10,  // Horizontal padding of the item (half on the left and half on the right).
                 "key": i,  // Unique identifier for the item.
                 "rootID": svgID,  // The root of the ID used to refer to the item clip paths.
                 "transX": 0,  // Current X position of the item.
                 "transY": 0,  // Current Y position of the item.
-                "verticalPadding": 10,  // Vertical padding of the item (half on top and half on the bottom).
                 "width": itemWidth  // Width of the item.
             });
     }
@@ -361,12 +351,10 @@ function single_non_infinite(svgID)
         itemData.push(
             {
                 "height": 100,  // Height of the item.
-                "horizontalPadding": 10,  // Horizontal padding of the item (half on the left and half on the right).
                 "key": i,  // Unique identifier for the item.
                 "rootID": svgID,  // The root of the ID used to refer to the item clip paths.
                 "transX": 0,  // Current X position of the item.
                 "transY": 0,  // Current Y position of the item.
-                "verticalPadding": 10,  // Vertical padding of the item (half on top and half on the bottom).
                 "width": itemWidth  // Width of the item.
             });
     }
@@ -422,12 +410,10 @@ function var_size(svgID, makeInf, centerIt)
         itemData.push(
             {
                 "height": 0,  // Height of the item.
-                "horizontalPadding": 10,  // Horizontal padding of the item (half on the left and half on the right).
                 "key": i,  // Unique identifier for the item.
                 "rootID": svgID,  // The root of the ID used to refer to the item clip paths.
                 "transX": 0,  // Current X position of the item.
                 "transY": 0,  // Current Y position of the item.
-                "verticalPadding": 10,  // Vertical padding of the item (half on top and half on the bottom).
                 "width": itemWidth  // Width of the item.
             });
     }
