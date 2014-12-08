@@ -1,5 +1,8 @@
 $(document).ready(function()
 {
+	var_size("demo2", true, true);
+
+
     // Create the single item non-infinite scrolling demo.
     single_non_infinite("Single-Non-Inf");
 
@@ -399,8 +402,8 @@ function var_size(svgID, makeInf, centerIt)
 {
 
     var svg = d3.select("#" + svgID)
-        .attr("width", 450)
-        .attr("height", 150);
+        .attr("width", 900)
+        .attr("height", 200);
 
     // Setup data used to create the items.
     var itemWidth = 0;
@@ -417,17 +420,17 @@ function var_size(svgID, makeInf, centerIt)
                 "width": itemWidth  // Width of the item.
             });
     }
-    itemData[0].width = 200
+    itemData[0].width = 50
     itemData[0].height = 50
-    itemData[1].width = 100
+    itemData[1].width = 30
     itemData[1].height = 75
     itemData[2].width = 75
     itemData[2].height = 40
-    itemData[3].width = 225
+    itemData[3].width = 55
     itemData[3].height = 100
-    itemData[4].width = 300
+    itemData[4].width = 40
     itemData[4].height = 110
-    itemData[5].width = 180
+    itemData[5].width = 60
     itemData[5].height = 90
 
     // Create the items.
@@ -451,18 +454,19 @@ function var_size(svgID, makeInf, centerIt)
         .style("font-size", 15)
         .style("font-weight", numberFontWeight)
         .style("stroke", numberStroke)
-        .text(function(d) { return "W" + d.width + ",H" + d.height; });
+        .text(function(d) { return "W" + d.width + ",H" + d.height; })
+		.text(function(d) { return d.key; });
 
     // Create the carousel.
     var carousel = carouselCreator(items)
-        .width(420)
-        .xLoc(20)
+        .width(275)
+        .xLoc(200)
         .yLoc(0)
-        .isInfinite(makeInf)
-        .isCentered(centerIt)
+        .isInfinite(true)
+        .isCentered(true)
         .isDots(true)
-        .itemsToShow(1)
-        .itemsToScrollBy(1)
+        .itemsToShow(3)
+        .itemsToScrollBy(3)
         .dotContainerHeight(30)
         .navArrowWidth(40)
         .navArrowHeight(40);

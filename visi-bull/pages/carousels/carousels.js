@@ -40,6 +40,9 @@ function carouselCreator(items)
         // If a custom path has been provided, then the width and height must also be provided.
         if (((width === null) || (height === null)) && scrollPath !== "flat") { console.log("The width and height must be set manually with custom paths."); return; }
 
+        // If a custom path is provided, then centering is not an option and the scrolling must be infinite.
+        if (scrollPath !== "flat") { isCentered = false; isInfinite = false; }
+
         // Setup the carousel container.
         var carousel = selection.append("g")
             .classed("carousel", true)
@@ -92,28 +95,13 @@ function carouselCreator(items)
         var leftViewItemStartX = 0;  // The X location of the leftmost item in the view.
         if (isCentered)
         {
-            var numberOfItemsLeftOfCenter = itemsToShow / 2;  // Fraction of the items to the left of the mid point.
-            leftViewItemStartX = width / 2;  // The offset for the current item.
-            if (itemsToShow === 1)
+            var itemSetWidth = 0;  // The width of each of the items in the first viisble item set.
+            for (var i = 0; i < itemsToShow; i++)
             {
-                // Only have one centered item.
-                leftViewItemStartX -= (itemWidths[0] / 2);
+                itemSetWidth += itemWidths[i];
             }
-            else
-            {
-                // Multiple itemsToShow.
-                leftViewItemStartX -= (itemWidths[0] + (horizontalPadding / 2));
-                for (var i = 1; i < Math.floor(numberOfItemsLeftOfCenter); i++)
-                {
-                    leftViewItemStartX -= (itemWidths[i] + horizontalPadding);
-                }
-                if (parseInt(numberOfItemsLeftOfCenter) !== numberOfItemsLeftOfCenter)
-                {
-                    // If the number of items to the left of center is not an integer (e.g. displaying 3 items with 1.5 to the left of the center).
-                    var itemStraddlingMidPoint = Math.floor(numberOfItemsLeftOfCenter);
-                    leftViewItemStartX -= ((itemWidths[itemStraddlingMidPoint] + horizontalPadding) / 2);
-                }
-            }
+            itemSetWidth += ((itemsToShow - 1) * horizontalPadding);
+            leftViewItemStartX = (width / 2) - (itemSetWidth / 2);
         }
         else
         {
@@ -126,6 +114,7 @@ function carouselCreator(items)
         var scrollPathStartX;  // The X location of the start of the scroll path.
         var scrollPathStartY = (height - (isDots ? dotContainerHeight : 0)) / 2;  // The Y location of the start of the scroll path.
         var scrollPathLength;  // The length of the path along which the scrolling will occur.
+        var centerViewDist;  // The distance along the path that represents the center of the carousel view (i.e. width / 2).
         if (scrollPath === "flat")
         {
             if (isInfinite)
@@ -151,6 +140,9 @@ function carouselCreator(items)
                 // Determine the starting point of the leftmost item in the view in terms of its distance along the path.
                 leftViewItemStartDist = (scrollPathLength / 2);
             }
+
+            // Determine the center of the carousel in terms of its distance along the path.
+            centerViewDist = (width / 2) - scrollPathStartX;
 
             // Create the path to scroll along.
             pathToScrollAlong.attr("d", "M" + scrollPathStartX + "," + scrollPathStartY + "h" + scrollPathLength);
@@ -533,37 +525,54 @@ function carouselCreator(items)
                 // Catches events where a drag that didn't move the items far enough to switch to a new visible item set ends.
                 // No change in resting positions is needed.
             }
-            else if (isInfinite)
+            else if (isCentered)
             {
-                // Infinite scrolling is used.
+                // The items are centered.
 
-                // Determine whether we are scrolling left.
-                isLeft = distanceGoingLeft < distanceGoingRight ? true : false;
+                // Determine the width (plus padding) of the items in the new visible set of items.
+                var newVisibleSet = visibleItemSets[newVisibleSetIndex];
+                var newLeftmostResting;  // The resting position for the item that will become the leftmost item in view.
+                var newSetWidth = 0;  // The width (and padding) for all items in the new visible set.
+                items.each(function(d)
+                    {
+                        if (d.key === newVisibleSet[0])
+                        {
+                            newLeftmostResting = d.resting;
+                            newSetWidth += d.width;
+                        }
+                        else if (newVisibleSet.indexOf(d.key) !== -1)
+                        {
+                            newSetWidth += d.width;
+                        }
+                    });
+                newSetWidth += ((newVisibleSet.length - 1) * horizontalPadding);
 
-                // Determine the number of items to scroll by.
-                numberItemsToScrollBy = itemsToScrollBy * Math.min(distanceGoingLeft, distanceGoingRight);
+                // Determine the center of the new visible set.
+                var newCenter = newLeftmostResting + (newSetWidth / 2);
 
-                // Determine the new positions for the items.
-                if (isLeft)
+                // Determine the distance to scroll.
+                var distanceToScroll = centerViewDist - newCenter;
+
+                // Determine the new positions of the items.
+                if (isInfinite)
                 {
-                    // The new index is to the left of the current index, so the carousel is being scrolled left, and the items
-                    // should therefore move to the right. A positive value for rotate_array will move rotate the values in the array
-                    // to the left, and will therefore rotate the array of resting positions in such a way that the items will
-                    // scroll to the right.
-                    itemPositions = rotate_array(itemPositions, numberItemsToScrollBy);
+                    for (var i = 0; i < itemPositions.length; i++)
+                    {
+                        itemPositions[i] = (scrollPathLength + (itemPositions[i] + distanceToScroll)) % scrollPathLength;
+                    }
                 }
                 else
                 {
-                    // The new index is to the right of the current index, so the carousel is being scrolled right, and the items
-                    // should therefore move to the left. A negative value for rotate_array will move rotate the values in the array
-                    // to the right, and will therefore rotate the array of resting positions in such a way that the items will
-                    // scroll to the left.
-                    itemPositions = rotate_array(itemPositions, -numberItemsToScrollBy);
+                    for (var i = 0; i < itemPositions.length; i++)
+                    {
+                        itemPositions[i] += distanceToScroll;
+                    }
                 }
+
             }
             else
             {
-                // Non-infinite scrolling is used.
+                // The items are not centered.
 
                 // Determine the leftmost item in the current and new visible set of items.
                 var currentLeftmost = visibleItemSets[currentVisibleSetIndex][0];
@@ -585,13 +594,20 @@ function carouselCreator(items)
                 // Determine the distance to scroll.
                 var distanceToScroll = currentLeftmostResting - newLeftmostResting;
 
-                // Determine the direction we are scrolling. Scrolling left if the current visible set index is greater than the new one.
-                isLeft = distanceToScroll > 0;
-
-                // Add the distance to scroll to all resting positions.
-                for (var i = 0; i < itemPositions.length; i++)
+                // Determine the new positions of the items.
+                if (isInfinite)
                 {
-                    itemPositions[i] += distanceToScroll;
+                    for (var i = 0; i < itemPositions.length; i++)
+                    {
+                        itemPositions[i] = (scrollPathLength + (itemPositions[i] + distanceToScroll)) % scrollPathLength;
+                    }
+                }
+                else
+                {
+                    for (var i = 0; i < itemPositions.length; i++)
+                    {
+                        itemPositions[i] += distanceToScroll;
+                    }
                 }
             }
 
@@ -720,34 +736,6 @@ function carouselCreator(items)
 //                                      .attr("x", function(d) { return -d.transX; });  // Update the clip path.
                             }
                     });
-        }
-
-        function rotate_array(array, step)
-        {
-            // Rotate an array by step positions in a circular fashion. A positive step value will rotate all array values to the left.
-            // A negative step value will rotate array values to the right.
-
-            // Determine the offset to apply in order to bring the index within the permissible range.
-            var offset = step < 0 ? Math.ceil(step / array.length) * array.length : Math.floor(step / array.length) * array.length;
-
-            // Correct for -ve step values.
-            if (step < 0)
-            {
-                // Negative steps can't be used directly as array[-ve] is an error. Therefore, when a negative
-                // step is used, the step value must be corrected.
-                // This is done by converting the -ve step to an equivalent +ve step. For example, with an array of [0,1,2,3,4]
-                // a -ve step of -6 is equivalent to a +ve step of 4. Both give a rotated array of [4,0,1,2,3].
-                step += (Math.ceil(Math.abs(step) / array.length) * array.length);
-            }
-
-            // Rotate the array.
-            var returnArray = [];
-            for (var i = 0; i < array.length; i++)
-            {
-                returnArray.push(array[(i + step) % (array.length)]);
-            }
-
-            return returnArray
         }
 
         function determine_visible_item_sets()
