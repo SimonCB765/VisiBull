@@ -25,6 +25,10 @@ $(document).ready(function()
     // Create the variable shaped item demos.
     var_shape("Var-Shape-Non-Inf", false, false);
     var_shape("Var-Shape-Inf", true, true);
+
+    // Create the basic individually draggable item demos.
+    indiv_drag("Indiv-Non-Inf", false, false);
+    indiv_drag("Indiv-Inf", true, true);
 });
 
 // Define the colors used for the demos.
@@ -156,6 +160,70 @@ function center_non_infinite(svgID)
         .itemsToShow(2)
         .itemsToScrollBy(1)
         .dotContainerHeight(30)
+        .navArrowWidth(40)
+        .navArrowHeight(40);
+    svg.call(carousel);
+}
+
+function indiv_drag(svgID, makeInf, centerIt)
+{
+
+    var svg = d3.select("#" + svgID)
+        .attr("width", 450)
+        .attr("height", 150);
+
+    // Setup data used to create the items.
+    var itemWidth = 80;
+    var itemData = [];
+    for (var i = 0; i < 8; i++)
+    {
+        itemData.push(
+            {
+                "height": 100,  // Height of the item.
+                "key": i,  // Unique identifier for the item.
+                "rootID": svgID,  // The root of the ID used to refer to the item clip paths.
+                "transX": 0,  // Current X position of the item.
+                "transY": 0,  // Current Y position of the item.
+                "width": itemWidth  // Width of the item.
+            });
+    }
+
+    // Create the items.
+    var items = svg.selectAll(".item")
+        .data(itemData)
+        .enter()
+        .append("g")
+            .classed("item", true)
+            .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+    items.append("rect")
+        .attr("width", function(d) { return d.width; })
+        .attr("height", function(d) { return d.height; })
+        .style("fill", fillColor)
+        .style("stroke", strokeType);
+    items.append("text")
+        .attr("x", function(d) { return d.width / 2; })
+        .attr("y", function(d) { return d.height / 2; })
+        .attr("dy", ".35em")
+        .style("text-anchor", "middle")
+        .style("fill", numberFill)
+        .style("font-size", numberFont)
+        .style("font-weight", numberFontWeight)
+        .style("stroke", numberStroke)
+        .text(function(d) { return d.key; });
+
+    // Create the carousel.
+    var carousel = carouselCreator(items)
+        .width(420)
+        .xLoc(15)
+        .yLoc(5)
+        .isCentered(centerIt)
+        .isDots(true)
+        .isIndivDrag(true)
+        .itemsToShow(1)
+        .itemsToScrollBy(1)
+        .horizontalPadding(20)
+        .dotContainerHeight(30)
+        .isInfinite(makeInf)
         .navArrowWidth(40)
         .navArrowHeight(40);
     svg.call(carousel);
