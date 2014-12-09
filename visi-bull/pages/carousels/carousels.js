@@ -20,11 +20,10 @@ function carouselCreator(items)
         isArrows = true,  // Whether to display arrows at the sides of the carousel that scroll the carousel when clicked.
         dotContainerHeight = 30,  // The height of the g element containing the navigation dots. Should be at least twice the dotRadius.
         itemSnapSpeed = 3000,  // The duration that the items take when snapping back into place.
-        customScrollFraction = 0,  // The fractional [0,1] distance along the path at which to place the first item. Only works with custom paths.
-                                   // It is the left edge of the first item that gets placed at a distance this fraction along the path.
         navArrowWidth = null,  // The width of the navigation arrow.
         navArrowHeight = null,  // The height of the navigation arrow.
-        navDotRadius = 5;  // The radius of the navigation dots.
+        navDotRadius = 5  // The radius of the navigation dots.
+        isIndivDrag = false;  // Whether the items are individually draggable.  Forces itemsToShow and itemsToScrollBy to be 1.
 
     /*****************************
     * Carousel Creation Function *
@@ -33,6 +32,9 @@ function carouselCreator(items)
     {
         // The selection passed in must contain only one element.
         if (selection.size() !== 1) { console.log("Selection to create carousel in must contain only one element."); return; }
+
+        // Set the itemsToShow and itemsToScrollBy when using the individually draggable items.
+        if (isIndivDrag) { itemsToShow = 1; itemsToScrollBy = 1; }
 
         // Setup the carousel container.
         var carousel = selection.append("g")
@@ -184,18 +186,25 @@ function carouselCreator(items)
 
         // Add drag behaviour.
         var dragBehaviour = d3.behavior.drag()
-            .origin(function(d) { return {"x": d3.event.x - xLoc, "y": d3.event.y - yLoc}; })  // Set the origin of the drag to be the top left of the carousel container.
-            .on("dragstart", drag_start)
-            .on("dragend", drag_end);
-        if (isInfinite)
+            .origin(function(d) { return {"x": d3.event.x - xLoc, "y": d3.event.y - yLoc}; });  // Set the origin of the drag to be the top left of the carousel container.
+        if (isIndivDrag)
         {
-            dragBehaviour.on("drag", drag_update_infinite);
+            dragBehaviour
+                .on("dragstart", drag_indiv_start)
+                .on("dragend", drag_indiv_end);
+            if (isInfinite) { dragBehaviour.on("drag", drag_indiv_update_infinite); }
+            else { dragBehaviour.on("drag", drag_indiv_update_noninfinite); }
+            items.call(dragBehaviour);
         }
         else
         {
-            dragBehaviour.on("drag", drag_update_standard);
+            dragBehaviour
+                .on("dragstart", drag_standard_start)
+                .on("dragend", drag_standard_end);
+            if (isInfinite) { dragBehaviour.on("drag", drag_standard_update_infinite); }
+            else { dragBehaviour.on("drag", drag_standard_update_noninfinite); }
+            itemContainer.call(dragBehaviour);
         }
-        itemContainer.call(dragBehaviour);
 
         // Create the navigation arrows.
         if (isArrows)
@@ -306,14 +315,179 @@ function carouselCreator(items)
         /**************************
         * Item Dragging Functions *
         **************************/
-        function drag_end(d)
+        function drag_indiv_end(d)
+        {
+            closestSetIndex = currentVisibleSetIndex;
+
+            // Scroll the carousel.
+            scroll_carousel(closestSetIndex);
+
+            // Add back the highlighting for the navigation arrows.
+            navigationArrows
+                .on("mouseover", function() { d3.select(this).classed("highlight", true); })
+                .on("mouseout", function() { d3.select(this).classed("highlight", false); })
+        }
+
+        function drag_indiv_start()
+        {
+            d3.select(this)
+                .interrupt() // Cancel any transitions running on this item.
+                .transition(); // Pre-empt any scheduled transitions on this item.
+
+            // Remove the highlighting of the navigation arrows.
+            navigationArrows
+                .on("mouseover", null)
+                .on("mouseout", null)
+        }
+
+        function drag_indiv_update_infinite(d)
+        {
+        }
+
+        function drag_indiv_update_noninfinite(d)
+        {
+            // Drag items that do not scroll infinitely.
+            var changeInPosition = d3.event.dx;  // The movement caused by the dragging.
+
+            // Define the boundaries of the carousel.
+            var leftEdge = -scrollPathStartX;
+            var rightEdge = leftEdge + width;
+
+            // Update the position of the item.
+            if (d.distAlongPath + d.width > rightEdge)
+            {
+                // If the item has started slightly overlapping the right edge of the carousel, then don't force it to snap fully back into the carousel.
+                if (changeInPosition < 0)
+                {
+                    // If the user tries to move an item right when that item is overlapping the right edge already, then just leave it in place.
+                    // If the user tries to move the item left, then move it.
+                    d.distAlongPath += changeInPosition;
+                }
+            }
+            else
+            {
+                d.distAlongPath += changeInPosition;
+                d.distAlongPath = Math.max(leftEdge, Math.min(rightEdge - d.width, d.distAlongPath));
+            }
+            var positionAlongPath = pathToScrollAlong.node().getPointAtLength(d.distAlongPath);
+            d.transX = positionAlongPath.x;
+
+            // Move the item.
+            d3.select(this)
+                .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });
+
+            // Get an ordered list of the item keys, with the key at index 0 being the leftmost item in the carousel.
+            var itemPositions = [];
+            var itemKeys = [];
+            items.each(function(itemD) { itemPositions.push({"key": itemD.key, "resting": itemD.resting}); });
+            itemPositions.sort(function (a, b)
+                {
+                    if (a.resting > b.resting) { return 1; }
+                    else if (a.resting < b.resting) { return -1; }
+                    else { return 0; }
+                });
+            for (var i = 0; i < itemPositions.length; i++)
+            {
+                itemKeys.push(itemPositions[i].key);
+            }
+
+            // Determine if the dragged item should swap resting places with a non-dragged one.
+            var draggedItemIndex = itemKeys.indexOf(d.key);
+            var leftNeighbourIndex = draggedItemIndex - 1;
+            var rightNeighbourIndex = draggedItemIndex + 1;
+            if (leftNeighbourIndex >= 0)
+            {
+                // If the item being dragged is not already the leftmost item.
+                var leftNeighbour = items.filter(function(itemD) { return itemD.key === itemPositions[leftNeighbourIndex].key; })
+                if ((d.distAlongPath - itemPositions[leftNeighbourIndex].resting) < (itemPositions[draggedItemIndex].resting - d.distAlongPath))
+                {
+                    // If the item is closer to its left neighbour's resting location than its own resting location, then swap the two items resting spots.
+                    leftNeighbour.datum().resting = d.resting;
+                    d.resting = itemPositions[leftNeighbourIndex].resting;
+                    leftNeighbour
+                        .transition()
+                        .duration(itemSnapSpeed / 2)
+                        .ease("cubic-out")
+                        .tween("transform", function(transD)
+                            {
+                                var interpolator = d3.interpolate(transD.distAlongPath, transD.resting);
+                                var currentPoint;
+                                return function(t)
+                                {
+                                    transD.distAlongPath = interpolator(t);
+                                    currentPoint = pathToScrollAlong.node().getPointAtLength(transD.distAlongPath);
+                                    transD.transX = currentPoint.x;  // Determine position of the item at this point in the transition.
+                                    transD.transY = currentPoint.y - (transD.height / 2);  // Determine position of the item at this point in the transition.
+                                    d3.select(this)
+                                        .attr("transform", function() { return "translate(" + transD.transX + "," + transD.transY + ")"; });  // Update the item's position.
+                                }
+                            });
+                }
+            }
+            if (rightNeighbourIndex <= itemKeys.length - 1)
+            {
+                // If the item being dragged is not already the rightmost item.
+                var rightNeighbour = items.filter(function(itemD) { return itemD.key === itemPositions[rightNeighbourIndex].key; })
+                if ((itemPositions[rightNeighbourIndex].resting - d.distAlongPath) < (d.distAlongPath - itemPositions[draggedItemIndex].resting))
+                {
+                    // If the item is closer to its right neighbour's resting location than its own resting location, then swap the two items resting spots.
+                    rightNeighbour.datum().resting = d.resting;
+                    d.resting = itemPositions[rightNeighbourIndex].resting;
+                    rightNeighbour
+                        .transition()
+                        .duration(itemSnapSpeed / 2)
+                        .ease("cubic-out")
+                        .tween("transform", function(transD)
+                            {
+                                var interpolator = d3.interpolate(transD.distAlongPath, transD.resting);
+                                var currentPoint;
+                                return function(t)
+                                {
+                                    transD.distAlongPath = interpolator(t);
+                                    currentPoint = pathToScrollAlong.node().getPointAtLength(transD.distAlongPath);
+                                    transD.transX = currentPoint.x;  // Determine position of the item at this point in the transition.
+                                    transD.transY = currentPoint.y - (transD.height / 2);  // Determine position of the item at this point in the transition.
+                                    d3.select(this)
+                                        .attr("transform", function() { return "translate(" + transD.transX + "," + transD.transY + ")"; });  // Update the item's position.
+                                }
+                            });
+                }
+            }
+
+/*
+            // Determine whether you need to scroll the carousel.
+            var scrollCarousel = null;
+            if ((d.distAlongPath + d.width >= rightEdge) || (d.distAlongPath <= leftEdge))
+            {
+                // The item has been dragged to the right or left edge, so scroll the carousel in the opposite direction that the item has been dragged.
+                items.filter(function(itemD) { return itemD.key !== d.key; })
+                    .attr("transform", function(itemD)
+                        {
+                            // The items need to be able to be dragged as far offscreen as is desired, but to be able to snap back into the correct
+                            // positions once released. When the distance along the path is negative, the transformed location must be stuck at 0.
+                            // This is because the getPointAtLength point of a position that is a -ve distance along a path, is treated as its absolute
+                            // distance along the path (e.g. getPointAtLength(10) === getPointAtLength(-10)). As the user can scroll the items so far to
+                            // the left that their distance along the path becomes negative (as there is no limit on how far left the items can be scrolled
+                            // they will go off the path and get a -ve distance), the transformation is treated as 0 distance along the path whenever the
+                            // distance is -ve. See the demos at http://visi-bull.appspot.com/carousels for pictographic demos.
+
+                            itemD.distAlongPath += -changeInPosition;
+                            var positionAlongPath = pathToScrollAlong.node().getPointAtLength(Math.max(0, itemD.distAlongPath));
+                            itemD.transX = positionAlongPath.x;
+                            return "translate(" + itemD.transX + "," + itemD.transY + ")";
+                        });
+            }
+*/
+        }
+
+        function drag_standard_end(d)
         {
             // Search through all sets of items to find the one to scroll to.
             var currentShortestDistance = scrollPathLength;
             var closestSetIndex = 0;
             for (var i = 0; i < visibleItemSets.length; i++)
             {
-                var leftmostItem = items.filter(function(d) { return d.key == visibleItemSets[i][0]; });
+                var leftmostItem = items.filter(function(d) { return d.key === visibleItemSets[i][0]; });
                 var leftmostDist;
                 if (isInfinite)
                 {
@@ -357,7 +531,7 @@ function carouselCreator(items)
                 .on("mouseout", function() { d3.select(this).classed("highlight", false); })
         }
 
-        function drag_start()
+        function drag_standard_start()
         {
             items
                 .interrupt() // Cancel any transitions running on the items.
@@ -369,7 +543,7 @@ function carouselCreator(items)
                 .on("mouseout", null)
         }
 
-        function drag_update_infinite(d)
+        function drag_standard_update_infinite(d)
         {
             // Drag items that scroll infinitely.
             var changeInPosition = d3.event.dx;  // The movement caused by the dragging.
@@ -399,7 +573,7 @@ function carouselCreator(items)
 */
         }
 
-        function drag_update_standard(d)
+        function drag_standard_update_noninfinite(d)
         {
             // Drag items that do not scroll infinitely.
             var changeInPosition = d3.event.dx;  // The movement caused by the dragging.
@@ -896,14 +1070,6 @@ function carouselCreator(items)
         return carousel;
     }
 
-    // Custom scroll path fractional start distance.
-    carousel.customScrollFraction = function(_)
-    {
-        if (!arguments.length) return customScrollFraction;
-        customScrollFraction = _;
-        return carousel;
-    }
-
     // Navigation arrow width.
     carousel.navArrowWidth = function(_)
     {
@@ -925,6 +1091,14 @@ function carouselCreator(items)
     {
         if (!arguments.length) return navDotRadius;
         navDotRadius = _;
+        return carousel;
+    }
+
+    // Individually scrollable items.
+    carousel.isIndivDrag = function(_)
+    {
+        if (!arguments.length) return isIndivDrag;
+        isIndivDrag = _;
         return carousel;
     }
 
