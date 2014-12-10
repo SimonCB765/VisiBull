@@ -93,7 +93,7 @@ function center_infinite(svgID)
         .text(function(d) { return d.key; });
 
     // Create the carousel.
-    var carousel = carouselCreator(items)
+    var carousel = standardCarousel(items)
         .width(420)
         .xLoc(15)
         .yLoc(5)
@@ -155,7 +155,7 @@ function center_non_infinite(svgID)
         .text(function(d) { return d.key; });
 
     // Create the carousel.
-    var carousel = carouselCreator(items)
+    var carousel = standardCarousel(items)
         .width(420)
         .xLoc(15)
         .yLoc(5)
@@ -216,7 +216,7 @@ function indiv_drag(svgID, makeInf, centerIt)
         .text(function(d) { return d.key; });
 
     // Create the carousel.
-    var carousel = carouselCreator(items)
+    var carousel = standardCarousel(items)
         .width(420)
         .xLoc(15)
         .yLoc(5)
@@ -280,7 +280,7 @@ function multi_infinite(svgID)
         .text(function(d) { return d.key; });
 
     // Create the carousel.
-    var carousel = carouselCreator(items)
+    var carousel = standardCarousel(items)
         .xLoc(15)
         .yLoc(5)
         .isDots(true)
@@ -340,7 +340,7 @@ function multi_non_infinite(svgID)
         .text(function(d) { return d.key; });
 
     // Create the carousel.
-    var carousel = carouselCreator(items)
+    var carousel = standardCarousel(items)
         .xLoc(5)
         .yLoc(5)
         .isDots(true)
@@ -399,7 +399,7 @@ function single_infinite(svgID)
         .text(function(d) { return d.key; });
 
     // Create the carousel.
-    var carousel = carouselCreator(items)
+    var carousel = standardCarousel(items)
         .xLoc(20)
         .yLoc(5)
         .isDots(true)
@@ -459,7 +459,7 @@ function single_non_infinite(svgID)
         .text(function(d) { return d.key; });
 
     // Create the carousel.
-    var carousel = carouselCreator(items)
+    var carousel = standardCarousel(items)
         .xLoc(20)
         .yLoc(5)
         .isDots(true)
@@ -530,7 +530,7 @@ function var_size(svgID, makeInf, centerIt)
         .text(function(d) { return "W" + d.width + ",H" + d.height; });
 
     // Create the carousel.
-    var carousel = carouselCreator(items)
+    var carousel = standardCarousel(items)
         .width(420)
         .xLoc(20)
         .yLoc(0)
@@ -622,7 +622,7 @@ function var_shape(svgID, makeInf, centerIt)
 
     // Create the carousel.
     var items = svg.selectAll(".item");
-    var carousel = carouselCreator(items)
+    var carousel = standardCarousel(items)
         .width(420)
         .xLoc(20)
         .yLoc(0)
@@ -714,7 +714,7 @@ function indiv_variable_item_drag(svgID, makeInf, centerIt)
 
     // Create the carousel.
     var items = svg.selectAll(".item");
-    var carousel = carouselCreator(items)
+    var carousel = standardCarousel(items)
         .width(420)
         .xLoc(20)
         .yLoc(0)
