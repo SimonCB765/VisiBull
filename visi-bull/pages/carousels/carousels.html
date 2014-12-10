@@ -50,7 +50,8 @@
     navigation arrow can be changed to anything, but need to make sure that the arrow width/height will accomodate the new shape, or clicking will be more fiddly<br>
     nav dots can have their shape changed, but need to make sure that the radius provided could encompass the new shape, or clicking will be fiddly<br>
     wrapping the items positions around for infinite scrollingis done using d.distAlongPath = (scrollPathLength + d.distAlongPath) % scrollPathLength;
-        this ties the ends of the path together and makes it so that distance 0 === distance scrollPathLength
+        this ties the ends of the path together and makes it so that distance 0 === distance scrollPathLength<br>
+	individual dragging forces it to be single item in view single item scroll by without dots
 </p>
 <p>
     With centered items it is often best to manually define the carousel size (otherwise can't tell that it is centered).
