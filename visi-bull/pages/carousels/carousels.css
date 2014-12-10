@@ -31,10 +31,11 @@ _carousel_navArrow
 .navArrow  {opacity: 0;}  /* The default style of the navigation arrows is to be invisible. */
 .navArrow rect {fill: black; fill-opacity: 0; stroke: none;}  /* Style the rectangle that catches events. */
 .navArrow path {fill: lightgrey; stroke: none;}  /* Style the arrow itself. */
+.navArrow.inactive {cursor: default; pointer-events: none;}
 .navArrow.visible {opacity: .8;}  /* The navigation arrows should be slightly visible when the carousel is rolled over. */
 .navArrow.visible.inactive  {opacity: .2;}  /* The navigation arrows should be barely visible when unusable. */
 .navArrow.highlight {opacity: .9; cursor: pointer;}  /* When hovered over the navigation arrows should be fully visible. */
-.navArrow.highlight.inactive {opacity: .2; cursor: default;}  /* When hovered over, an inactive navigation arrows should barely be visible. */
+.navArrow.highlight.inactive {opacity: .2;}  /* When hovered over, an inactive navigation arrows should barely be visible. */
 .navArrow.highlight:not(.inactive) path {fill: white;}  /* Style the arrow when highlighted. */
 
 /*
