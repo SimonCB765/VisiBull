@@ -252,6 +252,40 @@ svg.call(carousel);</code></pre>
 svg.call(carousel);</code></pre>
     </div>
 </div>
+<div>
+    <div class="adj">
+        <h3 class="centerText">Non-infinite Scrolling</h3>
+        <svg id="Indiv-Var-Non-Inf" />
+        <pre class="code inline"><code class="javascript"><span class="keyword">var</span> svg = d3.select(...).append(<span class="string">"svg"</span>);
+<span class="keyword">var</span> items = ...  <span class="comment">// Create the items.</span>
+<span class="keyword">var</span> carousel = carouselCreator(items)
+    ...
+    .width(<span class="number">420</span>)
+    .isInfinite(<span class="keyword">false</span>)
+    .isCentered(<span class="keyword">false</span>)
+    .isIndivDrag(<span class="keyword">true</span>)
+    .itemsToShow(<span class="number">1</span>)
+    .itemsToScrollBy(<span class="number">1</span>)
+    ...
+svg.call(carousel);</code></pre>
+    </div>
+    <div class="adj">
+        <h3 class="centerText">Infinite Scrolling</h3>
+        <svg id="Indiv-Var-Inf" />
+        <pre class="code inline"><code class="javascript"><span class="keyword">var</span> svg = d3.select(...).append(<span class="string">"svg"</span>);
+<span class="keyword">var</span> items = ...  <span class="comment">// Create the items.</span>
+<span class="keyword">var</span> carousel = carouselCreator(items)
+    ...
+    .width(<span class="number">420</span>)
+    .isInfinite(<span class="keyword">true</span>)
+    .isCentered(<span class="keyword">true</span>)
+    .isIndivDrag(<span class="keyword">true</span>)
+    .itemsToShow(<span class="number">1</span>)
+    .itemsToScrollBy(<span class="number">1</span>)
+    ...
+svg.call(carousel);</code></pre>
+    </div>
+</div>
 <p>Add and remove items (add & remove - http://kenwheeler.github.io/slick/).</p>
 <p>One that lets you permanently take items out, closes the gaps, and then lets you stick it back in later.</p>
 <br>
