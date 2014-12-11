@@ -52,12 +52,12 @@ function moveableItemCarousels(items)
             .attr("height", height);
 
         // Setup the scroll path.
-		var scrollPathLength = d3.sum(itemWidths) + (horizontalPadding * items.size());  // The length of the path along which the scrolling will occur.
+        var scrollPathLength = d3.sum(itemWidths) + (horizontalPadding * items.size());  // The length of the path along which the scrolling will occur.
         var scrollPathStartX = (width + 10) - scrollPathLength;  // The X location of the start of the scroll path (want the path to end at width + 10).
         var scrollPathStartY = height / 2;  // The Y location of the start of the scroll path.
-		var leftViewItemStartX = (width / 2) - (d3.select(items[0][0]).datum().width / 2);  // The X location of the leftmost item in the view.
-        var leftViewItemStartDist = leftViewItemStartX - scrollPathStartX;  // The location of the leftmost item in the view in terms of its fractional distance along the path.
-		
+        var leftItemStartX = (width / 2) - (d3.select(items[0][0]).datum().width / 2);  // The X location of the leftmost item in the view.
+        var leftItemStartDist = leftItemStartX - scrollPathStartX;  // The location of the leftmost item in the view in terms of its fractional distance along the path.
+
         // Create the path to scroll along.
         var pathToScrollAlong = itemContainer.append("path")
             .classed("scrollPath", true)
@@ -67,29 +67,16 @@ function moveableItemCarousels(items)
         items.each(function() { itemContainer.node().appendChild(this); });
 
         // Put the items in the initial places.
-        var currentItemDist = leftViewItemStartDist;  // Distance along the path of the current item.
-        var positionAlongPath;  // The position of the point on the path at a distance of currentItemDist along it.
-        items.attr("transform", function(d, i)
+        set_resting_positions(items.map(function(d) { return d.key; }));
+        items.attr("transform", function(d)
             {
-                // Update the currentItemDist to position the current item.
-                if (i !== 0)
-                {
-                    // If the item is not the first one.
-                    currentItemDist += (horizontalPadding / 2);
-                }
-                currentItemDist = (scrollPathLength + currentItemDist) % scrollPathLength;  // Wrap the item's position around to the left of the items in view if necessary.
-
                 // Get the coordinates of the position currentItemDist along the path.
-                positionAlongPath = pathToScrollAlong.node().getPointAtLength(currentItemDist);
+                positionAlongPath = pathToScrollAlong.node().getPointAtLength(d.resting);
 
                 // Update item position.
-                d.distAlongPath = currentItemDist;  // Add an attribute to the item's data recording the distance along the path it currently is.
-                d.resting = currentItemDist;  // Add an attribute recording the distance along the path where the item should come to rest.
+                d.distAlongPath = d.resting;
                 d.transX = positionAlongPath.x;
                 d.transY = positionAlongPath.y - (d.height / 2);
-
-                // Set position for next item.
-                currentItemDist += (d.width + (horizontalPadding / 2));
 
                 return "translate(" + d.transX + "," + d.transY + ")";
             });
@@ -97,10 +84,10 @@ function moveableItemCarousels(items)
         // Add drag behaviour.
         var dragBehaviour = d3.behavior.drag()
             .on("dragstart", drag_start)
-			.on("drag", drag_update)
+            .on("drag", drag_update)
             .on("dragend", drag_end);
-		items.call(dragBehaviour);
-		
+        items.call(dragBehaviour);
+
         // Create the navigation arrows.
         if (isArrows)
         {
@@ -149,16 +136,11 @@ function moveableItemCarousels(items)
                            "Z"
                      );
         }
-        
-		// Add the navigation arrow behaviour.
-		var navigationArrows = carousel.selectAll(".navArrow")
-			.on("mousedown", function()
-				{
-					var arrow = d3.select(this);
-					var isLeft = arrow.classed("left");
-					start_scrollng(isLeft);
-				})
-			.on("mouseup", stop_scrolling);
+
+        // Add the navigation arrow behaviour.
+        var navigationArrows = carousel.selectAll(".navArrow")
+            .on("mousedown", function() { var isLeft = d3.select(this).classed("left"); start_scrollng(isLeft); })
+            .on("mouseup", stop_scrolling);
 
         // Setup the carousel to make the navigation buttons slightly visible when the mouse is over the carousel.
         carousel
@@ -383,7 +365,7 @@ function moveableItemCarousels(items)
         /***************************
         * Item Scrolling Functions *
         ***************************/
-		var scrollIntervalTimer = null;  // The timer used to fire scroll events.
+        var scrollIntervalTimer = null;  // The timer used to fire scroll events.
         function scroll_carousel(isLeft)
         {
             // Scroll the carousel.
@@ -393,7 +375,7 @@ function moveableItemCarousels(items)
             items.each(function(d)
                 {
                     d.distAlongPath += (isLeft ? 1 : -1);
-					d.distAlongPath = (scrollPathLength + d.distAlongPath) % scrollPathLength;
+                    d.distAlongPath = (scrollPathLength + d.distAlongPath) % scrollPathLength;
                     currentPoint = pathToScrollAlong.node().getPointAtLength(d.distAlongPath);
                     d.transX = currentPoint.x;
                     d.transY = currentPoint.y - (d.height / 2);
@@ -401,20 +383,54 @@ function moveableItemCarousels(items)
                         .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; })  // Update the item's position.
                 });
         }
-		
-		function start_scrollng(isLeft)
-		{
-			// Setup the timer to scroll the carousel.
-			scrollIntervalTimer = setInterval(function() { scroll_carousel(isLeft); }, scrollSpeed);
-		}
-		
-		function stop_scrolling()
-		{
-			// Stop the timer used to scroll the carousel.
-			clearInterval(scrollIntervalTimer);
-			// Make the carousel scroll to the center point of the item nearest the midpoint of the carousel
-		}
-	}
+
+        function start_scrollng(isLeft)
+        {
+            // Setup the timer to scroll the carousel.
+            scrollIntervalTimer = setInterval(function() { scroll_carousel(isLeft); }, scrollSpeed);
+        }
+
+        function stop_scrolling()
+        {
+            // Stop the timer used to scroll the carousel.
+            clearInterval(scrollIntervalTimer);
+            // Make the carousel scroll to the center point of the item nearest the midpoint of the carousel
+        }
+
+        /*******************
+        * Helper Functions *
+        *******************/
+        function set_resting_positions(itemOrder)
+        {
+            // Set the resting positions of the items
+            // itemOrder is an array of the keys of the items in the order that the items should be placed in the carousel.
+
+            // Sort the items.
+            var sortedItems = items.sort(function(a, b) { return (itemOrder.indexOf(a.key) < itemOrder.indexOf(b.key) ? -1 : 1); });
+
+            // Position the items.
+            var currentItemDist = (width / 2) - scrollPathStartX;  // Distance along the path of the current item.
+            var positionAlongPath;  // The coordinates of the point on the path at a distance of currentItemDist along it.
+            items.attr("transform", function(d, i)
+                {
+                    // Update the currentItemDist to position the current item.
+                    if (i === 0)
+                    {
+                        currentItemDist -= (d.width / 2);
+                    }
+                    else
+                    {
+                        // If the item is not the first one.
+                        currentItemDist += (horizontalPadding / 2);
+                    }
+                    currentItemDist = (scrollPathLength + currentItemDist) % scrollPathLength;  // Wrap the item's position around to the left of the items in view if necessary.
+                    d.resting = currentItemDist;
+
+                    // Set position for next item.
+                    currentItemDist += (d.width + (horizontalPadding / 2));
+                });
+        }
+    }
 
     /**********************
     * Getters and Setters *
