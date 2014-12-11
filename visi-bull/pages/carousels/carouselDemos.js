@@ -27,12 +27,12 @@ $(document).ready(function()
     var_shape("Var-Shape-Inf", true, true);
 
     // Create the basic individually draggable item demos.
-    indiv_drag("Indiv-Non-Inf", false, false);
-    indiv_drag("Indiv-Inf", true, true);
+    indiv_drag("Indiv-Non-Inf");
+    indiv_drag("Indiv-Inf");
 
     // Create the different shape item individually draggable item demos.
-    indiv_variable_item_drag("Indiv-Var-Non-Inf", false, false);
-    indiv_variable_item_drag("Indiv-Var-Inf", true, true);
+    indiv_variable_item_drag("Indiv-Var-Non-Inf");
+    indiv_variable_item_drag("Indiv-Var-Inf");
 });
 
 // Define the colors used for the demos.
@@ -169,7 +169,7 @@ function center_non_infinite(svgID)
     svg.call(carousel);
 }
 
-function indiv_drag(svgID, makeInf, centerIt)
+function indiv_drag(svgID)
 {
 
     var svg = d3.select("#" + svgID)
@@ -216,18 +216,13 @@ function indiv_drag(svgID, makeInf, centerIt)
         .text(function(d) { return d.key; });
 
     // Create the carousel.
-    var carousel = standardCarousel(items)
+    var carousel = moveableItemCarousels(items)
         .width(420)
+		.height(150)
         .xLoc(15)
-        .yLoc(5)
-        .isCentered(centerIt)
-        .isDots(true)
-        .isIndivDrag(true)
-        .itemsToShow(1)
-        .itemsToScrollBy(1)
+        .yLoc(0)
         .horizontalPadding(20)
         .dotContainerHeight(30)
-        .isInfinite(makeInf)
         .navArrowWidth(40)
         .navArrowHeight(40);
     svg.call(carousel);
@@ -714,16 +709,11 @@ function indiv_variable_item_drag(svgID, makeInf, centerIt)
 
     // Create the carousel.
     var items = svg.selectAll(".item");
-    var carousel = standardCarousel(items)
+    var carousel = moveableItemCarousels(items)
         .width(420)
+		.height(150)
         .xLoc(20)
         .yLoc(0)
-        .isInfinite(makeInf)
-        .isCentered(centerIt)
-        .isIndivDrag(true)
-        .isDots(true)
-        .itemsToShow(1)
-        .itemsToScrollBy(1)
         .dotContainerHeight(30)
         .navArrowWidth(40)
         .navArrowHeight(40);
