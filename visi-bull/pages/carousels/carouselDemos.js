@@ -26,13 +26,11 @@ $(document).ready(function()
     var_shape("Var-Shape-Non-Inf", false, false);
     var_shape("Var-Shape-Inf", true, true);
 
-    // Create the basic individually draggable item demos.
-    indiv_drag("Indiv-Non-Inf");
-    indiv_drag("Indiv-Inf");
+    // Create the basic individually draggable item demo.
+    indiv_drag("Indiv-Non-Var");
 
-    // Create the different shape item individually draggable item demos.
-    indiv_variable_item_drag("Indiv-Var-Non-Inf");
-    indiv_variable_item_drag("Indiv-Var-Inf");
+    // Create the different shape item individually draggable item demo.
+    indiv_variable_item_drag("Indiv-Var");
 });
 
 // Define the colors used for the demos.
@@ -218,7 +216,7 @@ function indiv_drag(svgID)
     // Create the carousel.
     var carousel = moveableItemCarousels(items)
         .width(420)
-		.height(150)
+        .height(150)
         .xLoc(15)
         .yLoc(0)
         .horizontalPadding(20)
@@ -711,7 +709,7 @@ function indiv_variable_item_drag(svgID, makeInf, centerIt)
     var items = svg.selectAll(".item");
     var carousel = moveableItemCarousels(items)
         .width(420)
-		.height(150)
+        .height(150)
         .xLoc(20)
         .yLoc(0)
         .dotContainerHeight(30)

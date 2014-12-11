@@ -14,7 +14,7 @@ function moveableItemCarousels(items)
                                // because shorter items will be centered in the carousel, and will therefore have extra space above and below them.
         isArrows = true,  // Whether to display arrows at the sides of the carousel that scroll the carousel when clicked.
         dotContainerHeight = 30,  // The height of the g element containing the navigation dots. Should be at least twice the dotRadius.
-		itemSnapSpeed = 1000,  // The duration that the items take when snapping back into place.
+        itemSnapSpeed = 1000,  // The duration that the items take when snapping back into place.
         navArrowWidth = null,  // The width of the navigation arrow.
         navArrowHeight = null,  // The height of the navigation arrow.
         scrollSpeed = 10;  // The speed with which the carousel scrolls when holding down the navigation arrow. A lower number is faster.
@@ -58,7 +58,7 @@ function moveableItemCarousels(items)
         var scrollPathStartY = height / 2;  // The Y location of the start of the scroll path.
         var leftItemStartX = (width / 2) - (d3.select(items[0][0]).datum().width / 2);  // The X location of the leftmost item in the view.
         var leftItemStartDist = leftItemStartX - scrollPathStartX;  // The location of the leftmost item in the view in terms of its fractional distance along the path.
-		var distOfCenter = (width / 2) - scrollPathStartX;  // The distance of the center of the carousel along the scroll path.
+        var distOfCenter = (width / 2) - scrollPathStartX;  // The distance of the center of the carousel along the scroll path.
 
         // Create the path to scroll along.
         var pathToScrollAlong = itemContainer.append("path")
@@ -69,7 +69,7 @@ function moveableItemCarousels(items)
         items.each(function() { itemContainer.node().appendChild(this); });
 
         // Put the items in the initial places.
-		var sortedItems = items.data().map(function(d) { return d.key; });
+        var sortedItems = items.data().map(function(d) { return d.key; });
         set_resting_positions(sortedItems);
         items.attr("transform", function(d)
             {
@@ -389,11 +389,11 @@ function moveableItemCarousels(items)
 
         function start_scrollng(isLeft)
         {
-			// Stop the items transitioning if they currently are.
+            // Stop the items transitioning if they currently are.
             items
                 .interrupt() // Cancel any transitions running on this item.
                 .transition(); // Pre-empt any scheduled transitions on this item.
-			
+
             // Setup the timer to scroll the carousel.
             scrollIntervalTimer = setInterval(function() { scroll_carousel(isLeft); }, scrollSpeed);
         }
@@ -405,31 +405,31 @@ function moveableItemCarousels(items)
 
             // Get the current positions of all items, and information about the item closest to the center of the carousel.
             var currentPositions = [];
-			var shortestDistance = scrollPathLength;
-			var closestKey;  // The key of the item closest to the center of the carousel.
-			var startDistAlongPath;  // The distance along the scroll path of the item closest to the center of the carousel.
-			var centerItemWidth;  // The width of the new central item.
+            var shortestDistance = scrollPathLength;
+            var closestKey;  // The key of the item closest to the center of the carousel.
+            var startDistAlongPath;  // The distance along the scroll path of the item closest to the center of the carousel.
+            var centerItemWidth;  // The width of the new central item.
             items.each(function(d)
-				{
-					// Record the data of the item.
-					currentPositions.push({"key": d.key, "distAlongPath": d.distAlongPath});
-					
-					// Determine whether the item is the closest to the center of all items seen so far.
-					var distToCenter = Math.abs((d.distAlongPath + (d.width / 2)) - distOfCenter);
-					if (distToCenter < shortestDistance)
-					{
-						shortestDistance = distToCenter;
-						closestKey = d.key;
-						startDistAlongPath = d.distAlongPath;
-						centerItemWidth = d.width;
-					}
-				});
-			
-			// Determine the order of item placements from the central item wrapping around the carousel rightwards.
+                {
+                    // Record the data of the item.
+                    currentPositions.push({"key": d.key, "distAlongPath": d.distAlongPath});
+
+                    // Determine whether the item is the closest to the center of all items seen so far.
+                    var distToCenter = Math.abs((d.distAlongPath + (d.width / 2)) - distOfCenter);
+                    if (distToCenter < shortestDistance)
+                    {
+                        shortestDistance = distToCenter;
+                        closestKey = d.key;
+                        startDistAlongPath = d.distAlongPath;
+                        centerItemWidth = d.width;
+                    }
+                });
+
+            // Determine the order of item placements from the central item wrapping around the carousel rightwards.
             currentPositions.sort(function (a, b)
                 {
-					if (a.distAlongPath < startDistAlongPath) a.distAlongPath += scrollPathLength;
-					if (b.distAlongPath < startDistAlongPath) b.distAlongPath += scrollPathLength;
+                    if (a.distAlongPath < startDistAlongPath) a.distAlongPath += scrollPathLength;
+                    if (b.distAlongPath < startDistAlongPath) b.distAlongPath += scrollPathLength;
                     if (a.distAlongPath > b.distAlongPath) { return 1; }
                     else if (a.distAlongPath < b.distAlongPath) { return -1; }
                     else { return 0; }
@@ -441,25 +441,25 @@ function moveableItemCarousels(items)
             {
                 itemKeys.push(currentPositions[i].key);
             }
-			
-			// Update the resting positions of the items.
-			set_resting_positions(itemKeys);
-			
-			// Determine whether to shift the items left or right.
-			var isShiftRight;  // Whether the items should be shifted right or not.
-			if (startDistAlongPath <= distOfCenter - (centerItemWidth / 2))
-			{
-				// The item to be centered is left of the center,
-				isShiftRight = true;
-			}
-			else
-			{
-				// The item to be centered is right of the center,
-				isShiftRight = false;
-			}
 
-			// Move the items into position.
-			transition_items(isShiftRight);
+            // Update the resting positions of the items.
+            set_resting_positions(itemKeys);
+
+            // Determine whether to shift the items left or right.
+            var isShiftRight;  // Whether the items should be shifted right or not.
+            if (startDistAlongPath <= distOfCenter - (centerItemWidth / 2))
+            {
+                // The item to be centered is left of the center,
+                isShiftRight = true;
+            }
+            else
+            {
+                // The item to be centered is right of the center,
+                isShiftRight = false;
+            }
+
+            // Move the items into position.
+            transition_items(isShiftRight);
         }
 
         /*******************
@@ -495,11 +495,11 @@ function moveableItemCarousels(items)
                     currentItemDist += (d.width + (horizontalPadding / 2));
                 });
         }
-		
+
         function transition_items(isShiftRight)
         {
             // Transition the items from their current positions to their resting positions.
-			// isShiftRight is true if the items are to be shifted to the right.
+            // isShiftRight is true if the items are to be shifted to the right.
 
             // Transition items back to their resting locations from wherever they are.
             items
@@ -509,9 +509,9 @@ function moveableItemCarousels(items)
                 .tween("transform", function(d)
                     {
                         var interpolator;
-						if (isShiftRight)
-						{
-							// The items are to be shifted right.
+                        if (isShiftRight)
+                        {
+                            // The items are to be shifted right.
                             if (d.distAlongPath <= d.resting)
                             {
                                 // If the current position of the item is to the left of its resting place, then the item can simply be moved rightwards.
@@ -527,11 +527,11 @@ function moveableItemCarousels(items)
                                 var distanceToTravel = (scrollPathLength - d.distAlongPath) + d.resting;
                                 interpolator = d3.interpolate(d.distAlongPath, d.distAlongPath + distanceToTravel);
                             }
-							
-						}
+
+                        }
                         else
                         {
-							// The items are to be shifted left.
+                            // The items are to be shifted left.
                             if (d.distAlongPath < d.resting)
                             {
                                 // If the current position of the item is to the left of its resting place, then the item has looped

@@ -40,7 +40,7 @@
     Parameter options and what they do
 </p>
 <p>
-	items get added data field - transX, transY, distAlongPath, resting<br>
+    items get added data field - transX, transY, distAlongPath, resting<br>
     swipe behaviour can be easily added if needed (should work just like dragging)<br>
     items passed in will be moved to be under the carousel, not have whatever they currently have as a parent.<br>
     If have X items, can only put X - 1 in the items to view<br>
@@ -66,7 +66,7 @@
         <svg id="Single-Non-Inf" />
         <pre class="code inline"><code class="javascript"><span class="keyword">var</span> svg = d3.select(...).append(<span class="string">"svg"</span>);
 <span class="keyword">var</span> items = ...  <span class="comment">// Create the items.</span>
-<span class="keyword">var</span> carousel = carouselCreator(items)
+<span class="keyword">var</span> carousel = standardCarousel(items)
     ...
     .isInfinite(<span class="keyword">false</span>)
     .itemsToShow(<span class="number">1</span>)
@@ -79,7 +79,7 @@ svg.call(carousel);</code></pre>
         <svg id="Single-Inf" />
         <pre class="code inline"><code class="javascript"><span class="keyword">var</span> svg = d3.select(...).append(<span class="string">"svg"</span>);
 <span class="keyword">var</span> items = ...  <span class="comment">// Create the items.</span>
-<span class="keyword">var</span> carousel = carouselCreator(items)
+<span class="keyword">var</span> carousel = standardCarousel(items)
     ...
     .isInfinite(<span class="keyword">true</span>)
     .itemsToShow(<span class="number">1</span>)
@@ -96,7 +96,7 @@ svg.call(carousel);</code></pre>
         <svg id="Multi-Non-Inf" />
         <pre class="code inline"><code class="javascript"><span class="keyword">var</span> svg = d3.select(...).append(<span class="string">"svg"</span>);
 <span class="keyword">var</span> items = ...  <span class="comment">// Create the items.</span>
-<span class="keyword">var</span> carousel = carouselCreator(items)
+<span class="keyword">var</span> carousel = standardCarousel(items)
     ...
     .isInfinite(<span class="keyword">false</span>)
     .itemsToShow(<span class="number">4</span>)
@@ -109,7 +109,7 @@ svg.call(carousel);</code></pre>
         <svg id="Multi-Inf" />
         <pre class="code inline"><code class="javascript"><span class="keyword">var</span> svg = d3.select(...).append(<span class="string">"svg"</span>);
 <span class="keyword">var</span> items = ...  <span class="comment">// Create the items.</span>
-<span class="keyword">var</span> carousel = carouselCreator(items)
+<span class="keyword">var</span> carousel = standardCarousel(items)
     ...
     .isInfinite(<span class="keyword">true</span>)
     .itemsToShow(<span class="number">2</span>)
@@ -126,7 +126,7 @@ svg.call(carousel);</code></pre>
         <svg id="Center-Non-Inf" />
         <pre class="code inline"><code class="javascript"><span class="keyword">var</span> svg = d3.select(...).append(<span class="string">"svg"</span>);
 <span class="keyword">var</span> items = ...  <span class="comment">// Create the items.</span>
-<span class="keyword">var</span> carousel = carouselCreator(items)
+<span class="keyword">var</span> carousel = standardCarousel(items)
     ...
     .width(<span class="number">420</span>)
     .isInfinite(<span class="keyword">false</span>)
@@ -141,7 +141,7 @@ svg.call(carousel);</code></pre>
         <svg id="Center-Inf" />
         <pre class="code inline"><code class="javascript"><span class="keyword">var</span> svg = d3.select(...).append(<span class="string">"svg"</span>);
 <span class="keyword">var</span> items = ...  <span class="comment">// Create the items.</span>
-<span class="keyword">var</span> carousel = carouselCreator(items)
+<span class="keyword">var</span> carousel = standardCarousel(items)
     ...
     .width(<span class="number">420</span>)
     .isInfinite(<span class="keyword">true</span>)
@@ -160,7 +160,7 @@ svg.call(carousel);</code></pre>
         <svg id="Var-Size-Non-Inf" />
         <pre class="code inline"><code class="javascript"><span class="keyword">var</span> svg = d3.select(...).append(<span class="string">"svg"</span>);
 <span class="keyword">var</span> items = ...  <span class="comment">// Create the items.</span>
-<span class="keyword">var</span> carousel = carouselCreator(items)
+<span class="keyword">var</span> carousel = standardCarousel(items)
     ...
     .width(<span class="number">420</span>)
     .isInfinite(<span class="keyword">false</span>)
@@ -175,7 +175,7 @@ svg.call(carousel);</code></pre>
         <svg id="Var-Size-Inf" />
         <pre class="code inline"><code class="javascript"><span class="keyword">var</span> svg = d3.select(...).append(<span class="string">"svg"</span>);
 <span class="keyword">var</span> items = ...  <span class="comment">// Create the items.</span>
-<span class="keyword">var</span> carousel = carouselCreator(items)
+<span class="keyword">var</span> carousel = standardCarousel(items)
     ...
     .width(<span class="number">420</span>)
     .isInfinite(<span class="keyword">true</span>)
@@ -192,7 +192,7 @@ svg.call(carousel);</code></pre>
         <svg id="Var-Shape-Non-Inf" />
         <pre class="code inline"><code class="javascript"><span class="keyword">var</span> svg = d3.select(...).append(<span class="string">"svg"</span>);
 <span class="keyword">var</span> items = ...  <span class="comment">// Create the items.</span>
-<span class="keyword">var</span> carousel = carouselCreator(items)
+<span class="keyword">var</span> carousel = standardCarousel(items)
     ...
     .width(<span class="number">420</span>)
     .isInfinite(<span class="keyword">false</span>)
@@ -207,7 +207,7 @@ svg.call(carousel);</code></pre>
         <svg id="Var-Shape-Inf" />
         <pre class="code inline"><code class="javascript"><span class="keyword">var</span> svg = d3.select(...).append(<span class="string">"svg"</span>);
 <span class="keyword">var</span> items = ...  <span class="comment">// Create the items.</span>
-<span class="keyword">var</span> carousel = carouselCreator(items)
+<span class="keyword">var</span> carousel = standardCarousel(items)
     ...
     .width(<span class="number">420</span>)
     .isInfinite(<span class="keyword">true</span>)
@@ -222,70 +222,12 @@ svg.call(carousel);</code></pre>
 <h2>Individually Draggable Items</h2>
 <div>
     <div class="adj">
-        <h3 class="centerText">Non-infinite Scrolling</h3>
-        <svg id="Indiv-Non-Inf" />
-        <pre class="code inline"><code class="javascript"><span class="keyword">var</span> svg = d3.select(...).append(<span class="string">"svg"</span>);
-<span class="keyword">var</span> items = ...  <span class="comment">// Create the items.</span>
-<span class="keyword">var</span> carousel = carouselCreator(items)
-    ...
-    .width(<span class="number">420</span>)
-    .isInfinite(<span class="keyword">false</span>)
-    .isCentered(<span class="keyword">false</span>)
-    .isIndivDrag(<span class="keyword">true</span>)
-    .itemsToShow(<span class="number">1</span>)
-    .itemsToScrollBy(<span class="number">1</span>)
-    ...
-svg.call(carousel);</code></pre>
+        <h3 class="centerText">Uniform Shapes and Sizes</h3>
+        <svg id="Indiv-Non-Var" />
     </div>
     <div class="adj">
-        <h3 class="centerText">Infinite Scrolling</h3>
-        <svg id="Indiv-Inf" />
-        <pre class="code inline"><code class="javascript"><span class="keyword">var</span> svg = d3.select(...).append(<span class="string">"svg"</span>);
-<span class="keyword">var</span> items = ...  <span class="comment">// Create the items.</span>
-<span class="keyword">var</span> carousel = carouselCreator(items)
-    ...
-    .width(<span class="number">420</span>)
-    .isInfinite(<span class="keyword">true</span>)
-    .isCentered(<span class="keyword">true</span>)
-    .isIndivDrag(<span class="keyword">true</span>)
-    .itemsToShow(<span class="number">1</span>)
-    .itemsToScrollBy(<span class="number">1</span>)
-    ...
-svg.call(carousel);</code></pre>
-    </div>
-</div>
-<div>
-    <div class="adj">
-        <h3 class="centerText">Non-infinite Scrolling</h3>
-        <svg id="Indiv-Var-Non-Inf" />
-        <pre class="code inline"><code class="javascript"><span class="keyword">var</span> svg = d3.select(...).append(<span class="string">"svg"</span>);
-<span class="keyword">var</span> items = ...  <span class="comment">// Create the items.</span>
-<span class="keyword">var</span> carousel = carouselCreator(items)
-    ...
-    .width(<span class="number">420</span>)
-    .isInfinite(<span class="keyword">false</span>)
-    .isCentered(<span class="keyword">false</span>)
-    .isIndivDrag(<span class="keyword">true</span>)
-    .itemsToShow(<span class="number">1</span>)
-    .itemsToScrollBy(<span class="number">1</span>)
-    ...
-svg.call(carousel);</code></pre>
-    </div>
-    <div class="adj">
-        <h3 class="centerText">Infinite Scrolling</h3>
-        <svg id="Indiv-Var-Inf" />
-        <pre class="code inline"><code class="javascript"><span class="keyword">var</span> svg = d3.select(...).append(<span class="string">"svg"</span>);
-<span class="keyword">var</span> items = ...  <span class="comment">// Create the items.</span>
-<span class="keyword">var</span> carousel = carouselCreator(items)
-    ...
-    .width(<span class="number">420</span>)
-    .isInfinite(<span class="keyword">true</span>)
-    .isCentered(<span class="keyword">true</span>)
-    .isIndivDrag(<span class="keyword">true</span>)
-    .itemsToShow(<span class="number">1</span>)
-    .itemsToScrollBy(<span class="number">1</span>)
-    ...
-svg.call(carousel);</code></pre>
+        <h3 class="centerText">Variable Shapes and Sizes</h3>
+        <svg id="Indiv-Var" />
     </div>
 </div>
 <p>Add and remove items (add & remove - http://kenwheeler.github.io/slick/).</p>
