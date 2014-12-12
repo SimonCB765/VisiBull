@@ -144,7 +144,7 @@ function moveableItemCarousels(items)
             .on("mousedown", function() { var isLeft = d3.select(this).classed("left"); start_scrollng(isLeft); })
             .on("mouseup", stop_scrolling)
             .on("mouseleave", leave_stop_scrolling)
-            .on("dblclick", function() { console.log("2X"); });
+            .on("dblclick", scroll_doubletap);
 
         // Setup the carousel to make the navigation buttons slightly visible when the mouse is over the carousel.
         carousel
@@ -394,6 +394,24 @@ function moveableItemCarousels(items)
                 });
         }
 
+        function scroll_doubletap()
+        {
+            // Scroll the items after a double tap.
+
+            // Determine the location along the scroll path of the new center.
+            var newCenter = (distOfCenter + (isShiftRight ? -width : width));
+            newCenter = (scrollPathLength + newCenter) % scrollPathLength;
+
+            // Determine the new order of the items, and the distance to shift the items by.
+            var shiftData = determine_item_order(newCenter, isShiftRight);
+
+            // Update the resting positions of the items.
+            set_resting_positions(shiftData.order);
+
+            // Move the items into position.
+            transition_items(isShiftRight, width + shiftData.distance);
+        }
+
         function start_scrollng(isLeft)
         {
             // Start the scrolling of the carousel.
@@ -417,38 +435,78 @@ function moveableItemCarousels(items)
             clearInterval(scrollIntervalTimer);
             scrollIntervalTimer = null;
 
+            // Determine the new order of the items, and the distance to shift the items by.
+            var shiftData = determine_item_order(distOfCenter, isShiftRight);
+
+            // Update the resting positions of the items.
+            set_resting_positions(shiftData.order);
+
+            // Move the items into position.
+            transition_items(isShiftRight, shiftData.distance);
+        }
+
+        /*******************
+        * Helper Functions *
+        *******************/
+        function determine_item_order(centralPoint, isToLeft)
+        {
+            // Given a distance along the scroll path, determine the order of the items as the items ordered based on their distance from the
+            // supplied point on the path in a specified direction.
+            // centralPoint is the distance along the scroll path to take as the central point.
+            // isToLeft is true if the distance to use for determining the order is leftwards from the centralPoint.
+
             // Get the current positions of all items, and information about the item closest to the center of the carousel.
             var currentPositions = [];
             var shortestDistance = scrollPathLength;
             var startDistAlongPath;  // The distance along the scroll path of the item closest to the center of the carousel.
-            var distanceToShift;  // The distance by which the items will be shifted.
             items.each(function(d)
                 {
                     // Record the data of the item.
                     currentPositions.push({"key": d.key, "distAlongPath": d.distAlongPath});
 
-                    // Determine whether the item is the closest to the center of all items seen so far, and is in the correct direction.
-                    var itemCenterDist = d.distAlongPath + (d.width / 2);
-                    var distToCenter = Math.abs(itemCenterDist - distOfCenter);
-                    if (isShiftRight)
+                    // Determine the distance from the central point to the item.
+                    var itemCenterDist = d.distAlongPath + (d.width / 2);  // the center point of the item.
+                    var distToCenter;  // The distance from the center point of the item to the central point provided.
+                    if (isToLeft)
                     {
-                        // The items are moving right, so the closest item to the center must be to the left of the center.
-                        if ((distToCenter < shortestDistance) && (itemCenterDist < distOfCenter))
+                        // Determining distance from the central point by going leftwards.
+                        if (itemCenterDist <= centralPoint)
                         {
-                            shortestDistance = distToCenter;
-                            startDistAlongPath = d.distAlongPath;
-                            distanceToShift = (distOfCenter - (d.width / 2)) - startDistAlongPath;
+                            // The item is currently to the left of the central point.
+                            distToCenter = centralPoint - itemCenterDist;
+                        }
+                        else
+                        {
+                            // The item is currently to the right of the central point. The distance to the item in a leftwards direction is
+                            // therefore calculated as the sum of:
+                            // 1)   The distance from the item to the end of the scroll path.
+                            // 2)   The distance of the central point from the left side of the scroll path.
+                            distToCenter = (scrollPathLength - itemCenterDist) + centralPoint;
                         }
                     }
                     else
                     {
-                        // The items are moving left, so the closest item to the center must be to the right of the center.
-                        if ((distToCenter < shortestDistance) && (itemCenterDist > distOfCenter))
+                        // Determining distance from the central point by going rightwards.
+                        if (itemCenterDist <= centralPoint)
                         {
-                            shortestDistance = distToCenter;
-                            startDistAlongPath = d.distAlongPath;
-                            distanceToShift = startDistAlongPath - (distOfCenter - (d.width / 2));
+                            // The item is currently to the left of the central point. The distance to the item in a rightwards direction is
+                            // therefore calculated as the sum of:
+                            // 1)   The distance from the item to the start of the scroll path.
+                            // 2)   The distance of the central point from the right side of the scroll path.
+                            distToCenter = itemCenterDist + (scrollPathLength - centralPoint);
                         }
+                        else
+                        {
+                            // The item is currently to the right of the central point.
+                            distToCenter = itemCenterDist - centralPoint;
+                        }
+                    }
+
+                    // Determine whether the item is the closest to the center of all items seen so far.
+                    if (distToCenter < shortestDistance)
+                    {
+                        shortestDistance = distToCenter;
+                        startDistAlongPath = d.distAlongPath;
                     }
                 });
 
@@ -469,16 +527,9 @@ function moveableItemCarousels(items)
                 itemKeys.push(currentPositions[i].key);
             }
 
-            // Update the resting positions of the items.
-            set_resting_positions(itemKeys);
-
-            // Move the items into position.
-            transition_items(isShiftRight, distanceToShift);
+            return {"order": itemKeys, "distance": shortestDistance};
         }
 
-        /*******************
-        * Helper Functions *
-        *******************/
         function set_resting_positions(itemOrder)
         {
             // Set the resting positions of the items
