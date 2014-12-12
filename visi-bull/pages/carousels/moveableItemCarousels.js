@@ -14,10 +14,9 @@ function moveableItemCarousels(items)
                                // because shorter items will be centered in the carousel, and will therefore have extra space above and below them.
         isArrows = true,  // Whether to display arrows at the sides of the carousel that scroll the carousel when clicked.
         dotContainerHeight = 30,  // The height of the g element containing the navigation dots. Should be at least twice the dotRadius.
-        itemSnapSpeed = 1000,  // The duration that the items take when snapping back into place.
         navArrowWidth = null,  // The width of the navigation arrow.
         navArrowHeight = null,  // The height of the navigation arrow.
-        scrollSpeed = 10;  // The speed with which the carousel scrolls when holding down the navigation arrow. A lower number is faster.
+        scrollSpeed = 5;  // The time (in ms) taken for the carousel to scroll one unit. A lower number is faster.
 
     /*****************************
     * Carousel Creation Function *
@@ -143,7 +142,8 @@ function moveableItemCarousels(items)
         // Add the navigation arrow behaviour.
         var navigationArrows = carousel.selectAll(".navArrow")
             .on("mousedown", function() { var isLeft = d3.select(this).classed("left"); start_scrollng(isLeft); })
-            .on("mouseup", stop_scrolling);
+            .on("mouseup", stop_scrolling)
+            .on("mouseleave", leave_stop_scrolling);
 
         // Setup the carousel to make the navigation buttons slightly visible when the mouse is over the carousel.
         carousel
@@ -369,6 +369,12 @@ function moveableItemCarousels(items)
         * Item Scrolling Functions *
         ***************************/
         var scrollIntervalTimer = null;  // The timer used to fire scroll events.
+        var isShiftRight;  // Whether the items are being scrolled rightwards.
+        function leave_stop_scrolling()
+        {
+            if (scrollIntervalTimer !== null) stop_scrolling();
+        }
+
         function scroll_carousel(isLeft)
         {
             // Scroll the carousel.
@@ -389,10 +395,16 @@ function moveableItemCarousels(items)
 
         function start_scrollng(isLeft)
         {
+            // Start the scrolling of the carousel.
+            // isLeft is true when the carousel is to be scrolled leftwards (the items are to go rightwards).
+
             // Stop the items transitioning if they currently are.
             items
                 .interrupt() // Cancel any transitions running on this item.
                 .transition(); // Pre-empt any scheduled transitions on this item.
+
+            // Record the direction that the items are moving.
+            isShiftRight = isLeft;
 
             // Setup the timer to scroll the carousel.
             scrollIntervalTimer = setInterval(function() { scroll_carousel(isLeft); }, scrollSpeed);
@@ -402,26 +414,40 @@ function moveableItemCarousels(items)
         {
             // Stop the timer used to scroll the carousel.
             clearInterval(scrollIntervalTimer);
+            scrollIntervalTimer = null;
 
             // Get the current positions of all items, and information about the item closest to the center of the carousel.
             var currentPositions = [];
             var shortestDistance = scrollPathLength;
-            var closestKey;  // The key of the item closest to the center of the carousel.
             var startDistAlongPath;  // The distance along the scroll path of the item closest to the center of the carousel.
-            var centerItemWidth;  // The width of the new central item.
+            var distanceToShift;  // The distance by which the items will be shifted.
             items.each(function(d)
                 {
                     // Record the data of the item.
                     currentPositions.push({"key": d.key, "distAlongPath": d.distAlongPath});
 
-                    // Determine whether the item is the closest to the center of all items seen so far.
-                    var distToCenter = Math.abs((d.distAlongPath + (d.width / 2)) - distOfCenter);
-                    if (distToCenter < shortestDistance)
+                    // Determine whether the item is the closest to the center of all items seen so far, and is in the correct direction.
+                    var itemCenterDist = d.distAlongPath + (d.width / 2);
+                    var distToCenter = Math.abs(itemCenterDist - distOfCenter);
+                    if (isShiftRight)
                     {
-                        shortestDistance = distToCenter;
-                        closestKey = d.key;
-                        startDistAlongPath = d.distAlongPath;
-                        centerItemWidth = d.width;
+                        // The items are moving right, so the closest item to the center must be to the left of the center.
+                        if ((distToCenter < shortestDistance) && (itemCenterDist < distOfCenter))
+                        {
+                            shortestDistance = distToCenter;
+                            startDistAlongPath = d.distAlongPath;
+                            distanceToShift = (distOfCenter - (d.width / 2)) - startDistAlongPath;
+                        }
+                    }
+                    else
+                    {
+                        // The items are moving left, so the closest item to the center must be to the right of the center.
+                        if ((distToCenter < shortestDistance) && (itemCenterDist > distOfCenter))
+                        {
+                            shortestDistance = distToCenter;
+                            startDistAlongPath = d.distAlongPath;
+                            distanceToShift = startDistAlongPath - (distOfCenter - (d.width / 2));
+                        }
                     }
                 });
 
@@ -445,21 +471,8 @@ function moveableItemCarousels(items)
             // Update the resting positions of the items.
             set_resting_positions(itemKeys);
 
-            // Determine whether to shift the items left or right.
-            var isShiftRight;  // Whether the items should be shifted right or not.
-            if (startDistAlongPath <= distOfCenter - (centerItemWidth / 2))
-            {
-                // The item to be centered is left of the center,
-                isShiftRight = true;
-            }
-            else
-            {
-                // The item to be centered is right of the center,
-                isShiftRight = false;
-            }
-
             // Move the items into position.
-            transition_items(isShiftRight);
+            transition_items(isShiftRight, distanceToShift);
         }
 
         /*******************
@@ -496,16 +509,17 @@ function moveableItemCarousels(items)
                 });
         }
 
-        function transition_items(isShiftRight)
+        function transition_items(isShiftRight, distanceToShift)
         {
             // Transition the items from their current positions to their resting positions.
             // isShiftRight is true if the items are to be shifted to the right.
+            // distanceToShift is the number of units to shift the items by.
 
             // Transition items back to their resting locations from wherever they are.
             items
                 .transition()
-                .duration(itemSnapSpeed)
-                .ease("cubic-out")
+                .duration(distanceToShift * scrollSpeed)
+                .ease("linear")
                 .tween("transform", function(d)
                     {
                         var interpolator;
@@ -627,14 +641,6 @@ function moveableItemCarousels(items)
     {
         if (!arguments.length) return dotContainerHeight;
         dotContainerHeight = _;
-        return carousel;
-    }
-
-    // Item snap back transition duration.
-    carousel.itemSnapSpeed = function(_)
-    {
-        if (!arguments.length) return itemSnapSpeed;
-        itemSnapSpeed = _;
         return carousel;
     }
 
