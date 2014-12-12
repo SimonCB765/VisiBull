@@ -143,7 +143,8 @@ function moveableItemCarousels(items)
         var navigationArrows = carousel.selectAll(".navArrow")
             .on("mousedown", function() { var isLeft = d3.select(this).classed("left"); start_scrollng(isLeft); })
             .on("mouseup", stop_scrolling)
-            .on("mouseleave", leave_stop_scrolling);
+            .on("mouseleave", leave_stop_scrolling)
+            .on("dblclick", function() { console.log("2X"); });
 
         // Setup the carousel to make the navigation buttons slightly visible when the mouse is over the carousel.
         carousel
@@ -486,10 +487,10 @@ function moveableItemCarousels(items)
             // Sort the items.
             var sortedItems = items.sort(function(a, b) { return (itemOrder.indexOf(a.key) < itemOrder.indexOf(b.key) ? -1 : 1); });
 
-            // Position the items.
+            // Determine the items' positions.
             var currentItemDist = (width / 2) - scrollPathStartX;  // Distance along the path of the current item.
             var positionAlongPath;  // The coordinates of the point on the path at a distance of currentItemDist along it.
-            items.attr("transform", function(d, i)
+            items.each(function(d, i)
                 {
                     // Update the currentItemDist to position the current item.
                     if (i === 0)
@@ -569,7 +570,7 @@ function moveableItemCarousels(items)
                                 d.distAlongPath = (scrollPathLength + interpolator(t)) % scrollPathLength;
                                 currentPoint = pathToScrollAlong.node().getPointAtLength(d.distAlongPath);
                                 d.transX = currentPoint.x;  // Determine position of the item at this point in the transition.
-                                //d.transY = currentPoint.y - (d.height / 2);  // Determine position of the item at this point in the transition.
+                                d.transY = currentPoint.y - (d.height / 2);  // Determine position of the item at this point in the transition.
                                 d3.select(this)
                                     .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });  // Update the item's position.
                             }
