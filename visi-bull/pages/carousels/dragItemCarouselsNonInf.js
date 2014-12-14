@@ -1,4 +1,4 @@
-function moveableItemCarousels(items)
+function dragItemCarouselsNonInf(items)
 {
     /***************************
     * Default Parameter Values *
@@ -16,7 +16,7 @@ function moveableItemCarousels(items)
         dotContainerHeight = 30,  // The height of the g element containing the navigation dots. Should be at least twice the dotRadius.
         navArrowWidth = null,  // The width of the navigation arrow.
         navArrowHeight = null,  // The height of the navigation arrow.
-        scrollSpeed = 20;  // The time (in ms) taken for the carousel to scroll one unit. A lower number is faster.
+        scrollSpeed = 5;  // The time (in ms) taken for the carousel to scroll one unit. A lower number is faster.
 
     /*****************************
     * Carousel Creation Function *
@@ -358,19 +358,8 @@ function moveableItemCarousels(items)
             clearInterval(scrollIntervalTimer);
             scrollIntervalTimer = null;
 
-            // Determine the new order of the items, and the distance to shift the items by.
-            //var shiftData = determine_item_order(distOfCenter, isShiftRight);
-
-            //console.log(items.data().map(function(d) { return "" + d.key + "," + d.resting; }));
-
-            // Update the resting positions of the items.
-            //set_resting_positions(shiftData.order);
-
-            //console.log(shiftData.order);
-            //console.log(items.data().map(function(d) { return "" + d.key + "," + d.resting; }));
-
-            // Move the items into position.
-            //transition_items(isShiftRight, shiftData.distance);
+            // Move the items into their new resting positions.
+            reposition_items(leftItemStartDist);
         }
 
         /*******************
@@ -420,6 +409,42 @@ function moveableItemCarousels(items)
             }
         }
 
+        function reposition_items(pointOfInterest)
+        {
+            // Given a distance along the scroll path, reposition the items so that
+            // pointOfInterest is the distance along the scroll path
+
+            // Get the distance of each item from the point of interest.
+            var currentPositions = [];
+            var shortestDistance = scrollPathLength;
+            items.each(function(d)
+                {
+                    // Record the data of the item.
+                    var distanceToPoint = d.distAlongPath - pointOfInterest;
+                    currentPositions.push({"key": d.key, "distance": distanceToPoint});
+
+                    // Determine if this is the item closest to the point of interest.
+                    var effectiveDist = scrollPathLength;
+                    if (isShiftRight)
+                    {
+                        // If the items were being shifted right.
+                        effectiveDist = distanceToPoint > 0 ? scrollPathLength : Math.abs(distanceToPoint);
+                    }
+                    else
+                    {
+                        // If the items were being shifted left.
+                        effectiveDist = distanceToPoint < 0 ? scrollPathLength : Math.abs(distanceToPoint);
+                    }
+                    if (effectiveDist < shortestDistance)
+                    {
+                        shortestDistance = effectiveDist;
+                    }
+                });
+
+            // Move the items into position.
+            transition_items(isShiftRight ? shortestDistance : -shortestDistance);
+        }
+
         function determine_neighbours(currentItemKey)
         {
             // Get an ordered list of the item keys, with the key at index 0 being the leftmost item in the carousel.
@@ -458,6 +483,33 @@ function moveableItemCarousels(items)
             else neighbours["right"] = null;
 
             return neighbours;
+        }
+
+        function transition_items(distanceToShift)
+        {
+            // Transition the items from their current positions to their resting positions.
+            // distanceToShift is the number of units to shift the items by.
+
+            // Transition items back to their resting locations from wherever they are.
+            items
+                .transition()
+                .duration(Math.abs(distanceToShift) * scrollSpeed)
+                .ease("linear")
+                .tween("transform", function(d)
+                    {
+                        d.resting += distanceToShift;
+                        var interpolator = d3.interpolate(d.distAlongPath, d.resting);
+
+                        return function(t)
+                            {
+                                d.distAlongPath = interpolator(t);
+                                currentPoint = pathToScrollAlong.node().getPointAtLength(Math.max(0, Math.min(d.distAlongPath, scrollPathLength)));
+                                d.transX = currentPoint.x;  // Determine position of the item at this point in the transition.
+                                d.transY = currentPoint.y - (d.height / 2);  // Determine position of the item at this point in the transition.
+                                d3.select(this)
+                                    .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });  // Update the item's position.
+                            }
+                    });
         }
 
         function transition_items_swap(itemToSwap, distanceToMove)
