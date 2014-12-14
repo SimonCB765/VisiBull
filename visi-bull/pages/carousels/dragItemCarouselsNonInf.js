@@ -172,7 +172,7 @@ function dragItemCarouselsNonInf(items)
         var draggedItem = null;  // The item that is being dragged.
         var leftNeighbour = null;  // The item to the left of the one being dragged.
         var rightNeighbour = null;  // The item to the right of the one being dragged.
-        function drag_end(d)
+        function drag_end()
         {
             // Add back the highlighting for the navigation arrows.
             navigationArrows
@@ -186,18 +186,18 @@ function dragItemCarouselsNonInf(items)
                 .transition()
                 .duration(200)
                 .ease("linear")
-                .tween("transform", function(dd)
+                .tween("transform", function(d)
                     {
-                        var interpolator = d3.interpolate(dd.distAlongPath, dd.resting);
+                        var interpolator = d3.interpolate(d.distAlongPath, d.resting);
 
                         return function(t)
                             {
-                                dd.distAlongPath = interpolator(t);
-                                currentPoint = pathToScrollAlong.node().getPointAtLength(Math.max(0, Math.min(dd.distAlongPath, scrollPathLength)));
-                                dd.transX = currentPoint.x;  // Determine position of the item at this point in the transition.
-                                dd.transY = currentPoint.y - (dd.height / 2);  // Determine position of the item at this point in the transition.
+                                d.distAlongPath = interpolator(t);
+                                currentPoint = pathToScrollAlong.node().getPointAtLength(Math.max(0, Math.min(d.distAlongPath, scrollPathLength)));
+                                d.transX = currentPoint.x;  // Determine position of the item at this point in the transition.
+                                d.transY = currentPoint.y - (d.height / 2);  // Determine position of the item at this point in the transition.
                                 d3.select(this)
-                                    .attr("transform", function() { return "translate(" + dd.transX + "," + dd.transY + ")"; });  // Update the item's position.
+                                    .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });  // Update the item's position.
                             }
                     });
 
