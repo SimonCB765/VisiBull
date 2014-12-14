@@ -281,16 +281,8 @@ function dragItemCarouselsNonInf(items)
             // Scroll the carousel.
             // itemsToNotScroll is an array of the keys of the items that should not be moved.
 
-            // Determine number of items left of the carousel's left edge, and right of the carousel's right edge.
-            var countTrue = function(a) { var counter = 0; for (var i = 0; i < a.length; i++) if (a[i]) counter++; return counter; }
-            var leftOfLeft = items.data().map(function(d) { return d.resting < carouselLeftEdge + (horizontalPadding / 2); });
-            var numLeftOfLeft = countTrue(leftOfLeft);
-            var rightOfRight = items.data().map(function(d) { return d.resting > carouselRightEdge - d.width -  (horizontalPadding / 2); });
-            var numRightOfRight = countTrue(rightOfRight);
-
-            // Determine if scrolling should take place. Scrolling should only take place if there are still items to the left of the
-            // carousel's left edge or the right of the carousel's right edge.
-            var isScrollItems = (isShiftRight && (numLeftOfLeft > 0)) || (!isShiftRight && (numRightOfRight > 0));
+            // Determine if scrolling should take place.
+            var isScrollItems = check_scrolling();
 
             // Scroll the items if they should be scrolled.
             if (isScrollItems)
@@ -359,7 +351,7 @@ function dragItemCarouselsNonInf(items)
             scrollIntervalTimer = null;
 
             // Move the items into their new resting positions.
-            reposition_items(leftItemStartDist);
+            if (check_scrolling()) reposition_items(leftItemStartDist);
         }
 
         /*******************
@@ -407,6 +399,24 @@ function dragItemCarouselsNonInf(items)
                     rightNeighbour = neighbours.right;
                 }
             }
+        }
+
+        function check_scrolling()
+        {
+            // Determine whether the items should be scrolled.
+
+            // Determine number of items left of the carousel's left edge, and right of the carousel's right edge.
+            var countTrue = function(a) { var counter = 0; for (var i = 0; i < a.length; i++) if (a[i]) counter++; return counter; }
+            var leftOfLeft = items.data().map(function(d) { return d.resting < carouselLeftEdge + (horizontalPadding / 2); });
+            var numLeftOfLeft = countTrue(leftOfLeft);
+            var rightOfRight = items.data().map(function(d) { return d.resting > carouselRightEdge - d.width -  (horizontalPadding / 2); });
+            var numRightOfRight = countTrue(rightOfRight);
+
+            // Determine if scrolling should take place. Scrolling should only take place if there are still items to the left of the
+            // carousel's left edge or the right of the carousel's right edge.
+            var isScrollItems = (isShiftRight && (numLeftOfLeft > 0)) || (!isShiftRight && (numRightOfRight > 0));
+
+            return isScrollItems;
         }
 
         function reposition_items(pointOfInterest)
