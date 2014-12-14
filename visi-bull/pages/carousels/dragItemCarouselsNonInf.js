@@ -374,7 +374,7 @@ function dragItemCarouselsNonInf(items)
                     var distanceToMove = draggedData.resting - leftNeighbourData.resting;
                     leftNeighbourData.resting += distanceToMove;
                     draggedData.resting -= distanceToMove;
-                    transition_items_swap(leftNeighbour, distanceToMove);
+                    transition_items_swap(leftNeighbour);
 
                     // Determine the new left and right neighbours of the item being dragged.
                     var neighbours = determine_neighbours(draggedData.key);
@@ -382,6 +382,8 @@ function dragItemCarouselsNonInf(items)
                     rightNeighbour = neighbours.right;
                 }
             }
+            
+            // Determine if the right neighbour should be swapped.
             if (rightNeighbour !== null)
             {
                 // If there is a right neighbour.
@@ -391,7 +393,7 @@ function dragItemCarouselsNonInf(items)
                     var distanceToMove = rightNeighbourData.resting - draggedData.resting;
                     rightNeighbourData.resting -= distanceToMove;
                     draggedData.resting += distanceToMove;
-                    transition_items_swap(rightNeighbour, -distanceToMove);
+                    transition_items_swap(rightNeighbour);
 
                     // Determine the new left and right neighbours of the item being dragged.
                     var neighbours = determine_neighbours(draggedData.key);
@@ -522,7 +524,7 @@ function dragItemCarouselsNonInf(items)
                     });
         }
 
-        function transition_items_swap(itemToSwap, distanceToMove)
+        function transition_items_swap(itemToSwap)
         {
             // Setup the transition for an item being swapped with a currently dragged item.
 
@@ -532,7 +534,7 @@ function dragItemCarouselsNonInf(items)
                 .ease("linear")
                 .tween("transform", function(d)
                     {
-                        var interpolator = d3.interpolate(0, distanceToMove);
+                        var interpolator = d3.interpolate(0, d.resting - d.distAlongPath);
                         var lastInterpVal = 0;  // The last value that came out of the interpolater.
                         var currentInterpVal;  // The current value of the interpolater.
 
