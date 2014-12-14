@@ -26,11 +26,13 @@ $(document).ready(function()
     var_shape("Var-Shape-Non-Inf", false, false);
     var_shape("Var-Shape-Inf", true, true);
 
-    // Create the basic individually draggable item demo.
-    indiv_drag("Indiv-Non-Var");
+    // Create the infinite draggable item demos.
+    indiv_drag("Indiv-Non-Var", true);
+    indiv_variable_item_drag("Indiv-Var", true);
 
-    // Create the different shape item individually draggable item demo.
-    indiv_variable_item_drag("Indiv-Var");
+    // Create the non-infinite draggable item demos.
+    indiv_drag("Indiv-Non-Var-Non-Inf", false);
+    indiv_variable_item_drag("Indiv-Var-Non-Inf", false);
 });
 
 // Define the colors used for the demos.
@@ -167,7 +169,7 @@ function center_non_infinite(svgID)
     svg.call(carousel);
 }
 
-function indiv_drag(svgID)
+function indiv_drag(svgID, isInf)
 {
 
     var svg = d3.select("#" + svgID)
@@ -214,15 +216,31 @@ function indiv_drag(svgID)
         .text(function(d) { return d.key; });
 
     // Create the carousel.
-    var carousel = moveableItemCarousels(items)
-        .width(420)
-        .height(150)
-        .xLoc(15)
-        .yLoc(0)
-        .horizontalPadding(20)
-        .dotContainerHeight(30)
-        .navArrowWidth(40)
-        .navArrowHeight(40);
+	var carousel;
+	if (isInf)
+	{
+		carousel = moveableItemCarousels(items)
+			.width(420)
+			.height(150)
+			.xLoc(15)
+			.yLoc(0)
+			.horizontalPadding(20)
+			.dotContainerHeight(30)
+			.navArrowWidth(40)
+			.navArrowHeight(40);
+	}
+	else
+	{
+		carousel = dragItemCarouselsNonInf(items)
+			.width(420)
+			.height(150)
+			.xLoc(15)
+			.yLoc(0)
+			.horizontalPadding(20)
+			.dotContainerHeight(30)
+			.navArrowWidth(40)
+			.navArrowHeight(40);
+	}
     svg.call(carousel);
 }
 
@@ -630,7 +648,7 @@ function var_shape(svgID, makeInf, centerIt)
     svg.call(carousel);
 }
 
-function indiv_variable_item_drag(svgID, makeInf, centerIt)
+function indiv_variable_item_drag(svgID, isInf)
 {
 
     var svg = d3.select("#" + svgID)
@@ -707,13 +725,28 @@ function indiv_variable_item_drag(svgID, makeInf, centerIt)
 
     // Create the carousel.
     var items = svg.selectAll(".item");
-    var carousel = moveableItemCarousels(items)
-        .width(420)
-        .height(150)
-        .xLoc(20)
-        .yLoc(0)
-        .dotContainerHeight(30)
-        .navArrowWidth(40)
-        .navArrowHeight(40);
+	var carousel;
+	if (isInf)
+	{
+		carousel = moveableItemCarousels(items)
+			.width(420)
+			.height(150)
+			.xLoc(20)
+			.yLoc(0)
+			.dotContainerHeight(30)
+			.navArrowWidth(40)
+			.navArrowHeight(40);
+	}
+	else
+	{
+		carousel = dragItemCarouselsNonInf(items)
+			.width(420)
+			.height(150)
+			.xLoc(20)
+			.yLoc(0)
+			.dotContainerHeight(30)
+			.navArrowWidth(40)
+			.navArrowHeight(40);
+	}
     svg.call(carousel);
 }

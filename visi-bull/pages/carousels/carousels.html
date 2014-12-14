@@ -6,6 +6,7 @@
 <script type="text/javascript" src="{{ url_for('static', filename='scripts/jQuery/jquery-1.11.1.min.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='carousels/standardCarousels.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='carousels/moveableItemCarousels.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='carousels/dragItemCarouselsNonInf.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='carousels/carouselDemos.js') }}"></script>
 {% endblock %}
 
@@ -228,6 +229,16 @@ svg.call(carousel);</code></pre>
     <div class="adj">
         <h3 class="centerText">Variable Shapes and Sizes</h3>
         <svg id="Indiv-Var" />
+    </div>
+</div>
+<div>
+    <div class="adj">
+        <h3 class="centerText">Uniform Shapes and Sizes</h3>
+        <svg id="Indiv-Non-Var-Non-Inf" />
+    </div>
+    <div class="adj">
+        <h3 class="centerText">Variable Shapes and Sizes</h3>
+        <svg id="Indiv-Var-Non-Inf" />
     </div>
 </div>
 <p>Add and remove items (add & remove - http://kenwheeler.github.io/slick/).</p>
