@@ -53,7 +53,7 @@ function moveableItemCarousels(items)
 
         // Setup the scroll path.
         var scrollPathLength = d3.sum(itemWidths) + (horizontalPadding * items.size());  // The length of the path along which the scrolling will occur.
-        var scrollPathStartX = (width + 10) - scrollPathLength;  // The X location of the start of the scroll path (want the path to end at width + 10).
+        var scrollPathStartX = ((width / 2) + (scrollPathLength / 2)) - scrollPathLength;  // The X location of the start of the scroll path (want the path to end at width + 10).
         var scrollPathStartY = height / 2;  // The Y location of the start of the scroll path.
 
         // Determine the position where the first item in the carousel will start (this is the item that is centered when the carousel is initialised).
@@ -161,7 +161,10 @@ function moveableItemCarousels(items)
         * Individual Item Dragging Functions *
         *************************************/
         var itemDragStartX;  // The X coordinate of the point on the item where the drag started.
-        function drag_end(d)
+        var draggedItem = null;  // The item that is being dragged.
+        var leftNeighbour = null;  // The item to the left of the one being dragged.
+        var rightNeighbour = null;  // The item to the right of the one being dragged.
+        function drag_end()
         {
             // Add back the highlighting for the navigation arrows.
             navigationArrows
@@ -171,12 +174,37 @@ function moveableItemCarousels(items)
             // Transition items to their resting places.
             clearInterval(scrollIntervalTimer);
             scrollIntervalTimer = null;
+            draggedItem
+                .transition()
+                .duration(200)
+                .ease("linear")
+                .tween("transform", function(d)
+                    {
+                        var interpolator = d3.interpolate(d.distAlongPath, d.resting);
+
+                        return function(t)
+                            {
+                                d.distAlongPath = interpolator(t);
+                                currentPoint = pathToScrollAlong.node().getPointAtLength(Math.max(0, Math.min(d.distAlongPath, scrollPathLength)));
+                                d.transX = currentPoint.x;  // Determine position of the item at this point in the transition.
+                                d.transY = currentPoint.y - (d.height / 2);  // Determine position of the item at this point in the transition.
+                                d3.select(this)
+                                    .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });  // Update the item's position.
+                            }
+                    });
+
+            // Remove the record of the item neighbours.
+            draggedItem = null;
+            leftNeighbour = null;
+            rightNeighbour = null;
         }
 
         function drag_start(d)
         {
+            draggedItem = d3.select(this);
+
             // Kill any transitions that the dragged item is undergoing or is scheduled to undergo.
-            d3.select(this)
+            draggedItem
                 .interrupt() // Cancel any transitions running on this item.
                 .transition(); // Pre-empt any scheduled transitions on this item.
 
@@ -186,7 +214,12 @@ function moveableItemCarousels(items)
                 .on("mouseout", null)
 
             // Record information about the starting conditions of the drag.
-            itemDragStartX = d3.mouse(this)[0];
+            itemDragStartX = draggedItem[0];
+
+            // Determine the left and right neighbours of the item being dragged.
+            var neighbours = determine_neighbours(d.key);
+            leftNeighbour = neighbours.left;
+            rightNeighbour = neighbours.right;
         }
 
         function drag_update(d)
@@ -200,16 +233,19 @@ function moveableItemCarousels(items)
             // Move the item.
             var positionAlongPath = pathToScrollAlong.node().getPointAtLength(d.distAlongPath);
             d.transX = positionAlongPath.x;
-            d3.select(this)
+            draggedItem
                 .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });
 
+            // Determine whether to swap any of the items.
+            check_item_swap();
+
             // Determine whether to scroll the carousel.
-            if ((d.distAlongPath < carouselLeftEdge) && (changeInPosition < 0))
+            if ((d.distAlongPath < carouselLeftEdge) && (changeInPosition <= 0))
             {
                 // If the user is dragging the item to the left, and the item is at the left edge, then start scrolling the items to the right.
                 start_scrollng(true, [d.key]);
             }
-            else if ((d.distAlongPath + d.width > carouselRightEdge) && (changeInPosition > 0))
+            else if ((d.distAlongPath + d.width > carouselRightEdge) && (changeInPosition >= 0))
             {
                 // If the user is dragging the item to the right, and the item is at the right edge, then start scrolling the items to the left.
                 start_scrollng(false, [d.key]);
@@ -232,24 +268,31 @@ function moveableItemCarousels(items)
             if (scrollIntervalTimer !== null) stop_scrolling();
         }
 
-        function scroll_carousel(isLeft, itemsToNotScroll)
+        function scroll_carousel(itemsToNotScroll)
         {
             // Scroll the carousel.
-            // isLeft is true when the carousel is to be scrolled leftwards (the items are to go rightwards).
             // itemsToNotScroll is an array of the keys of the items that should not be moved.
 
             var currentPoint;
-            items.filter(function(d) { return itemsToNotScroll.indexOf(d.key) === -1; })
+            items
                 .each(function(d)
                     {
-                        d.distAlongPath += (isLeft ? 1 : -1);
-                        d.distAlongPath = (scrollPathLength + d.distAlongPath) % scrollPathLength;
+                        if (itemsToNotScroll.indexOf(d.key) === -1)
+                        {
+                            d.distAlongPath += (isShiftRight ? 1 : -1);
+                            d.distAlongPath = (scrollPathLength + d.distAlongPath) % scrollPathLength;
+                        }
+                        d.resting += (isShiftRight ? 1 : -1);
+                        d.resting = (scrollPathLength + d.resting) % scrollPathLength;
                         currentPoint = pathToScrollAlong.node().getPointAtLength(d.distAlongPath);
                         d.transX = currentPoint.x;
                         d.transY = currentPoint.y - (d.height / 2);
                         d3.select(this)
                             .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; })  // Update the item's position.
                     });
+
+            // Determine whether to swap any of the items. Only bother checking if dragging is occurring.
+            if (draggedItem !== null) check_item_swap();
         }
 
         function scroll_doubletap()
@@ -279,16 +322,11 @@ function moveableItemCarousels(items)
             // Start scrolling if there is no scrolling already taking place.
             if (scrollIntervalTimer === null)
             {
-                // Stop the items transitioning if they currently are.
-                items
-                    .interrupt() // Cancel any transitions running on this item.
-                    .transition(); // Pre-empt any scheduled transitions on this item.
-
                 // Record the direction that the items are moving.
                 isShiftRight = isLeft;
 
                 // Setup the timer to scroll the carousel.
-                scrollIntervalTimer = setInterval(function() { scroll_carousel(isLeft, itemsToNotScroll); }, scrollSpeed);
+                scrollIntervalTimer = setInterval(function() { scroll_carousel(itemsToNotScroll); }, scrollSpeed);
             }
         }
 
@@ -301,13 +339,8 @@ function moveableItemCarousels(items)
             // Determine the new order of the items, and the distance to shift the items by.
             var shiftData = determine_item_order(distOfCenter, isShiftRight);
 
-            console.log(items.data().map(function(d) { return "" + d.key + "," + d.resting; }));
-
             // Update the resting positions of the items.
             set_resting_positions(shiftData.order);
-
-            console.log(shiftData.order);
-            console.log(items.data().map(function(d) { return "" + d.key + "," + d.resting; }));
 
             // Move the items into position.
             transition_items(isShiftRight, shiftData.distance);
@@ -316,6 +349,44 @@ function moveableItemCarousels(items)
         /*******************
         * Helper Functions *
         *******************/
+        function check_item_swap()
+        {
+            // Determine whether to swap any of the items.
+
+            // Determine the data of the items.
+            var draggedData = draggedItem.datum();
+
+            // Determine if the left neighbour should be swapped.
+            var leftNeighbourData = leftNeighbour.datum();
+            if ((leftNeighbourData.resting + (leftNeighbourData.width / 2)) >= draggedData.distAlongPath)
+            {
+                var distanceToMove = draggedData.resting - leftNeighbourData.resting;
+                leftNeighbourData.resting += distanceToMove;
+                draggedData.resting -= distanceToMove;
+                transition_items_swap(leftNeighbour);
+
+                // Determine the new left and right neighbours of the item being dragged.
+                var neighbours = determine_neighbours(draggedData.key);
+                leftNeighbour = neighbours.left;
+                rightNeighbour = neighbours.right;
+            }
+
+            // Determine if the right neighbour should be swapped.
+            var rightNeighbourData = rightNeighbour.datum();
+            if ((rightNeighbourData.resting + (rightNeighbourData.width / 2)) <= (draggedData.distAlongPath + draggedData.width))
+            {
+                var distanceToMove = rightNeighbourData.resting - draggedData.resting;
+                rightNeighbourData.resting -= distanceToMove;
+                draggedData.resting += distanceToMove;
+                transition_items_swap(rightNeighbour);
+
+                // Determine the new left and right neighbours of the item being dragged.
+                var neighbours = determine_neighbours(draggedData.key);
+                leftNeighbour = neighbours.left;
+                rightNeighbour = neighbours.right;
+            }
+        }
+
         function determine_item_order(centralPoint, isToLeft)
         {
             // Given a distance along the scroll path, determine the order of the items as the items ordered based on their distance from the
@@ -398,6 +469,36 @@ function moveableItemCarousels(items)
             return {"order": itemKeys, "distance": shortestDistance};
         }
 
+        function determine_neighbours(currentItemKey)
+        {
+            // Get an ordered list of the item keys, with the key at index 0 being the leftmost item in the carousel.
+            var itemPositions = [];
+            var itemKeys = [];
+            items.each(function(itemD) { itemPositions.push({"key": itemD.key, "resting": itemD.resting}); });
+            itemPositions.sort(function (a, b)
+                {
+                    if (a.resting > b.resting) { return 1; }
+                    else if (a.resting < b.resting) { return -1; }
+                    else { return 0; }
+                });
+            for (var i = 0; i < itemPositions.length; i++)
+            {
+                itemKeys.push(itemPositions[i].key);
+            }
+
+            // Determine the position in the item order of the current item and its neighbours.
+            var draggedItemIndex = itemKeys.indexOf(currentItemKey);
+            var leftNeighbourIndex = draggedItemIndex - 1;
+            var rightNeighbourIndex = draggedItemIndex + 1;
+
+            // Determine the neighbour items.
+            var neighbours = {}
+            neighbours["left"] = items.filter(function(itemD) { return itemD.key === itemPositions[leftNeighbourIndex].key; })
+            neighbours["right"] = items.filter(function(itemD) { return itemD.key === itemPositions[rightNeighbourIndex].key; })
+
+            return neighbours;
+        }
+
         function set_resting_positions(itemOrder)
         {
             // Set the resting positions of the items
@@ -442,7 +543,6 @@ function moveableItemCarousels(items)
                 .ease("linear")
                 .tween("transform", function(d)
                     {
-                        console.log(isShiftRight, d.key, d.distAlongPath, d.resting);
                         var interpolator;
                         if (isShiftRight)
                         {
@@ -488,6 +588,35 @@ function moveableItemCarousels(items)
                         return function(t)
                             {
                                 d.distAlongPath = (scrollPathLength + interpolator(t)) % scrollPathLength;
+                                currentPoint = pathToScrollAlong.node().getPointAtLength(d.distAlongPath);
+                                d.transX = currentPoint.x;  // Determine position of the item at this point in the transition.
+                                d.transY = currentPoint.y - (d.height / 2);  // Determine position of the item at this point in the transition.
+                                d3.select(this)
+                                    .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });  // Update the item's position.
+                            }
+                    });
+        }
+
+        function transition_items_swap(itemToSwap)
+        {
+            // Setup the transition for an item being swapped with a currently dragged item.
+
+            itemToSwap
+                .transition()
+                .duration(300)
+                .ease("linear")
+                .tween("transform", function(d)
+                    {
+                        var interpolator = d3.interpolate(0, d.resting - d.distAlongPath);
+                        var lastInterpVal = 0;  // The last value that came out of the interpolater.
+                        var currentInterpVal;  // The current value of the interpolater.
+
+                        return function(t)
+                            {
+                                currentInterpVal = interpolator(t);
+                                d.distAlongPath += (currentInterpVal - lastInterpVal);
+                                d.distAlongPath = (scrollPathLength + d.distAlongPath) % scrollPathLength;
+                                lastInterpVal = currentInterpVal;
                                 currentPoint = pathToScrollAlong.node().getPointAtLength(d.distAlongPath);
                                 d.transX = currentPoint.x;  // Determine position of the item at this point in the transition.
                                 d.transY = currentPoint.y - (d.height / 2);  // Determine position of the item at this point in the transition.
