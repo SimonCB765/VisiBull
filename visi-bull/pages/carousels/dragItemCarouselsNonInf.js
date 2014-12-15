@@ -313,18 +313,9 @@ function dragItemCarouselsNonInf(items)
             clearInterval(scrollIntervalTimer);
             scrollIntervalTimer = null;
 
-            // Determine the location along the scroll path of the new center.
-            var newCenter = (distOfCenter + (isShiftRight ? -width : width));
-            newCenter = (scrollPathLength + newCenter) % scrollPathLength;
-
-            // Determine the new order of the items, and the distance to shift the items by.
-            var shiftData = determine_item_order(newCenter, isShiftRight);
-
-            // Update the resting positions of the items.
-            set_resting_positions(shiftData.order);
-
-            // Move the items into position.
-            transition_items(isShiftRight, width + shiftData.distance);
+            // Move the items into their new resting positions.
+            var offset = isShiftRight ? -width : width;
+            reposition_items(offset);
         }
 
         function start_scrollng(isLeft, itemsToNotScroll)
@@ -338,6 +329,9 @@ function dragItemCarouselsNonInf(items)
             {
                 // Record the direction that the items are moving.
                 isShiftRight = isLeft;
+                
+                // Move the items once.
+                scroll_carousel(itemsToNotScroll);
 
                 // Setup the timer to scroll the carousel.
                 scrollIntervalTimer = setInterval(function() { scroll_carousel(itemsToNotScroll); }, scrollSpeed);
@@ -351,7 +345,7 @@ function dragItemCarouselsNonInf(items)
             scrollIntervalTimer = null;
 
             // Move the items into their new resting positions.
-            if (check_scrolling()) reposition_items(leftItemStartDist);
+            reposition_items(0);
         }
 
         /*******************
@@ -421,14 +415,13 @@ function dragItemCarouselsNonInf(items)
             return isScrollItems;
         }
 
-        function reposition_items(pointOfInterest)
+        function reposition_items(offset)
         {
-            // Given a distance along the scroll path, reposition the items so that
-            // pointOfInterest is the distance along the scroll path
 
             // Get the distance of each item from the point of interest.
             var currentPositions = [];
             var shortestDistance = scrollPathLength;
+            var pointOfInterest = leftItemStartDist + offset;
             items.each(function(d)
                 {
                     // Record the data of the item.
@@ -452,9 +445,22 @@ function dragItemCarouselsNonInf(items)
                         shortestDistance = effectiveDist;
                     }
                 });
+            
+            // Determine the max distance left and right that the items can be shifted.
+            var distanceToShift = (isShiftRight ? shortestDistance : -shortestDistance) + -offset;
+            var distances = items.data().map(function(d) { return d.distAlongPath; });
+            var maxDistLeft = d3.min(items.data().map(function(d) { return d.distAlongPath; })) - leftItemStartDist;
+            var maxDistRight = d3.max(items.data().map(function(d) { return d.distAlongPath + d.width + (horizontalPadding / 2); })) - carouselRightEdge;
+            distanceToShift = Math.max(-maxDistRight, Math.min(-maxDistLeft, distanceToShift));
+            
+            // Set the new resting positions of the items.
+            items.each(function(d)
+                {
+                    d.resting = d.distAlongPath + distanceToShift;
+                });
 
             // Move the items into position.
-            transition_items(isShiftRight ? shortestDistance : -shortestDistance);
+            transition_items(distanceToShift);
         }
 
         function determine_neighbours(currentItemKey)
@@ -509,7 +515,6 @@ function dragItemCarouselsNonInf(items)
                 .ease("linear")
                 .tween("transform", function(d)
                     {
-                        d.resting += distanceToShift;
                         var interpolator = d3.interpolate(d.distAlongPath, d.resting);
 
                         return function(t)
