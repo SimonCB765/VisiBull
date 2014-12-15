@@ -216,31 +216,31 @@ function indiv_drag(svgID, isInf)
         .text(function(d) { return d.key; });
 
     // Create the carousel.
-	var carousel;
-	if (isInf)
-	{
-		carousel = moveableItemCarousels(items)
-			.width(420)
-			.height(150)
-			.xLoc(15)
-			.yLoc(0)
-			.horizontalPadding(20)
-			.dotContainerHeight(30)
-			.navArrowWidth(40)
-			.navArrowHeight(40);
-	}
-	else
-	{
-		carousel = dragItemCarouselsNonInf(items)
-			.width(420)
-			.height(150)
-			.xLoc(15)
-			.yLoc(0)
-			.horizontalPadding(20)
-			.dotContainerHeight(30)
-			.navArrowWidth(40)
-			.navArrowHeight(40);
-	}
+    var carousel;
+    if (isInf)
+    {
+        carousel = moveableItemCarousels(items)
+            .width(420)
+            .height(150)
+            .xLoc(15)
+            .yLoc(0)
+            .horizontalPadding(20)
+            .dotContainerHeight(30)
+            .navArrowWidth(40)
+            .navArrowHeight(40);
+    }
+    else
+    {
+        carousel = dragItemCarouselsNonInf(items)
+            .width(420)
+            .height(150)
+            .xLoc(15)
+            .yLoc(0)
+            .horizontalPadding(20)
+            .dotContainerHeight(30)
+            .navArrowWidth(40)
+            .navArrowHeight(40);
+    }
     svg.call(carousel);
 }
 
@@ -725,30 +725,30 @@ function indiv_variable_item_drag(svgID, isInf)
 
     // Create the carousel.
     var items = svg.selectAll(".item");
-	var carousel;
-	if (isInf)
-	{
-		carousel = moveableItemCarousels(items)
-			.width(420)
-			.height(150)
-			.xLoc(20)
-			.yLoc(0)
-			.horizontalPadding(20)
-			.dotContainerHeight(30)
-			.navArrowWidth(40)
-			.navArrowHeight(40);
-	}
-	else
-	{
-		carousel = dragItemCarouselsNonInf(items)
-			.width(420)
-			.height(150)
-			.xLoc(20)
-			.yLoc(0)
-			.horizontalPadding(20)
-			.dotContainerHeight(30)
-			.navArrowWidth(40)
-			.navArrowHeight(40);
-	}
+    var carousel;
+    if (isInf)
+    {
+        carousel = moveableItemCarousels(items)
+            .width(420)
+            .height(150)
+            .xLoc(20)
+            .yLoc(0)
+            .horizontalPadding(20)
+            .dotContainerHeight(30)
+            .navArrowWidth(40)
+            .navArrowHeight(40);
+    }
+    else
+    {
+        carousel = dragItemCarouselsNonInf(items)
+            .width(420)
+            .height(150)
+            .xLoc(20)
+            .yLoc(0)
+            .horizontalPadding(20)
+            .dotContainerHeight(30)
+            .navArrowWidth(40)
+            .navArrowHeight(40);
+    }
     svg.call(carousel);
 }
