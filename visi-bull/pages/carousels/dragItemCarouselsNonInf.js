@@ -329,7 +329,7 @@ function dragItemCarouselsNonInf(items)
             {
                 // Record the direction that the items are moving.
                 isShiftRight = isLeft;
-                
+
                 // Move the items once.
                 scroll_carousel(itemsToNotScroll);
 
@@ -376,7 +376,7 @@ function dragItemCarouselsNonInf(items)
                     rightNeighbour = neighbours.right;
                 }
             }
-            
+
             // Determine if the right neighbour should be swapped.
             if (rightNeighbour !== null)
             {
@@ -445,14 +445,14 @@ function dragItemCarouselsNonInf(items)
                         shortestDistance = effectiveDist;
                     }
                 });
-            
+
             // Determine the max distance left and right that the items can be shifted.
             var distanceToShift = (isShiftRight ? shortestDistance : -shortestDistance) + -offset;
             var distances = items.data().map(function(d) { return d.distAlongPath; });
             var maxDistLeft = d3.min(items.data().map(function(d) { return d.distAlongPath; })) - leftItemStartDist;
             var maxDistRight = d3.max(items.data().map(function(d) { return d.distAlongPath + d.width + (horizontalPadding / 2); })) - carouselRightEdge;
             distanceToShift = Math.max(-maxDistRight, Math.min(-maxDistLeft, distanceToShift));
-            
+
             // Set the new resting positions of the items.
             items.each(function(d)
                 {
