@@ -22,15 +22,23 @@
         <div class="content">
             {% block content %}
                 <!--Block for including the content of the page within the div.content tag.-->
-                <div class="bannerContainer" data-background="{{ url_for('static', filename='carousels/carousels.png') }}" data-name="Carousels" data-textColor="black">
+                <div class="bannerContainer" data-background="{{ url_for('static', filename='carousels_2/carousels.png') }}" data-name="SVG Carousels (2)" data-textColor="black">
                     <span class="date">-- --, 2014</span>
-                    <a href="{{ url_for('prettyPictures', prettyPictureName='carousels') }}"><svg class="banner" /></a>
+                    <a href="{{ url_for('prettyPictures', prettyPictureName='carousels_2') }}"><svg class="banner" /></a>
                 </div>
                 <div class="bannerContainer" data-background="{{ url_for('static', filename='london_underground/london_underground.png') }}" data-name="London Underground" data-textColor="black">
                     <span class="date">-- --, 2014</span>
                     <a href="{{ url_for('prettyPictures', prettyPictureName='london_underground') }}"><svg class="banner" /></a>
                 </div>
+                <div class="bannerContainer" data-background="{{ url_for('static', filename='tabbed_navigation/tabbed_navigation.png') }}" data-name="Tabbed Navigation" data-textColor="black">
+                    <span class="date">-- --, 2014</span>
+                    <a href="{{ url_for('prettyPictures', prettyPictureName='tabbed_navigation') }}"><svg class="banner" /></a>
+                </div>
                 <br><br><br><br>
+                <div class="bannerContainer" data-background="{{ url_for('static', filename='carousels_1/carousels.png') }}" data-name="SVG Carousels (1)" data-textColor="black">
+                    <span class="date">December 10, 2014</span>
+                    <a href="{{ url_for('prettyPictures', prettyPictureName='carousels_1') }}"><svg class="banner" /></a>
+                </div>
                 <div class="bannerContainer" data-background="{{ url_for('static', filename='checkboxes_and_radio_buttons/checkboxes_and_radio_buttons.png') }}" data-name="SVG Checkboxes and Radio Buttons" data-textColor="white">
                     <span class="date">November 13, 2014</span>
                     <a href="{{ url_for('prettyPictures', prettyPictureName='checkboxes_and_radio_buttons') }}"><svg class="banner" /></a>
@@ -42,10 +50,6 @@
                 <div class="bannerContainer" data-background="{{ url_for('static', filename='scalable_paths/scalable_paths.png') }}" data-name="Scalable Paths" data-textColor="black">
                     <span class="date">October 30, 2014</span>
                     <a href="{{ url_for('prettyPictures', prettyPictureName='scalable_paths') }}"><svg class="banner" /></a>
-                </div>
-                <div class="bannerContainer" data-background="{{ url_for('static', filename='tabbed_navigation/tabbed_navigation.png') }}" data-name="Tabbed Navigation" data-textColor="black">
-                    <span class="date">October 22, 2014</span>
-                    <a href="{{ url_for('prettyPictures', prettyPictureName='tabbed_navigation') }}"><svg class="banner" /></a>
                 </div>
                 <div class="bannerContainer" data-background="{{ url_for('static', filename='pong_clone/pong_clone.png') }}" data-name="Pong" data-textColor="white">
                     <span class="date">October 10, 2014</span>

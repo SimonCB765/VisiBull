@@ -4,16 +4,14 @@
 <!--Block for including page specific CSS and JS files within the <head> tag.-->
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='carousels/carousels.css') }}">
 <script type="text/javascript" src="{{ url_for('static', filename='scripts/jQuery/jquery-1.11.1.min.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='carousels/standardCarousels.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='carousels/moveableItemCarousels.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='carousels/dragItemCarouselsNonInf.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='carousels/carouselDemos.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='carousels_1/standardCarousels.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='carousels_1/demos.js') }}"></script>
 {% endblock %}
 
 {% block header %}
 <!--Block for including page specific header information (e.g. page title) within the <header> tag.-->
 <h1 class="pageTitle">Carousels</h1>
-<span class="date">-- --, 2014</span>
+<span class="date">December 10, 2014</span>
 {% endblock %}
 
 {% block content %}
@@ -52,9 +50,6 @@
             The items can be any shape, provided the height and width given accurately capture the items height and width<br>
     navigation arrow can be changed to anything, but need to make sure that the arrow width/height will accomodate the new shape, or clicking will be more fiddly<br>
     nav dots can have their shape changed, but need to make sure that the radius provided could encompass the new shape, or clicking will be fiddly<br>
-    wrapping the items positions around for infinite scrollingis done using d.distAlongPath = (scrollPathLength + d.distAlongPath) % scrollPathLength;
-        this ties the ends of the path together and makes it so that distance 0 === distance scrollPathLength<br>
-    individual dragging forces it to be single item in view single item scroll by without dots
 </p>
 <p>
     With centered items it is often best to manually define the carousel size (otherwise can't tell that it is centered).
@@ -220,32 +215,4 @@ svg.call(carousel);</code></pre>
 svg.call(carousel);</code></pre>
     </div>
 </div>
-<br>
-<h2>Individually Draggable Items</h2>
-<div>
-    <div class="adj">
-        <h3 class="centerText">Uniform Shapes and Sizes</h3>
-        <svg id="Indiv-Non-Var" />
-    </div>
-    <div class="adj">
-        <h3 class="centerText">Variable Shapes and Sizes</h3>
-        <svg id="Indiv-Var" />
-    </div>
-</div>
-<div>
-    <div class="adj">
-        <h3 class="centerText">Uniform Shapes and Sizes</h3>
-        <svg id="Indiv-Non-Var-Non-Inf" />
-    </div>
-    <div class="adj">
-        <h3 class="centerText">Variable Shapes and Sizes</h3>
-        <svg id="Indiv-Var-Non-Inf" />
-    </div>
-</div>
-<p>Add and remove items (add & remove - http://kenwheeler.github.io/slick/).</p>
-<p>One that lets you permanently take items out, closes the gaps, and then lets you stick it back in later.</p>
-<br>
-<h2>Optional Extras</h2>
-<p>Sync two sliders, one smaller than the other, like a small overview and closeup on focussed on. (Slider syncing - http://kenwheeler.github.io/slick/)</p>
-<p>Filter items in some way (maybe context menu). (filtering - http://kenwheeler.github.io/slick/).</p>
 {% endblock %}
