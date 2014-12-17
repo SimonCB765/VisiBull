@@ -23,7 +23,7 @@ _classes
 _carousel
 */
 .carousel {cursor: default; fill: #444444; fill-opacity: 1; stroke: none;}  /* Style the carousel. A fill is needed in order to make the carousel catch events nicely. */
-.scrollPath {fill: none; stroke: orange; stroke-width: 2;}  /* Style declarations for the path along which the items are scrolled. */
+.scrollPath {fill: none; stroke: none;}  /* Style declarations for the path along which the items are scrolled. */
 
 /*
 _carousel_navArrow
