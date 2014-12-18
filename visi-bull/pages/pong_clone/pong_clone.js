@@ -1,12 +1,19 @@
 var svgWidth = 700;  // The width of the SVG element.
 var svgHeight = 500;  // The height of the SVG element.
 
-var ballVelocity;  // Object consisting of x and y components representing the speed in the x and y directions. Initialised in initialise_game().
+var ballVelocity;  // Object consisting of x and y components representing the speed in the x and y directions. Initialised in reset_game().
 var ballRadius = 10;
 
 var paddleWidth = 10;
 var paddleHeight = 70;
 var collisionPos = -1;  // The point on the right hand wall where the AI paddle needs to move to return the ball. Assigned when the ball hits the player's paddle.
+
+// Define the components of the game.
+var ball;  // The ball.
+var aiPaddle;  // The paddle that the AI moves.
+var aiScore;  // The AI opponent's score.
+var playerPaddle;  // The paddle that the player moves.
+var playerScore;  // The player's score.
 
 // Create the SVG g element.
 var svg = d3.select(".content")
@@ -16,62 +23,62 @@ var svg = d3.select(".content")
     .attr("tabindex", 0);  // Set tab index to ensure that the element can get focus.
 svg[0][0].focus();  // Set initial focus.
 
-// Add the line down the middle of the playing field.
-svg.append("path")
-    .classed("divider", true)
-    .attr("d", "M" + (svgWidth / 2) + ",0L" + (svgWidth / 2) + "," + svgHeight);
-
-// Add the ball.
-var ball = svg.append("circle")
-    .classed("ball", true)
-    .attr("r", ballRadius);
-
-// Add the player's paddle.
-var playerPaddle = svg.append("rect")
-    .datum({"x" : 0, "y" : (svgHeight / 2) - (paddleHeight / 2)})
-    .classed("paddle", true)
-    .attr("width", paddleWidth)
-    .attr("height", paddleHeight);
-
-// Add the AI paddle.
-var aiPaddle = svg.append("rect")
-    .datum({"x" : svgWidth - paddleWidth, "y" : (svgHeight / 2) - (paddleHeight / 2)})
-    .classed("paddle", true)
-    .attr("width", paddleWidth)
-    .attr("height", paddleHeight);
-
-// Add the ability to move the player paddle.
-svg.on("mousemove", function()
-    {
-        playerPaddle.attr("y", function(d)
-            {
-                d.y = d3.mouse(this)[1] - (paddleHeight / 2);
-                d.y = Math.min(Math.max(0, d.y), svgHeight - paddleHeight);
-                return d.y;
-            });
-    });
-
-// Add the scores.
-var playerScore = svg.append("text")
-    .datum({"score": 0})
-    .classed("score", true)
-    .attr("x", (svgWidth / 2) - 30)
-    .attr("y", 40)
-    .attr("dy", ".35em")
-    .style("text-anchor", "end")  // Score will grow to the left of the screen.
-    .text(function(d) { return d.score; });
-var aiScore = svg.append("text")
-    .datum({"score": 0})
-    .classed("score", true)
-    .attr("x", (svgWidth / 2) + 30)
-    .attr("y", 40)
-    .attr("dy", ".35em")
-    .style("text-anchor", "start")  // Score will grow to the right of the screen.
-    .text(function(d) { return d.score; });
-
-// Start the game.
-initialise_game();
-d3.timer(move_ball);  // Start the ball moving.
+// Display the starting splash screen.
+var startButtonHeight = 50;
+var startButtonWidth = 100;
+var instructionsTop = svg.append("text")
+    .text("Control the paddle using your mouse.")
+    .classed("splash", true)
+    .attr("x", svgWidth / 2)
+    .attr("y", svgHeight / 4)
+    .style("font-size", "0px");
+var instructionsBottom = svg.append("text")
+    .text("Press start to begin.")
+    .classed("splash", true)
+    .attr("x", svgWidth / 2)
+    .attr("y", svgHeight * 2 / 4)
+    .style("font-size", "0px");
+var startG = svg.append("g")
+    .attr("transform", "translate(" + ((svgWidth / 2) - (startButtonWidth / 2)) + ", " + (svgHeight * 2 / 3) + ")");
+var startButton = startG.append("rect")
+    .classed("start", true)
+    .attr("x", startButtonWidth / 2)
+    .attr("y", startButtonHeight / 2)
+    .attr("width", 0)
+    .attr("height", 0);
+var startText = startG.append("text")
+    .text("Start")
+    .classed("startText", true)
+    .attr("x", startButtonWidth / 2)
+    .attr("y", startButtonHeight / 2)
+    .style("font-size", "0px");
+instructionsTop
+    .transition()
+    .duration(1000)
+    .style("font-size", "40px")
+    .each(function()
+        {
+            instructionsBottom
+                .transition()
+                .style("font-size", "40px")
+        })
+    .each(function()
+        {
+            startButton
+                .transition()
+                .attr("x", 0)
+                .attr("y", 0)
+                .attr("width", startButtonWidth)
+                .attr("height", startButtonHeight);
+        })
+    .each(function()
+        {
+            startText
+                .transition()
+                .style("font-size", "30px");
+        });
+startButton
+    .on("click", function() { instructionsTop.remove(); instructionsBottom.remove(); startG.remove(); initialise_game(); reset_game(); d3.timer(move_ball); })
 
 function calculate_right_wall_collision(ballPos)
 {
@@ -147,12 +154,70 @@ function calculate_right_wall_collision(ballPos)
 
 function initialise_game()
 {
+    // Setup the components needed for the game.
+
+    // Add the line down the middle of the playing field.
+    svg.append("path")
+        .classed("divider", true)
+        .attr("d", "M" + (svgWidth / 2) + ",0L" + (svgWidth / 2) + "," + svgHeight);
+
+    // Add the ball.
+    ball = svg.append("circle")
+        .classed("ball", true)
+        .attr("r", ballRadius);
+
+    // Add the player's paddle.
+    playerPaddle = svg.append("rect")
+        .datum({"x" : 0, "y" : (svgHeight / 2) - (paddleHeight / 2)})
+        .classed("paddle", true)
+        .attr("width", paddleWidth)
+        .attr("height", paddleHeight);
+
+    // Add the AI paddle.
+    aiPaddle = svg.append("rect")
+        .datum({"x" : svgWidth - paddleWidth, "y" : (svgHeight / 2) - (paddleHeight / 2)})
+        .classed("paddle", true)
+        .attr("width", paddleWidth)
+        .attr("height", paddleHeight);
+
+    // Add the ability to move the player paddle.
+    svg.on("mousemove", function()
+        {
+            playerPaddle.attr("y", function(d)
+                {
+                    d.y = d3.mouse(this)[1] - (paddleHeight / 2);
+                    d.y = Math.min(Math.max(0, d.y), svgHeight - paddleHeight);
+                    return d.y;
+                });
+        });
+
+    // Add the scores.
+    playerScore = svg.append("text")
+        .datum({"score": 0})
+        .classed("score", true)
+        .attr("x", (svgWidth / 2) - 30)
+        .attr("y", 40)
+        .attr("dy", ".35em")
+        .style("text-anchor", "end")  // Score will grow to the left of the screen.
+        .text(function(d) { return d.score; });
+    aiScore = svg.append("text")
+        .datum({"score": 0})
+        .classed("score", true)
+        .attr("x", (svgWidth / 2) + 30)
+        .attr("y", 40)
+        .attr("dy", ".35em")
+        .style("text-anchor", "start")  // Score will grow to the right of the screen.
+        .text(function(d) { return d.score; });
+}
+
+function reset_game()
+{
     // Set up the initial state of the game.
 
     // Remove the trajectory of the ball if it's present.
     svg.selectAll(".trajectory").remove();
 
-    // Reset ball velocity.
+    // Reset the ball velocity.
     ballVelocity = {"x" : -2, "y" : 4};
 
     // Put the ball in the center.
@@ -207,13 +272,13 @@ function move_ball()
     {
         // Ball is touching the left wall, so a point is scored by the AI.
         aiScore.text(function(d) { d.score += 1; return d.score; });
-        initialise_game();
+        reset_game();
     }
     else if (ballPos.x === (svgWidth - ballRadius))
     {
         // Ball is touching the right wall, so a point is scored by the player.
         playerScore.text(function(d) { d.score += 1; return d.score; });
-        initialise_game();
+        reset_game();
     }
     else if (ballPos.x <= (ballRadius + paddleWidth) && ballPos.y >= playerPos.y && ballPos.y <= playerPos.y + paddleHeight && ballVelocity.x < 0)
     {
