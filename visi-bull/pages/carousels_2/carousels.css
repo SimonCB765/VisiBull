@@ -37,11 +37,3 @@ _carousel_navArrow
 .navArrow.highlight {opacity: .9; cursor: pointer;}  /* When hovered over the navigation arrows should be fully visible. */
 .navArrow.highlight.inactive {opacity: .2;}  /* When hovered over, an inactive navigation arrows should barely be visible. */
 .navArrow.highlight:not(.inactive) path {fill: white;}  /* Style the arrow when highlighted. */
-
-/*
-_carousel_navDot
-*/
-.navDotContainer {fill: white; stroke: none;}  /* Style the non-selected navigation dots (i.e. the dots not corresponding to the current visible items). */
-.navDotContainer rect {opacity: 0;}  /* Make the backing rectangle invisible. */
-.navDot:hover {cursor: pointer;}  /* Change the mouse to a pointer when hovering over the navigation dots. */
-.navDot.selected {fill: red;}  /* Style the selected navigation dot (i.e. the dot corresponding to the current visible items). */
