@@ -201,6 +201,11 @@ function dragItemCarouselsNonInf(items)
                             }
                     });
 
+            // Add back the behaviour of the navigation arrows.
+            navigationArrows = carousel.selectAll(".navArrow")
+                .on("mouseup", stop_scrolling)
+                .on("mouseleave", leave_stop_scrolling);
+
             // Remove the record of the item neighbours.
             draggedItem = null;
             leftNeighbour = null;
@@ -219,7 +224,12 @@ function dragItemCarouselsNonInf(items)
             // Remove the highlighting of the navigation arrows.
             navigationArrows
                 .on("mouseover", null)
-                .on("mouseout", null)
+                .on("mouseout", null);
+
+            // Remove the behaviour of the navigation arrows that may be triggered at the end of a drag.
+            navigationArrows = carousel.selectAll(".navArrow")
+                .on("mouseup", null)
+                .on("mouseleave", null);
 
             // Record information about the starting conditions of the drag.
             itemDragStartX = draggedItem[0];
