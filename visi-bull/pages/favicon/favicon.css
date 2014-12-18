@@ -16,7 +16,7 @@ div .centered {margin: 0 auto; width: 500px;}  /* Setup the div to center its el
 
 /* Black on white bull. */
 .blackOnWhite {background-color: white;}  /* Set the background. */
-.whiteOnBlack text {fill: black; stroke: none;}  /* Color GitHub and home text. */
+.blackOnWhite text {fill: black; stroke: none;}  /* Color GitHub and home text. */
 .blackOnWhite .bull {fill: none; stroke: black; stroke-width: 2;}  /* Style the bull. */
 .blackOnWhite .github {cursor: pointer; font-size: 25px; text-anchor: end;}  /* Style the GitHub text. */
 .blackOnWhite .home {alignment-baseline: middle; cursor: pointer; font-size: 30px; text-anchor: middle;}  /* Style the home text. */
