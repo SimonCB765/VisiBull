@@ -258,12 +258,12 @@ function dragItemCarouselsNonInf(items)
             check_item_swap();
 
             // Determine whether to scroll the carousel.
-            if ((d.distAlongPath < carouselLeftEdge) && (changeInPosition <= 0))
+            if (d.distAlongPath < carouselLeftEdge)
             {
                 // If the user is dragging the item to the left, and the item is at the left edge, then start scrolling the items to the right.
                 start_scrollng(true, [d.key]);
             }
-            else if ((d.distAlongPath + d.width > carouselRightEdge) && (changeInPosition >= 0))
+            else if (d.distAlongPath + d.width > carouselRightEdge)
             {
                 // If the user is dragging the item to the right, and the item is at the right edge, then start scrolling the items to the left.
                 start_scrollng(false, [d.key]);
