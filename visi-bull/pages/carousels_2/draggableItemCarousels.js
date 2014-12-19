@@ -58,8 +58,8 @@ function draggableItemCarousel(items)
         else scrollPathLength = d3.sum(itemWidths) + (horizontalPadding * items.size()) + d3.max(itemWidths);
         var scrollPathStartY = height / 2;  // The Y location of the start of the scroll path.
         var scrollPathStartX;  // The X location of the start of the scroll path.
-        if (isInfinite) scrollPathStartX = ((width / 2) + (scrollPathLength / 2)) - scrollPathLength;  // Want the path to end at width + 10.
-        else  scrollPathStartX = -d3.max(itemWidths);  // Want the path to be able to contain the widest item off screen to the left.
+        if (isInfinite) scrollPathStartX = (width / 2) - (scrollPathLength / 2);
+        else scrollPathStartX = -d3.max(itemWidths);  // Want the path to be able to contain the widest item off screen to the left.
 
         // Determine the position where the leftmost item in the carousel will start.
         var leftItemStartX;  // The X location of the leftmost item in the view.
@@ -424,9 +424,8 @@ function draggableItemCarousel(items)
                 var leftNeighbourData = leftNeighbour.datum();
                 if ((leftNeighbourData.resting + (leftNeighbourData.width / 2)) >= draggedData.distAlongPath)
                 {
-                    var distanceToMove = draggedData.resting - leftNeighbourData.resting;
-                    leftNeighbourData.resting += distanceToMove;
-                    draggedData.resting -= distanceToMove;
+                    draggedData.resting  = leftNeighbourData.resting;
+                    leftNeighbourData.resting = draggedData.resting + draggedData.width + horizontalPadding;
                     transition_items_swap(leftNeighbour);
 
                     // Determine the new left and right neighbours of the item being dragged.
@@ -434,6 +433,13 @@ function draggableItemCarousel(items)
                     leftNeighbour = neighbours.left;
                     rightNeighbour = neighbours.right;
                 }
+            }
+            else if (isInfinite)
+            {
+                // If there is no left neighbour, but infinite scrolling is being used, then check if the left neighbour has wrapped around the carousel
+                // and is now on the left hand side of the carousel.
+                var neighbours = determine_neighbours(draggedData.key);
+                leftNeighbour = neighbours.left;
             }
 
             // Determine if the right neighbour should be swapped.
@@ -443,9 +449,8 @@ function draggableItemCarousel(items)
                 var rightNeighbourData = rightNeighbour.datum();
                 if ((rightNeighbourData.resting + (rightNeighbourData.width / 2)) <= (draggedData.distAlongPath + draggedData.width))
                 {
-                    var distanceToMove = rightNeighbourData.resting - draggedData.resting;
-                    rightNeighbourData.resting -= distanceToMove;
-                    draggedData.resting += distanceToMove;
+                    rightNeighbourData.resting = draggedData.resting;
+                    draggedData.resting = rightNeighbourData.resting + rightNeighbourData.width + horizontalPadding;
                     transition_items_swap(rightNeighbour);
 
                     // Determine the new left and right neighbours of the item being dragged.
@@ -453,6 +458,13 @@ function draggableItemCarousel(items)
                     leftNeighbour = neighbours.left;
                     rightNeighbour = neighbours.right;
                 }
+            }
+            else if (isInfinite)
+            {
+                // If there is no right neighbour, but infinite scrolling is being used, then check if the right neighbour has wrapped around the carousel
+                // and is now on the right hand side of the carousel.
+                var neighbours = determine_neighbours(draggedData.key);
+                rightNeighbour = neighbours.right;
             }
         }
 
@@ -497,16 +509,16 @@ function draggableItemCarousel(items)
             var rightNeighbourIndex = draggedItemIndex + 1;
 
             // Determine the neighbour items.
-            var neighbours = {}
+            var neighbours = {};
             if (leftNeighbourIndex >= 0)
             {
-                // If the item being dragged is not already the leftmost item. Will always be true when infinite scrolling is used.
+                // If the item being dragged is not already the leftmost item.
                 neighbours["left"] = items.filter(function(itemD) { return itemD.key === itemPositions[leftNeighbourIndex].key; })
             }
             else neighbours["left"] = null;
             if (rightNeighbourIndex <= itemKeys.length - 1)
             {
-                // If the item being dragged is not already the rightmost item. Will always be true when infinite scrolling is used.
+                // If the item being dragged is not already the rightmost item.
                 neighbours["right"] = items.filter(function(itemD) { return itemD.key === itemPositions[rightNeighbourIndex].key; })
             }
             else neighbours["right"] = null;
