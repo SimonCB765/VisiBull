@@ -13,10 +13,5 @@
 
 {% block content %}
 <!--Block for including the content of the page within the div.content tag.-->
-DEAL WITH HITTING THE TOP OF THE PADDLE
-	Do this by splitting the paddle area into a top rectangle, bottom rectangle, side rectangle, and then quarter circles around the edges
-	The quarter circles will have the same radius as the ball
-	The quarter circles will be further split in half along a line bisecting it from the corner
-	The eighth circles closer to the side rectangle will count as hitting the side, the eighth circles closer to the top/bottom will count as hitting the top/bottom
 <script type="text/javascript" src="{{ url_for('static', filename='pong_clone/pong_clone.js') }}"></script>
 {% endblock %}
