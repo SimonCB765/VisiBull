@@ -539,6 +539,16 @@ function var_shape(svgID, makeInf, centerIt)
 
     // Create the carousel.
     var items = svg.selectAll(".item");
+    items.append("text")
+        .attr("x", function(d) { return d.width / 2; })
+        .attr("y", function(d) { return d.height / 2; })
+        .attr("dy", ".35em")
+        .style("text-anchor", "middle")
+        .style("fill", numberFill)
+        .style("font-size", 20)
+        .style("font-weight", numberFontWeight)
+        .style("stroke", numberStroke)
+        .text(function(d) { return d.key; });
     var carousel = standardCarousel(items)
         .width(420)
         .xLoc(20)
