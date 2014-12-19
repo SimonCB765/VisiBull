@@ -67,11 +67,12 @@ function indiv_drag(svgID, isInf)
     var carousel;
     if (isInf)
     {
-        carousel = moveableItemCarousels(items)
+        carousel = draggableItemCarousel(items)
             .width(420)
             .height(150)
             .xLoc(15)
             .yLoc(0)
+            .isInfinite(true)
             .horizontalPadding(20)
             .dotContainerHeight(30)
             .navArrowWidth(40)
@@ -79,7 +80,7 @@ function indiv_drag(svgID, isInf)
     }
     else
     {
-        carousel = dragItemCarouselsNonInf(items)
+        carousel = draggableItemCarousel(items)
             .width(420)
             .height(150)
             .xLoc(15)
@@ -172,11 +173,12 @@ function indiv_variable_item_drag(svgID, isInf)
     var carousel;
     if (isInf)
     {
-        carousel = moveableItemCarousels(items)
+        carousel = draggableItemCarousel(items)
             .width(420)
             .height(150)
             .xLoc(20)
             .yLoc(0)
+            .isInfinite(true)
             .horizontalPadding(20)
             .dotContainerHeight(30)
             .navArrowWidth(40)
@@ -184,7 +186,7 @@ function indiv_variable_item_drag(svgID, isInf)
     }
     else
     {
-        carousel = dragItemCarouselsNonInf(items)
+        carousel = draggableItemCarousel(items)
             .width(420)
             .height(150)
             .xLoc(20)
