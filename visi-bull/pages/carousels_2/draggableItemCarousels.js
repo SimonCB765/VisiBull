@@ -106,7 +106,7 @@ function draggableItemCarousel(items)
 
                 return "translate(" + d.transX + "," + d.transY + ")";
             });
-        
+
         // Create a mapping to record for each item, i, which other items need to be added to i's clip path in order to correctly show the
         // items overlapping during drags.
         var itemsOverlappedBy = {};
@@ -224,7 +224,19 @@ function draggableItemCarousel(items)
                                 d.transY = currentPoint.y - (d.height / 2);  // Determine position of the item at this point in the transition.
                                 d3.select(this)
                                     .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });  // Update the item's position.
+                                generate_clip_paths();
                             }
+                    })
+                .each("end", function(d)
+                    {
+                        // Remove the item that has just finished moving into place from all other items' clip paths. This is safe (even if the item
+                        // moving into place is clicked on again) as this will only fire once the item finishes transitioning, and will not fire from
+                        // an interruption. The item that has finished transitioning is therefore marked as not being on top of any items.
+                        items.each(function(itemD)
+                            {
+                                var indexOfDInItemD = itemsOverlappedBy[itemD.key].indexOf(d.key);
+                                if (indexOfDInItemD !== -1) itemsOverlappedBy[itemD.key].splice(indexOfDInItemD, 1);
+                            });
                     });
 
             // Add back the behaviour of the navigation arrows.
@@ -264,6 +276,18 @@ function draggableItemCarousel(items)
             var neighbours = determine_neighbours(d.key);
             leftNeighbour = neighbours.left;
             rightNeighbour = neighbours.right;
+
+            // Record that the dragged item should now overlap its left and right neighbours, and that the left and right neighbours should not
+            // overlap the dragged item.
+            var leftNeighbourData = leftNeighbour.datum();
+            if (itemsOverlappedBy[leftNeighbourData.key].indexOf(d.key) === -1) itemsOverlappedBy[leftNeighbourData.key].push(d.key);
+            var rightNeighbourData = rightNeighbour.datum();
+            if (itemsOverlappedBy[rightNeighbourData.key].indexOf(d.key) === -1) itemsOverlappedBy[rightNeighbourData.key].push(d.key);
+
+            var indexOfLeftInD = itemsOverlappedBy[d.key].indexOf(leftNeighbourData.key);
+            var indexOfRightInD = itemsOverlappedBy[d.key].indexOf(rightNeighbourData.key);
+            if (indexOfLeftInD !== -1) itemsOverlappedBy[d.key].splice(indexOfLeftInD, 1);
+            if (indexOfRightInD !== -1) itemsOverlappedBy[d.key].splice(indexOfRightInD, 1);
         }
 
         function drag_update(d)
@@ -282,6 +306,9 @@ function draggableItemCarousel(items)
 
             // Determine whether to swap any of the items.
             check_item_swap();
+
+            // Update the clip paths.
+            generate_clip_paths();
 
             // Determine whether to scroll the carousel.
             if (d.distAlongPath < carouselLeftEdge)
@@ -334,6 +361,7 @@ function draggableItemCarousel(items)
                             d.transY = currentPoint.y - (d.height / 2);
                             d3.select(this)
                                 .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });  // Update the item's position.
+                            generate_clip_paths();
                         });
 
                 // Determine whether to swap any of the items. Only bother checking if dragging is occurring.
@@ -362,6 +390,7 @@ function draggableItemCarousel(items)
                         d.transY = currentPoint.y - (d.height / 2);
                         d3.select(this)
                             .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });  // Update the item's position.
+                        generate_clip_paths();
                     });
 
             // Determine whether to swap any of the items. Only bother checking if dragging is occurring.
@@ -544,7 +573,7 @@ function draggableItemCarousel(items)
         function generate_clip_paths()
         {
             // Generate the clip paths for all items.
-            
+
             items.each(function(d)
                 {
                     // Generate the basic clipping path to ensure that only the portion of the item inside the carousel is visible.
@@ -554,7 +583,7 @@ function draggableItemCarousel(items)
                            "v" + height +
                            "h" + -width +
                            "v" + -height;
-                    
+
                     // Add each item that the current item is meant to be below to the clip path.
                     var itemsAboveKeys = itemsOverlappedBy[d.key];
                     var itemsAbove = items.filter(function(itemD) { return itemsAboveKeys.indexOf(itemD.key) !== -1; });
@@ -562,14 +591,14 @@ function draggableItemCarousel(items)
                         {
                             var xOffset = itemD.transX - d.transX;
                             var yOffset = itemD.transY - d.transY;
-                            clippingPath += ("M" + xOffset + "," + yOffset + neighbour.select(".itemOutline").attr("d"));
+                            clippingPath += ("M" + xOffset + "," + yOffset + d3.select(this).select(".itemOutline").attr("d"));
                         });
-                    
+
                     d3.select(this).select(".carouselClipRect")
                         .attr("d", clippingPath);
                 });
         }
-        
+
         function reposition_items(offset)
         {
 
@@ -667,6 +696,7 @@ function draggableItemCarousel(items)
                                 d.transY = currentPoint.y - (d.height / 2);  // Determine position of the item at this point in the transition.
                                 d3.select(this)
                                     .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });  // Update the item's position.
+                                generate_clip_paths();
                             }
                     });
         }
@@ -733,6 +763,7 @@ function draggableItemCarousel(items)
                                 d.transY = currentPoint.y - (d.height / 2);  // Determine position of the item at this point in the transition.
                                 d3.select(this)
                                     .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });  // Update the item's position.
+                                generate_clip_paths();
                             }
                     });
         }
@@ -761,6 +792,7 @@ function draggableItemCarousel(items)
                                 d.transY = currentPoint.y - (d.height / 2);  // Determine position of the item at this point in the transition.
                                 d3.select(this)
                                     .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });  // Update the item's position.
+                                generate_clip_paths();
                             }
                     });
         }
