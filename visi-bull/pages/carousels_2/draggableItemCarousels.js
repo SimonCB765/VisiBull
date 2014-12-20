@@ -106,6 +106,11 @@ function draggableItemCarousel(items)
 
                 return "translate(" + d.transX + "," + d.transY + ")";
             });
+        
+        // Create a mapping to record for each item, i, which other items need to be added to i's clip path in order to correctly show the
+        // items overlapping during drags.
+        var itemsOverlappedBy = {};
+        items.each(function(d) { itemsOverlappedBy[d.key] = []; });
 
         // Clip the items to the carousel.
         items.append("clipPath")
@@ -114,7 +119,8 @@ function draggableItemCarousel(items)
             .append("path")
                 .classed("carouselClipRect", true)
                 .attr("clip-rule", "evenodd")
-                .attr("d", function(d) { return generate_standard_clip_path(d); });
+                .attr("d", "");
+        generate_clip_paths();
         items.attr("clip-path", function(d) { return "url(#" + (d.rootID + "clip-" + d.key) + ")"; });
 
         // Add drag behaviour.
@@ -217,9 +223,7 @@ function draggableItemCarousel(items)
                                 d.transX = currentPoint.x;  // Determine position of the item at this point in the transition.
                                 d.transY = currentPoint.y - (d.height / 2);  // Determine position of the item at this point in the transition.
                                 d3.select(this)
-                                    .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; })  // Update the item's position.
-                                    .select(".carouselClipRect")
-                                        .attr("d", function(d) { return generate_standard_clip_path(d); });  // Update the clip path.
+                                    .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });  // Update the item's position.
                             }
                     });
 
@@ -260,12 +264,6 @@ function draggableItemCarousel(items)
             var neighbours = determine_neighbours(d.key);
             leftNeighbour = neighbours.left;
             rightNeighbour = neighbours.right;
-            
-            // Add the clip for the left and right neighbours that ensures they stay below the item being dragged.
-            leftNeighbour.select(".carouselClipRect")
-                .attr("d", function(d) { return generate_dragged_clip_path(leftNeighbour, draggedItem); });
-            rightNeighbour.select(".carouselClipRect")
-                .attr("d", function(d) { return generate_dragged_clip_path(rightNeighbour, draggedItem); });
         }
 
         function drag_update(d)
@@ -281,16 +279,6 @@ function draggableItemCarousel(items)
             d.transX = positionAlongPath.x;
             draggedItem
                 .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });
-
-            // Update the positions of the item clip paths.
-            items.selectAll(".carouselClipRect")
-                .attr("d", function(itemD) { return generate_standard_clip_path(itemD); });
-            
-            // Update the position of the neighbours clip paths.
-            leftNeighbour.select(".carouselClipRect")
-                .attr("d", function(d) { return generate_dragged_clip_path(leftNeighbour, draggedItem); });
-            rightNeighbour.select(".carouselClipRect")
-                .attr("d", function(d) { return generate_dragged_clip_path(rightNeighbour, draggedItem); });
 
             // Determine whether to swap any of the items.
             check_item_swap();
@@ -345,9 +333,7 @@ function draggableItemCarousel(items)
                             d.transX = currentPoint.x;
                             d.transY = currentPoint.y - (d.height / 2);
                             d3.select(this)
-                                .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; })  // Update the item's position.
-                                .select(".carouselClipRect")
-                                    .attr("d", function(d) { return generate_standard_clip_path(d); });  // Update the clip path.
+                                .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });  // Update the item's position.
                         });
 
                 // Determine whether to swap any of the items. Only bother checking if dragging is occurring.
@@ -375,9 +361,7 @@ function draggableItemCarousel(items)
                         d.transX = currentPoint.x;
                         d.transY = currentPoint.y - (d.height / 2);
                         d3.select(this)
-                            .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; })  // Update the item's position.
-                            .select(".carouselClipRect")
-                                .attr("d", function(d) { return generate_standard_clip_path(d); });  // Update the clip path.
+                            .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });  // Update the item's position.
                     });
 
             // Determine whether to swap any of the items. Only bother checking if dragging is occurring.
@@ -557,38 +541,33 @@ function draggableItemCarousel(items)
             return neighbours;
         }
 
-        function generate_standard_clip_path(d)
+        function generate_clip_paths()
         {
-            // Generate a path that can be used to clip the particular item to the carousel.
-            // d is the data of the item that is having its clip path generated.
+            // Generate the clip paths for all items.
             
-            return "M" + -d.transX + "," + -d.transY +
-                   "h" + width +
-                   "v" + height +
-                   "h" + -width +
-                   "v" + -height;
-        }
-        
-        function generate_dragged_clip_path(item, neighbour)
-        {
-            // Generate a path that can be used to clip an item to the carousel and to the outline of another specified item.
-            
-            // Generate the basic clipping path to ensure that only the portion of the item inside the carousel is visible.
-            var itemData = item.datum();
-            var clippingPath =
-                   "M" + -itemData.transX + "," + -itemData.transY +
-                   "h" + width +
-                   "v" + height +
-                   "h" + -width +
-                   "v" + -height;
-            
-            // Add the path to clip out the neighbour item.
-            var neighbourData = neighbour.datum();
-            var xOffset = neighbourData.transX - itemData.transX;
-            var yOffset = neighbourData.transY - itemData.transY;
-            clippingPath += ("M" + xOffset + "," + yOffset + neighbour.select(".itemOutline").attr("d"));
-            
-            return clippingPath;
+            items.each(function(d)
+                {
+                    // Generate the basic clipping path to ensure that only the portion of the item inside the carousel is visible.
+                    var clippingPath =
+                           "M" + -d.transX + "," + -d.transY +
+                           "h" + width +
+                           "v" + height +
+                           "h" + -width +
+                           "v" + -height;
+                    
+                    // Add each item that the current item is meant to be below to the clip path.
+                    var itemsAboveKeys = itemsOverlappedBy[d.key];
+                    var itemsAbove = items.filter(function(itemD) { return itemsAboveKeys.indexOf(itemD.key) !== -1; });
+                    itemsAbove.each(function(itemD)
+                        {
+                            var xOffset = itemD.transX - d.transX;
+                            var yOffset = itemD.transY - d.transY;
+                            clippingPath += ("M" + xOffset + "," + yOffset + neighbour.select(".itemOutline").attr("d"));
+                        });
+                    
+                    d3.select(this).select(".carouselClipRect")
+                        .attr("d", clippingPath);
+                });
         }
         
         function reposition_items(offset)
@@ -687,9 +666,7 @@ function draggableItemCarousel(items)
                                 d.transX = currentPoint.x;  // Determine position of the item at this point in the transition.
                                 d.transY = currentPoint.y - (d.height / 2);  // Determine position of the item at this point in the transition.
                                 d3.select(this)
-                                    .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; })  // Update the item's position.
-                                    .select(".carouselClipRect")
-                                        .attr("d", function(d) { return generate_standard_clip_path(d); });  // Update the clip path.
+                                    .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });  // Update the item's position.
                             }
                     });
         }
@@ -755,9 +732,7 @@ function draggableItemCarousel(items)
                                 d.transX = currentPoint.x;  // Determine position of the item at this point in the transition.
                                 d.transY = currentPoint.y - (d.height / 2);  // Determine position of the item at this point in the transition.
                                 d3.select(this)
-                                    .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; })  // Update the item's position.
-                                    .select(".carouselClipRect")
-                                        .attr("d", function(d) { return generate_standard_clip_path(d); });  // Update the clip path.
+                                    .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });  // Update the item's position.
                             }
                     });
         }
@@ -785,9 +760,7 @@ function draggableItemCarousel(items)
                                 d.transX = currentPoint.x;  // Determine position of the item at this point in the transition.
                                 d.transY = currentPoint.y - (d.height / 2);  // Determine position of the item at this point in the transition.
                                 d3.select(this)
-                                    .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; })  // Update the item's position.
-                                    .select(".carouselClipRect")
-                                        .attr("d", function(d) { return generate_standard_clip_path(d); });  // Update the clip path.
+                                    .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });  // Update the item's position.
                             }
                     });
         }
