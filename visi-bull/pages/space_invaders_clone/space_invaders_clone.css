@@ -20,3 +20,6 @@ svg .player {fill: white;}  /* Styling for the player. */
 svg .retry {fill: white;}  /* The retry button. */
 svg .retryText {alignment-baseline: middle; font-weight: bold; pointer-events: none; text-anchor: middle;}  /* Style for the retry text. */
 svg .sadFace {fill: skyblue;}  /* Styling for the sad face. */
+svg .splash {alignment-baseline: middle; fill: white; text-anchor: middle;}  /* Style for the splash screen text. */
+svg .start {fill: white;}  /* The start button. */
+svg .startText {alignment-baseline: middle; font-weight: bold; pointer-events: none; text-anchor: middle;}  /* Style for the start button text. */

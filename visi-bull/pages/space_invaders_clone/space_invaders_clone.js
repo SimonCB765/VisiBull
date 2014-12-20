@@ -45,8 +45,62 @@ pillGradient.append("stop")
     .style("stop-color", "white")
     .style("stop-opacity", 1);
 
-// Initialise the game.
-initialise_game();
+// Display the starting splash screen.
+var startButtonHeight = 50;
+var startButtonWidth = 100;
+var instructionsTop = svg.append("text")
+    .text("Mouse to move and fire.")
+    .classed("splash", true)
+    .attr("x", svgWidth / 2)
+    .attr("y", svgHeight / 4)
+    .style("font-size", "0px");
+var instructionsBottom = svg.append("text")
+    .text("Press start to begin.")
+    .classed("splash", true)
+    .attr("x", svgWidth / 2)
+    .attr("y", svgHeight * 2 / 4)
+    .style("font-size", "0px");
+var startG = svg.append("g")
+    .attr("transform", "translate(" + ((svgWidth / 2) - (startButtonWidth / 2)) + ", " + (svgHeight * 2 / 3) + ")");
+var startButton = startG.append("rect")
+    .classed("start", true)
+    .attr("x", startButtonWidth / 2)
+    .attr("y", startButtonHeight / 2)
+    .attr("width", 0)
+    .attr("height", 0);
+var startText = startG.append("text")
+    .text("Start")
+    .classed("startText", true)
+    .attr("x", startButtonWidth / 2)
+    .attr("y", startButtonHeight / 2)
+    .style("font-size", "0px");
+instructionsTop
+    .transition()
+    .duration(1000)
+    .style("font-size", "40px")
+    .each(function()
+        {
+            instructionsBottom
+                .transition()
+                .style("font-size", "40px")
+        })
+    .each(function()
+        {
+            startButton
+                .transition()
+                .attr("x", 0)
+                .attr("y", 0)
+                .attr("width", startButtonWidth)
+                .attr("height", startButtonHeight);
+        })
+    .each(function()
+        {
+            startText
+                .transition()
+                .style("font-size", "30px");
+        });
+startButton
+    .on("click", function() { instructionsTop.remove(); instructionsBottom.remove(); startG.remove(); initialise_game(); })
 
 function initialise_game()
 {
