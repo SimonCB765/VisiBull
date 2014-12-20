@@ -9,11 +9,12 @@ $(document).ready(function()
     indiv_variable_item_drag("Indiv-Var-Non-Inf", false);
 });
 
+// Define the colors used for the demos.
+var COLORCODES = ["#00FF00", "#FFAF1A", "#FF008C", "#AE2DE3", "#00FF7B", "#00FFFF", "#FFFF00", "#FF0000", "#FFA07A"];
+
 // Define the style for the items.
-var fillColor = "black";
 var strokeType = "none";
-var numberFill = "white";
-var numberFont = "70px";
+var numberFill = "black";
 var numberFontWeight = "bold";
 var numberStroke = "none";
 
@@ -50,7 +51,7 @@ function indiv_drag(svgID, isInf)
     items.append("rect")
         .attr("width", function(d) { return d.width; })
         .attr("height", function(d) { return d.height; })
-        .style("fill", fillColor)
+        .style("fill", function(d, i) { return COLORCODES[i]; })
         .style("stroke", strokeType);
     items.append("text")
         .attr("x", function(d) { return d.width / 2; })
@@ -58,7 +59,7 @@ function indiv_drag(svgID, isInf)
         .attr("dy", ".35em")
         .style("text-anchor", "middle")
         .style("fill", numberFill)
-        .style("font-size", numberFont)
+        .style("font-size", 70)
         .style("font-weight", numberFontWeight)
         .style("stroke", numberStroke)
         .text(function(d) { return d.key; });
@@ -108,7 +109,7 @@ function indiv_variable_item_drag(svgID, isInf)
     item.append("rect")
         .attr("width", function(d) { return d.width; })
         .attr("height", function(d) { return d.height; })
-        .style("fill", fillColor)
+        .style("fill", function(d) { return COLORCODES[d.key]; })
         .style("stroke", strokeType);
     item = svg.append("g")
         .datum({"height": 80, "key": 1, "rootID": svgID, "transX": 0, "transY": 0, "width": 80})
@@ -118,7 +119,7 @@ function indiv_variable_item_drag(svgID, isInf)
         .attr("r", 40)
         .attr("cx", 40)
         .attr("cy", 40)
-        .style("fill", fillColor)
+        .style("fill", function(d) { return COLORCODES[d.key]; })
         .style("stroke", strokeType);
     item = svg.append("g")
         .datum({"height": 90, "key": 2, "rootID": svgID, "transX": 0, "transY": 0, "width": 90})
@@ -126,7 +127,7 @@ function indiv_variable_item_drag(svgID, isInf)
         .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
     item.append("path")
         .attr("d", "M0,45L45,90L90,45L45,0Z")
-        .style("fill", fillColor)
+        .style("fill", function(d) { return COLORCODES[d.key]; })
         .style("stroke", strokeType);
     item = svg.append("g")
         .datum({"height": 40, "key": 3, "rootID": svgID, "transX": 0, "transY": 0, "width": 80})
@@ -137,7 +138,7 @@ function indiv_variable_item_drag(svgID, isInf)
         .attr("ry", 20)
         .attr("cx", 40)
         .attr("cy", 20)
-        .style("fill", fillColor)
+        .style("fill", function(d) { return COLORCODES[d.key]; })
         .style("stroke", strokeType);
     item = svg.append("g")
         .datum({"height": 80, "key": 4, "rootID": svgID, "transX": 0, "transY": 0, "width": 40})
@@ -148,7 +149,7 @@ function indiv_variable_item_drag(svgID, isInf)
         .attr("ry", 40)
         .attr("cx", 20)
         .attr("cy", 40)
-        .style("fill", fillColor)
+        .style("fill", function(d) { return COLORCODES[d.key]; })
         .style("stroke", strokeType);
     item = svg.append("g")
         .datum({"height": 50, "key": 5, "rootID": svgID, "transX": 0, "transY": 0, "width": 100})
@@ -157,7 +158,7 @@ function indiv_variable_item_drag(svgID, isInf)
     item.append("rect")
         .attr("width", function(d) { return d.width; })
         .attr("height", function(d) { return d.height; })
-        .style("fill", fillColor)
+        .style("fill", function(d) { return COLORCODES[d.key]; })
         .style("stroke", strokeType);
     item = svg.append("g")
         .datum({"height": 80, "key": 6, "rootID": svgID, "transX": 0, "transY": 0, "width": 80})
@@ -165,7 +166,7 @@ function indiv_variable_item_drag(svgID, isInf)
         .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
     item.append("path")
         .attr("d", "M0,0L40,80L80,0Z")
-        .style("fill", fillColor)
+        .style("fill", function(d) { return COLORCODES[d.key]; })
         .style("stroke", strokeType);
 
     // Create the carousel.
@@ -176,7 +177,7 @@ function indiv_variable_item_drag(svgID, isInf)
         .attr("dy", ".35em")
         .style("text-anchor", "middle")
         .style("fill", numberFill)
-        .style("font-size", 20)
+        .style("font-size", 40)
         .style("font-weight", numberFontWeight)
         .style("stroke", numberStroke)
         .text(function(d) { return d.key; });
