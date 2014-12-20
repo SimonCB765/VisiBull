@@ -51,8 +51,6 @@ function indiv_drag(svgID, isInf)
     items.append("path")
         .classed("itemOutline", true)
         .attr("d", function(d) { return "m0,0h" + d.width + "v" + d.height + "h" + -d.width + "v" + -d.height })
-        //.attr("width", function(d) { return d.width; })
-        //.attr("height", function(d) { return d.height; })
         .style("fill", function(d, i) { return COLORCODES[i]; })
         .style("stroke", strokeType);
     items.append("text")
