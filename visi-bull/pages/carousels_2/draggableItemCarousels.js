@@ -112,12 +112,9 @@ function draggableItemCarousel(items)
         items.append("clipPath")
             .classed("carouselClip", true)
             .attr("id", function(d) { return d.rootID + "clip-" + d.key; })
-            .append("rect")
+            .append("path")
                 .classed("carouselClipRect", true)
-                .attr("x", function(d) { return -d.transX; })
-                .attr("y", function(d) { return -d.transY; })
-                .attr("width", width)
-                .attr("height", height);
+                .attr("d", function(d) { return generate_standard_clip_path(d); });
         items.attr("clip-path", function(d) { return "url(#" + (d.rootID + "clip-" + d.key) + ")"; });
 
         // Add drag behaviour.
@@ -222,7 +219,7 @@ function draggableItemCarousel(items)
                                 d3.select(this)
                                     .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; })  // Update the item's position.
                                     .select(".carouselClipRect")
-                                        .attr("x", function(d) { return -d.transX; });  // Update the clip path.
+                                        .attr("d", function(d) { return generate_standard_clip_path(d); });  // Update the clip path.
                             }
                     });
 
@@ -263,6 +260,8 @@ function draggableItemCarousel(items)
             var neighbours = determine_neighbours(d.key);
             leftNeighbour = neighbours.left;
             rightNeighbour = neighbours.right;
+            
+            // Add the clip for the left and right neighbours that ensures they stay below the item being dragged.
         }
 
         function drag_update(d)
@@ -281,7 +280,9 @@ function draggableItemCarousel(items)
 
             // Update the positions of the item clip paths.
             items.selectAll(".carouselClipRect")
-                .attr("x", function(d) { return -d.transX; });
+                .attr("d", function(itemD) { return generate_standard_clip_path(itemD); });
+            
+            // Update the position of the neighbours clip paths.
 
             // Determine whether to swap any of the items.
             check_item_swap();
@@ -338,7 +339,7 @@ function draggableItemCarousel(items)
                             d3.select(this)
                                 .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; })  // Update the item's position.
                                 .select(".carouselClipRect")
-                                    .attr("x", function(d) { return -d.transX; });  // Update the clip path.
+                                    .attr("d", function(d) { return generate_standard_clip_path(d); });  // Update the clip path.
                         });
 
                 // Determine whether to swap any of the items. Only bother checking if dragging is occurring.
@@ -368,7 +369,7 @@ function draggableItemCarousel(items)
                         d3.select(this)
                             .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; })  // Update the item's position.
                             .select(".carouselClipRect")
-                                .attr("x", function(d) { return -d.transX; });  // Update the clip path.
+                                .attr("d", function(d) { return generate_standard_clip_path(d); });  // Update the clip path.
                     });
 
             // Determine whether to swap any of the items. Only bother checking if dragging is occurring.
@@ -548,6 +549,15 @@ function draggableItemCarousel(items)
             return neighbours;
         }
 
+        function generate_standard_clip_path(d)
+        {
+            return "M" + -d.transX + "," + -d.transY +
+                   "h" + width +
+                   "v" + height +
+                   "h" + -width +
+                   "v" + -height;
+        }
+        
         function reposition_items(offset)
         {
 
@@ -646,7 +656,7 @@ function draggableItemCarousel(items)
                                 d3.select(this)
                                     .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; })  // Update the item's position.
                                     .select(".carouselClipRect")
-                                        .attr("x", function(d) { return -d.transX; });  // Update the clip path.
+                                        .attr("d", function(d) { return generate_standard_clip_path(d); });  // Update the clip path.
                             }
                     });
         }
@@ -714,7 +724,7 @@ function draggableItemCarousel(items)
                                 d3.select(this)
                                     .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; })  // Update the item's position.
                                     .select(".carouselClipRect")
-                                        .attr("x", function(d) { return -d.transX; });  // Update the clip path.
+                                        .attr("d", function(d) { return generate_standard_clip_path(d); });  // Update the clip path.
                             }
                     });
         }
@@ -744,7 +754,7 @@ function draggableItemCarousel(items)
                                 d3.select(this)
                                     .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; })  // Update the item's position.
                                     .select(".carouselClipRect")
-                                        .attr("x", function(d) { return -d.transX; });  // Update the clip path.
+                                        .attr("d", function(d) { return generate_standard_clip_path(d); });  // Update the clip path.
                             }
                     });
         }
