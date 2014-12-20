@@ -72,6 +72,8 @@ balls.call(ballDrag);
 
 function ball_drag_end(d)
 {
+    // Handler for drag end events on the balls.
+
     d3.event.sourceEvent.stopPropagation(); // Silence any other listeners.
 
     var currentBall = d3.select(this);
@@ -133,6 +135,8 @@ function ball_drag_end(d)
 
 function ball_drag_start()
 {
+    // Handler for drag start events on the balls.
+
     d3.event.sourceEvent.stopPropagation(); // Silence any other listeners.
     d3.select(this).classed("anim", false);  // Turn off animation for the ball.
     dragBuffer = [];  // Initialise the drag buffer.
@@ -140,6 +144,8 @@ function ball_drag_start()
 
 function ball_drag_update(d)
 {
+    // Handler for drag events on the balls.
+
     d3.event.sourceEvent.stopPropagation(); // Silence any other listeners.
 
     // Current position of the ball relative to its container.
@@ -158,6 +164,8 @@ function ball_drag_update(d)
 
 function create_bucket()
 {
+    // Create the bucket to contain the clicked on balls.
+
     // Determine the gap between ball centers when they're stacked in the bucket.
     var ballCenterGap = Math.min((bucketHeight / numberOfBalls), 2 * ballRadius);
 
@@ -179,6 +187,8 @@ function create_bucket()
 
 function create_slider()
 {
+    // Create the ball speed slider.
+
     // Create the g element for holding the speed slider.
     var speedSliderBox = svg.append("g")
         .classed("sliderBox", true)
@@ -226,6 +236,8 @@ function create_slider()
 
 function fire_ball()
 {
+    // Shoot a ball from the tip of the mouse, provided that their is a ball already in the bucket.
+
     if (clickedBallBucket.inBucket.length > 0)
     {
         // If there is a ball in the bucket.
@@ -254,7 +266,8 @@ function initiliase_balls()
 {
     // Generate the initial position, color and direction of all balls. Balls are not allowed to overlap initially. This is ensured
     // by checking the distance between the proposed location of a new ball's center, and the center of all balls that already
-    // have their initial position determined.
+    // have their initial position fixed.
+
     var ballData = [];
     for (var i = 0; i < numberOfBalls; i++)
     {
@@ -296,6 +309,8 @@ function initiliase_balls()
 
 function slider_drag_update(d)
 {
+    // Handler for drag events on the slider.
+
     var sliderPos = d3.event.x;  // Current position of the slider handle relative to its container.
 
     // Update the slider handle position.

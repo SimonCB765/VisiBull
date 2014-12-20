@@ -2,7 +2,7 @@ var tileSideLength = 30;  // The length of each side of the tiling squares. Must
 var svgWidth = 900;  // The width of the SVG element.
 var svgHeight = 450;  // The height of the SVG element.
 
-// Create the SVG g element.
+// Create the SVG element.
 var svg = d3.select(".content")
     .append("svg")
     .attr("width", svgWidth)
@@ -90,7 +90,8 @@ function initialise_game()
 
     function snake_direction()
     {
-        // Determine the direction of the snake.
+        // Determine the direction the snake should face at the next time point.
+
         switch (lastKeyPress)
         {
             case 37:  // Left arrow key.
@@ -251,6 +252,7 @@ function place_food()
 {
     // Place a piece of food in a random valid square. A valid square is one that does not contain the snake or a piece of food already,
     // and is not off the visible grid.
+
     var foodIndex = validFoodIndices[Math.floor(Math.random() * validFoodIndices.length)];  // The index where the food will be added.
     validFoodIndices.splice(validFoodIndices.indexOf(foodIndex), 1);  // No longer a valid index for food.
     var foodSquare = document.querySelector("[data-index='" + foodIndex + "']");  // Grab the element with the selected index.

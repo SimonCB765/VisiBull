@@ -715,7 +715,7 @@ function distribute_labels(labels, spaceToFill, sizeOfChoice)
 {
     // Determines the correct row/column for each label if you are trying to evenly distribute the labels between rows/columns.
     // labels is an array of the labels themselves.
-    // spaceToFill is the space (horizontal or vertical) that is permissible for one row/column of choices.
+    // spaceToFill is the distance (horizontal or vertical) that is permissible for one row/column of choices to take up.
     // sizeOfChoice is the width/height of each choice when distributing horizontally/vertically.
 
     // Determine max number of rows/columns needed.

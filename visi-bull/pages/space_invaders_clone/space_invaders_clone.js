@@ -164,6 +164,10 @@ function initialise_game()
     function check_face_collision(sadFaces, pill, pillHeight, pillWidth)
     {
         // Check whether the pill hit a face.
+        // sadFaces is a D3 selection of the shootable faces.
+        // pill is a D3 selection of the pill shot by the player.
+        // pillHeight is the height of the pill.
+        // pillWidth is the width of the pill.
 
         // Determine the position of the pill.
         var pillPosition = pill.datum();

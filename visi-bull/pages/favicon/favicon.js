@@ -66,8 +66,11 @@ $(document).ready(function()
         .attr("x", svgWidth)
         .attr("y", svgHeight);
 
-    function create_outline(svg)
+    function create_outline(ele)
     {
+        // Create the outline of the bull.
+        // ele is the element to which the path will be added.
+
         var path =
             "M0,49" +
             "C20,45,17,10,114,29" +
@@ -84,7 +87,7 @@ $(document).ready(function()
             "C99,133" + ",107,145" + ",99,160"
             //+ "L0,160" + "Z"  // Used to close off the bull outline if you want a filled in one.
             ;
-        svg.append("path")
+        ele.append("path")
             .classed("bull", true)
             .attr("d", path);
     }

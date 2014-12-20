@@ -243,6 +243,7 @@ function reset_game()
 function move_ball()
 {
     // Determine the current position of the ball and the paddles.
+
     var ballPos = ball.datum();
     var playerPos = playerPaddle.datum();
     var aiPos = aiPaddle.datum();
