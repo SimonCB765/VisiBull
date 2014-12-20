@@ -48,9 +48,11 @@ function indiv_drag(svgID, isInf)
         .append("g")
             .classed("item", true)
             .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
-    items.append("rect")
-        .attr("width", function(d) { return d.width; })
-        .attr("height", function(d) { return d.height; })
+    items.append("path")
+        .classed("itemOutline", true)
+        .attr("d", function(d) { return "m0,0h" + d.width + "v" + d.height + "h" + -d.width + "v" + -d.height })
+        //.attr("width", function(d) { return d.width; })
+        //.attr("height", function(d) { return d.height; })
         .style("fill", function(d, i) { return COLORCODES[i]; })
         .style("stroke", strokeType);
     items.append("text")
@@ -75,7 +77,6 @@ function indiv_drag(svgID, isInf)
             .yLoc(0)
             .isInfinite(true)
             .horizontalPadding(20)
-            .dotContainerHeight(30)
             .navArrowWidth(40)
             .navArrowHeight(40);
     }
@@ -87,7 +88,6 @@ function indiv_drag(svgID, isInf)
             .xLoc(15)
             .yLoc(0)
             .horizontalPadding(20)
-            .dotContainerHeight(30)
             .navArrowWidth(40)
             .navArrowHeight(40);
     }
@@ -191,7 +191,6 @@ function indiv_variable_item_drag(svgID, isInf)
             .yLoc(0)
             .isInfinite(true)
             .horizontalPadding(20)
-            .dotContainerHeight(30)
             .navArrowWidth(40)
             .navArrowHeight(40);
     }
@@ -203,7 +202,6 @@ function indiv_variable_item_drag(svgID, isInf)
             .xLoc(20)
             .yLoc(0)
             .horizontalPadding(20)
-            .dotContainerHeight(30)
             .navArrowWidth(40)
             .navArrowHeight(40);
     }

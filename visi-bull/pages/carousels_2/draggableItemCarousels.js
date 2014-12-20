@@ -13,7 +13,6 @@ function draggableItemCarousel(items)
                                // Shorter items may appear to have more space around them than the value of verticalPadding says they should. This is
                                // because shorter items will be centered in the carousel, and will therefore have extra space above and below them.
         isArrows = true,  // Whether to display arrows at the sides of the carousel that scroll the carousel when clicked.
-        dotContainerHeight = 30,  // The height of the g element containing the navigation dots. Should be at least twice the dotRadius.
         navArrowWidth = null,  // The width of the navigation arrow.
         navArrowHeight = null,  // The height of the navigation arrow.
         scrollSpeed = 5,  // The time (in ms) taken for the carousel to scroll one unit. A lower number is faster.
@@ -114,6 +113,7 @@ function draggableItemCarousel(items)
             .attr("id", function(d) { return d.rootID + "clip-" + d.key; })
             .append("path")
                 .classed("carouselClipRect", true)
+                .attr("clip-rule", "evenodd")
                 .attr("d", function(d) { return generate_standard_clip_path(d); });
         items.attr("clip-path", function(d) { return "url(#" + (d.rootID + "clip-" + d.key) + ")"; });
 
@@ -128,7 +128,7 @@ function draggableItemCarousel(items)
         if (isArrows)
         {
             // Determine whether default values are needed for the navigation arrow width and height.
-            if (navArrowHeight === null) navArrowHeight = (height - (isDots ? dotContainerHeight : 0)) / 2;
+            if (navArrowHeight === null) navArrowHeight = height / 2;
             if (navArrowWidth === null) navArrowWidth = navArrowHeight;
 
             var navArrowOffset = 10;  // The offset of each navigation arrow from its respective edge of the carousel.
@@ -262,6 +262,10 @@ function draggableItemCarousel(items)
             rightNeighbour = neighbours.right;
             
             // Add the clip for the left and right neighbours that ensures they stay below the item being dragged.
+            leftNeighbour.select(".carouselClipRect")
+                .attr("d", function(d) { return generate_dragged_clip_path(leftNeighbour, draggedItem); });
+            rightNeighbour.select(".carouselClipRect")
+                .attr("d", function(d) { return generate_dragged_clip_path(rightNeighbour, draggedItem); });
         }
 
         function drag_update(d)
@@ -283,6 +287,10 @@ function draggableItemCarousel(items)
                 .attr("d", function(itemD) { return generate_standard_clip_path(itemD); });
             
             // Update the position of the neighbours clip paths.
+            leftNeighbour.select(".carouselClipRect")
+                .attr("d", function(d) { return generate_dragged_clip_path(leftNeighbour, draggedItem); });
+            rightNeighbour.select(".carouselClipRect")
+                .attr("d", function(d) { return generate_dragged_clip_path(rightNeighbour, draggedItem); });
 
             // Determine whether to swap any of the items.
             check_item_swap();
@@ -551,11 +559,36 @@ function draggableItemCarousel(items)
 
         function generate_standard_clip_path(d)
         {
+            // Generate a path that can be used to clip the particular item to the carousel.
+            // d is the data of the item that is having its clip path generated.
+            
             return "M" + -d.transX + "," + -d.transY +
                    "h" + width +
                    "v" + height +
                    "h" + -width +
                    "v" + -height;
+        }
+        
+        function generate_dragged_clip_path(item, neighbour)
+        {
+            // Generate a path that can be used to clip an item to the carousel and to the outline of another specified item.
+            
+            // Generate the basic clipping path to ensure that only the portion of the item inside the carousel is visible.
+            var itemData = item.datum();
+            var clippingPath =
+                   "M" + -itemData.transX + "," + -itemData.transY +
+                   "h" + width +
+                   "v" + height +
+                   "h" + -width +
+                   "v" + -height;
+            
+            // Add the path to clip out the neighbour item.
+            var neighbourData = neighbour.datum();
+            var xOffset = neighbourData.transX - itemData.transX;
+            var yOffset = neighbourData.transY - itemData.transY;
+            clippingPath += ("M" + xOffset + "," + yOffset + neighbour.select(".itemOutline").attr("d"));
+            
+            return clippingPath;
         }
         
         function reposition_items(offset)
@@ -816,14 +849,6 @@ function draggableItemCarousel(items)
     {
         if (!arguments.length) return isArrows;
         isArrows = _;
-        return carousel;
-    }
-
-    // Navigation dot container height.
-    carousel.dotContainerHeight = function(_)
-    {
-        if (!arguments.length) return dotContainerHeight;
-        dotContainerHeight = _;
         return carousel;
     }
 
