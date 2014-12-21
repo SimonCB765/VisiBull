@@ -117,7 +117,7 @@ function draggableItemCarousel(items)
             .classed("carouselClip", true)
             .attr("id", function(d) { return d.rootID + "clip-" + d.key; })
             .append("path")
-                .classed("carouselClipRect", true)
+                .classed("carouselClipPath", true)
                 .attr("clip-rule", "evenodd")
                 .attr("d", "");
         generate_clip_paths();
@@ -589,7 +589,7 @@ function draggableItemCarousel(items)
                             clippingPath += ("M" + xOffset + "," + yOffset + d3.select(this).select(".itemOutline").attr("d"));
                         });
 
-                    d3.select(this).select(".carouselClipRect")
+                    d3.select(this).select(".carouselClipPath")
                         .attr("d", clippingPath);
                 });
         }
