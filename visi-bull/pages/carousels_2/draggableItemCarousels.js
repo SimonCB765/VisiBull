@@ -204,21 +204,25 @@ function draggableItemCarousel(items)
                 .on("mouseover", function() { d3.select(this).classed("highlight", true); })
                 .on("mouseout", function() { d3.select(this).classed("highlight", false); })
 
-            // Transition items to their resting places.
+            // Transition dragged item to its resting place.
             clearInterval(scrollIntervalTimer);
             scrollIntervalTimer = null;
             draggedItem
                 .transition()
                 .duration(200)
-                .ease("linear")
+                .ease("cubic-out")
                 .tween("transform", function(d)
                     {
-                        var interpolator = d3.interpolate(d.distAlongPath, d.resting);
+                        var interpolator = d3.interpolate(0, d.resting - d.distAlongPath);
+                        var lastInterpVal = 0;  // The last value that came out of the interpolater.
+                        var currentInterpVal;  // The current value of the interpolater.
 
                         return function(t)
                             {
-                                d.distAlongPath = interpolator(t);
-                                currentPoint = pathToScrollAlong.node().getPointAtLength(Math.max(0, Math.min(d.distAlongPath, scrollPathLength)));
+                                currentInterpVal = interpolator(t);
+                                d.distAlongPath += (currentInterpVal - lastInterpVal);
+                                lastInterpVal = currentInterpVal;
+                                currentPoint = pathToScrollAlong.node().getPointAtLength(d.distAlongPath);
                                 d.transX = currentPoint.x;  // Determine position of the item at this point in the transition.
                                 d.transY = currentPoint.y - (d.height / 2);  // Determine position of the item at this point in the transition.
                                 d3.select(this)
@@ -765,8 +769,8 @@ function draggableItemCarousel(items)
 
             itemToSwap
                 .transition()
-                .duration(300)
-                .ease("linear")
+                .duration(200)
+                .ease("cubic-out")
                 .tween("transform", function(d)
                     {
                         var interpolator = d3.interpolate(0, d.resting - d.distAlongPath);
