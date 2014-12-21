@@ -277,17 +277,12 @@ function draggableItemCarousel(items)
             leftNeighbour = neighbours.left;
             rightNeighbour = neighbours.right;
 
-            // Record that the dragged item should now overlap its left and right neighbours, and that the left and right neighbours should not
-            // overlap the dragged item.
-            var leftNeighbourData = leftNeighbour.datum();
-            if (itemsOverlappedBy[leftNeighbourData.key].indexOf(d.key) === -1) itemsOverlappedBy[leftNeighbourData.key].push(d.key);
-            var rightNeighbourData = rightNeighbour.datum();
-            if (itemsOverlappedBy[rightNeighbourData.key].indexOf(d.key) === -1) itemsOverlappedBy[rightNeighbourData.key].push(d.key);
-
-            var indexOfLeftInD = itemsOverlappedBy[d.key].indexOf(leftNeighbourData.key);
-            var indexOfRightInD = itemsOverlappedBy[d.key].indexOf(rightNeighbourData.key);
-            if (indexOfLeftInD !== -1) itemsOverlappedBy[d.key].splice(indexOfLeftInD, 1);
-            if (indexOfRightInD !== -1) itemsOverlappedBy[d.key].splice(indexOfRightInD, 1);
+            // Record that the dragged item should now overlap all items, and should be overlapped by none.
+            items.each(function(itemD)
+                {
+                    if (itemsOverlappedBy[itemD.key].indexOf(d.key) === -1) itemsOverlappedBy[itemD.key].push(d.key);
+                });
+            itemsOverlappedBy[d.key] = [];
         }
 
         function drag_update(d)
