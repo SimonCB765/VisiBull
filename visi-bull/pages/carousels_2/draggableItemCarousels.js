@@ -194,7 +194,6 @@ function draggableItemCarousel(items)
         /*************************************
         * Individual Item Dragging Functions *
         *************************************/
-        var itemDragStartX;  // The X coordinate of the point on the item where the drag started.
         var draggedItem = null;  // The item that is being dragged.
         var leftNeighbour = null;  // The item to the left of the one being dragged.
         var rightNeighbour = null;  // The item to the right of the one being dragged.
@@ -268,9 +267,6 @@ function draggableItemCarousel(items)
             navigationArrows = carousel.selectAll(".navArrow")
                 .on("mouseup", null)
                 .on("mouseleave", null);
-
-            // Record information about the starting conditions of the drag.
-            itemDragStartX = draggedItem[0];
 
             // Determine the left and right neighbours of the item being dragged.
             var neighbours = determine_neighbours(d.key);
