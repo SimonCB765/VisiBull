@@ -300,25 +300,24 @@ function standardCarousel(items)
             var closestSetIndex = 0;
             for (var i = 0; i < visibleItemSets.length; i++)
             {
+                var distanceToSet;
                 var leftmostItem = items.filter(function(d) { return d.key === visibleItemSets[i][0]; });
-                var leftmostDist;
-                if (isInfinite)
+                if (isCentered)
                 {
-                    // Can either go left or right along the path in order to get to a desired point. Therefore, use the distance in the direction
-                    // with the shorter distance.
-                    var rawDist;
-                    if (isCentered) rawDist = Math.abs(centerViewDist - leftmostItem.datum().distAlongPath);
-                    else rawDist = Math.abs(leftViewItemStartDist - leftmostItem.datum().distAlongPath);
-                    leftmostDist = Math.min(rawDist, scrollPathLength - rawDist);
+                    var itemsInSet = items.filter(function(d) { return visibleItemSets[i].indexOf(d.key) !== -1; });
+                    var widthOfSet = d3.sum(itemsInSet.data().map(function(itemD) { return itemD.width; })) + (horizontalPadding * (itemsInSet.size() - 1));
+                    var centerOfSet = leftmostItem.datum().distAlongPath + (widthOfSet / 2);
+                    distanceToSet = Math.abs(centerViewDist - centerOfSet);
                 }
                 else
                 {
-                    if (isCentered) leftmostDist = Math.abs(centerViewDist - leftmostItem.datum().distAlongPath);
-                    else leftmostDist = Math.abs(leftViewItemStartDist - leftmostItem.datum().distAlongPath);
+                    distanceToSet = Math.abs(leftViewItemStartDist - leftmostItem.datum().distAlongPath);
                 }
-                if (leftmostDist < currentShortestDistance)
+                if (isInfinite) distanceToSet = Math.min(distanceToSet, scrollPathLength - distanceToSet);
+
+                if (distanceToSet < currentShortestDistance)
                 {
-                    currentShortestDistance = leftmostDist;
+                    currentShortestDistance = distanceToSet;
                     closestSetIndex = i;
                 }
             }
@@ -572,8 +571,7 @@ function standardCarousel(items)
         ********************/
         function transition_items()
         {
-            // Transition the items from their current positions to their resting positions. If there is no transition to be made
-            // (because the items are already at their resting positions), then the behaviour may be erratic.
+            // Transition the items from their current positions to their resting positions.
 
             // Determine whether to scroll left or right.
             var leftItemData = items.data()[0];
