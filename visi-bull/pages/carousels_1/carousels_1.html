@@ -39,6 +39,13 @@
     Parameter options and what they do
 </p>
 <p>
+    Items only need the following entries in their data objects
+                "height": 100,  // Height of the item.
+                "key": i,  // Unique identifier for the item.
+                "rootID": svgID,  // The root of the ID used to refer to the item clip paths.
+                "width": itemWidth  // Width of the item.
+</p>
+<p>
     items get added data field - transX, transY, distAlongPath, resting<br>
     swipe behaviour can be easily added if needed (should work just like dragging)<br>
     items passed in will be moved to be under the carousel, not have whatever they currently have as a parent.<br>

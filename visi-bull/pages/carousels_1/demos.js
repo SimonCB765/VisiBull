@@ -51,8 +51,6 @@ function center_infinite(svgID)
                 "height": 100,  // Height of the item.
                 "key": i,  // Unique identifier for the item.
                 "rootID": svgID,  // The root of the ID used to refer to the item clip paths.
-                "transX": 0,  // Current X position of the item.
-                "transY": 0,  // Current Y position of the item.
                 "width": itemWidth  // Width of the item.
             });
     }
@@ -62,8 +60,7 @@ function center_infinite(svgID)
         .data(itemData)
         .enter()
         .append("g")
-            .classed("item", true)
-            .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+            .classed("item", true);
     items.append("rect")
         .attr("width", function(d) { return d.width; })
         .attr("height", function(d) { return d.height; })
@@ -114,8 +111,6 @@ function center_non_infinite(svgID)
                 "height": 100,  // Height of the item.
                 "key": i,  // Unique identifier for the item.
                 "rootID": svgID,  // The root of the ID used to refer to the item clip paths.
-                "transX": 0,  // Current X position of the item.
-                "transY": 0,  // Current Y position of the item.
                 "width": itemWidth  // Width of the item.
             });
     }
@@ -125,8 +120,7 @@ function center_non_infinite(svgID)
         .data(itemData)
         .enter()
         .append("g")
-            .classed("item", true)
-            .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+            .classed("item", true);
     items.append("rect")
         .attr("width", function(d) { return d.width; })
         .attr("height", function(d) { return d.height; })
@@ -176,8 +170,6 @@ function multi_infinite(svgID)
                 "height": 100,  // Height of the item.
                 "key": i,  // Unique identifier for the item.
                 "rootID": svgID,  // The root of the ID used to refer to the item clip paths.
-                "transX": 0,  // Current X position of the item.
-                "transY": 0,  // Current Y position of the item.
                 "width": itemWidth  // Width of the item.
             });
     }
@@ -187,8 +179,7 @@ function multi_infinite(svgID)
         .data(itemData)
         .enter()
         .append("g")
-            .classed("item", true)
-            .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+            .classed("item", true);
     items.append("rect")
         .attr("width", function(d) { return d.width; })
         .attr("height", function(d) { return d.height; })
@@ -237,8 +228,6 @@ function multi_non_infinite(svgID)
                 "height": 100,  // Height of the item.
                 "key": i,  // Unique identifier for the item.
                 "rootID": svgID,  // The root of the ID used to refer to the item clip paths.
-                "transX": 0,  // Current X position of the item.
-                "transY": 0,  // Current Y position of the item.
                 "width": itemWidth  // Width of the item.
             });
     }
@@ -248,8 +237,7 @@ function multi_non_infinite(svgID)
         .data(itemData)
         .enter()
         .append("g")
-            .classed("item", true)
-            .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+            .classed("item", true);
     items.append("rect")
         .attr("width", function(d) { return d.width; })
         .attr("height", function(d) { return d.height; })
@@ -297,8 +285,6 @@ function single_infinite(svgID)
                 "height": 100,  // Height of the item.
                 "key": i,  // Unique identifier for the item.
                 "rootID": svgID,  // The root of the ID used to refer to the item clip paths.
-                "transX": 0,  // Current X position of the item.
-                "transY": 0,  // Current Y position of the item.
                 "width": itemWidth  // Width of the item.
             });
     }
@@ -308,8 +294,7 @@ function single_infinite(svgID)
         .data(itemData)
         .enter()
         .append("g")
-            .classed("item", true)
-            .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+            .classed("item", true);
     items.append("rect")
         .attr("width", function(d) { return d.width; })
         .attr("height", function(d) { return d.height; })
@@ -358,8 +343,6 @@ function single_non_infinite(svgID)
                 "height": 100,  // Height of the item.
                 "key": i,  // Unique identifier for the item.
                 "rootID": svgID,  // The root of the ID used to refer to the item clip paths.
-                "transX": 0,  // Current X position of the item.
-                "transY": 0,  // Current Y position of the item.
                 "width": itemWidth  // Width of the item.
             });
     }
@@ -369,8 +352,7 @@ function single_non_infinite(svgID)
         .data(itemData)
         .enter()
         .append("g")
-            .classed("item", true)
-            .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+            .classed("item", true);
     items.append("rect")
         .attr("width", function(d) { return d.width; })
         .attr("height", function(d) { return d.height; })
@@ -418,8 +400,6 @@ function var_size(svgID, makeInf, centerIt)
                 "height": 0,  // Height of the item.
                 "key": i,  // Unique identifier for the item.
                 "rootID": svgID,  // The root of the ID used to refer to the item clip paths.
-                "transX": 0,  // Current X position of the item.
-                "transY": 0,  // Current Y position of the item.
                 "width": itemWidth  // Width of the item.
             });
     }
@@ -441,8 +421,7 @@ function var_size(svgID, makeInf, centerIt)
         .data(itemData)
         .enter()
         .append("g")
-            .classed("item", true)
-            .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+            .classed("item", true);
     items.append("rect")
         .attr("width", function(d) { return d.width; })
         .attr("height", function(d) { return d.height; })
@@ -485,18 +464,16 @@ function var_shape(svgID, makeInf, centerIt)
 
     // Setup data used to create the items.
     var item = svg.append("g")
-        .datum({"height": 100, "key": 0, "rootID": svgID, "transX": 0, "transY": 0, "width": 100})
-        .classed("item", true)
-        .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+        .datum({"height": 100, "key": 0, "rootID": svgID, "width": 100})
+        .classed("item", true);
     item.append("rect")
         .attr("width", function(d) { return d.width; })
         .attr("height", function(d) { return d.height; })
         .style("fill", fillColor)
         .style("stroke", strokeType);
     item = svg.append("g")
-        .datum({"height": 80, "key": 1, "rootID": svgID, "transX": 0, "transY": 0, "width": 80})
-        .classed("item", true)
-        .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+        .datum({"height": 80, "key": 1, "rootID": svgID, "width": 80})
+        .classed("item", true);
     item.append("circle")
         .attr("r", 40)
         .attr("cx", 40)
@@ -504,17 +481,15 @@ function var_shape(svgID, makeInf, centerIt)
         .style("fill", fillColor)
         .style("stroke", strokeType);
     item = svg.append("g")
-        .datum({"height": 90, "key": 2, "rootID": svgID, "transX": 0, "transY": 0, "width": 90})
-        .classed("item", true)
-        .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+        .datum({"height": 90, "key": 2, "rootID": svgID, "width": 90})
+        .classed("item", true);
     item.append("path")
         .attr("d", "M0,45L45,90L90,45L45,0Z")
         .style("fill", fillColor)
         .style("stroke", strokeType);
     item = svg.append("g")
-        .datum({"height": 40, "key": 3, "rootID": svgID, "transX": 0, "transY": 0, "width": 80})
-        .classed("item", true)
-        .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+        .datum({"height": 40, "key": 3, "rootID": svgID, "width": 80})
+        .classed("item", true);
     item.append("ellipse")
         .attr("rx", 40)
         .attr("ry", 20)
@@ -523,9 +498,8 @@ function var_shape(svgID, makeInf, centerIt)
         .style("fill", fillColor)
         .style("stroke", strokeType);
     item = svg.append("g")
-        .datum({"height": 80, "key": 4, "rootID": svgID, "transX": 0, "transY": 0, "width": 40})
-        .classed("item", true)
-        .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+        .datum({"height": 80, "key": 4, "rootID": svgID, "width": 40})
+        .classed("item", true);
     item.append("ellipse")
         .attr("rx", 20)
         .attr("ry", 40)
@@ -534,18 +508,16 @@ function var_shape(svgID, makeInf, centerIt)
         .style("fill", fillColor)
         .style("stroke", strokeType);
     item = svg.append("g")
-        .datum({"height": 50, "key": 5, "rootID": svgID, "transX": 0, "transY": 0, "width": 100})
-        .classed("item", true)
-        .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+        .datum({"height": 50, "key": 5, "rootID": svgID, "width": 100})
+        .classed("item", true);
     item.append("rect")
         .attr("width", function(d) { return d.width; })
         .attr("height", function(d) { return d.height; })
         .style("fill", fillColor)
         .style("stroke", strokeType);
     item = svg.append("g")
-        .datum({"height": 80, "key": 6, "rootID": svgID, "transX": 0, "transY": 0, "width": 80})
-        .classed("item", true)
-        .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+        .datum({"height": 80, "key": 6, "rootID": svgID, "width": 80})
+        .classed("item", true);
     item.append("path")
         .attr("d", "M0,0L40,80L80,0Z")
         .style("fill", fillColor)
