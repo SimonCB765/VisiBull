@@ -31,9 +31,10 @@
             path
 </p>
 <p>
-    Each item contains atleast a path that only uses relative movements
-    This path must have the class itemOutline
-    The path serves as the boundary for the item and therefore the clipping boundary for overlapping items
+    Each item must be the same shape (only needed so tat the clipping works properly when items are being dragged and scrolled in).
+    Here they must all be rectangles, with the width and height of the rects defined as width and height in their data object.
+    The rectangles can be defined as <rect> or <path>, either is fine so long as they meet the width and height requirements.
+    It's fairly easy to change the required shape, or to add more in, simply by changing the data object requirements and the clip generating function.
 </p>
 <p>
     Parameter options and what they do
