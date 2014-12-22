@@ -142,7 +142,7 @@ function draggableItemCarousel(items)
             // Create the left navigation arrow.
             // The left arrow is inactive at the start if infinite scrolling is not used.
             var leftNavArrowContainer = carousel.append("g")
-                .classed({"navArrow": true, "left": true})
+                .classed({"navArrow": true, "left": true, "inactive": (isInfinite ? false : true)})
                 .on("mouseover", function() { d3.select(this).classed("highlight", true); })
                 .on("mouseout", function() { d3.select(this).classed("highlight", false); })
                 .attr("transform", "translate(" + navArrowOffset + "," + ((height / 2) - (navArrowHeight / 2)) + ")");
@@ -340,8 +340,16 @@ function draggableItemCarousel(items)
             // Scroll the carousel.
             // itemsToNotScroll is an array of the keys of the items that should not be moved.
 
-            // Determine if scrolling should take place.
-            var isScrollItems = check_scrolling();
+            // Determine number of items left of the carousel's left edge, and right of the carousel's right edge.
+            var countTrue = function(a) { var counter = 0; for (var i = 0; i < a.length; i++) if (a[i]) counter++; return counter; }
+            var leftOfLeft = items.data().map(function(d) { return d.resting < carouselLeftEdge + (horizontalPadding / 2); });
+            var numLeftOfLeft = countTrue(leftOfLeft);
+            var rightOfRight = items.data().map(function(d) { return d.resting > carouselRightEdge - d.width -  (horizontalPadding / 2); });
+            var numRightOfRight = countTrue(rightOfRight);
+
+            // Determine if scrolling should take place. Scrolling should only take place if there are still items to the left of the
+            // carousel's left edge or the right of the carousel's right edge.
+            var isScrollItems = (isShiftRight && (numLeftOfLeft > 0)) || (!isShiftRight && (numRightOfRight > 0));
 
             // Scroll the items if they should be scrolled.
             if (isScrollItems)
@@ -506,24 +514,6 @@ function draggableItemCarousel(items)
                 var neighbours = determine_neighbours(draggedData.key);
                 rightNeighbour = neighbours.right;
             }
-        }
-
-        function check_scrolling()
-        {
-            // Determine whether the items should be scrolled.
-
-            // Determine number of items left of the carousel's left edge, and right of the carousel's right edge.
-            var countTrue = function(a) { var counter = 0; for (var i = 0; i < a.length; i++) if (a[i]) counter++; return counter; }
-            var leftOfLeft = items.data().map(function(d) { return d.resting < carouselLeftEdge + (horizontalPadding / 2); });
-            var numLeftOfLeft = countTrue(leftOfLeft);
-            var rightOfRight = items.data().map(function(d) { return d.resting > carouselRightEdge - d.width -  (horizontalPadding / 2); });
-            var numRightOfRight = countTrue(rightOfRight);
-
-            // Determine if scrolling should take place. Scrolling should only take place if there are still items to the left of the
-            // carousel's left edge or the right of the carousel's right edge.
-            var isScrollItems = (isShiftRight && (numLeftOfLeft > 0)) || (!isShiftRight && (numRightOfRight > 0));
-
-            return isScrollItems;
         }
 
         function determine_neighbours(currentItemKey)
