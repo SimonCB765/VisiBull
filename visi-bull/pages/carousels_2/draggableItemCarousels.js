@@ -306,12 +306,12 @@ function draggableItemCarousel(items)
             generate_clip_paths();
 
             // Determine whether to scroll the carousel.
-            if (d.distAlongPath < carouselLeftEdge)
+            if (positionInCarousel < 0)
             {
                 // If the user is dragging the item to the left, and the item is at the left edge, then start scrolling the items to the right.
                 start_scrollng(true, [d.key]);
             }
-            else if (d.distAlongPath + d.width > carouselRightEdge)
+            else if (positionInCarousel > width)
             {
                 // If the user is dragging the item to the right, and the item is at the right edge, then start scrolling the items to the left.
                 start_scrollng(false, [d.key]);
