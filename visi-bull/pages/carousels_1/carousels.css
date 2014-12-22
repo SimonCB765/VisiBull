@@ -22,7 +22,7 @@ _classes
 /*
 _carousel
 */
-.carousel {cursor: default; fill: #444444; fill-opacity: 1; stroke: none;}  /* Style the carousel. A fill is needed in order to make the carousel catch events nicely. */
+.carousel {cursor: default; fill: #F8F8F8; fill-opacity: 1; stroke: black; stroke-width: 2}  /* Style the carousel. A fill is needed in order to make the carousel catch events nicely. */
 .scrollPath {fill: none; stroke: none;}  /* Style declarations for the path along which the items are scrolled. */
 
 /*
@@ -41,7 +41,7 @@ _carousel_navArrow
 /*
 _carousel_navDot
 */
-.navDotContainer {fill: white; stroke: none;}  /* Style the non-selected navigation dots (i.e. the dots not corresponding to the current visible items). */
+.navDotContainer {fill: black; stroke: none;}  /* Style the non-selected navigation dots (i.e. the dots not corresponding to the current visible items). */
 .navDot:hover {cursor: pointer;}  /* Change the mouse to a pointer when hovering over the navigation dots. */
 .navDot.selected {fill: red;}  /* Style the selected navigation dot (i.e. the dot corresponding to the current visible items). */
 .navDotContainer rect {opacity: 0;}  /* Make the backing rectangle invisible. */

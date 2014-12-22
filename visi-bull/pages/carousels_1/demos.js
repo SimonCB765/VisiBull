@@ -330,7 +330,7 @@ function single_infinite(svgID)
 
     // Create the carousel.
     var carousel = standardCarousel(items)
-        .xLoc(20)
+        .xLoc(15)
         .yLoc(5)
         .isDots(true)
         .itemsToShow(1)
@@ -391,7 +391,7 @@ function single_non_infinite(svgID)
 
     // Create the carousel.
     var carousel = standardCarousel(items)
-        .xLoc(20)
+        .xLoc(15)
         .yLoc(5)
         .isDots(true)
         .itemsToShow(1)
@@ -406,7 +406,7 @@ function var_size(svgID, makeInf, centerIt)
 {
     var svg = d3.select("#" + svgID)
         .attr("width", 450)
-        .attr("height", 150);
+        .attr("height", 160);
 
     // Setup data used to create the items.
     var itemWidth = 0;
@@ -464,8 +464,8 @@ function var_size(svgID, makeInf, centerIt)
     // Create the carousel.
     var carousel = standardCarousel(items)
         .width(420)
-        .xLoc(20)
-        .yLoc(0)
+        .xLoc(15)
+        .yLoc(5)
         .isInfinite(makeInf)
         .isCentered(centerIt)
         .isDots(true)
@@ -559,14 +559,14 @@ function var_shape(svgID, makeInf, centerIt)
         .attr("dy", ".35em")
         .style("text-anchor", "middle")
         .style("fill", numberFill)
-        .style("font-size", 20)
+        .style("font-size", 40)
         .style("font-weight", numberFontWeight)
         .style("stroke", numberStroke)
         .text(function(d) { return d.key; });
     var carousel = standardCarousel(items)
         .width(420)
-        .xLoc(20)
-        .yLoc(0)
+        .xLoc(15)
+        .yLoc(5)
         .isInfinite(makeInf)
         .isCentered(centerIt)
         .isDots(true)
