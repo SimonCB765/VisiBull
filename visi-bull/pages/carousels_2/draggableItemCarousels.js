@@ -240,6 +240,7 @@ function draggableItemCarousel(items)
                                 var indexOfDInItemD = itemsOverlappedBy[itemD.key].indexOf(d.key);
                                 if (indexOfDInItemD !== -1) itemsOverlappedBy[itemD.key].splice(indexOfDInItemD, 1);
                             });
+                        generate_clip_paths();
                     });
 
             // Add back the behaviour of the navigation arrows.
