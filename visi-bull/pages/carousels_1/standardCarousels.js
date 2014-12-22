@@ -52,7 +52,7 @@ function standardCarousel(items)
         }
 
         // Determine the necessary height and width of the carousel. If they're not specified, then they are set dynamically to fit the
-        // items in carousel. The height will be set to the value that accommodates the tallest item, while the width will be set in order to
+        // items in the carousel. The height will be set to the value that accommodates the tallest item, while the width will be set in order to
         // accommodate the itemsToShow widest adjacent items (taking into account width and horizontal padding).
         if (width === null)
         {
@@ -80,8 +80,8 @@ function standardCarousel(items)
         var visibleItemSets = determine_visible_item_sets();
         var currentVisibleSetIndex = 0;  // The index of the visible set currently in view.
 
-        // Determine starting location of the leftmost item.
-        var leftViewItemStartX = 0;  // The X location of the leftmost item in the view.
+        // Determine the starting location of the leftmost item in the first visible set of items.
+        var leftViewItemStartX = 0;  // The X location of the leftmost item in the first set of items.
         if (isCentered)
         {
             var itemSetWidth = 0;  // The width of each of the items in the first visisble item set.
@@ -98,7 +98,7 @@ function standardCarousel(items)
         }
 
         // Setup the scroll path.
-        var leftViewItemStartDist = 0;  // The location of the leftmost item in the view in terms of its fractional distance along the path.
+        var leftViewItemStartDist = 0;  // The location of the leftmost item in the first set of items in terms of its fractional distance along the path.
         var scrollPathStartX;  // The X location of the start of the scroll path.
         var scrollPathStartY = (height - (isDots ? dotContainerHeight : 0)) / 2;  // The Y location of the start of the scroll path.
         var scrollPathLength;  // The length of the path along which the scrolling will occur.
@@ -110,7 +110,7 @@ function standardCarousel(items)
             // Determine the starting point of the path to scroll along.
             scrollPathStartX = (width + 10) - scrollPathLength;  // Want the path to end at width + 10.
 
-            // Determine the starting point of the leftmost item in the view in terms of its distance along the path.
+            // Determine the starting point of the leftmost item in the set in terms of its distance along the path.
             leftViewItemStartDist = leftViewItemStartX - scrollPathStartX;
         }
         else
@@ -122,7 +122,7 @@ function standardCarousel(items)
             // Determine the starting point of the path to scroll along.
             scrollPathStartX = leftViewItemStartX - (scrollPathLength / 2);
 
-            // Determine the starting point of the leftmost item in the view in terms of its distance along the path.
+            // Determine the starting point of the leftmost item in the set in terms of its distance along the path.
             leftViewItemStartDist = (scrollPathLength / 2);
         }
 
@@ -140,7 +140,6 @@ function standardCarousel(items)
         // Put the items in the initial places.
         var currentItemDist = leftViewItemStartDist;  // Distance along the path of the current item.
         var positionAlongPath;  // The position of the point on the path at a distance of currentItemDist along it.
-        // Place the items along a flat scrolling path.
         items.attr("transform", function(d, i)
             {
                 // Update the currentItemDist to position the current item.
@@ -308,26 +307,14 @@ function standardCarousel(items)
                     // Can either go left or right along the path in order to get to a desired point. Therefore, use the distance in the direction
                     // with the shorter distance.
                     var rawDist;
-                    if (isCentered)
-                    {
-                        rawDist = Math.abs(centerViewDist - leftmostItem.datum().distAlongPath);
-                    }
-                    else
-                    {
-                        rawDist = Math.abs(leftViewItemStartDist - leftmostItem.datum().distAlongPath);
-                    }
+                    if (isCentered) rawDist = Math.abs(centerViewDist - leftmostItem.datum().distAlongPath);
+                    else rawDist = Math.abs(leftViewItemStartDist - leftmostItem.datum().distAlongPath);
                     leftmostDist = Math.min(rawDist, scrollPathLength - rawDist);
                 }
                 else
                 {
-                    if (isCentered)
-                    {
-                        leftmostDist = Math.abs(centerViewDist - leftmostItem.datum().distAlongPath);
-                    }
-                    else
-                    {
-                        leftmostDist = Math.abs(leftViewItemStartDist - leftmostItem.datum().distAlongPath);
-                    }
+                    if (isCentered) leftmostDist = Math.abs(centerViewDist - leftmostItem.datum().distAlongPath);
+                    else leftmostDist = Math.abs(leftViewItemStartDist - leftmostItem.datum().distAlongPath);
                 }
                 if (leftmostDist < currentShortestDistance)
                 {
@@ -360,19 +347,16 @@ function standardCarousel(items)
         function drag_update_infinite(d)
         {
             // Drag items that scroll infinitely.
-            var changeInPosition = d3.event.dx;  // The movement caused by the dragging.
 
-            // Get the items in the carousel.
-            var items = d3.select(this).selectAll(".item");
+            var changeInPosition = d3.event.dx;  // The movement caused by the dragging.
 
             // Update the position of the items.
             items
                 .attr("transform", function(d)
                     {
                         // The items are able to rotate infinitely around a non-infinite path (made to look infinite by being a closed loop) by
-                        // mapping any distance that goes beyond tge end of the path back to the start, and vice versa for an item that goes beyond
+                        // mapping any distance that goes beyond the end of the path back to the start, and vice versa for an item that goes beyond
                         // the start of the path.
-
                         d.distAlongPath += changeInPosition;
                         d.distAlongPath = (scrollPathLength + d.distAlongPath) % scrollPathLength;
                         var positionAlongPath = pathToScrollAlong.node().getPointAtLength(d.distAlongPath);
@@ -389,10 +373,8 @@ function standardCarousel(items)
         function drag_update_noninfinite(d)
         {
             // Drag items that do not scroll infinitely.
-            var changeInPosition = d3.event.dx;  // The movement caused by the dragging.
 
-            // Get the items in the carousel.
-            var items = d3.select(this).selectAll(".item");
+            var changeInPosition = d3.event.dx;  // The movement caused by the dragging.
 
             // Update the position of the items.
             items
@@ -400,12 +382,11 @@ function standardCarousel(items)
                     {
                         // The items need to be able to be dragged as far offscreen as is desired, but to be able to snap back into the correct
                         // positions once released. When the distance along the path is negative, the transformed location must be stuck at 0.
-                        // This is because the getPointAtLength point of a position that is a -ve distance along a path, is treated as its absolute
+                        // This is because the getPointAtLength point of a position that is a -ve distance along a path is treated as its absolute
                         // distance along the path (e.g. getPointAtLength(10) === getPointAtLength(-10)). As the user can scroll the items so far to
                         // the left that their distance along the path becomes negative (as there is no limit on how far left the items can be scrolled
                         // they will go off the path and get a -ve distance), the transformation is treated as 0 distance along the path whenever the
-                        // distance is -ve. See the demos at http://visi-bull.appspot.com/carousels for pictographic demos.
-
+                        // distance is -ve.
                         d.distAlongPath += changeInPosition;
                         var positionAlongPath = pathToScrollAlong.node().getPointAtLength(Math.max(0, d.distAlongPath));
                         d.transX = positionAlongPath.x;
@@ -438,16 +419,10 @@ function standardCarousel(items)
             if (isDots)
             {
                 // Must use selectAll here not select (even though there will only ever be one selected dot) as selection.select
-                // is a non-grouping operator and so will cause the child to inherit the data of the parent. I don't want this as the child has its own
+                // is a non-grouping operator, and so will cause the child to inherit the data of the parent. I don't want this as the child has its own
                 // unrelated data.
                 var navDots = dotContainer.selectAll(".navDot").classed("selected", false);
-                navDots.each(function(d)
-                    {
-                        if (d.key === newVisibleSetIndex)
-                        {
-                            d3.select(this).classed("selected", true);
-                        }
-                    });
+                navDots.each(function(d) { if (d.key === newVisibleSetIndex) d3.select(this).classed("selected", true); });
             }
 
             // Get the current resting positions of all items.
@@ -475,13 +450,12 @@ function standardCarousel(items)
             var isCurrentIndexGreater = currentVisibleSetIndex > newVisibleSetIndex;
             var distanceGoingLeft = (isCurrentIndexGreater) ? currentVisibleSetIndex - newVisibleSetIndex : currentVisibleSetIndex + (visibleItemSets.length - newVisibleSetIndex) ;
             var distanceGoingRight = (isCurrentIndexGreater) ? (visibleItemSets.length - currentVisibleSetIndex) + newVisibleSetIndex : newVisibleSetIndex - currentVisibleSetIndex;
-            var isLeft;
 
             // Determine the new positions of the items.
             var numberItemsToScrollBy;
             if (currentVisibleSetIndex !== newVisibleSetIndex)
             {
-                // Items in view have changed, so must update the resting positions.
+                // Items in view have changed, so must update the resting positions of the items.
 
                 if (isCentered)
                 {
@@ -498,10 +472,7 @@ function standardCarousel(items)
                                 newLeftmostResting = d.resting;
                                 newSetWidth += d.width;
                             }
-                            else if (newVisibleSet.indexOf(d.key) !== -1)
-                            {
-                                newSetWidth += d.width;
-                            }
+                            else if (newVisibleSet.indexOf(d.key) !== -1) newSetWidth += d.width;
                         });
                     newSetWidth += ((newVisibleSet.length - 1) * horizontalPadding);
 
@@ -521,10 +492,7 @@ function standardCarousel(items)
                     }
                     else
                     {
-                        for (var i = 0; i < itemPositions.length; i++)
-                        {
-                            itemPositions[i] += distanceToScroll;
-                        }
+                        for (var i = 0; i < itemPositions.length; i++) { itemPositions[i] += distanceToScroll; }
                     }
                 }
                 else
@@ -538,14 +506,8 @@ function standardCarousel(items)
                     var newLeftmostResting;  // The resting position for the item that will become the leftmost item in view.
                     items.each(function(d)
                         {
-                            if (d.key === newLeftmost)
-                            {
-                                newLeftmostResting = d.resting;
-                            }
-                            else if (d.key === currentLeftmost)
-                            {
-                                currentLeftmostResting = d.resting;
-                            }
+                            if (d.key === newLeftmost) newLeftmostResting = d.resting;
+                            else if (d.key === currentLeftmost) currentLeftmostResting = d.resting;
                         });
 
                     // Determine the distance to scroll.
@@ -561,10 +523,7 @@ function standardCarousel(items)
                     }
                     else
                     {
-                        for (var i = 0; i < itemPositions.length; i++)
-                        {
-                            itemPositions[i] += distanceToScroll;
-                        }
+                        for (var i = 0; i < itemPositions.length; i++) { itemPositions[i] += distanceToScroll; }
                     }
                 }
 
@@ -585,6 +544,8 @@ function standardCarousel(items)
 
         function scroll_carousel_arrow()
         {
+            // Scroll the carousel by clicking on a navigation arrow.
+
             // Determine if the arrow clicked on is active.
             var arrow = d3.select(this);
             if (arrow.classed("inactive")) return;
@@ -707,14 +668,13 @@ function standardCarousel(items)
             // 4 sets of items that can be visible at any one time (indices [0,1], [2,3], [4,5] and [6,7]).
 
             var itemsInCarousel = items[0].length;  // The number of items in the carousel.
-            var keys = [];  // The keys of the items, ordered in the same order as the items were passed in.
-            items.each(function(d) { keys.push(d.key); });
+            var keys = items.data().map(function(d) { return d.key; });  // The keys of the items, ordered in the same order as the items were passed in.
             var visibleSets = [];  // The visible sets of items that can appear in the carousel's view.
             if (isInfinite)
             {
                 // If the scrolling is infinite, then the possible view sets can involve wrapping around the end of the array of items and starting
                 // again from the beginning. Therefore, the view sets only stop when the first item in the next viewset is the same as the first
-                // item in the first view set, as you've now reached the beginning of the cycle again.
+                // item in the first view set, as you've then reached the beginning of the cycle again.
 
                 visibleSets = [keys.slice(0, itemsToShow)];
                 var startKey = keys[0];  // The key of the leftmost item in the initial view.
@@ -756,10 +716,7 @@ function standardCarousel(items)
                 {
                     visibleSets.push(keys.slice(i, i + itemsToShow));
                 }
-                if (i + itemsToShow - itemsToScrollBy !== itemsInCarousel)
-                {
-                    visibleSets.push(keys.slice(-itemsToShow));
-                }
+                if (i + itemsToShow - itemsToScrollBy !== itemsInCarousel) visibleSets.push(keys.slice(-itemsToShow));
             }
 
             return visibleSets;
