@@ -585,9 +585,10 @@ function draggableItemCarousel(items)
                     var itemsAbove = items.filter(function(itemD) { return itemsAboveKeys.indexOf(itemD.key) !== -1; });
                     itemsAbove.each(function(itemD)
                         {
-                            var xOffset = itemD.transX - d.transX;
+                            var xStart = Math.max(0, itemD.transX) - d.transX;
+                            var xEnd = Math.min(itemD.transX + itemD.width, width) - d.transX;
                             var yOffset = itemD.transY - d.transY;
-                            clippingPath += ("M" + xOffset + "," + yOffset + d3.select(this).select(".itemOutline").attr("d"));
+                            clippingPath += ("M" + xStart + "," + yOffset + "H" + xEnd + "v" + itemD.height + "H" + xStart + "v" + -itemD.height);
                         });
 
                     d3.select(this).select(".carouselClipPath")
