@@ -7,6 +7,9 @@ $(document).ready(function()
     // Create the non-infinite draggable item demos.
     indiv_drag("Indiv-Non-Var-Non-Inf", false);
     indiv_variable_item_drag("Indiv-Var-Non-Inf", false);
+
+    // Create the drag and drop demos.
+    drag_drop("Drag-Drop-Var", true);
 });
 
 // Define the colors used for the demos.
@@ -18,9 +21,119 @@ var numberFill = "black";
 var numberFontWeight = "bold";
 var numberStroke = "none";
 
+function drag_drop(svgID, isInf)
+{
+    var svg = d3.select("#" + svgID)
+        .attr("width", 800)
+        .attr("height", 500)
+        .style("outline", "thin black solid");
+
+    // Setup data used to create the items.
+    var item = svg.append("g")
+        .datum({"height": 100, "key": 0, "rootID": svgID, "transX": 0, "transY": 0, "width": 100})
+        .classed("item", true)
+        .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+    item.append("path")
+        .classed("itemOutline", true)
+        .attr("d", function(d) { return "m0,0h" + d.width + "v" + d.height + "h" + -d.width + "v" + -d.height; })
+        .style("fill", function(d) { return COLORCODES[d.key]; })
+        .style("stroke", strokeType);
+    item = svg.append("g")
+        .datum({"height": 80, "key": 1, "rootID": svgID, "transX": 0, "transY": 0, "width": 80})
+        .classed("item", true)
+        .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+    item.append("path")
+        .classed("itemOutline", true)
+        .attr("d", "m0,40a40,40,0,1,0,80,0a40,40,0,1,0,-80,0")
+        .style("fill", function(d) { return COLORCODES[d.key]; })
+        .style("stroke", strokeType);
+    item = svg.append("g")
+        .datum({"height": 90, "key": 2, "rootID": svgID, "transX": 0, "transY": 0, "width": 90})
+        .classed("item", true)
+        .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+    item.append("path")
+        .classed("itemOutline", true)
+        .attr("d", "m0,45l45,45l45,-45l-45,-45Z")
+        .style("fill", function(d) { return COLORCODES[d.key]; })
+        .style("stroke", strokeType);
+    item = svg.append("g")
+        .datum({"height": 40, "key": 3, "rootID": svgID, "transX": 0, "transY": 0, "width": 80})
+        .classed("item", true)
+        .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+    item.append("path")
+        .classed("itemOutline", true)
+        .attr("d", "m0,20a40,20,0,1,0,80,0a40,20,0,1,0,-80,0")
+        .style("fill", function(d) { return COLORCODES[d.key]; })
+        .style("stroke", strokeType);
+    item = svg.append("g")
+        .datum({"height": 80, "key": 4, "rootID": svgID, "transX": 0, "transY": 0, "width": 40})
+        .classed("item", true)
+        .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+    item.append("path")
+        .classed("itemOutline", true)
+        .attr("d", "m0,40a20,40,0,1,0,40,0a20,40,0,1,0,-40,0")
+        .style("fill", function(d) { return COLORCODES[d.key]; })
+        .style("stroke", strokeType);
+    item = svg.append("g")
+        .datum({"height": 50, "key": 5, "rootID": svgID, "transX": 0, "transY": 0, "width": 100})
+        .classed("item", true)
+        .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+    item.append("path")
+        .classed("itemOutline", true)
+        .attr("d", function(d) { return "m0,0h" + d.width + "v" + d.height + "h" + -d.width + "v" + -d.height; })
+        .style("fill", function(d) { return COLORCODES[d.key]; })
+        .style("stroke", strokeType);
+    item = svg.append("g")
+        .datum({"height": 80, "key": 6, "rootID": svgID, "transX": 0, "transY": 0, "width": 80})
+        .classed("item", true)
+        .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
+    item.append("path")
+        .classed("itemOutline", true)
+        .attr("d", "m0,0l40,80l40,-80Z")
+        .style("fill", function(d) { return COLORCODES[d.key]; })
+        .style("stroke", strokeType);
+
+    // Create the carousel.
+    var items = svg.selectAll(".item");
+    items.append("text")
+        .attr("x", function(d) { return d.width / 2; })
+        .attr("y", function(d) { return d.height / 2; })
+        .attr("dy", ".35em")
+        .style("text-anchor", "middle")
+        .style("fill", numberFill)
+        .style("font-size", 40)
+        .style("font-weight", numberFontWeight)
+        .style("stroke", numberStroke)
+        .text(function(d) { return d.key; });
+    var carousel;
+    if (isInf)
+    {
+        carousel = draggableItemCarousel(items)
+            .width(400)
+            .height(150)
+            .xLoc(200)
+            .yLoc(300)
+            .isInfinite(true)
+            .horizontalPadding(20)
+            .navArrowWidth(40)
+            .navArrowHeight(40);
+    }
+    else
+    {
+        carousel = draggableItemCarousel(items)
+            .width(400)
+            .height(150)
+            .xLoc(200)
+            .yLoc(300)
+            .horizontalPadding(20)
+            .navArrowWidth(40)
+            .navArrowHeight(40);
+    }
+    svg.call(carousel);
+}
+
 function indiv_drag(svgID, isInf)
 {
-
     var svg = d3.select("#" + svgID)
         .attr("width", 450)
         .attr("height", 150);
@@ -94,7 +207,6 @@ function indiv_drag(svgID, isInf)
 
 function indiv_variable_item_drag(svgID, isInf)
 {
-
     var svg = d3.select("#" + svgID)
         .attr("width", 450)
         .attr("height", 150);
