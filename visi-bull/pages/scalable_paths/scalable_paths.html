@@ -21,19 +21,19 @@
 &lt;/<span class="element">svg</span>></code></pre>
 <p>For example, if we were to define a few paths as follows</p>
 <pre class="code"><code class="html"><<span class="element">svg</span> <span class="attribute">width</span>=<span class="value">"600"</span> <span class="attribute">height</span>=<span class="value">"450"</span>>
-    <<span class="element">path</span> <span class="attribute">class</span>=<span class="value">"domain"</span> <span class="attribute">d</span>=<span class="value">"M20,20L50,138L170,90L300,240L550,300"</span> <span class="attribute">style</span>=<span class="value">"stroke: red;"</span>>
-    <<span class="element">path</span> <span class="attribute">class</span>=<span class="value">"domain"</span> <span class="attribute">d</span>=<span class="value">"M50,400L125,375L450,225L550,100L350,50L375,175"</span> <span class="attribute">style</span>=<span class="value">"stroke: blue;"</span>>
-    <<span class="element">path</span> <span class="attribute">class</span>=<span class="value">"domain"</span> <span class="attribute">d</span>=<span class="value">"M350,375L50,300L200,50L250,225L450,250"</span> <span class="attribute">style</span>=<span class="value">"stroke: green;"</span>>
+    <<span class="element">path</span> <span class="attribute">d</span>=<span class="value">"M20,20L50,138L170,90L300,240L550,300"</span> <span class="attribute">style</span>=<span class="value">"stroke: red;"</span>>
+    <<span class="element">path</span> <span class="attribute">d</span>=<span class="value">"M50,400L125,375L450,225L550,100L350,50L375,175"</span> <span class="attribute">style</span>=<span class="value">"stroke: blue;"</span>>
+    <<span class="element">path</span> <span class="attribute">d</span>=<span class="value">"M350,375L50,300L200,50L250,225L450,250"</span> <span class="attribute">style</span>=<span class="value">"stroke: green;"</span>>
 &lt;/<span class="element">svg</span>></code></pre>
 <p>we would get the following image.</p>
 <svg id="static-path-demo" />
 <br>
 <svg id="static-sliders" />
+<br>
 <p>
-    However, if you play with the sliders, you can see that changing the size of the SVG element (say in order to fit it in a smaller screen)
+    However, if you play with the sliders, you can see that changing the size of the SVG element
     will either clip the path content or give extra blank space to the right and/or bottom.
-    In order to dynamically resize your page (including the SVG) when a user changes the size of their browser window (or to accommodate
-    smaller screen sizes), you'll need to scale both the SVG element and its contents.
+    In order to dynamically resize your page without clipping or blank space, you'll need to scale both the SVG element and its contents.
 </p>
 <br>
 <h3>Scaling Using the Viewbox</h3>
@@ -103,10 +103,11 @@
 </p>
 <p>
     In example 4, the <code class="html"><span class="attribute">viewBox</span></code> attribute is set to be
-    <code class="html"><span class="value">"0 0 40 80"</span></code>. Due to the change in the
-    <code class="html"><span class="attribute">viewBox</span></code> preserving the aspect ratio, the width of the diamond is now half of the height.
-    Although the diamond appears to have shifted along the X axis, it still touches the top of the SVG element when at Y=10. However, with the
-    width being half the height, the diamond can no longer touch the left side as well.
+    <code class="html"><span class="value">"0 0 40 80"</span></code>. Although the diamond appears to still have the same height as width,
+    the <code class="html"><span class="attribute">viewBox</span></code> attribute should actually cause the height to appear to be half the width,
+    even though they are both defined to be 20. However, as the default behaviour is to preserve the aspect ratio, the width of the diamond appears
+    to be the same as the height, and therefore half of what it should be. The diamond therefore looks like it has been shifted along the X axis, as
+    it can no longer touch the left side.
 </p>
 <p>
     In example 5, the <code class="html"><span class="attribute">viewBox</span></code> attribute is set to be
