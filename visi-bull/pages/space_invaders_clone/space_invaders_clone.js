@@ -256,10 +256,23 @@ function initialise_game()
                 var faceCenterY = d.transY + faceRadius;
 
                 // The distances in the X and Y directions between the face and the pill.
-                var distanceBetweenCentersX = faceCenterX - pillCenterX;
-                var distanceBetweenCentersY = faceCenterY - pillCenterY;
+                var distanceBetweenCentersX = pillCenterX - faceCenterX;
+                var distanceBetweenCentersY = pillCenterY - faceCenterY;
 
-                if (Math.sqrt((distanceBetweenCentersX * distanceBetweenCentersX) + (distanceBetweenCentersY * distanceBetweenCentersY)) < (faceRadius * 2))
+                // Determine whether the pill and face have collided.
+                var isCollided = true;
+                if ((distanceBetweenCentersX >= ((pillWidth / 2) + faceRadius)) || (distanceBetweenCentersX <= -((pillWidth / 2) + faceRadius)))
+                {
+                    // There is no collision as the face is too far away in the X direction.
+                    isCollided = false;
+                }
+                else if ((distanceBetweenCentersY >= ((pillHeight / 2) + faceRadius)) || (distanceBetweenCentersY <= -((pillHeight / 2) + faceRadius)))
+                {
+                    // There is no collision as the face is too far away in the Y direction.
+                    isCollided = false;
+                }
+
+                if (isCollided)
                 {
                     // Collision occurred, so transform the face into a happy one.
                     var leftEye = currentFace.select(".left");
