@@ -177,6 +177,11 @@ function draggableItemCarousel(items)
                            "L" + (navArrowWidth / 5) + ",0" +
                            "Z"
                      );
+
+            // Setup the carousel to make the navigation buttons slightly visible when the mouse is over the carousel.
+            carousel
+                .on("mouseover", function() { leftNavArrowContainer.classed("visible", true); rightNavArrowContainer.classed("visible", true); })
+                .on("mouseout", function() { leftNavArrowContainer.classed("visible", false); rightNavArrowContainer.classed("visible", false); });
         }
 
         // Add the navigation arrow behaviour.
@@ -185,11 +190,6 @@ function draggableItemCarousel(items)
             .on("mouseup", stop_scrolling)
             .on("mouseleave", leave_stop_scrolling)
             .on("dblclick", scroll_doubletap);
-
-        // Setup the carousel to make the navigation buttons slightly visible when the mouse is over the carousel.
-        carousel
-            .on("mouseover", function() { leftNavArrowContainer.classed("visible", true); rightNavArrowContainer.classed("visible", true); })
-            .on("mouseout", function() { leftNavArrowContainer.classed("visible", false); rightNavArrowContainer.classed("visible", false); });
 
         /*************************************
         * Individual Item Dragging Functions *
