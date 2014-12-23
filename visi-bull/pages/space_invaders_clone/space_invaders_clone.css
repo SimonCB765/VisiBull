@@ -16,7 +16,7 @@ _classes
 svg .eye {fill: black;}  /* Styling for the eyes. */
 svg .gameOver {alignment-baseline: middle; fill: white; text-anchor: middle;}  /* Style for the game over text. */
 svg .mouth {fill: none; stroke: black; stroke-width: 2px;}  /* Styling for the mouth. */
-svg .player {fill: white;}  /* Styling for the player. */
+svg .playerContainer {fill: white; stroke: none;}  /* Styling for the player. */
 svg .retry {fill: white;}  /* The retry button. */
 svg .retryText {alignment-baseline: middle; font-weight: bold; pointer-events: none; text-anchor: middle;}  /* Style for the retry text. */
 svg .sadFace {fill: skyblue;}  /* Styling for the sad face. */

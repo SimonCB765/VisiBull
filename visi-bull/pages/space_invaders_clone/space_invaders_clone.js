@@ -113,7 +113,7 @@ function initialise_game()
 
     // Define needed values.
     var playerWidth = 30;  // The width of the player rectangle.
-    var playerHeight = 10;  // The height of the player rectangle.
+    var playerHeight = 15;  // The height of the player rectangle.
     var pillSpeed = 4;  // The speed at which the pills shot by the player travel.
     var enemyProjectileSpeed = 3;  // The speed at which the nemy projectiles fire.
     var faceGapHorizontal = pillWidth * 3.5;  // The horizontal gap between sad faces.
@@ -177,13 +177,26 @@ function initialise_game()
 
     // Add the player.
     var playerContainer = svg.append("g")
-        .datum({"transX" : Math.floor((svgWidth / 2) - (playerWidth / 2)), "transY" : svgHeight - playerHeight})
+        .datum({"transX" : Math.floor((svgWidth / 2) - (playerWidth / 2)), "transY" : svgHeight - playerHeight - 1})
         .classed("playerContainer", true)
         .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
-    var player = playerContainer.append("rect")
-        .classed("player", true)
-        .attr("height", playerHeight)
+    playerContainer.append("rect")
+        .attr("x", 0)
+        .attr("y", playerHeight * 6 / 10)
         .attr("width", playerWidth)
+        .attr("height", playerHeight * 4 / 10);
+    playerContainer.append("rect")
+        .attr("x", playerWidth / 10)
+        .attr("y", playerHeight * 4 / 10)
+        .attr("width", playerWidth * 8 / 10)
+        .attr("height", playerHeight * 2 / 10);
+    playerContainer.append("rect")
+        .attr("x", playerWidth * 4 / 10)
+        .attr("y", 0)
+        .attr("width", playerWidth * 2 / 10)
+        .attr("height", playerHeight * 4 / 10);
+
+    // Add the controls for the player.
     svg.on("keydown", function()
         {
             // Prevent any events that could shift the page.
