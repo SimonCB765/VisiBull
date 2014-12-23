@@ -147,10 +147,10 @@
     available space).
 </p>
 <p>
-    While this problem can be overcome by resetting the stroke width, it can also be solved by redrawing the paths at the proper scale.
+    While this problem can be overcome by resetting the stroke width dynamically, it can also be solved by redrawing the paths at the proper scale.
     Doing this requires more computation, but gives finer control over the scaling of the objects in the SVG element. For example, individual
-    objects in the SVG element can be scaled differently, and can use different methods to achieve an effect similar to all the values of
-    the <code class="html"><span class="attribute">preserveAspectRatio</span></code> attribute.
+    objects in the SVG element can be scaled differently, whereas with the <code class="html"><span class="attribute">viewBox</span></code> attribute
+    all items in the SVG element are scaled in the same manner.
 </p>
 <p>An example of this redrawing can be seen below.</p>
 <br>
@@ -170,7 +170,7 @@
 <span class="keyword">var</span> svgHeightRatio = currentSvgHeight / originalSvgHeight;  <span class="comment">// The ratio of current to original height of the SVG element.</span>
 <span class="keyword">var</span> scaleValue = Math.min(currentSVGWidthScale, currentSVGHeightScale);
 </code></pre>
-<p>Then, when the size of the SVG element changes, you update the current width/height and the ratios.</p>
+<p>Then, when the size of the SVG element changes, you update the current width, height and ratios.</p>
 <pre class="code"><code class="javascript"><span class="comment">// Get the new height and width.</span>
 currentSvgWidth = <span class="number">...</span>;
 svgWidthRatio = currentSvgWidth / originalSvgWidth;
@@ -179,7 +179,7 @@ svgHeightRatio = currentSvgHeight / originalSvgHeight;
 scaleValue = Math.min(currentSVGWidthScale, currentSVGHeightScale);
 </code></pre>
 <p>You can then update the coordinates of the path to reflect the positions they should take in the SVG element with the changed size.</p>
-<pre class="code"><code class="javascript"><span class="comment">// For maintaining the aspect ratio.</span>
+<pre class="code"><code class="javascript"><span class="comment">// To maintain the aspect ratio.</span>
 <span class="keyword">var</span> newCoords = [];
 <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i < originalCoords.length; i++)
 {
@@ -225,7 +225,7 @@ scaleValue = Math.min(currentSVGWidthScale, currentSVGHeightScale);
 }
 </code></pre>
 <p>
-    The <code class="javascript">originalCoords[i].dx</code> and <code class="javascript">originalCoords[i].dy</code> records how far the
+    The <code class="javascript">originalCoords[i].dx</code> and <code class="javascript">originalCoords[i].dy</code> values record how far the
     point at <code class="javascript">originalCoords[i]</code> is from <code class="javascript">scaleAround.x</code> and
     <code class="javascript">scaleAround.y</code> respectively (i.e. how far the original path point is from the point around which the scaling
     is to be done). This ensures that the distance from all points to the point around which they are scaling remains the correct proportion
