@@ -199,6 +199,14 @@ function draggableItemCarousel(items)
         var rightNeighbour = null;  // The item to the right of the one being dragged.
         function drag_end()
         {
+
+            // Determine whether either of the navigation arrows should have their inactivity changed.
+            var itemPositions = items.data().map(function(d) { return {"pos": d.resting, "width": d.width}; });
+            var maxRightEdge = d3.max(itemPositions.map(function(d) { return d.pos + d.width; }));
+            var minLeftEdge = d3.min(itemPositions.map(function(d) { return d.pos; }));
+            carousel.select(".navArrow.right").classed("inactive", maxRightEdge <= carouselRightEdge);
+            carousel.select(".navArrow.left").classed("inactive", minLeftEdge >= carouselLeftEdge);
+
             // Add back the highlighting for the navigation arrows.
             navigationArrows
                 .on("mouseover", function() { d3.select(this).classed("highlight", true); })
@@ -665,6 +673,13 @@ function draggableItemCarousel(items)
         {
             // Transition the items from their current positions to their resting positions.
             // distanceToShift is the number of units to shift the items by.
+
+            // Determine whether either of the navigation arrows should have their inactivity changed.
+            var itemPositions = items.data().map(function(d) { return {"pos": d.resting, "width": d.width}; });
+            var maxRightEdge = d3.max(itemPositions.map(function(d) { return d.pos + d.width; }));
+            var minLeftEdge = d3.min(itemPositions.map(function(d) { return d.pos; }));
+            carousel.select(".navArrow.right").classed("inactive", maxRightEdge <= carouselRightEdge);
+            carousel.select(".navArrow.left").classed("inactive", minLeftEdge >= carouselLeftEdge);
 
             // Transition items back to their resting locations from wherever they are.
             items
