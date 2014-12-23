@@ -101,7 +101,7 @@ function drag_drop(svgID, isInf)
     var carousel;
     if (isInf)
     {
-        carousel = draggableItemCarousel(items)
+        carousel = dragAndDropCarousel(items)
             .width(400)
             .height(150)
             .xLoc(200)
@@ -113,7 +113,7 @@ function drag_drop(svgID, isInf)
     }
     else
     {
-        carousel = draggableItemCarousel(items)
+        carousel = dragAndDropCarousel(items)
             .width(400)
             .height(150)
             .xLoc(200)
