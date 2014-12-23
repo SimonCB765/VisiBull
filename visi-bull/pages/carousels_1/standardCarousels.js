@@ -232,6 +232,11 @@ function standardCarousel(items)
                            "L" + (navArrowWidth / 5) + ",0" +
                            "Z"
                      );
+
+            // Setup the carousel to make the navigation buttons slightly visible when the mouse is over the carousel.
+            carousel
+                .on("mouseover", function() { leftNavArrowContainer.classed("visible", true); rightNavArrowContainer.classed("visible", true); })
+                .on("mouseout", function() { leftNavArrowContainer.classed("visible", false); rightNavArrowContainer.classed("visible", false); });
         }
         var navigationArrows = carousel.selectAll(".navArrow").on("click", scroll_carousel_arrow);
 
@@ -284,11 +289,6 @@ function standardCarousel(items)
                 .attr("cy", navDotRadius)
                 .attr("r", navDotRadius);
         }
-
-        // Setup the carousel to make the navigation buttons slightly visible when the mouse is over the carousel.
-        carousel
-            .on("mouseover", function() { leftNavArrowContainer.classed("visible", true); rightNavArrowContainer.classed("visible", true); })
-            .on("mouseout", function() { leftNavArrowContainer.classed("visible", false); rightNavArrowContainer.classed("visible", false); });
 
         /******************************
         * Carousel Dragging Functions *
