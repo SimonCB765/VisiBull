@@ -195,6 +195,7 @@ function draggableItemCarousel(items)
         * Individual Item Dragging Functions *
         *************************************/
         var draggedItem = null;  // The item that is being dragged.
+        var dragStartXPos;  // The position within the item that the user clicked in order to drag.
         var leftNeighbour = null;  // The item to the left of the one being dragged.
         var rightNeighbour = null;  // The item to the right of the one being dragged.
         function drag_end()
@@ -265,6 +266,7 @@ function draggableItemCarousel(items)
         function drag_start(d)
         {
             draggedItem = d3.select(this);
+            dragStartXPos = d3.mouse(this)[0];
 
             // Kill any transitions that the dragged item is undergoing or is scheduled to undergo.
             draggedItem
@@ -297,10 +299,10 @@ function draggableItemCarousel(items)
         function drag_update(d)
         {
             var positionInCarousel = d3.mouse(this.parentNode)[0];  // The position of the mouse in the carousel.
-            var changeInPosition = d3.event.dx;  // The movement caused by the dragging.
 
             // Move the item if the mouse is currently inside the carousel.
-            if ((positionInCarousel > 0) && (positionInCarousel < width)) d.distAlongPath += changeInPosition;
+            d.distAlongPath = carouselLeftEdge + positionInCarousel - dragStartXPos;
+            d.distAlongPath = Math.max(carouselLeftEdge - dragStartXPos, Math.min(carouselRightEdge - dragStartXPos, d.distAlongPath));
 
             // Move the item.
             var positionAlongPath = pathToScrollAlong.node().getPointAtLength(d.distAlongPath);
