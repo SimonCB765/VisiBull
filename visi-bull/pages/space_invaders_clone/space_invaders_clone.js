@@ -456,7 +456,6 @@ function initialise_game()
         // Check whether all faces have been shot.
         if (shootableFaces.empty())
         {
-            console.log("All Gone");
             victory_message();  // Display the victory message.
             return true;  // Kill the timer.
         }
