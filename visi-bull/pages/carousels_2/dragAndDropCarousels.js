@@ -195,7 +195,8 @@ function dragAndDropCarousel(items)
         * Individual Item Dragging Functions *
         *************************************/
         var draggedItem = null;  // The item that is being dragged.
-        var dragStartXPos;  // The position within the item that the user clicked in order to drag.
+        var dragStartXPos;  // The X position within the item that the user clicked in order to drag.
+        var dragStartYPos;  // The Y position within the item that the user clicked in order to drag.
         var leftNeighbour = null;  // The item to the left of the one being dragged.
         var rightNeighbour = null;  // The item to the right of the one being dragged.
         function drag_end()
@@ -222,18 +223,25 @@ function dragAndDropCarousel(items)
                 .ease("cubic-out")
                 .tween("transform", function(d)
                     {
-                        var interpolator = d3.interpolate(0, d.resting - d.distAlongPath);
-                        var lastInterpVal = 0;  // The last value that came out of the interpolater.
-                        var currentInterpVal;  // The current value of the interpolater.
+                        var interpolatorX = d3.interpolate(0, d.resting - d.distAlongPath);
+                        var lastInterpValX = 0;  // The last value that came out of the X interpolater.
+                        var currentInterpValX;  // The current value of the X interpolater.
+                        var currentPoint = pathToScrollAlong.node().getPointAtLength(d.resting);
+                        var interpolatorY = d3.interpolate(0, (currentPoint.y - (d.height / 2)) - d.transY);
+                        var lastInterpValY = 0;  // The last value that came out of the Y interpolater.
+                        var currentInterpValY;  // The current value of the Y interpolater.
+
 
                         return function(t)
                             {
-                                currentInterpVal = interpolator(t);
-                                d.distAlongPath += (currentInterpVal - lastInterpVal);
-                                lastInterpVal = currentInterpVal;
+                                currentInterpValX = interpolatorX(t);
+                                d.distAlongPath += (currentInterpValX - lastInterpValX);
+                                lastInterpValX = currentInterpValX;
+                                currentInterpValY = interpolatorY(t);
+                                d.transY += (currentInterpValY - lastInterpValY);  // Determine Y position of the item at this point in the transition.
+                                lastInterpValY = currentInterpValY;
                                 currentPoint = pathToScrollAlong.node().getPointAtLength(d.distAlongPath);
-                                d.transX = currentPoint.x;  // Determine position of the item at this point in the transition.
-                                d.transY = currentPoint.y - (d.height / 2);  // Determine position of the item at this point in the transition.
+                                d.transX = currentPoint.x;  // Determine X position of the item at this point in the transition.
                                 d3.select(this)
                                     .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });  // Update the item's position.
                                 generate_clip_paths();
@@ -267,6 +275,7 @@ function dragAndDropCarousel(items)
         {
             draggedItem = d3.select(this);
             dragStartXPos = d3.mouse(this)[0];
+            dragStartYPos = d3.mouse(this)[1];
 
             // Kill any transitions that the dragged item is undergoing or is scheduled to undergo.
             draggedItem
@@ -298,15 +307,16 @@ function dragAndDropCarousel(items)
 
         function drag_update(d)
         {
-            var positionInCarousel = d3.mouse(this.parentNode)[0];  // The position of the mouse in the carousel.
+            var positionInCarousel = d3.mouse(this.parentNode);  // The position of the mouse in the carousel.
 
             // Move the item if the mouse is currently inside the carousel.
-            d.distAlongPath = carouselLeftEdge + positionInCarousel - dragStartXPos;
+            d.distAlongPath = carouselLeftEdge + positionInCarousel[0] - dragStartXPos;
             d.distAlongPath = Math.max(carouselLeftEdge - dragStartXPos, Math.min(carouselRightEdge - dragStartXPos, d.distAlongPath));
 
             // Move the item.
             var positionAlongPath = pathToScrollAlong.node().getPointAtLength(d.distAlongPath);
             d.transX = positionAlongPath.x;
+            d.transY = positionInCarousel[1] - dragStartYPos;
             draggedItem
                 .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });
 
@@ -317,12 +327,12 @@ function dragAndDropCarousel(items)
             generate_clip_paths();
 
             // Determine whether to scroll the carousel.
-            if (positionInCarousel < 0)
+            if (positionInCarousel[0] < 0)
             {
                 // If the user is dragging the item to the left, and the item is at the left edge, then start scrolling the items to the right.
                 start_scrollng(true, [d.key]);
             }
-            else if (positionInCarousel > width)
+            else if (positionInCarousel[0] > width)
             {
                 // If the user is dragging the item to the right, and the item is at the right edge, then start scrolling the items to the left.
                 start_scrollng(false, [d.key]);
@@ -372,7 +382,6 @@ function dragAndDropCarousel(items)
                             d.resting += (isShiftRight ? 1 : -1);
                             currentPoint = pathToScrollAlong.node().getPointAtLength(Math.max(0, Math.min(d.distAlongPath, scrollPathLength)));
                             d.transX = currentPoint.x;
-                            d.transY = currentPoint.y - (d.height / 2);
                             d3.select(this)
                                 .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });  // Update the item's position.
                             generate_clip_paths();
@@ -401,7 +410,6 @@ function dragAndDropCarousel(items)
                         d.resting = (scrollPathLength + d.resting) % scrollPathLength;
                         currentPoint = pathToScrollAlong.node().getPointAtLength(d.distAlongPath);
                         d.transX = currentPoint.x;
-                        d.transY = currentPoint.y - (d.height / 2);
                         d3.select(this)
                             .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });  // Update the item's position.
                         generate_clip_paths();
@@ -690,14 +698,13 @@ function dragAndDropCarousel(items)
                 .ease("linear")
                 .tween("transform", function(d)
                     {
-                        var interpolator = d3.interpolate(d.distAlongPath, d.resting);
+                        var interpolatorX = d3.interpolate(d.distAlongPath, d.resting);
 
                         return function(t)
                             {
-                                d.distAlongPath = interpolator(t);
+                                d.distAlongPath = interpolatorX(t);
                                 currentPoint = pathToScrollAlong.node().getPointAtLength(Math.max(0, Math.min(d.distAlongPath, scrollPathLength)));
                                 d.transX = currentPoint.x;  // Determine position of the item at this point in the transition.
-                                d.transY = currentPoint.y - (d.height / 2);  // Determine position of the item at this point in the transition.
                                 d3.select(this)
                                     .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });  // Update the item's position.
                                 generate_clip_paths();
@@ -717,14 +724,14 @@ function dragAndDropCarousel(items)
                 .ease("linear")
                 .tween("transform", function(d)
                     {
-                        var interpolator;
+                        var interpolatorX;
                         if (isShiftRight)
                         {
                             // The items are to be shifted right.
                             if (d.distAlongPath <= d.resting)
                             {
                                 // If the current position of the item is to the left of its resting place, then the item can simply be moved rightwards.
-                                interpolator = d3.interpolate(d.distAlongPath, d.resting);
+                                interpolatorX = d3.interpolate(d.distAlongPath, d.resting);
                             }
                             else
                             {
@@ -734,7 +741,7 @@ function dragAndDropCarousel(items)
                                 // 2)   Upon reaching the end of the path, loop back to the beginning of the path.
                                 // 3)   Scrolling right towards its resting place.
                                 var distanceToTravel = (scrollPathLength - d.distAlongPath) + d.resting;
-                                interpolator = d3.interpolate(d.distAlongPath, d.distAlongPath + distanceToTravel);
+                                interpolatorX = d3.interpolate(d.distAlongPath, d.distAlongPath + distanceToTravel);
                             }
 
                         }
@@ -749,22 +756,21 @@ function dragAndDropCarousel(items)
                                 // 2)   Upon reaching the beginning of the path, loop back to the end of the path.
                                 // 3)   Scrolling left towards its resting place.
                                 var distanceToTravel = d.distAlongPath + (scrollPathLength - d.resting);
-                                interpolator = d3.interpolate(d.distAlongPath, d.distAlongPath - distanceToTravel);
+                                interpolatorX = d3.interpolate(d.distAlongPath, d.distAlongPath - distanceToTravel);
                             }
                             else
                             {
                                 // If the current position of the item is to the right of its resting place, then the item can simply be moved leftwards.
-                                interpolator = d3.interpolate(d.distAlongPath, d.resting);
+                                interpolatorX = d3.interpolate(d.distAlongPath, d.resting);
                             }
                         }
 
                         var currentPoint;
                         return function(t)
                             {
-                                d.distAlongPath = (scrollPathLength + interpolator(t)) % scrollPathLength;
+                                d.distAlongPath = (scrollPathLength + interpolatorX(t)) % scrollPathLength;
                                 currentPoint = pathToScrollAlong.node().getPointAtLength(d.distAlongPath);
                                 d.transX = currentPoint.x;  // Determine position of the item at this point in the transition.
-                                d.transY = currentPoint.y - (d.height / 2);  // Determine position of the item at this point in the transition.
                                 d3.select(this)
                                     .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });  // Update the item's position.
                                 generate_clip_paths();
@@ -782,18 +788,17 @@ function dragAndDropCarousel(items)
                 .ease("cubic-out")
                 .tween("transform", function(d)
                     {
-                        var interpolator = d3.interpolate(0, d.resting - d.distAlongPath);
-                        var lastInterpVal = 0;  // The last value that came out of the interpolater.
-                        var currentInterpVal;  // The current value of the interpolater.
+                        var interpolatorX = d3.interpolate(0, d.resting - d.distAlongPath);
+                        var lastInterpValX = 0;  // The last value that came out of the X interpolater.
+                        var currentInterpValX;  // The current value of the X interpolater.
 
                         return function(t)
                             {
-                                currentInterpVal = interpolator(t);
-                                d.distAlongPath += (currentInterpVal - lastInterpVal);
-                                lastInterpVal = currentInterpVal;
+                                currentInterpValX = interpolatorX(t);
+                                d.distAlongPath += (currentInterpValX - lastInterpValX);
+                                lastInterpValX = currentInterpValX;
                                 currentPoint = pathToScrollAlong.node().getPointAtLength(d.distAlongPath);
-                                d.transX = currentPoint.x;  // Determine position of the item at this point in the transition.
-                                d.transY = currentPoint.y - (d.height / 2);  // Determine position of the item at this point in the transition.
+                                d.transX = currentPoint.x;  // Determine X position of the item at this point in the transition.
                                 d3.select(this)
                                     .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });  // Update the item's position.
                                 generate_clip_paths();
