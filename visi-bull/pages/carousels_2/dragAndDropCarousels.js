@@ -583,10 +583,11 @@ function dragAndDropCarousel(items)
                     // Generate the basic clipping path to ensure that only the portion of the item inside the carousel is visible.
                     var clippingPath =
                            "M" + -d.transX + "," + -d.transY +
+                           "v" + -d.height +
                            "h" + width +
-                           "v" + height +
+                           "v" + (d.height + height + d.height) +
                            "h" + -width +
-                           "v" + -height;
+                           "v" + (-d.height - height);
 
                     // Add each item that the current item is meant to be below to the clip path.
                     var itemsAboveKeys = itemsOverlappedBy[d.key];
