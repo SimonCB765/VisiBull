@@ -122,7 +122,8 @@ function dragAndDropCarousel(items)
         items.call(dragBehaviour);
 
         // Clip the items to the carousel.
-        var outOfCarousel = [];  // The items that have been dragged out of the carousel.
+        var outOfCarousel = {};  // A record of items that have been dragged out of the carousel.
+        items.each(function(d) { outOfCarousel[d.key] = false; });
         items.append("clipPath")
             .classed("carouselClip", true)
             .attr("id", function(d) { return d.rootID + "clip-" + d.key; })
@@ -165,7 +166,7 @@ function dragAndDropCarousel(items)
                 // The item is inside the carousel.
 
                 // Remove the item from the list of items outside the carousel.
-                if (outOfCarousel.indexOf(d.key) !== -1) outOfCarousel.splice(outOfCarousel.indexOf(d.key), 1);
+                outOfCarousel[d.key] = false;
 
                 // Transition dragged item to its resting place.
                 draggedItem
@@ -213,7 +214,7 @@ function dragAndDropCarousel(items)
                 // The item is outside the carousel.
 
                 // Add the item to the list of items outside the carousel.
-                if (outOfCarousel.indexOf(d.key) === -1) outOfCarousel.push(d.key);
+                outOfCarousel[d.key] = true;
 
                 // Remove the record of the item neighbours.
                 draggedItem = null;
@@ -233,6 +234,7 @@ function dragAndDropCarousel(items)
             // Remove and add the item back on top. This enables you to reorder items on top of each other as you please.
             draggedItem.remove();
             itemContainer.append(function() { return draggedItem.node(); });
+            generate_clip_paths();
 
             // Kill any transitions that the dragged item is undergoing or is scheduled to undergo.
             draggedItem
@@ -264,7 +266,7 @@ function dragAndDropCarousel(items)
                 // The dragged item is still inside the carousel.
 
                 // Remove the item from the list of items outside the carousel.
-                if (outOfCarousel.indexOf(d.key) !== -1) outOfCarousel.splice(outOfCarousel.indexOf(d.key), 1);
+                outOfCarousel[d.key] = false;
 
                 // Move the item.
                 d.distAlongPath = carouselLeftEdge + positionInCarousel[0] - dragStartXPos;
@@ -278,7 +280,7 @@ function dragAndDropCarousel(items)
                 // The dragged item is no longer inside the carousel.
 
                 // Add the item to the list of items outside the carousel.
-                if (outOfCarousel.indexOf(d.key) === -1) outOfCarousel.push(d.key);
+                outOfCarousel[d.key] = true;
 
                 // Move the item.
                 d.transX = positionInCarousel[0] - dragStartXPos;
@@ -304,7 +306,7 @@ function dragAndDropCarousel(items)
                 var draggedData = draggedItem.datum();
                 items.each(function(d)
                     {
-                        if ((outOfCarousel.indexOf(d.key) !== -1) || (draggedData.key === d.key))
+                        if (outOfCarousel[d.key] || (draggedData.key === d.key))
                         {
                             // The item is outside the carousel or is the one being dragged, and therefore should be completely visible.
                             clippingPath = "M0,0" +
@@ -331,7 +333,7 @@ function dragAndDropCarousel(items)
                 // There is no item being dragged.
                 items.each(function(d)
                     {
-                        if (outOfCarousel.indexOf(d.key) !== -1)
+                        if (outOfCarousel[d.key])
                         {
                             // The item is outside the carousel, and therefore should be completely visible.
                             clippingPath = "M0,0" +
