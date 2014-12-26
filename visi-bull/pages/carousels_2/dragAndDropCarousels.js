@@ -111,6 +111,9 @@ function dragAndDropCarousel(items)
         var draggedItem = null;  // The item that is being dragged.
         var dragStartXPos;  // The X position within the item that the user clicked in order to drag.
         var dragStartYPos;  // The Y position within the item that the user clicked in order to drag.
+        var isDragStartInside;  // Whether the drag started inside the carousel.
+        var isDragIsideCarousel;  // Whether the drag is currently inside the carousel.
+        var positionInCarousel;  // The position of the mouse during the drag in relation to the carousel.
         var leftNeighbour = null;  // The item to the left of the one being dragged.
         var rightNeighbour = null;  // The item to the right of the one being dragged.
 
@@ -155,13 +158,13 @@ function dragAndDropCarousel(items)
                 .on("mouseout", function() { d3.select(this).classed("highlight", false); })
 
             // Determine whether the item is inside the carousel.
-            var positionInCarousel = d3.mouse(this.parentNode);  // The position of the mouse in the carousel.
-            var isIsideCarousel = ((positionInCarousel[0] - dragStartXPos + d.width > 0) &&
+            positionInCarousel = d3.mouse(this.parentNode);  // The position of the mouse in the carousel.
+            isDragIsideCarousel = ((positionInCarousel[0] - dragStartXPos + d.width > 0) &&
                                    (positionInCarousel[0] - dragStartXPos < width) &&
                                    (positionInCarousel[1] - dragStartYPos + d.height > 0) &&
                                    (positionInCarousel[1] - dragStartYPos < height));
 
-            if (isIsideCarousel)
+            if (isDragIsideCarousel)
             {
                 // The item is inside the carousel.
 
@@ -212,9 +215,58 @@ function dragAndDropCarousel(items)
             else
             {
                 // The item is outside the carousel.
+                outOfCarousel[d.key] = true;  // Add the item to the list of items outside the carousel.
+                
+                if (isDragStartInside)
+                {
+                    var widthToRemove = d.width + horizontalPadding;  // The width taken up inside the carousel by the item being released.
+                    
+                    // The drag started inside the carousel and ended outside it. Therefore, the scroll path needs to be shortened and repositioned.
+                    scrollPathLength -= widthToRemove;
+                    if (isInfinite) scrollPathStartX = (width / 2) - (scrollPathLength / 2);
+                    else scrollPathStartX = -d3.max(itemWidths);
+                    pathToScrollAlong.attr("d", "M" + scrollPathStartX + "," + scrollPathStartY + "h" + scrollPathLength);
 
-                // Add the item to the list of items outside the carousel.
-                outOfCarousel[d.key] = true;
+                    // Determine the center and boundaries of the carousel in relation to their distance along the scroll path.
+                    distOfCenter = (width / 2) - scrollPathStartX;
+                    carouselLeftEdge = -scrollPathStartX;
+                    carouselRightEdge = carouselLeftEdge + width;
+                    
+                    console.log(d.width, widthToRemove, widthToRemove + scrollPathLength, scrollPathLength);
+                    
+                    // Determine the speed and starting positions for the transitions.
+                    var transitionData = {};
+                    var interpStart;
+                    items.each(function(itemD)
+                        {
+                            if (itemD.resting > d.resting) itemD.resting -= widthToRemove;
+                            interpStart = Math.max(0, Math.min(itemD.distAlongPath - (widthToRemove / 2), scrollPathLength));
+                            transitionData[itemD.key] = {"start": interpStart, "distance": Math.abs(interpStart - itemD.resting)};
+                        });
+                    var maxDist = 0;
+                    for (var key in transitionData) { maxDist = Math.max(maxDist, transitionData[key]); }
+                    console.log(transitionData);
+                    
+                    // Reposition the items.
+                    items.filter(function(itemD) { return !outOfCarousel[itemD.key]; })
+                        .transition()
+                        .duration(function(itemD) { return (maxDist / transitionData[itemD.key].distance) * 2000; })
+                        .ease("linear")
+                        .tween("transform", function(itemD)
+                            {
+                                var interpolatorX = d3.interpolate(transitionData[itemD.key].start, itemD.resting);
+
+                                return function(t)
+                                    {
+                                        itemD.distAlongPath = interpolatorX(t);
+                                        currentPoint = pathToScrollAlong.node().getPointAtLength(itemD.distAlongPath);
+                                        itemD.transX = currentPoint.x;  // Determine position of the item at this point in the transition.
+                                        d3.select(this)
+                                            .attr("transform", function() { return "translate(" + itemD.transX + "," + itemD.transY + ")"; });  // Update the item's position.
+                                        generate_clip_paths();
+                                    }
+                            });
+                }
 
                 // Remove the record of the item neighbours.
                 draggedItem = null;
@@ -230,6 +282,12 @@ function dragAndDropCarousel(items)
             draggedItem = d3.select(this);
             dragStartXPos = d3.mouse(this)[0];
             dragStartYPos = d3.mouse(this)[1];
+
+            positionInCarousel = d3.mouse(this.parentNode);  // The position of the mouse in the carousel.
+            isDragStartInside = ((positionInCarousel[0] - dragStartXPos + d.width > 0) &&
+                                 (positionInCarousel[0] - dragStartXPos < width) &&
+                                 (positionInCarousel[1] - dragStartYPos + d.height > 0) &&
+                                 (positionInCarousel[1] - dragStartYPos < height));
 
             // Remove and add the item back on top. This enables you to reorder items on top of each other as you please.
             draggedItem.remove();
@@ -254,14 +312,13 @@ function dragAndDropCarousel(items)
 
         function drag_update(d)
         {
-            var positionInCarousel = d3.mouse(this.parentNode);  // The position of the mouse in the carousel.
-
-            var isIsideCarousel = ((positionInCarousel[0] - dragStartXPos + d.width > 0) &&
+            positionInCarousel = d3.mouse(this.parentNode);  // The position of the mouse in the carousel.
+            isDragIsideCarousel = ((positionInCarousel[0] - dragStartXPos + d.width > 0) &&
                                    (positionInCarousel[0] - dragStartXPos < width) &&
                                    (positionInCarousel[1] - dragStartYPos + d.height > 0) &&
                                    (positionInCarousel[1] - dragStartYPos < height));
 
-            if (isIsideCarousel)
+            if (isDragIsideCarousel)
             {
                 // The dragged item is still inside the carousel.
 
