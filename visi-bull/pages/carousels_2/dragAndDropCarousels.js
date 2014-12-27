@@ -219,53 +219,24 @@ function dragAndDropCarousel(items)
                 
                 if (isDragStartInside)
                 {
-                    var widthToRemove = d.width + horizontalPadding;  // The width taken up inside the carousel by the item being released.
+                    // The drag started inside the carousel and ended outside it. Therefore, clone the node and place the original back
+                    // inside the carousel.
                     
-                    // The drag started inside the carousel and ended outside it. Therefore, the scroll path needs to be shortened and repositioned.
-                    scrollPathLength -= widthToRemove;
-                    if (isInfinite) scrollPathStartX = (width / 2) - (scrollPathLength / 2);
-                    else scrollPathStartX = -d3.max(itemWidths);
-                    pathToScrollAlong.attr("d", "M" + scrollPathStartX + "," + scrollPathStartY + "h" + scrollPathLength);
-
-                    // Determine the center and boundaries of the carousel in relation to their distance along the scroll path.
-                    distOfCenter = (width / 2) - scrollPathStartX;
-                    carouselLeftEdge = -scrollPathStartX;
-                    carouselRightEdge = carouselLeftEdge + width;
+                    // Setup the clone.
+                    var currentItem = d3.select(this);
+                    var clonedItem = itemContainer.append(function() { return currentItem.node().cloneNode(true); })
+                        .datum(currentItem.datum())
+                        .call(dragBehaviour);
                     
-                    console.log(d.width, widthToRemove, widthToRemove + scrollPathLength, scrollPathLength);
-                    
-                    // Determine the speed and starting positions for the transitions.
-                    var transitionData = {};
-                    var interpStart;
-                    items.each(function(itemD)
+                    // Move the original back to its spot inside the carousel.
+                    currentItem.attr("transform", function(itemD)
                         {
-                            if (itemD.resting > d.resting) itemD.resting -= widthToRemove;
-                            interpStart = Math.max(0, Math.min(itemD.distAlongPath - (widthToRemove / 2), scrollPathLength));
-                            transitionData[itemD.key] = {"start": interpStart, "distance": Math.abs(interpStart - itemD.resting)};
+                            itemD.distAlongPath = d.resting;
+                            currentPoint = pathToScrollAlong.node().getPointAtLength(d.distAlongPath);
+                            d.transX = currentPoint.x;
+                            d.transY = currentPoint.y - (d.height / 2);
+                            return "translate(" + d.transX + "," + d.transY + ")";
                         });
-                    var maxDist = 0;
-                    for (var key in transitionData) { maxDist = Math.max(maxDist, transitionData[key]); }
-                    console.log(transitionData);
-                    
-                    // Reposition the items.
-                    items.filter(function(itemD) { return !outOfCarousel[itemD.key]; })
-                        .transition()
-                        .duration(function(itemD) { return (maxDist / transitionData[itemD.key].distance) * 2000; })
-                        .ease("linear")
-                        .tween("transform", function(itemD)
-                            {
-                                var interpolatorX = d3.interpolate(transitionData[itemD.key].start, itemD.resting);
-
-                                return function(t)
-                                    {
-                                        itemD.distAlongPath = interpolatorX(t);
-                                        currentPoint = pathToScrollAlong.node().getPointAtLength(itemD.distAlongPath);
-                                        itemD.transX = currentPoint.x;  // Determine position of the item at this point in the transition.
-                                        d3.select(this)
-                                            .attr("transform", function() { return "translate(" + itemD.transX + "," + itemD.transY + ")"; });  // Update the item's position.
-                                        generate_clip_paths();
-                                    }
-                            });
                 }
 
                 // Remove the record of the item neighbours.
