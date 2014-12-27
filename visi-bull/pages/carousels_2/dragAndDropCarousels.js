@@ -164,64 +164,65 @@ function dragAndDropCarousel(items)
                                    (positionInCarousel[1] - dragStartYPos + d.height > 0) &&
                                    (positionInCarousel[1] - dragStartYPos < height));
 
-            if (isDragIsideCarousel)
+            if (isDragStartInside)
             {
-                // The item is inside the carousel.
-
-                // Remove the item from the list of items outside the carousel.
-                outOfCarousel[d.key] = false;
-
-                // Transition dragged item to its resting place.
-                draggedItem
-                    .transition()
-                    .duration(200)
-                    .ease("cubic-out")
-                    .tween("transform", function()
-                        {
-                            var interpolatorX = d3.interpolate(0, d.resting - d.distAlongPath);
-                            var lastInterpValX = 0;  // The last value that came out of the X interpolater.
-                            var currentInterpValX;  // The current value of the X interpolater.
-                            var currentPoint = pathToScrollAlong.node().getPointAtLength(d.resting);
-                            var interpolatorY = d3.interpolate(0, (currentPoint.y - (d.height / 2)) - d.transY);
-                            var lastInterpValY = 0;  // The last value that came out of the Y interpolater.
-                            var currentInterpValY;  // The current value of the Y interpolater.
-
-
-                            return function(t)
-                                {
-                                    currentInterpValX = interpolatorX(t);
-                                    d.distAlongPath += (currentInterpValX - lastInterpValX);
-                                    lastInterpValX = currentInterpValX;
-                                    currentInterpValY = interpolatorY(t);
-                                    d.transY += (currentInterpValY - lastInterpValY);  // Determine Y position of the item at this point in the transition.
-                                    lastInterpValY = currentInterpValY;
-                                    currentPoint = pathToScrollAlong.node().getPointAtLength(d.distAlongPath);
-                                    d.transX = currentPoint.x;  // Determine X position of the item at this point in the transition.
-                                    d3.select(this)
-                                        .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });  // Update the item's position.
-                                    generate_clip_paths();
-                                }
-                        })
-                    .each("end", function()
-                        {
-                            // Remove the record of the item neighbours.
-                            draggedItem = null;
-                            leftNeighbour = null;
-                            rightNeighbour = null;
-
-                            generate_clip_paths();
-                        });
-            }
-            else
-            {
-                // The item is outside the carousel.
-                outOfCarousel[d.key] = true;  // Add the item to the list of items outside the carousel.
+                // The dragging of the item started inside the carousel.
                 
-                if (isDragStartInside)
+                if (isDragIsideCarousel)
+                {
+                    // The dragging of the item has ended inside the carousel.
+
+                    // Remove the item from the list of items outside the carousel.
+                    outOfCarousel[d.key] = false;
+
+                    // Transition dragged item to its resting place.
+                    draggedItem
+                        .transition()
+                        .duration(200)
+                        .ease("cubic-out")
+                        .tween("transform", function()
+                            {
+                                var interpolatorX = d3.interpolate(0, d.resting - d.distAlongPath);
+                                var lastInterpValX = 0;  // The last value that came out of the X interpolater.
+                                var currentInterpValX;  // The current value of the X interpolater.
+                                var currentPoint = pathToScrollAlong.node().getPointAtLength(d.resting);
+                                var interpolatorY = d3.interpolate(0, (currentPoint.y - (d.height / 2)) - d.transY);
+                                var lastInterpValY = 0;  // The last value that came out of the Y interpolater.
+                                var currentInterpValY;  // The current value of the Y interpolater.
+
+
+                                return function(t)
+                                    {
+                                        currentInterpValX = interpolatorX(t);
+                                        d.distAlongPath += (currentInterpValX - lastInterpValX);
+                                        lastInterpValX = currentInterpValX;
+                                        currentInterpValY = interpolatorY(t);
+                                        d.transY += (currentInterpValY - lastInterpValY);  // Determine Y position of the item at this point in the transition.
+                                        lastInterpValY = currentInterpValY;
+                                        currentPoint = pathToScrollAlong.node().getPointAtLength(d.distAlongPath);
+                                        d.transX = currentPoint.x;  // Determine X position of the item at this point in the transition.
+                                        d3.select(this)
+                                            .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });  // Update the item's position.
+                                        generate_clip_paths();
+                                    }
+                            })
+                        .each("end", function()
+                            {
+                                // Remove the record of the item neighbours.
+                                draggedItem = null;
+                                leftNeighbour = null;
+                                rightNeighbour = null;
+
+                                generate_clip_paths();
+                            });
+                }
+                else
                 {
                     // The drag started inside the carousel and ended outside it. Therefore, clone the node and place the original back
                     // inside the carousel.
                     
+                    outOfCarousel[d.key] = true;  // Add the item to the list of items outside the carousel.
+                
                     // Setup the clone.
                     var currentItem = d3.select(this);
                     var clonedItem = itemContainer.append(function() { return currentItem.node().cloneNode(true); })
@@ -237,13 +238,29 @@ function dragAndDropCarousel(items)
                             d.transY = currentPoint.y - (d.height / 2);
                             return "translate(" + d.transX + "," + d.transY + ")";
                         });
+
+                    // Remove the record of the item neighbours.
+                    draggedItem = null;
+                    leftNeighbour = null;
+                    rightNeighbour = null;
+
+                    generate_clip_paths();
+                }
+            }
+            else
+            {
+                // The dragging of the item started outside the carousel.
+                
+                if (isDragIsideCarousel)
+                {
+                    // The dragging of the item has ended inside the carousel, but started outside, so delete the item.
+                    d3.select(this).remove();
                 }
 
-                // Remove the record of the item neighbours.
+                // Remove the record of the item neighbours, and update the clipping.
                 draggedItem = null;
                 leftNeighbour = null;
                 rightNeighbour = null;
-
                 generate_clip_paths();
             }
         }
