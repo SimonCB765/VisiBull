@@ -203,11 +203,10 @@ function dragAndDropCarousel(items)
                             })
                         .each("end", function()
                             {
-                                // Remove the record of the item neighbours.
+                                // Remove the record of the item neighbours, and update the clipping.
                                 draggedItem = null;
                                 leftNeighbour = null;
                                 rightNeighbour = null;
-
                                 generate_clip_paths();
                             });
                 }
@@ -235,11 +234,10 @@ function dragAndDropCarousel(items)
                             return "translate(" + d.transX + "," + d.transY + ")";
                         });
 
-                    // Remove the record of the item neighbours.
+                    // Remove the record of the item neighbours, and update the clipping.
                     draggedItem = null;
                     leftNeighbour = null;
                     rightNeighbour = null;
-
                     generate_clip_paths();
                 }
             }
