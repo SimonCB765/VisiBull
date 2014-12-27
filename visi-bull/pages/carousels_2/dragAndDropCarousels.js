@@ -218,8 +218,9 @@ function dragAndDropCarousel(items)
 
                     // Setup the clone.
                     var currentItem = d3.select(this);
+                    var clonedData = $.extend(true, {}, currentItem.datum());
                     var clonedItem = itemContainer.append(function() { return currentItem.node().cloneNode(true); })
-                        .datum(currentItem.datum())
+                        .datum(clonedData)
                         .attr("clip-path", null)
                         .call(dragBehaviour);
                     clonedItem.select(".carouselClip").remove();  // Remove the clip path as it's no longer needed.
