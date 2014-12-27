@@ -125,8 +125,6 @@ function dragAndDropCarousel(items)
         items.call(dragBehaviour);
 
         // Clip the items to the carousel.
-        var outOfCarousel = {};  // A record of items that have been dragged out of the carousel.
-        items.each(function(d) { outOfCarousel[d.key] = false; });
         items.append("clipPath")
             .classed("carouselClip", true)
             .attr("id", function(d) { return d.rootID + "clip-" + d.key; })
@@ -171,9 +169,6 @@ function dragAndDropCarousel(items)
                 if (isDragIsideCarousel)
                 {
                     // The dragging of the item has ended inside the carousel.
-
-                    // Remove the item from the list of items outside the carousel.
-                    outOfCarousel[d.key] = false;
 
                     // Transition dragged item to its resting place.
                     draggedItem
@@ -220,14 +215,14 @@ function dragAndDropCarousel(items)
                 {
                     // The drag started inside the carousel and ended outside it. Therefore, clone the node and place the original back
                     // inside the carousel.
-                    
-                    outOfCarousel[d.key] = true;  // Add the item to the list of items outside the carousel.
-                
+
                     // Setup the clone.
                     var currentItem = d3.select(this);
                     var clonedItem = itemContainer.append(function() { return currentItem.node().cloneNode(true); })
                         .datum(currentItem.datum())
+                        .attr("clip-path", null)
                         .call(dragBehaviour);
+                    clonedItem.select(".carouselClip").remove();  // Remove the clip path as it's no longer needed.
                     
                     // Move the original back to its spot inside the carousel.
                     currentItem.attr("transform", function(itemD)
@@ -309,11 +304,6 @@ function dragAndDropCarousel(items)
             if (isDragIsideCarousel)
             {
                 // The dragged item is still inside the carousel.
-
-                // Remove the item from the list of items outside the carousel.
-                outOfCarousel[d.key] = false;
-
-                // Move the item.
                 d.distAlongPath = carouselLeftEdge + positionInCarousel[0] - dragStartXPos;
                 d.transX = pathToScrollAlong.node().getPointAtLength(d.distAlongPath).x;
                 d.transY = positionInCarousel[1] - dragStartYPos;
@@ -323,11 +313,6 @@ function dragAndDropCarousel(items)
             else
             {
                 // The dragged item is no longer inside the carousel.
-
-                // Add the item to the list of items outside the carousel.
-                outOfCarousel[d.key] = true;
-
-                // Move the item.
                 d.transX = positionInCarousel[0] - dragStartXPos;
                 d.transY = positionInCarousel[1] - dragStartYPos;
                 draggedItem
@@ -345,13 +330,14 @@ function dragAndDropCarousel(items)
         {
             // Generate the clip paths for all items.
 
+            var clippingPath;
             if (draggedItem)
             {
                 // There is an item being dragged.
                 var draggedData = draggedItem.datum();
                 items.each(function(d)
                     {
-                        if (outOfCarousel[d.key] || (draggedData.key === d.key))
+                        if (draggedData.key === d.key)
                         {
                             // The item is outside the carousel or is the one being dragged, and therefore should be completely visible.
                             clippingPath = "M0,0" +
@@ -378,24 +364,12 @@ function dragAndDropCarousel(items)
                 // There is no item being dragged.
                 items.each(function(d)
                     {
-                        if (outOfCarousel[d.key])
-                        {
-                            // The item is outside the carousel, and therefore should be completely visible.
-                            clippingPath = "M0,0" +
-                                "h" + width +
-                                "v" + height +
-                                "h" + -width +
-                                "v" + -height;
-                        }
-                        else
-                        {
-                            // The item is inside the carousel, and should therefore be clipped to the carousel.
-                            clippingPath = "M" + -d.transX + "," + -d.transY +
-                                "h" + width +
-                                "v" + height +
-                                "h" + -width +
-                                "v" + -height;
-                        }
+                        // Clip the item to the carousel.
+                        clippingPath = "M" + -d.transX + "," + -d.transY +
+                            "h" + width +
+                            "v" + height +
+                            "h" + -width +
+                            "v" + -height;
                         d3.select(this).select(".carouselClipPath")
                             .attr("d", clippingPath);
                     });
