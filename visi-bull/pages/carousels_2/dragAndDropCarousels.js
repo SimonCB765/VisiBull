@@ -302,7 +302,6 @@ function dragAndDropCarousel(items)
                                    (positionInCarousel[0] - dragStartXPos < width) &&
                                    (positionInCarousel[1] - dragStartYPos + d.height > 0) &&
                                    (positionInCarousel[1] - dragStartYPos < height));
-            console.log(isDragIsideCarousel);
 
             if (isDragStartInside && isDragIsideCarousel)
             {
