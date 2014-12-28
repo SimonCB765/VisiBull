@@ -114,8 +114,7 @@ function dragAndDropCarousel(items)
         var isDragStartInside;  // Whether the drag started inside the carousel.
         var isDragIsideCarousel;  // Whether the drag is currently inside the carousel.
         var positionInCarousel;  // The position of the mouse during the drag in relation to the carousel.
-        var leftNeighbour = null;  // The item to the left of the one being dragged.
-        var rightNeighbour = null;  // The item to the right of the one being dragged.
+        var neighbours;  // The items to the left and right of the item being dragged.
 
         // Add drag behaviour.
         var dragBehaviour = d3.behavior.drag()
@@ -165,7 +164,7 @@ function dragAndDropCarousel(items)
             if (isDragStartInside)
             {
                 // The dragging of the item started inside the carousel.
-                
+
                 if (isDragIsideCarousel)
                 {
                     // The dragging of the item has ended inside the carousel.
@@ -224,7 +223,7 @@ function dragAndDropCarousel(items)
                         .attr("clip-path", null)
                         .call(dragBehaviour);
                     clonedItem.select(".carouselClip").remove();  // Remove the clip path as it's no longer needed.
-                    
+
                     // Move the original back to its spot inside the carousel.
                     currentItem.attr("transform", function(itemD)
                         {
@@ -245,7 +244,7 @@ function dragAndDropCarousel(items)
             else
             {
                 // The dragging of the item started outside the carousel.
-                
+
                 if (isDragIsideCarousel)
                 {
                     // The dragging of the item has ended inside the carousel, but started outside, so delete the item.
@@ -291,6 +290,9 @@ function dragAndDropCarousel(items)
             navigationArrows = carousel.selectAll(".navArrow")
                 .on("mouseup", null)
                 .on("mouseleave", null);
+
+            // Determine the left and right neighbours of the item being dragged.
+            neighbours = determine_neighbours(d.key);
         }
 
         function drag_update(d)
@@ -300,32 +302,132 @@ function dragAndDropCarousel(items)
                                    (positionInCarousel[0] - dragStartXPos < width) &&
                                    (positionInCarousel[1] - dragStartYPos + d.height > 0) &&
                                    (positionInCarousel[1] - dragStartYPos < height));
+            console.log(isDragIsideCarousel);
 
-            if (isDragIsideCarousel)
+            if (isDragStartInside && isDragIsideCarousel)
             {
-                // The dragged item is still inside the carousel.
+                // The dragged item started inside the carousel and is still inside it.
                 d.distAlongPath = carouselLeftEdge + positionInCarousel[0] - dragStartXPos;
                 d.transX = pathToScrollAlong.node().getPointAtLength(d.distAlongPath).x;
                 d.transY = positionInCarousel[1] - dragStartYPos;
                 draggedItem
                     .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });
+
+                // Determine whether to swap any of the items.
+                check_item_swap();
+
+                // Update the clip paths.
+                generate_clip_paths();
             }
             else
             {
-                // The dragged item is no longer inside the carousel.
+                // The dragged item is no longer inside the carousel or started outside the carousel, so its dragging should have no effect on the items
+                // inside the carousel.
                 d.transX = positionInCarousel[0] - dragStartXPos;
                 d.transY = positionInCarousel[1] - dragStartYPos;
                 draggedItem
                     .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });
-            }
 
-            // Update the clip paths.
-            generate_clip_paths();
+                // Update the clip paths.
+                generate_clip_paths();
+            }
         }
 
         /*******************
         * Helper Functions *
         *******************/
+        function check_item_swap()
+        {
+            // Determine whether to swap any of the items.
+
+            // Determine the data of the items.
+            var draggedData = draggedItem.datum();
+
+            // Determine if the left neighbour should be swapped.
+            if (neighbours.left !== null)
+            {
+                // If there is a left neighbour.
+                var leftNeighbourData = neighbours.left.datum();
+                if ((leftNeighbourData.resting + (leftNeighbourData.width / 2)) >= draggedData.distAlongPath)
+                {
+                    draggedData.resting = leftNeighbourData.resting;
+                    leftNeighbourData.resting = draggedData.resting + draggedData.width + horizontalPadding;
+                    transition_items_swap(neighbours.left);
+
+                    // Determine the new left and right neighbours of the item being dragged.
+                    neighbours = determine_neighbours(draggedData.key);
+                }
+            }
+            else if (isInfinite)
+            {
+                // If there is no left neighbour, but infinite scrolling is being used, then check if the left neighbour has wrapped around the carousel
+                // and is now on the left hand side of the carousel.
+                neighbours = determine_neighbours(draggedData.key);
+            }
+
+            // Determine if the right neighbour should be swapped.
+            if (neighbours.right !== null)
+            {
+                // If there is a right neighbour.
+                var rightNeighbourData = neighbours.right.datum();
+                if ((rightNeighbourData.resting + (rightNeighbourData.width / 2)) <= (draggedData.distAlongPath + draggedData.width))
+                {
+                    rightNeighbourData.resting = draggedData.resting;
+                    draggedData.resting = rightNeighbourData.resting + rightNeighbourData.width + horizontalPadding;
+                    transition_items_swap(neighbours.right);
+
+                    // Determine the new left and right neighbours of the item being dragged.
+                    neighbours = determine_neighbours(draggedData.key);
+                }
+            }
+            else if (isInfinite)
+            {
+                // If there is no right neighbour, but infinite scrolling is being used, then check if the right neighbour has wrapped around the carousel
+                // and is now on the right hand side of the carousel.
+                neighbours = determine_neighbours(draggedData.key);
+            }
+        }
+
+        function determine_neighbours(currentItemKey)
+        {
+            // Get an ordered list of the item keys, with the key at index 0 being the leftmost item in the carousel.
+            var itemPositions = [];
+            var itemKeys = [];
+            items.each(function(itemD) { itemPositions.push({"key": itemD.key, "resting": itemD.resting}); });
+            itemPositions.sort(function (a, b)
+                {
+                    if (a.resting > b.resting) { return 1; }
+                    else if (a.resting < b.resting) { return -1; }
+                    else { return 0; }
+                });
+            for (var i = 0; i < itemPositions.length; i++)
+            {
+                itemKeys.push(itemPositions[i].key);
+            }
+
+            // Determine the position in the item order of the current item and its neighbours.
+            var draggedItemIndex = itemKeys.indexOf(currentItemKey);
+            var leftNeighbourIndex = draggedItemIndex - 1;
+            var rightNeighbourIndex = draggedItemIndex + 1;
+
+            // Determine the neighbour items.
+            var neighbours = {};
+            if (leftNeighbourIndex >= 0)
+            {
+                // If the item being dragged is not already the leftmost item.
+                neighbours["left"] = items.filter(function(itemD) { return itemD.key === itemPositions[leftNeighbourIndex].key; })
+            }
+            else neighbours["left"] = null;
+            if (rightNeighbourIndex <= itemKeys.length - 1)
+            {
+                // If the item being dragged is not already the rightmost item.
+                neighbours["right"] = items.filter(function(itemD) { return itemD.key === itemPositions[rightNeighbourIndex].key; })
+            }
+            else neighbours["right"] = null;
+
+            return neighbours;
+        }
+
         function generate_clip_paths()
         {
             // Generate the clip paths for all items.
@@ -374,6 +476,34 @@ function dragAndDropCarousel(items)
                             .attr("d", clippingPath);
                     });
             }
+        }
+
+        function transition_items_swap(itemToSwap)
+        {
+            // Setup the transition for an item being swapped with a currently dragged item.
+
+            itemToSwap
+                .transition()
+                .duration(200)
+                .ease("cubic-out")
+                .tween("transform", function(d)
+                    {
+                        var interpolatorX = d3.interpolate(0, d.resting - d.distAlongPath);
+                        var lastInterpValX = 0;  // The last value that came out of the X interpolater.
+                        var currentInterpValX;  // The current value of the X interpolater.
+
+                        return function(t)
+                            {
+                                currentInterpValX = interpolatorX(t);
+                                d.distAlongPath += (currentInterpValX - lastInterpValX);
+                                lastInterpValX = currentInterpValX;
+                                currentPoint = pathToScrollAlong.node().getPointAtLength(d.distAlongPath);
+                                d.transX = currentPoint.x;  // Determine X position of the item at this point in the transition.
+                                d3.select(this)
+                                    .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });  // Update the item's position.
+                                generate_clip_paths();
+                            }
+                    });
         }
     }
 
