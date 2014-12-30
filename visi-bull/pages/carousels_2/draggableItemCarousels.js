@@ -421,7 +421,7 @@ function draggableItemCarousel(items)
 
             // Move the items into their new resting positions.
             var offset = isShiftRight ? -width : width;
-            reposition_items(offset);
+            reposition_items(offset, scrollSpeed / 3);
         }
 
         function start_scrollng(isLeft, itemsToNotScroll)
@@ -462,7 +462,7 @@ function draggableItemCarousel(items)
             scrollIntervalTimer = null;
 
             // Move the items into their new resting positions.
-            reposition_items(0);
+            reposition_items(0, scrollSpeed);
         }
 
         /*******************
@@ -596,8 +596,9 @@ function draggableItemCarousel(items)
                 });
         }
 
-        function reposition_items(offset)
+        function reposition_items(offset, scrollSpeed)
         {
+            // scrollSpeed is the time (in ms) that it should take to move the items by one pixel.
 
             // Get the distance of each item from the point of interest.
             var currentPositions = [];
@@ -667,14 +668,15 @@ function draggableItemCarousel(items)
             }
 
             // Move the items into position.
-            if (isInfinite) transition_items_infinite(distanceToShift);
-            else transition_items(distanceToShift);
+            if (isInfinite) transition_items_infinite(distanceToShift, scrollSpeed);
+            else transition_items(distanceToShift, scrollSpeed);
         }
 
-        function transition_items(distanceToShift)
+        function transition_items(distanceToShift, scrollSpeed)
         {
             // Transition the items from their current positions to their resting positions.
             // distanceToShift is the number of units to shift the items by.
+            // scrollSpeed is the time (in ms) that it should take to move the items by one pixel.
 
             // Determine whether either of the navigation arrows should have their inactivity changed.
             var itemPositions = items.data().map(function(d) { return {"pos": d.resting, "width": d.width}; });
@@ -705,10 +707,11 @@ function draggableItemCarousel(items)
                     });
         }
 
-        function transition_items_infinite(distanceToShift)
+        function transition_items_infinite(distanceToShift, scrollSpeed)
         {
             // Transition the items from their current positions to their resting positions.
             // distanceToShift is the number of units to shift the items by.
+            // scrollSpeed is the time (in ms) that it should take to move the items by one pixel.
 
             // Transition items back to their resting locations from wherever they are.
             items
