@@ -4,7 +4,6 @@ _element    -> style declarations for all elements of a given type (html, body, 
 _classes    -> style declarations for specific classes.
 _carousel   -> style declarations for the carousel itself.
 _carousel_navArrow		-> style declarations for the navigation arrows.
-_carousel_navDot		-> style declarations for the navigation dots.
 */
 
 /*
@@ -22,18 +21,17 @@ _classes
 /*
 _carousel
 */
-.carousel {cursor: default; fill: #F8F8F8; fill-opacity: 1; stroke: black; stroke-width: 2}  /* Style the carousel. A fill is needed in order to make the carousel catch events nicely. */
+.carousel {cursor: default; fill: #585858; fill-opacity: 1; stroke: none;}  /* Style the carousel. */
 .scrollPath {fill: none; stroke: none;}  /* Style declarations for the path along which the items are scrolled. */
 
 /*
 _carousel_navArrow
 */
-.navArrow  {opacity: 0;}  /* The default style of the navigation arrows is to be invisible. */
+.navArrow  {opacity: 0; fill: white;}  /* The default style of the navigation arrows is to be invisible. */
 .navArrow.inactive {cursor: default; pointer-events: none;}  /* Style the inactive arrows. */
 .navArrow.visible {opacity: .8;}  /* The navigation arrows should be slightly visible when the carousel is rolled over. */
-.navArrow.visible.inactive  {opacity: .2;}  /* The navigation arrows should be barely visible when unusable. */
-.navArrow.highlight {opacity: .9; cursor: pointer;}  /* When hovered over the navigation arrows should be fully visible. */
-.navArrow.highlight.inactive {opacity: .2;}  /* When hovered over, an inactive navigation arrows should barely be visible. */
-.navArrow.highlight:not(.inactive) path {fill: white;}  /* Style active arrows when highlighted. */
-.navArrow rect {fill: black; fill-opacity: 0; stroke: none;}  /* Style the rectangle that catches events. */
-.navArrow path {fill: lightgrey; stroke: none;}  /* Style the arrow itself. */
+.navArrow.visible.inactive  {opacity: .3;}  /* The navigation arrows should be barely visible when unusable. */
+.navArrow.highlight {opacity: 1; cursor: pointer;}  /* When hovered over the navigation arrows should be fully visible. */
+.navArrow.highlight.inactive {opacity: .3;}  /* When hovered over, an inactive navigation arrows should barely be visible. */
+.navArrow rect {opacity: 0; stroke: none;}  /* Style the rectangle that catches events. */
+.navArrow path {stroke: none;}  /* Style the arrow itself. */
