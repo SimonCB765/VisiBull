@@ -16,60 +16,6 @@
 
 {% block content %}
 <!--Block for including the content of the page within the div.content tag.-->
-<p>
-    Carousels with individually moveable items can be found <a href="{{ url_for('prettyPictures', prettyPictureName='carousels_2') }}">here</a>.
-</p>
-<p>
-    Carousel schematic diagram
-    .carousel
-        .itemContainer - dragging operates on this
-            rect.backingRect
-            path.scrollPath
-            g.item
-        .navArrow.left - arrow nav operates on this
-            rect
-            path
-        .navArrow.right - arrow nav operates on this
-            rect
-            path
-        .navDotContainer
-            rect
-            g.navDot - dot nav operates on these
-                rect
-                circle
-</p>
-<p>
-    Parameter options and what they do
-</p>
-<p>
-            description of how it all works
-                moving along path
-                record all possible sets of items that can be shown
-                determine what needs to be done to get the desired set in view
-</p>
-<p>
-    Items only need the following entries in their data objects
-                "height": 100,  // Height of the item.
-                "key": i,  // Unique identifier for the item.
-                "rootID": svgID,  // The root of the ID used to refer to the item clip paths.
-                "width": itemWidth  // Width of the item.
-</p>
-<p>
-    items get added data field - transX, transY, distAlongPath, resting<br>
-    swipe behaviour can be easily added if needed (should work just like dragging)<br>
-    items passed in will be moved to be under the carousel, not have whatever they currently have as a parent.<br>
-    If have X items, can only put X - 1 in the items to view<br>
-    Assumes that the number of items to scroll by is less than the total number of items<br>
-    can drag, click on arrows/dots to move carousel<br>
-    clip paths are added (with an id) to eac item to clip them to the carousel<br>
-    The carousel does not care about the shape of the items, its just places and manipulates them
-            The items can be any shape, provided the height and width given accurately capture the items height and width<br>
-    navigation arrow can be changed to anything, but need to make sure that the arrow width/height will accomodate the new shape, or clicking will be more fiddly<br>
-    nav dots can have their shape changed, but need to make sure that the radius provided could encompass the new shape, or clicking will be fiddly<br>
-        Say that events will trigger on items in carousel
-            for standard carousel should not be a problem as you're never taking the items out of the carousel<br>
-</p>
-<br>
 <h2>Single Item Carousels</h2>
 <div>
     <div class="adj">
@@ -230,4 +176,59 @@ svg.call(carousel);</code></pre>
 svg.call(carousel);</code></pre>
     </div>
 </div>
+<br>
+<br>
+<h2>Layout Schematic</h2>
+<p>
+    Carousel schematic diagram
+    .carousel
+        .itemContainer - dragging operates on this
+            rect.backingRect
+            path.scrollPath
+            g.item
+        .navArrow.left - arrow nav operates on this
+            rect
+            path
+        .navArrow.right - arrow nav operates on this
+            rect
+            path
+        .navDotContainer
+            rect
+            g.navDot - dot nav operates on these
+                rect
+                circle
+</p>
+<br>
+<h2>Usage</h2>
+<p>
+    Parameter options and what they do
+</p>
+<p>
+            description of how it all works
+                moving along path
+                record all possible sets of items that can be shown
+                determine what needs to be done to get the desired set in view
+</p>
+<p>
+    Items only need the following entries in their data objects
+                "height": 100,  // Height of the item.
+                "key": i,  // Unique identifier for the item.
+                "rootID": svgID,  // The root of the ID used to refer to the item clip paths.
+                "width": itemWidth  // Width of the item.
+</p>
+<p>
+    items get added data field - transX, transY, distAlongPath, resting<br>
+    swipe behaviour can be easily added if needed (should work just like dragging)<br>
+    items passed in will be moved to be under the carousel, not have whatever they currently have as a parent.<br>
+    If have X items, can only put X - 1 in the items to view<br>
+    Assumes that the number of items to scroll by is less than the total number of items<br>
+    can drag, click on arrows/dots to move carousel<br>
+    clip paths are added (with an id) to eac item to clip them to the carousel<br>
+    The carousel does not care about the shape of the items, its just places and manipulates them
+            The items can be any shape, provided the height and width given accurately capture the items height and width<br>
+    navigation arrow can be changed to anything, but need to make sure that the arrow width/height will accomodate the new shape, or clicking will be more fiddly<br>
+    nav dots can have their shape changed, but need to make sure that the radius provided could encompass the new shape, or clicking will be fiddly<br>
+        Say that events will trigger on items in carousel
+            for standard carousel should not be a problem as you're never taking the items out of the carousel<br>
+</p>
 {% endblock %}
