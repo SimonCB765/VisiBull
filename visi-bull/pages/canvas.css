@@ -1,0 +1,15 @@
+/*
+Contents:
+_element    -> style declarations for all elements of a given type (html, body, table, all p tags etc.).
+_footer     -> style declarations for the <footer> tag
+*/
+
+/* Reset all padding and margins. */
+* {margin: 0; padding: 0;}
+
+/*
+_element
+*/
+body {font-family: "Segoe UI", sans-serif;}
+a {color: #FF0066; font-weight: bold;}
+a:not(:hover) {text-decoration: none;}  /* Remove the underline that would normally be present on links (except when hovered over). */
