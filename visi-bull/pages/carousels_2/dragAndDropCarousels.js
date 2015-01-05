@@ -323,6 +323,10 @@ function dragAndDropCarousel(items)
                 generate_clip_paths();
             }
 
+            // Stop the scrolling (if it is occurring).
+            clearInterval(scrollIntervalTimer);
+            scrollIntervalTimer = null;
+
             // Add back the behaviour of the navigation arrows.
             navigationArrows = carousel.selectAll(".navArrow")
                 .on("mouseup", stop_scrolling)
