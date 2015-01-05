@@ -118,7 +118,6 @@ function draggableItemCarousel(items)
             .attr("id", function(d) { return d.rootID + "clip-" + d.key; })
             .append("path")
                 .classed("carouselClipPath", true)
-                .attr("clip-rule", "evenodd")
                 .attr("d", "");
         generate_clip_paths();
         items.attr("clip-path", function(d) { return "url(#" + (d.rootID + "clip-" + d.key) + ")"; });
@@ -758,6 +757,10 @@ function draggableItemCarousel(items)
             // Setup the transition for an item being swapped with a currently dragged item.
             // itemToSwap is a D3 selection containing the item that is to be swapped with the dragged item.
 
+            // Transition swapped item to its resting place. This is done by pushing the item in a certain direction on each tick of the
+            // transition (rather than the usual method of transitioning from one absolute position to another). This way if the carousel
+            // is shifted during the transition, the item will still transition properly, just to a slightly different location than
+            // was expected when it was first swapped.
             itemToSwap
                 .transition()
                 .duration(200)
