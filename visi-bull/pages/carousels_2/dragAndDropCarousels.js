@@ -11,10 +11,10 @@ function dragAndDropCarousel(items)
         horizontalPadding = 10,  // The amount of padding to put on the left and right of the item. Half the padding goes on the left and half on the right.
         verticalPadding = 10,  // The amount of padding to put above and below the item. Half the padding goes above and half below.
                                // Shorter items may appear to have more space around them than the value of verticalPadding says they should. This is
-                               // because shorter items will be centered in the carousel, and will therefore have extra space above and below them.
+                               // because shorter items will be vertically centered in the carousel, and will therefore have extra space above and below them.
         isArrows = true,  // Whether to display arrows at the sides of the carousel that scroll the carousel when clicked.
-        navArrowWidth = null,  // The width of the navigation arrow.
-        navArrowHeight = null,  // The height of the navigation arrow.
+        navArrowWidth = null,  // The width of the box around the navigation arrow that intercepts clicks on the navigation arrow.
+        navArrowHeight = null,  // The height of the box around the navigation arrow that intercepts clicks on the navigation arrow.
         scrollSpeed = 5,  // The time (in ms) taken for the carousel to scroll one unit. A lower number is faster.
         isInfinite = false;  // Whether the carousel should be a centered and infinite looping one.
 
@@ -51,7 +51,11 @@ function dragAndDropCarousel(items)
             .attr("width", width)
             .attr("height", height);
 
-        // Setup the scroll path.
+        // Setup the scroll path. The positioning and length of the path needs to take into account the width of the items.
+        // Infinite scrolling carousels need a path with a length equal to the cumulative widths of the items, and is positioned such that the
+        // middle of the path is in the middle of the carousel.
+        // A non-infinite scrolling carousel needs a path with a length that can accommodate all items to the right of the left edge of the carousel,
+        // and still has enough space to hide the widest item outside the carousel's left edge (for hiding items that have been scrolled off the left edge).
         var scrollPathLength;  // The length of the path along which the scrolling will occur.
         if (isInfinite) scrollPathLength = d3.sum(itemWidths) + (horizontalPadding * items.size());
         else scrollPathLength = d3.sum(itemWidths) + (horizontalPadding * items.size()) + d3.max(itemWidths);
@@ -60,16 +64,17 @@ function dragAndDropCarousel(items)
         if (isInfinite) scrollPathStartX = (width / 2) - (scrollPathLength / 2);
         else scrollPathStartX = -d3.max(itemWidths);  // Want the path to be able to contain the widest item off screen to the left.
 
-        // Determine the position where the leftmost item in the carousel will start.
-        var leftItemStartX;  // The X location of the leftmost item in the view.
+        // Determine the position where the leftmost item in the carousel will start in terms of its X coordinate within the carousel and its
+        // fractional distance along the path.
+        var leftItemStartX;  // The X location of the leftmost item.
         if (isInfinite) leftItemStartX = (width / 2) - (d3.select(items[0][0]).datum().width / 2);
         else leftItemStartX = horizontalPadding / 2;
-        var leftItemStartDist = leftItemStartX - scrollPathStartX;  // The location of the leftmost item in the view in terms of its fractional distance along the path.
+        var leftItemStartDist = leftItemStartX - scrollPathStartX;  // The fractional distance along the path of the leftmost item.
 
-        // Determine the center and boundaries of the carousel in relation to their distance along the scroll path.
+        // Determine the center and left/right edges of the carousel in relation to their distance along the scroll path.
         var distOfCenter = (width / 2) - scrollPathStartX;  // The distance of the center of the carousel along the scroll path.
-        var carouselLeftEdge = -scrollPathStartX;
-        var carouselRightEdge = carouselLeftEdge + width;
+        var carouselLeftEdge = -scrollPathStartX;  // The distance of the left edge of the carousel along the scroll path.
+        var carouselRightEdge = carouselLeftEdge + width;  // The distance of the right edge of the carousel along the scroll path.
 
         // Create the path to scroll along.
         var pathToScrollAlong = itemContainer.append("path")
@@ -79,29 +84,29 @@ function dragAndDropCarousel(items)
         // Transfer the items into the carousel from wherever they currently are.
         items.each(function() { itemContainer.node().appendChild(this); });
 
-        // Put the items in the initial places.
-        var currentItemDist = leftItemStartDist;  // Distance along the path of the current item.
+        // Put the items in their initial places.
+        var currentItemDist = leftItemStartDist;  // The distance along the path of the current item.
         var positionAlongPath;  // The coordinates of the point on the path at a distance of currentItemDist along it.
         items.attr("transform", function(d, i)
             {
-                // Update the currentItemDist to position the current item. Wrap the item's position around to the left of the items in view if necessary.
+                // Update the currentItemDist to position the current item.
                 if (i !== 0)
                 {
                     // If the item is not the first one.
                     currentItemDist += (horizontalPadding / 2);
                 }
-                currentItemDist = (scrollPathLength + currentItemDist) % scrollPathLength;
+                currentItemDist = (scrollPathLength + currentItemDist) % scrollPathLength;  // Wrap the item around to the left of the first item if its starting point is off the right end of the path.
 
                 // Get the coordinates of the position currentItemDist along the path.
                 positionAlongPath = pathToScrollAlong.node().getPointAtLength(currentItemDist);
 
-                // Update item position.
+                // Update item position data.
                 d.resting = currentItemDist;
                 d.distAlongPath = d.resting;
                 d.transX = positionAlongPath.x;
                 d.transY = positionAlongPath.y - (d.height / 2);
 
-                // Set position for next item.
+                // Set the currentItemDist to the right edge of the current item.
                 currentItemDist += (d.width + (horizontalPadding / 2));
 
                 return "translate(" + d.transX + "," + d.transY + ")";
@@ -200,6 +205,8 @@ function dragAndDropCarousel(items)
         *************************************/
         function drag_end(d)
         {
+            // Handler for dragend events.
+
             // Determine whether either of the navigation arrows should have their inactivity changed.
             var itemPositions = items.data().map(function(itemD) { return {"pos": itemD.resting, "width": itemD.width}; });
             var maxRightEdge = d3.max(itemPositions.map(function(itemD) { return itemD.pos + itemD.width; }));
@@ -213,7 +220,7 @@ function dragAndDropCarousel(items)
                 .on("mouseout", function() { d3.select(this).classed("highlight", false); })
 
             // Determine whether the item is inside the carousel.
-            positionInCarousel = d3.mouse(this.parentNode);  // The position of the mouse in the carousel.
+            positionInCarousel = d3.mouse(this.parentNode);
             isDragIsideCarousel = ((positionInCarousel[0] - dragStartXPos + d.width > 0) &&
                                    (positionInCarousel[0] - dragStartXPos < width) &&
                                    (positionInCarousel[1] - dragStartYPos + d.height > 0) &&
@@ -227,7 +234,10 @@ function dragAndDropCarousel(items)
                 {
                     // The dragging of the item has ended inside the carousel.
 
-                    // Transition dragged item to its resting place.
+                    // Transition dragged item to its resting place. This is done by pushing the item in a certain direction on each tick of the
+                    // transition (rather than the usual method of transitioning from one absolute position to another). This way if the carousel
+                    // is shifted during the transition, the item will still transition properly, just to a slightly different location than
+                    // was expected when it was released.
                     draggedItem
                         .transition()
                         .duration(200)
@@ -262,8 +272,7 @@ function dragAndDropCarousel(items)
                             {
                                 // Remove the record of the item neighbours, and update the clipping.
                                 draggedItem = null;
-                                leftNeighbour = null;
-                                rightNeighbour = null;
+                                neighbours = null;
                                 generate_clip_paths();
                             });
                 }
@@ -294,8 +303,7 @@ function dragAndDropCarousel(items)
 
                     // Remove the record of the item neighbours, and update the clipping.
                     draggedItem = null;
-                    leftNeighbour = null;
-                    rightNeighbour = null;
+                    neighbours = null;
                     generate_clip_paths();
                 }
             }
@@ -311,8 +319,7 @@ function dragAndDropCarousel(items)
 
                 // Remove the record of the item neighbours, and update the clipping.
                 draggedItem = null;
-                leftNeighbour = null;
-                rightNeighbour = null;
+                neighbours = null;
                 generate_clip_paths();
             }
 
@@ -324,25 +331,29 @@ function dragAndDropCarousel(items)
 
         function drag_start(d)
         {
+            // Handler for dragstart events.
+
+            // Record information about the drag.
             draggedItem = d3.select(this);
             dragStartXPos = d3.mouse(this)[0];
             dragStartYPos = d3.mouse(this)[1];
+            positionInCarousel = d3.mouse(this.parentNode);
 
-            positionInCarousel = d3.mouse(this.parentNode);  // The position of the mouse in the carousel.
+            // Determine whether the item is inside the carousel.
             isDragStartInside = ((positionInCarousel[0] - dragStartXPos + d.width > 0) &&
                                  (positionInCarousel[0] - dragStartXPos < width) &&
                                  (positionInCarousel[1] - dragStartYPos + d.height > 0) &&
                                  (positionInCarousel[1] - dragStartYPos < height));
 
-            // Remove and add the item back on top. This enables you to reorder items on top of each other as you please.
-            draggedItem.remove();
-            itemContainer.append(function() { return draggedItem.node(); });
-            generate_clip_paths();
-
             // Kill any transitions that the dragged item is undergoing or is scheduled to undergo.
             draggedItem
                 .interrupt() // Cancel any transitions running on this item.
                 .transition(); // Pre-empt any scheduled transitions on this item.
+
+            // Remove and add the item back on top. This enables you to reorder items on top of each other as you please.
+            draggedItem.remove();
+            itemContainer.append(function() { return draggedItem.node(); });
+            generate_clip_paths();
 
             // Remove the highlighting of the navigation arrows.
             navigationArrows
@@ -360,7 +371,10 @@ function dragAndDropCarousel(items)
 
         function drag_update(d)
         {
-            positionInCarousel = d3.mouse(this.parentNode);  // The position of the mouse in the carousel.
+            // Handler for drag events.
+
+            // Determine where the item is in relation to the carousel.
+            positionInCarousel = d3.mouse(this.parentNode);
             isDragIsideCarousel = ((positionInCarousel[0] - dragStartXPos + d.width > 0) &&
                                    (positionInCarousel[0] - dragStartXPos < width) &&
                                    (positionInCarousel[1] - dragStartYPos + d.height > 0) &&
@@ -369,6 +383,8 @@ function dragAndDropCarousel(items)
             if (isDragStartInside && isDragIsideCarousel)
             {
                 // The dragged item started inside the carousel and is still inside it.
+
+                // Update the dragged item's position.
                 d.distAlongPath = carouselLeftEdge + positionInCarousel[0] - dragStartXPos;
                 d.transX = pathToScrollAlong.node().getPointAtLength(d.distAlongPath).x;
                 d.transY = positionInCarousel[1] - dragStartYPos;
@@ -426,12 +442,13 @@ function dragAndDropCarousel(items)
         var isShiftRight;  // Whether the items are being scrolled rightwards.
         function leave_stop_scrolling()
         {
+            // Handler for the mouseleave event on the navigation arrow.
             if (scrollIntervalTimer !== null) stop_scrolling();
         }
 
         function scroll_carousel(itemsToNotScroll)
         {
-            // Scroll the carousel.
+            // Scroll non-infinite carousels.
             // itemsToNotScroll is an array of the keys of the items that should not be moved.
 
             // Determine number of items left of the carousel's left edge, and right of the carousel's right edge.
@@ -454,6 +471,7 @@ function dragAndDropCarousel(items)
                         d.resting += (isShiftRight ? 1 : -1);
                         if (itemsToNotScroll.indexOf(d.key) === -1)
                         {
+                            // If the item is to be scrolled.
                             d.distAlongPath += (isShiftRight ? 1 : -1);
                             currentPoint = pathToScrollAlong.node().getPointAtLength(Math.max(0, Math.min(d.distAlongPath, scrollPathLength)));
                             d.transX = currentPoint.x;
@@ -470,7 +488,7 @@ function dragAndDropCarousel(items)
 
         function scroll_carousel_infinite(itemsToNotScroll)
         {
-            // Scroll the carousel.
+            // Scroll infinite carousels.
             // itemsToNotScroll is an array of the keys of the items that should not be moved.
 
             var currentPoint;
@@ -480,6 +498,7 @@ function dragAndDropCarousel(items)
                     d.resting = (scrollPathLength + d.resting) % scrollPathLength;
                     if (itemsToNotScroll.indexOf(d.key) === -1)
                     {
+                        // If the item is one that should be be scrolled.
                         d.distAlongPath += (isShiftRight ? 1 : -1);
                         d.distAlongPath = (scrollPathLength + d.distAlongPath) % scrollPathLength;
                         currentPoint = pathToScrollAlong.node().getPointAtLength(d.distAlongPath);
@@ -540,6 +559,8 @@ function dragAndDropCarousel(items)
 
         function stop_scrolling()
         {
+            // Stop the scrolling.
+
             // Stop the timer used to scroll the carousel.
             clearInterval(scrollIntervalTimer);
             scrollIntervalTimer = null;
@@ -555,7 +576,7 @@ function dragAndDropCarousel(items)
         {
             // Determine whether to swap any of the items.
 
-            // Determine the data of the items.
+            // Determine the data of the dragged item.
             var draggedData = draggedItem.datum();
 
             // Determine if the left neighbour should be swapped.
@@ -569,7 +590,7 @@ function dragAndDropCarousel(items)
                     leftNeighbourData.resting = draggedData.resting + draggedData.width + horizontalPadding;
                     transition_items_swap(neighbours.left);
 
-                    // Determine the new left and right neighbours of the item being dragged.
+                    // Determine the new neighbours of the item being dragged.
                     neighbours = determine_neighbours(draggedData.key);
                 }
             }
@@ -591,7 +612,7 @@ function dragAndDropCarousel(items)
                     draggedData.resting = rightNeighbourData.resting + rightNeighbourData.width + horizontalPadding;
                     transition_items_swap(neighbours.right);
 
-                    // Determine the new left and right neighbours of the item being dragged.
+                    // Determine the new neighbours of the item being dragged.
                     neighbours = determine_neighbours(draggedData.key);
                 }
             }
@@ -605,6 +626,9 @@ function dragAndDropCarousel(items)
 
         function determine_neighbours(currentItemKey)
         {
+            // Determine the items immediately to the left and right of the item being dragged.
+            // currentItemKey is the key of the item being dragged.
+
             // Get an ordered list of the item keys, with the key at index 0 being the leftmost item in the carousel.
             var itemPositions = [];
             var itemKeys = [];
@@ -620,7 +644,7 @@ function dragAndDropCarousel(items)
                 itemKeys.push(itemPositions[i].key);
             }
 
-            // Determine the position in the item order of the current item and its neighbours.
+            // Determine the position in the item order of the dragged item and its neighbours.
             var draggedItemIndex = itemKeys.indexOf(currentItemKey);
             var leftNeighbourIndex = draggedItemIndex - 1;
             var rightNeighbourIndex = draggedItemIndex + 1;
@@ -695,13 +719,18 @@ function dragAndDropCarousel(items)
 
         function reposition_items(offset, scrollSpeed)
         {
+            // Update the positions of the items.
+            // offset is the distance by which the items should be shifted.
             // scrollSpeed is the time (in ms) that it should take to move the items by one pixel.
 
-            // Get the distance of each item from the point of interest.
-            var currentPositions = [];
-            var shortestDistance = scrollPathLength;
+            // Get the distance of each item from the point of interest. The point of interest is the point on the scroll path that the carousel
+            // should be rotated to focus on. Conceptually, the items are held in place, and the carousel rotated to focus on a new set of items.
+            // For an infinitely scrolled carousel, the point of interest is offset away from the center of the carousel.
+            // For a non-infinitely scrolled carousel, the point of interest is offset away from (carouselLeftEdge + (horizontalPadding / 2)).
             var pointOfInterest;
-            var calcDistanceToPoint;
+            var currentPositions = [];  // A record of the distance from each item to the point of interest.
+            var shortestDistance = scrollPathLength;  // The distance between the item closest to the point of interest and the point.
+            var calcDistanceToPoint;  // The function used to calculate the distance that an item is from the point of interest.
             if (isInfinite)
             {
                 pointOfInterest = distOfCenter + offset;
@@ -737,11 +766,10 @@ function dragAndDropCarousel(items)
                     }
                 });
 
-            // Determine the distance to be shifted.
+            // Determine the distance to be shifted, and set the new resting positions of the items.
             var distanceToShift = (isShiftRight ? shortestDistance : -shortestDistance) + -offset;
             if (isInfinite)
             {
-                // Set the new resting positions of the items.
                 items.each(function(d)
                     {
                         d.resting = d.distAlongPath + distanceToShift;
@@ -756,8 +784,6 @@ function dragAndDropCarousel(items)
                 var maxDistLeft = d3.min(items.data().map(function(d) { return d.distAlongPath; })) - leftItemStartDist;
                 var maxDistRight = d3.max(items.data().map(function(d) { return d.distAlongPath + d.width + (horizontalPadding / 2); })) - carouselRightEdge;
                 distanceToShift = Math.max(-maxDistRight, Math.min(-maxDistLeft, distanceToShift));
-
-                // Set the new resting positions of the items.
                 items.each(function(d)
                     {
                         d.resting = d.distAlongPath + distanceToShift;
@@ -771,7 +797,7 @@ function dragAndDropCarousel(items)
 
         function transition_items(distanceToShift, scrollSpeed)
         {
-            // Transition the items from their current positions to their resting positions.
+            // Transition the items in a non-infinite carousel from their current positions to their resting positions.
             // distanceToShift is the number of units to shift the items by.
             // scrollSpeed is the time (in ms) that it should take to move the items by one pixel.
 
@@ -805,7 +831,7 @@ function dragAndDropCarousel(items)
 
         function transition_items_infinite(distanceToShift, scrollSpeed)
         {
-            // Transition the items from their current positions to their resting positions.
+            // Transition the items in an infinite carousel from their current positions to their resting positions.
             // distanceToShift is the number of units to shift the items by.
             // scrollSpeed is the time (in ms) that it should take to move the items by one pixel.
 
@@ -873,6 +899,7 @@ function dragAndDropCarousel(items)
         function transition_items_swap(itemToSwap)
         {
             // Setup the transition for an item being swapped with a currently dragged item.
+            // itemToSwap is a D3 selection containing the item that is to be swapped with the dragged item.
 
             itemToSwap
                 .transition()

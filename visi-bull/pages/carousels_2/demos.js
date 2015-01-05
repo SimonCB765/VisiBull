@@ -8,7 +8,7 @@ $(document).ready(function()
     indiv_drag("Indiv-Non-Var-Non-Inf", false);
     indiv_variable_item_drag("Indiv-Var-Non-Inf", false);
 
-    // Create the drag and drop demos.
+    // Create the drag and drop demo.
     drag_drop("Drag-Drop-Var", true);
 });
 

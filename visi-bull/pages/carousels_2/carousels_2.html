@@ -17,6 +17,8 @@
 
 {% block content %}
 <!--Block for including the content of the page within the div.content tag.-->
+<h2>Individually Draggable Items</h2>
+<br>
 <div>
     <div class="adj">
         <h3 class="centerText">Uniform Shapes and Sizes</h3>
@@ -37,29 +39,11 @@
         <svg id="Indiv-Var-Non-Inf" />
     </div>
 </div>
-<br>
+<br><br><br>
 <h2>Drag and Drop Carousels</h2>
 <br>
-<p>
-        Note that you can have any shaped items for the drag and drop ones<br>
-        comment that overlapping of the border of the carousel element can be handled in the clipping by taking into account the border width
-            as the stroke goes half inside object and half outside ned to alter the clipping<br>
-    The carousel does not care about the shape of the items, its just places and manipulates them
-            The items can be any shape, provided the height and width given accurately capture the items height and width<br>
-</p>
-<br>
-<h2>Individually Draggable Items</h2>
-<p>
-    Each item must be the same shape (only needed so tat the clipping works properly when items are being dragged and scrolled in).<br>
-    Here they must all be rectangles, with the width and height of the rects defined as width and height in their data object.<br>
-    The rectangles can be defined as <rect> or <path>, either is fine so long as they meet the width and height requirements.<br>
-    It's fairly easy to change the required shape, or to add more in, simply by changing the data object requirements and the clip generating function.<br>
-    clip paths are added (with an id) to eac item to clip them to the carousel<br>
-</p>
 <svg id="Drag-Drop-Var" style="display:block; margin: auto;">
-<br>
-<br>
-<br>
+<br><br><br>
 <h2>Layout Schematic</h2>
 <p>
     Carousel schematic diagram
@@ -94,6 +78,9 @@
         Say that events will trigger on items in carousel
             for indiv carousel can either create the handlers in such a way that they only fire outside the carousel or
                 can create functions to save ad remove the handlers when the items are added, and then restore them again when the items are moved out of the carousel
-                just need to make sure that there are no handlers that interfere with the dragging of the items themselves
+                just need to make sure that there are no handlers that interfere with the dragging of the items themselves<br>
+    Note that you can have any shaped items for the drag and drop ones<br>
+    The carousel does not care about the shape of the items, its just places and manipulates them
+            The items can be any shape, provided the height and width given accurately capture the items height and width<br>
 </p>
 {% endblock %}

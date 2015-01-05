@@ -11,10 +11,10 @@ function draggableItemCarousel(items)
         horizontalPadding = 10,  // The amount of padding to put on the left and right of the item. Half the padding goes on the left and half on the right.
         verticalPadding = 10,  // The amount of padding to put above and below the item. Half the padding goes above and half below.
                                // Shorter items may appear to have more space around them than the value of verticalPadding says they should. This is
-                               // because shorter items will be centered in the carousel, and will therefore have extra space above and below them.
+                               // because shorter items will be vertically centered in the carousel, and will therefore have extra space above and below them.
         isArrows = true,  // Whether to display arrows at the sides of the carousel that scroll the carousel when clicked.
-        navArrowWidth = null,  // The width of the navigation arrow.
-        navArrowHeight = null,  // The height of the navigation arrow.
+        navArrowWidth = null,  // The width of the box around the navigation arrow that intercepts clicks on the navigation arrow.
+        navArrowHeight = null,  // The height of the box around the navigation arrow that intercepts clicks on the navigation arrow.
         scrollSpeed = 5,  // The time (in ms) taken for the carousel to scroll one unit. A lower number is faster.
         isInfinite = false;  // Whether the carousel should be a centered and infinite looping one.
 
@@ -51,7 +51,11 @@ function draggableItemCarousel(items)
             .attr("width", width)
             .attr("height", height);
 
-        // Setup the scroll path.
+        // Setup the scroll path. The positioning and length of the path needs to take into account the width of the items.
+        // Infinite scrolling carousels need a path with a length equal to the cumulative widths of the items, and is positioned such that the
+        // middle of the path is in the middle of the carousel.
+        // A non-infinite scrolling carousel needs a path with a length that can accommodate all items to the right of the left edge of the carousel,
+        // and still has enough space to hide the widest item outside the carousel's left edge (for hiding items that have been scrolled off the left edge).
         var scrollPathLength;  // The length of the path along which the scrolling will occur.
         if (isInfinite) scrollPathLength = d3.sum(itemWidths) + (horizontalPadding * items.size());
         else scrollPathLength = d3.sum(itemWidths) + (horizontalPadding * items.size()) + d3.max(itemWidths);
@@ -60,16 +64,17 @@ function draggableItemCarousel(items)
         if (isInfinite) scrollPathStartX = (width / 2) - (scrollPathLength / 2);
         else scrollPathStartX = -d3.max(itemWidths);  // Want the path to be able to contain the widest item off screen to the left.
 
-        // Determine the position where the leftmost item in the carousel will start.
-        var leftItemStartX;  // The X location of the leftmost item in the view.
+        // Determine the position where the leftmost item in the carousel will start in terms of its X coordinate within the carousel and its
+        // fractional distance along the path.
+        var leftItemStartX;  // The X location of the leftmost item.
         if (isInfinite) leftItemStartX = (width / 2) - (d3.select(items[0][0]).datum().width / 2);
         else leftItemStartX = horizontalPadding / 2;
-        var leftItemStartDist = leftItemStartX - scrollPathStartX;  // The location of the leftmost item in the view in terms of its fractional distance along the path.
+        var leftItemStartDist = leftItemStartX - scrollPathStartX;  // The fractional distance along the path of the leftmost item.
 
-        // Determine the center and boundaries of the carousel in relation to their distance along the scroll path.
+        // Determine the center and left/right edges of the carousel in relation to their distance along the scroll path.
         var distOfCenter = (width / 2) - scrollPathStartX;  // The distance of the center of the carousel along the scroll path.
-        var carouselLeftEdge = -scrollPathStartX;
-        var carouselRightEdge = carouselLeftEdge + width;
+        var carouselLeftEdge = -scrollPathStartX;  // The distance of the left edge of the carousel along the scroll path.
+        var carouselRightEdge = carouselLeftEdge + width;  // The distance of the right edge of the carousel along the scroll path.
 
         // Create the path to scroll along.
         var pathToScrollAlong = itemContainer.append("path")
@@ -79,38 +84,33 @@ function draggableItemCarousel(items)
         // Transfer the items into the carousel from wherever they currently are.
         items.each(function() { itemContainer.node().appendChild(this); });
 
-        // Put the items in the initial places.
-        var currentItemDist = leftItemStartDist;  // Distance along the path of the current item.
+        // Put the items in their initial places.
+        var currentItemDist = leftItemStartDist;  // The distance along the path of the current item.
         var positionAlongPath;  // The coordinates of the point on the path at a distance of currentItemDist along it.
         items.attr("transform", function(d, i)
             {
-                // Update the currentItemDist to position the current item. Wrap the item's position around to the left of the items in view if necessary.
+                // Update the currentItemDist to position the current item.
                 if (i !== 0)
                 {
                     // If the item is not the first one.
                     currentItemDist += (horizontalPadding / 2);
                 }
-                currentItemDist = (scrollPathLength + currentItemDist) % scrollPathLength;
+                currentItemDist = (scrollPathLength + currentItemDist) % scrollPathLength;  // Wrap the item around to the left of the first item if its starting point is off the right end of the path.
 
                 // Get the coordinates of the position currentItemDist along the path.
                 positionAlongPath = pathToScrollAlong.node().getPointAtLength(currentItemDist);
 
-                // Update item position.
+                // Update item position data.
                 d.resting = currentItemDist;
                 d.distAlongPath = d.resting;
                 d.transX = positionAlongPath.x;
                 d.transY = positionAlongPath.y - (d.height / 2);
 
-                // Set position for next item.
+                // Set the currentItemDist to the right edge of the current item.
                 currentItemDist += (d.width + (horizontalPadding / 2));
 
                 return "translate(" + d.transX + "," + d.transY + ")";
             });
-
-        // Create a mapping to record for each item, i, which other items need to be added to i's clip path in order to correctly show the
-        // items overlapping during drags.
-        var itemsOverlappedBy = {};
-        items.each(function(d) { itemsOverlappedBy[d.key] = []; });
 
         // Clip the items to the carousel.
         items.append("clipPath")
@@ -195,11 +195,11 @@ function draggableItemCarousel(items)
         * Individual Item Dragging Functions *
         *************************************/
         var draggedItem = null;  // The item that is being dragged.
-        var dragStartXPos;  // The position within the item that the user clicked in order to drag.
-        var leftNeighbour = null;  // The item to the left of the one being dragged.
-        var rightNeighbour = null;  // The item to the right of the one being dragged.
+        var dragStartXPos;  // The X coordinate within the item that the user clicked in order to drag.
+        var neighbours;  // The items to the left and right of the item being dragged.
         function drag_end()
         {
+            // Handler for dragend events.
 
             // Determine whether either of the navigation arrows should have their inactivity changed.
             var itemPositions = items.data().map(function(d) { return {"pos": d.resting, "width": d.width}; });
@@ -213,7 +213,10 @@ function draggableItemCarousel(items)
                 .on("mouseover", function() { d3.select(this).classed("highlight", true); })
                 .on("mouseout", function() { d3.select(this).classed("highlight", false); })
 
-            // Transition dragged item to its resting place.
+            // Transition dragged item to its resting place. This is done by pushing the item in a certain direction on each tick of the
+            // transition (rather than the usual method of transitioning from one absolute position to another). This way if the carousel
+            // is shifted during the transition, the item will still transition properly, just to a slightly different location than
+            // was expected when it was released.
             clearInterval(scrollIntervalTimer);
             scrollIntervalTimer = null;
             draggedItem
@@ -238,18 +241,6 @@ function draggableItemCarousel(items)
                                     .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });  // Update the item's position.
                                 generate_clip_paths();
                             }
-                    })
-                .each("end", function(d)
-                    {
-                        // Remove the item that has just finished moving into place from all other items' clip paths. This is safe (even if the item
-                        // moving into place is clicked on again) as this will only fire once the item finishes transitioning, and will not fire from
-                        // an interruption. The item that has finished transitioning is therefore marked as not being on top of any items.
-                        items.each(function(itemD)
-                            {
-                                var indexOfDInItemD = itemsOverlappedBy[itemD.key].indexOf(d.key);
-                                if (indexOfDInItemD !== -1) itemsOverlappedBy[itemD.key].splice(indexOfDInItemD, 1);
-                            });
-                        generate_clip_paths();
                     });
 
             // Add back the behaviour of the navigation arrows.
@@ -257,14 +248,16 @@ function draggableItemCarousel(items)
                 .on("mouseup", stop_scrolling)
                 .on("mouseleave", leave_stop_scrolling);
 
-            // Remove the record of the item neighbours.
+            // Remove the record of the item's neighbours.
             draggedItem = null;
-            leftNeighbour = null;
-            rightNeighbour = null;
+            neighbours = null;
         }
 
         function drag_start(d)
         {
+            // Handler for dragstart events.
+
+            // Record information about the drag.
             draggedItem = d3.select(this);
             dragStartXPos = d3.mouse(this)[0];
 
@@ -272,6 +265,10 @@ function draggableItemCarousel(items)
             draggedItem
                 .interrupt() // Cancel any transitions running on this item.
                 .transition(); // Pre-empt any scheduled transitions on this item.
+
+            // Remove and add the item back on top. This ensures that the dragged item will be on top of all others.
+            draggedItem.remove();
+            itemContainer.append(function() { return draggedItem.node(); });
 
             // Remove the highlighting of the navigation arrows.
             navigationArrows
@@ -284,27 +281,18 @@ function draggableItemCarousel(items)
                 .on("mouseleave", null);
 
             // Determine the left and right neighbours of the item being dragged.
-            var neighbours = determine_neighbours(d.key);
-            leftNeighbour = neighbours.left;
-            rightNeighbour = neighbours.right;
-
-            // Record that the dragged item should now overlap all items, and should be overlapped by none.
-            items.each(function(itemD)
-                {
-                    if (itemsOverlappedBy[itemD.key].indexOf(d.key) === -1) itemsOverlappedBy[itemD.key].push(d.key);
-                });
-            itemsOverlappedBy[d.key] = [];
+            neighbours = determine_neighbours(d.key);
         }
 
         function drag_update(d)
         {
+            // Handler for drag events.
+
             var positionInCarousel = d3.mouse(this.parentNode)[0];  // The position of the mouse in the carousel.
 
-            // Move the item if the mouse is currently inside the carousel.
+            // Move the item.
             d.distAlongPath = carouselLeftEdge + positionInCarousel - dragStartXPos;
             d.distAlongPath = Math.max(carouselLeftEdge - dragStartXPos, Math.min(carouselRightEdge - dragStartXPos, d.distAlongPath));
-
-            // Move the item.
             var positionAlongPath = pathToScrollAlong.node().getPointAtLength(d.distAlongPath);
             d.transX = positionAlongPath.x;
             draggedItem
@@ -342,19 +330,20 @@ function draggableItemCarousel(items)
         var isShiftRight;  // Whether the items are being scrolled rightwards.
         function leave_stop_scrolling()
         {
+            // Handler for the mouseleave event on the navigation arrow.
             if (scrollIntervalTimer !== null) stop_scrolling();
         }
 
         function scroll_carousel(itemsToNotScroll)
         {
-            // Scroll the carousel.
+            // Scroll non-infinite carousels.
             // itemsToNotScroll is an array of the keys of the items that should not be moved.
 
             // Determine number of items left of the carousel's left edge, and right of the carousel's right edge.
             var countTrue = function(a) { var counter = 0; for (var i = 0; i < a.length; i++) if (a[i]) counter++; return counter; }
             var leftOfLeft = items.data().map(function(d) { return d.resting < carouselLeftEdge + (horizontalPadding / 2); });
             var numLeftOfLeft = countTrue(leftOfLeft);
-            var rightOfRight = items.data().map(function(d) { return d.resting > carouselRightEdge - d.width -  (horizontalPadding / 2); });
+            var rightOfRight = items.data().map(function(d) { return d.resting > carouselRightEdge - d.width - (horizontalPadding / 2); });
             var numRightOfRight = countTrue(rightOfRight);
 
             // Determine if scrolling should take place. Scrolling should only take place if there are still items to the left of the
@@ -365,18 +354,20 @@ function draggableItemCarousel(items)
             if (isScrollItems)
             {
                 var currentPoint;
-                items
-                    .each(function(d)
+                items.each(function(d)
+                    {
+                        d.resting += (isShiftRight ? 1 : -1);
+                        if (itemsToNotScroll.indexOf(d.key) === -1)
                         {
-                            if (itemsToNotScroll.indexOf(d.key) === -1) d.distAlongPath += (isShiftRight ? 1 : -1);
-                            d.resting += (isShiftRight ? 1 : -1);
+                            // If the item is to be scrolled.
+                            d.distAlongPath += (isShiftRight ? 1 : -1);
                             currentPoint = pathToScrollAlong.node().getPointAtLength(Math.max(0, Math.min(d.distAlongPath, scrollPathLength)));
                             d.transX = currentPoint.x;
-                            d.transY = currentPoint.y - (d.height / 2);
                             d3.select(this)
                                 .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });  // Update the item's position.
-                            generate_clip_paths();
-                        });
+                        }
+                        generate_clip_paths();
+                    });
 
                 // Determine whether to swap any of the items. Only bother checking if dragging is occurring.
                 if (draggedItem !== null) check_item_swap();
@@ -385,27 +376,26 @@ function draggableItemCarousel(items)
 
         function scroll_carousel_infinite(itemsToNotScroll)
         {
-            // Scroll the carousel.
+            // Scroll infinite carousels.
             // itemsToNotScroll is an array of the keys of the items that should not be moved.
 
             var currentPoint;
-            items
-                .each(function(d)
+            items.each(function(d)
+                {
+                    d.resting += (isShiftRight ? 1 : -1);
+                    d.resting = (scrollPathLength + d.resting) % scrollPathLength;
+                    if (itemsToNotScroll.indexOf(d.key) === -1)
                     {
-                        if (itemsToNotScroll.indexOf(d.key) === -1)
-                        {
-                            d.distAlongPath += (isShiftRight ? 1 : -1);
-                            d.distAlongPath = (scrollPathLength + d.distAlongPath) % scrollPathLength;
-                        }
-                        d.resting += (isShiftRight ? 1 : -1);
-                        d.resting = (scrollPathLength + d.resting) % scrollPathLength;
+                        // If the item is one that should be be scrolled.
+                        d.distAlongPath += (isShiftRight ? 1 : -1);
+                        d.distAlongPath = (scrollPathLength + d.distAlongPath) % scrollPathLength;
                         currentPoint = pathToScrollAlong.node().getPointAtLength(d.distAlongPath);
                         d.transX = currentPoint.x;
-                        d.transY = currentPoint.y - (d.height / 2);
                         d3.select(this)
                             .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });  // Update the item's position.
-                        generate_clip_paths();
-                    });
+                    }
+                    generate_clip_paths();
+                });
 
             // Determine whether to swap any of the items. Only bother checking if dragging is occurring.
             if (draggedItem !== null) check_item_swap();
@@ -457,6 +447,8 @@ function draggableItemCarousel(items)
 
         function stop_scrolling()
         {
+            // Stop the scrolling.
+
             // Stop the timer used to scroll the carousel.
             clearInterval(scrollIntervalTimer);
             scrollIntervalTimer = null;
@@ -472,62 +464,59 @@ function draggableItemCarousel(items)
         {
             // Determine whether to swap any of the items.
 
-            // Determine the data of the items.
+            // Determine the data of the dragged item.
             var draggedData = draggedItem.datum();
 
             // Determine if the left neighbour should be swapped.
-            if (leftNeighbour !== null)
+            if (neighbours.left !== null)
             {
                 // If there is a left neighbour.
-                var leftNeighbourData = leftNeighbour.datum();
+                var leftNeighbourData = neighbours.left.datum();
                 if ((leftNeighbourData.resting + (leftNeighbourData.width / 2)) >= draggedData.distAlongPath)
                 {
-                    draggedData.resting  = leftNeighbourData.resting;
+                    draggedData.resting = leftNeighbourData.resting;
                     leftNeighbourData.resting = draggedData.resting + draggedData.width + horizontalPadding;
-                    transition_items_swap(leftNeighbour);
+                    transition_items_swap(neighbours.left);
 
-                    // Determine the new left and right neighbours of the item being dragged.
-                    var neighbours = determine_neighbours(draggedData.key);
-                    leftNeighbour = neighbours.left;
-                    rightNeighbour = neighbours.right;
+                    // Determine the new neighbours of the item being dragged.
+                    neighbours = determine_neighbours(draggedData.key);
                 }
             }
             else if (isInfinite)
             {
                 // If there is no left neighbour, but infinite scrolling is being used, then check if the left neighbour has wrapped around the carousel
                 // and is now on the left hand side of the carousel.
-                var neighbours = determine_neighbours(draggedData.key);
-                leftNeighbour = neighbours.left;
+                neighbours = determine_neighbours(draggedData.key);
             }
 
             // Determine if the right neighbour should be swapped.
-            if (rightNeighbour !== null)
+            if (neighbours.right !== null)
             {
                 // If there is a right neighbour.
-                var rightNeighbourData = rightNeighbour.datum();
+                var rightNeighbourData = neighbours.right.datum();
                 if ((rightNeighbourData.resting + (rightNeighbourData.width / 2)) <= (draggedData.distAlongPath + draggedData.width))
                 {
                     rightNeighbourData.resting = draggedData.resting;
                     draggedData.resting = rightNeighbourData.resting + rightNeighbourData.width + horizontalPadding;
-                    transition_items_swap(rightNeighbour);
+                    transition_items_swap(neighbours.right);
 
-                    // Determine the new left and right neighbours of the item being dragged.
-                    var neighbours = determine_neighbours(draggedData.key);
-                    leftNeighbour = neighbours.left;
-                    rightNeighbour = neighbours.right;
+                    // Determine the new neighbours of the item being dragged.
+                    neighbours = determine_neighbours(draggedData.key);
                 }
             }
             else if (isInfinite)
             {
                 // If there is no right neighbour, but infinite scrolling is being used, then check if the right neighbour has wrapped around the carousel
                 // and is now on the right hand side of the carousel.
-                var neighbours = determine_neighbours(draggedData.key);
-                rightNeighbour = neighbours.right;
+                neighbours = determine_neighbours(draggedData.key);
             }
         }
 
         function determine_neighbours(currentItemKey)
         {
+            // Determine the items immediately to the left and right of the item being dragged.
+            // currentItemKey is the key of the item being dragged.
+
             // Get an ordered list of the item keys, with the key at index 0 being the leftmost item in the carousel.
             var itemPositions = [];
             var itemKeys = [];
@@ -543,7 +532,7 @@ function draggableItemCarousel(items)
                 itemKeys.push(itemPositions[i].key);
             }
 
-            // Determine the position in the item order of the current item and its neighbours.
+            // Determine the position in the item order of the dragged item and its neighbours.
             var draggedItemIndex = itemKeys.indexOf(currentItemKey);
             var leftNeighbourIndex = draggedItemIndex - 1;
             var rightNeighbourIndex = draggedItemIndex + 1;
@@ -568,28 +557,17 @@ function draggableItemCarousel(items)
 
         function generate_clip_paths()
         {
-            // Generate the clip paths for all items.
+            // Generate the clip paths for all items to ensure that only the portion of the item inside the carousel is visible.
 
+            var clippingPath;
             items.each(function(d)
                 {
-                    // Generate the basic clipping path to ensure that only the portion of the item inside the carousel is visible.
-                    var clippingPath =
-                           "M" + -d.transX + "," + -d.transY +
-                           "h" + width +
-                           "v" + height +
-                           "h" + -width +
-                           "v" + -height;
-
-                    // Add each item that the current item is meant to be below to the clip path.
-                    var itemsAboveKeys = itemsOverlappedBy[d.key];
-                    var itemsAbove = items.filter(function(itemD) { return itemsAboveKeys.indexOf(itemD.key) !== -1; });
-                    itemsAbove.each(function(itemD)
-                        {
-                            var xStart = Math.max(0, itemD.transX) - d.transX;
-                            var xEnd = Math.min(itemD.transX + itemD.width, width) - d.transX;
-                            var yOffset = itemD.transY - d.transY;
-                            clippingPath += ("M" + xStart + "," + yOffset + "H" + xEnd + "v" + itemD.height + "H" + xStart + "v" + -itemD.height);
-                        });
+                    clippingPath =
+                        "M" + -d.transX + "," + -d.transY +
+                        "h" + width +
+                        "v" + height +
+                        "h" + -width +
+                        "v" + -height;
 
                     d3.select(this).select(".carouselClipPath")
                         .attr("d", clippingPath);
@@ -598,13 +576,18 @@ function draggableItemCarousel(items)
 
         function reposition_items(offset, scrollSpeed)
         {
+            // Update the positions of the items.
+            // offset is the distance by which the items should be shifted.
             // scrollSpeed is the time (in ms) that it should take to move the items by one pixel.
 
-            // Get the distance of each item from the point of interest.
-            var currentPositions = [];
-            var shortestDistance = scrollPathLength;
+            // Get the distance of each item from the point of interest. The point of interest is the point on the scroll path that the carousel
+            // should be rotated to focus on. Conceptually, the items are held in place, and the carousel rotated to focus on a new set of items.
+            // For an infinitely scrolled carousel, the point of interest is offset away from the center of the carousel.
+            // For a non-infinitely scrolled carousel, the point of interest is offset away from (carouselLeftEdge + (horizontalPadding / 2)).
             var pointOfInterest;
-            var calcDistanceToPoint;
+            var currentPositions = [];  // A record of the distance from each item to the point of interest.
+            var shortestDistance = scrollPathLength;  // The distance between the item closest to the point of interest and the point.
+            var calcDistanceToPoint;  // The function used to calculate the distance that an item is from the point of interest.
             if (isInfinite)
             {
                 pointOfInterest = distOfCenter + offset;
@@ -640,11 +623,10 @@ function draggableItemCarousel(items)
                     }
                 });
 
-            // Determine the distance to be shifted.
+            // Determine the distance to be shifted, and set the new resting positions of the items.
             var distanceToShift = (isShiftRight ? shortestDistance : -shortestDistance) + -offset;
             if (isInfinite)
             {
-                // Set the new resting positions of the items.
                 items.each(function(d)
                     {
                         d.resting = d.distAlongPath + distanceToShift;
@@ -659,8 +641,6 @@ function draggableItemCarousel(items)
                 var maxDistLeft = d3.min(items.data().map(function(d) { return d.distAlongPath; })) - leftItemStartDist;
                 var maxDistRight = d3.max(items.data().map(function(d) { return d.distAlongPath + d.width + (horizontalPadding / 2); })) - carouselRightEdge;
                 distanceToShift = Math.max(-maxDistRight, Math.min(-maxDistLeft, distanceToShift));
-
-                // Set the new resting positions of the items.
                 items.each(function(d)
                     {
                         d.resting = d.distAlongPath + distanceToShift;
@@ -674,7 +654,7 @@ function draggableItemCarousel(items)
 
         function transition_items(distanceToShift, scrollSpeed)
         {
-            // Transition the items from their current positions to their resting positions.
+            // Transition the items in a non-infinite carousel from their current positions to their resting positions.
             // distanceToShift is the number of units to shift the items by.
             // scrollSpeed is the time (in ms) that it should take to move the items by one pixel.
 
@@ -699,7 +679,6 @@ function draggableItemCarousel(items)
                                 d.distAlongPath = interpolator(t);
                                 currentPoint = pathToScrollAlong.node().getPointAtLength(Math.max(0, Math.min(d.distAlongPath, scrollPathLength)));
                                 d.transX = currentPoint.x;  // Determine position of the item at this point in the transition.
-                                d.transY = currentPoint.y - (d.height / 2);  // Determine position of the item at this point in the transition.
                                 d3.select(this)
                                     .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });  // Update the item's position.
                                 generate_clip_paths();
@@ -709,7 +688,7 @@ function draggableItemCarousel(items)
 
         function transition_items_infinite(distanceToShift, scrollSpeed)
         {
-            // Transition the items from their current positions to their resting positions.
+            // Transition the items in an infinite carousel from their current positions to their resting positions.
             // distanceToShift is the number of units to shift the items by.
             // scrollSpeed is the time (in ms) that it should take to move the items by one pixel.
 
@@ -767,7 +746,6 @@ function draggableItemCarousel(items)
                                 d.distAlongPath = (scrollPathLength + interpolator(t)) % scrollPathLength;
                                 currentPoint = pathToScrollAlong.node().getPointAtLength(d.distAlongPath);
                                 d.transX = currentPoint.x;  // Determine position of the item at this point in the transition.
-                                d.transY = currentPoint.y - (d.height / 2);  // Determine position of the item at this point in the transition.
                                 d3.select(this)
                                     .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });  // Update the item's position.
                                 generate_clip_paths();
@@ -778,6 +756,7 @@ function draggableItemCarousel(items)
         function transition_items_swap(itemToSwap)
         {
             // Setup the transition for an item being swapped with a currently dragged item.
+            // itemToSwap is a D3 selection containing the item that is to be swapped with the dragged item.
 
             itemToSwap
                 .transition()
@@ -796,7 +775,6 @@ function draggableItemCarousel(items)
                                 lastInterpVal = currentInterpVal;
                                 currentPoint = pathToScrollAlong.node().getPointAtLength(d.distAlongPath);
                                 d.transX = currentPoint.x;  // Determine position of the item at this point in the transition.
-                                d.transY = currentPoint.y - (d.height / 2);  // Determine position of the item at this point in the transition.
                                 d3.select(this)
                                     .attr("transform", function() { return "translate(" + d.transX + "," + d.transY + ")"; });  // Update the item's position.
                                 generate_clip_paths();
