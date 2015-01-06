@@ -17,32 +17,33 @@
 
 {% block content %}
 <!--Block for including the content of the page within the div.content tag.-->
-<h2>Individually Draggable Items</h2>
-<br>
+<h2>Individually Draggable Item Carousels</h2>
 <div>
     <div class="adj">
         <h3 class="centerText">Uniform Shapes and Sizes</h3>
+        <h4 class="centerText">Infinite Scrolling</h4>
         <svg id="Indiv-Non-Var" />
     </div>
     <div class="adj">
         <h3 class="centerText">Variable Shapes and Sizes</h3>
+        <h4 class="centerText">Infinite Scrolling</h4>
         <svg id="Indiv-Var" />
     </div>
 </div>
 <div>
     <div class="adj">
-        <h3 class="centerText">Uniform Shapes and Sizes</h3>
+        <h4 class="centerText">Non-infinite Scrolling</h4>
         <svg id="Indiv-Non-Var-Non-Inf" />
     </div>
     <div class="adj">
-        <h3 class="centerText">Variable Shapes and Sizes</h3>
+        <h4 class="centerText">Non-infinite Scrolling</h4>
         <svg id="Indiv-Var-Non-Inf" />
     </div>
 </div>
 <br><br><br>
 <h2>Drag and Drop Carousels</h2>
 <br>
-<svg id="Drag-Drop-Var" style="display:block; margin: auto;">
+<svg id="Drag-Drop-Var" style="display: block; margin: auto;" />
 <br><br><br>
 <h2>Layout Schematic</h2>
 <p>
@@ -59,28 +60,55 @@
             rect
             path
 </p>
-<br>
 <h2>Usage</h2>
 <p>
-    Items only need the following entries in their data objects
-                "height": 100,  // Height of the item.
-                "key": i,  // Unique identifier for the item.
-                "rootID": svgID,  // The root of the ID used to refer to the item clip paths.
-                "width": itemWidth  // Width of the item.
+    Works by scrolling using arrows or dragging item to edge of carousel to scroll.<br>
+    Infinite scrolling is always centered, non-infinite is always non-centered. This can easily be altered.
 </p>
 <p>
-    items get added data field - transX, transY, distAlongPath, resting<br>
-    swipe behaviour can be easily added if needed (should work just like dragging)<br>
-    items passed in will be moved to be under the carousel, not have whatever they currently have as a parent.<br>
-    Need to ensure that carousel is not wide enough to accommodate all items<br>
-    can drag, click on arrows to move carousel<br>
-    navigation arrow can be changed to anything, but need to make sure that the arrow width/height will accommodate the new shape, or clicking will be more fiddly<br>
-        Say that events will trigger on items in carousel
-            for indiv carousel can either create the handlers in such a way that they only fire outside the carousel or
-                can create functions to save ad remove the handlers when the items are added, and then restore them again when the items are moved out of the carousel
-                just need to make sure that there are no handlers that interfere with the dragging of the items themselves<br>
-    Note that you can have any shaped items for the drag and drop ones<br>
-    The carousel does not care about the shape of the items, its just places and manipulates them
-            The items can be any shape, provided the height and width given accurately capture the items height and width<br>
+            description of how it all works
+                moving along path
+                record all possible sets of items that can be shown
+                determine what needs to be done to get the desired set in view
 </p>
+<br>
+<h2>Items</h2>
+<p>
+    The items supplied to the carousel will be moved from their current location in the DOM, so that they have the itemContainer class
+    within the carousel as their parent. The items will also have a clip path added to them. this clip path is unique to each item
+    and ensures that the item is only visible within the boundaries of the carousel. The items can be of any shape, provided that the
+    width and height specified for each item correctly encompasses the item.
+</p>
+<p>
+    The items need four data properties to be defined by the user before they are added to the carousel:
+    <ul>
+        <li>height - the height of the item</li>
+        <li>key - an identifier with a unique value for each item</li>
+        <li>rootID - the root of the ID used to define individual clip paths (can be any string)</li>
+        <li>width - the width of the item</li>
+    </ul>
+    <br>
+    They will also get four new data properties added to them in the process of being added to the carousel:
+    <br><br>
+    <ul>
+        <li>distAlongPath - the distance along the scroll path of the left edge of the item</li>
+        <li>resting - the distance along the path of the resting position of the item</li>
+        <li>transX - the X coordinate of the top left corner of the item in relation to the top left corner of the carousel</li>
+        <li>transX - the Y coordinate of the top left corner of the item in relation to the top left corner of the carousel</li>
+    </ul>
+</p>
+<br>
+<h2>Notes</h2>
+<ul>
+    <li>The carousel can be scrolled by dragging the items to the edge of it or clicking on the navigation arrows.</li>
+    <li>Swipe behaviour can easily be added if needed (simply co-opt the dragging behaviour).</li>
+    <li>Dragged items are kept on top of all other items by removing them from the DOM and then adding them back into the carousel.</li>
+    <li>If providing a width for the carousel, then you need to ensure that carousel is not wide enough to accommodate all items.</li>
+    <li>
+        Any event handlers defined for the item by the user will still be active while the item is in the carousel.
+        One way of getting around this is to alter the code of the carousel so that handlers are removed from the items when they are added to the carousel
+        (and for drag and drop carousels, potentially added back when items are dragged outside the carousel).
+    </li>
+    <li>Navigation arrows can be altered to any desired shape or style after the carousel is created, but if the navArrowWidth and/or navArrowHeight don't fully fit the new shape, then clicking on it will be more fiddly.</li>
+</ul>
 {% endblock %}
