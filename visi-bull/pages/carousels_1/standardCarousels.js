@@ -8,7 +8,7 @@ function standardCarousel(items)
         xLoc = 0,  // The X coordinate within its container of the top right corner of the carousel.
         yLoc = 0,  // The Y coordinate within its container of the top right corner of the carousel.
         items = items,  // The items to put in the carousel.
-        itemsToShow = 2,  // The number of items to show in the carousel. Can't be less than 1.
+        itemsToShow = 2,  // The number of items to show in the carousel. Must be less than the number of items and greater than 0.
         itemsToScrollBy = 2,  // The number of items to scroll by in the carousel. Can't be less than 1.
         horizontalPadding = 10,  // The amount of padding to put on the left and right of the item. Half the padding goes on the left and half on the right.
         verticalPadding = 10,  // The amount of padding to put above and below the item. Half the padding goes above and half below.
@@ -270,8 +270,8 @@ function standardCarousel(items)
                 .classed("navDotContainer", true)
                 .attr("transform", function(d) { return "translate(" + d.transX + "," + d.transY + ")"; });
             dotContainer.append("rect")
-                    .attr("width", width)
-                    .attr("height", dotContainerHeight);
+                .attr("width", width)
+                .attr("height", dotContainerHeight);
             var navDots = dotContainer.selectAll(".navDot")
                 .data(dotPositions)
                 .enter()

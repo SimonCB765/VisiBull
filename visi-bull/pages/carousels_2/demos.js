@@ -24,8 +24,8 @@ var numberStroke = "none";
 function drag_drop(svgID, isInf)
 {
     var svg = d3.select("#" + svgID)
-        .attr("width", 800)
-        .attr("height", 500)
+        .attr("width", 700)
+        .attr("height", 400)
         .style("outline", "thin black solid");
 
     // Setup data used to create the items.
@@ -97,8 +97,8 @@ function drag_drop(svgID, isInf)
         carousel = dragAndDropCarousel(items)
             .width(400)
             .height(150)
-            .xLoc(200)
-            .yLoc(175)
+            .xLoc(150)
+            .yLoc(125)
             .isInfinite(true)
             .horizontalPadding(20)
             .navArrowWidth(40)
@@ -109,8 +109,8 @@ function drag_drop(svgID, isInf)
         carousel = dragAndDropCarousel(items)
             .width(400)
             .height(150)
-            .xLoc(200)
-            .yLoc(175)
+            .xLoc(150)
+            .yLoc(125)
             .horizontalPadding(20)
             .navArrowWidth(40)
             .navArrowHeight(40);
