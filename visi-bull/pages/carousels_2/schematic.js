@@ -27,7 +27,8 @@ var carouselSchema = svgSchema.append("rect")
     .attr("width", carouselWidth)
     .attr("height", carouselHeight)
     .style("fill", defaultColor)
-    .style("stroke", "black");
+    .style("stroke", "black")
+    .style("stroke-width", 2);
 
 // Add the item container.
 var itemContainerSchema = svgSchema.append("rect")
@@ -36,13 +37,15 @@ var itemContainerSchema = svgSchema.append("rect")
     .attr("width", itemContainerWidth)
     .attr("height", itemContainerHeight)
     .style("fill", defaultColor)
-    .style("stroke", "black");
+    .style("stroke", "black")
+    .style("stroke-width", 2);
 
 // Add the scroll path.
 var scrollPathSchema = svgSchema.append("path")
     .attr("d", "M25," + middleOfItemContainerY + "h" + (schematicWidth - 50))
     .style("fill", "none")
-    .style("stroke", "black");
+    .style("stroke", "black")
+    .style("stroke-width", 2);
 
 // Add the items.
 itemData = [{"x": middleOfCarouselX - (itemWidth / 2) - itemHorizontalPadding - itemWidth, "y": middleOfItemContainerY - (itemHeight / 2)},
@@ -57,7 +60,8 @@ var itemSchema = svgSchema.selectAll(".schematicItem")
         .attr("width", itemWidth)
         .attr("height", itemHeight)
         .style("fill", defaultColor)
-        .style("stroke", "black");
+        .style("stroke", "black")
+        .style("stroke-width", 2);
 
 // Add the navigation arrows.
 arrowData = [{"x": carouselOffsetX + (navArrowWidth / 2), "y": middleOfItemContainerY - (navArrowHeight / 2)},
@@ -71,7 +75,8 @@ navArrowLeftSchema.append("rect")
     .attr("width", navArrowWidth)
     .attr("height", navArrowHeight)
     .style("fill", defaultColor)
-    .style("stroke", "black");
+    .style("stroke", "black")
+    .style("stroke-width", 2);
 navArrowLeftSchema.append("path")
     .attr("d", "M" + (navArrowWidth * 3 / 5) + ",0" +
                "L" + (navArrowWidth / 6) + "," + (navArrowHeight / 2) +
@@ -82,7 +87,8 @@ navArrowLeftSchema.append("path")
                "Z"
          )
     .style("fill", "black")
-    .style("stroke", "black");
+    .style("stroke", "black")
+    .style("stroke-width", 2);
 var navArrowRightSchema = svgSchema.append("g")
     .datum(arrowData[1])
     .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
@@ -92,7 +98,8 @@ navArrowRightSchema.append("rect")
     .attr("width", navArrowWidth)
     .attr("height", navArrowHeight)
     .style("fill", defaultColor)
-    .style("stroke", "black");
+    .style("stroke", "black")
+    .style("stroke-width", 2);
 navArrowRightSchema.append("path")
     .attr("d", "M" + (navArrowWidth * 2 / 5) + ",0" +
                "L" + (navArrowWidth * 5 / 6) + "," + (navArrowHeight / 2) +
@@ -103,7 +110,8 @@ navArrowRightSchema.append("path")
                "Z"
          )
     .style("fill", "black")
-    .style("stroke", "black");
+    .style("stroke", "black")
+    .style("stroke-width", 2);
 
 // Add the labels.
 var textStart = 178.5;

@@ -42,6 +42,7 @@
 </div>
 <br><br><br>
 <h2>Drag and Drop Carousels</h2>
+<p>Release dragged items outside of the carousel to pin them to the surrounding SVG. Drag these pinned items back into the carousel to delete them.</p>
 <br>
 <svg id="Drag-Drop-Var" style="display: block; margin: auto;" />
 <br><br><br>
@@ -78,18 +79,6 @@
     </li>
 </ul>
 <br>
-<h2>Usage</h2>
-<p>
-    Works by scrolling using arrows or dragging item to edge of carousel to scroll.<br>
-    Infinite scrolling is always centered, non-infinite is always non-centered. This can easily be altered.
-</p>
-<p>
-            description of how it all works
-                moving along path
-                record all possible sets of items that can be shown
-                determine what needs to be done to get the desired set in view
-</p>
-<br>
 <h2>Items</h2>
 <p>
     The items supplied to the carousel will be moved from their current location in the DOM, so that they have the itemContainer class
@@ -118,7 +107,8 @@
 <br>
 <h2>Notes</h2>
 <ul>
-    <li>The carousel can be scrolled by dragging the items to the edge of it or clicking on the navigation arrows.</li>
+    <li>The carousel can be scrolled by dragging an item to the edge of it or clicking on the navigation arrows.</li>
+    <li>Naivgation arrows can be double clicked in order an entire new set of items into the carousel.</li>
     <li>Swipe behaviour can easily be added if needed (simply co-opt the dragging behaviour).</li>
     <li>Dragged items are kept on top of all other items by removing them from the DOM and then adding them back into the carousel.</li>
     <li>If providing a width for the carousel, then you need to ensure that carousel is not wide enough to accommodate all items.</li>
@@ -132,5 +122,6 @@
         (and for drag and drop carousels, potentially added back when items are dragged outside the carousel).
     </li>
     <li>Navigation arrows can be altered to any desired shape or style after the carousel is created, but if the navArrowWidth and/or navArrowHeight don't fully fit the new shape, then clicking on it will be more fiddly.</li>
+    <li>Infinite scrolling is always centered, non-infinite is always non-centered. This can easily be altered.</li>
 </ul>
 {% endblock %}
