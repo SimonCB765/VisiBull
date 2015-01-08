@@ -175,8 +175,7 @@ svg.call(carousel);</code></pre>
 svg.call(carousel);</code></pre>
     </div>
 </div>
-<br>
-<br>
+<br><br><br>
 <h2>Layout Schematic</h2>
 <p>
     Carousel schematic diagram
@@ -197,6 +196,8 @@ svg.call(carousel);</code></pre>
                 rect
                 circle
 </p>
+<svg id="schematic" style="display: block; margin: auto;" />
+<script type="text/javascript" src="{{ url_for('static', filename='carousels_1/schematic.js') }}"></script>
 <br>
 <h2>Usage</h2>
 <p>
@@ -237,6 +238,10 @@ svg.call(carousel);</code></pre>
     <li>The carousel can be scrolled by dragging it or clicking on the navigation arrows/dots.</li>
     <li>Swipe behaviour can easily be added if needed (simply co-opt the dragging behaviour).</li>
     <li>If providing a width for the carousel, then you need to ensure that carousel is not wide enough to accommodate all items.</li>
+    <li>
+        As it stands, the items will overlap the portion of the carousel's stroke that lies inside the boundary of the carousel.
+        This can be avoided by altering the items' clip paths to account for the width of the boundary stroke.
+    </li>
     <li>Any event handlers defined for the item by the user will still be active while the item is in the carousel.</li>
     <li>With centered items, it's best to manually define the carousel width, as otherwise the automatic width calculated makes it difficult to tell that the items are centered.</li>
     <li>Navigation arrows can be altered to any desired shape or style after the carousel is created, but if the navArrowWidth and/or navArrowHeight don't fully fit the new shape, then clicking on it will be more fiddly.</li>

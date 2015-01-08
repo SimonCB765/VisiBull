@@ -60,6 +60,9 @@
             rect
             path
 </p>
+<svg id="schematic" style="display: block; margin: auto;" />
+<script type="text/javascript" src="{{ url_for('static', filename='carousels_2/schematic.js') }}"></script>
+<br>
 <h2>Usage</h2>
 <p>
     Works by scrolling using arrows or dragging item to edge of carousel to scroll.<br>
@@ -104,6 +107,10 @@
     <li>Swipe behaviour can easily be added if needed (simply co-opt the dragging behaviour).</li>
     <li>Dragged items are kept on top of all other items by removing them from the DOM and then adding them back into the carousel.</li>
     <li>If providing a width for the carousel, then you need to ensure that carousel is not wide enough to accommodate all items.</li>
+    <li>
+        As it stands, the items will overlap the portion of the carousel's stroke that lies inside the boundary of the carousel.
+        This can be avoided by altering the items' clip paths to account for the width of the boundary stroke.
+    </li>
     <li>
         Any event handlers defined for the item by the user will still be active while the item is in the carousel.
         One way of getting around this is to alter the code of the carousel so that handlers are removed from the items when they are added to the carousel
