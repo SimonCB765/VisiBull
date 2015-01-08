@@ -177,27 +177,51 @@ svg.call(carousel);</code></pre>
 </div>
 <br><br><br>
 <h2>Layout Schematic</h2>
-<p>
-    Carousel schematic diagram
-    .carousel
-        .itemContainer - dragging operates on this
-            rect.backingRect
-            path.scrollPath
-            g.item
-        .navArrow.left - arrow nav operates on this
-            rect
-            path
-        .navArrow.right - arrow nav operates on this
-            rect
-            path
-        .navDotContainer
-            rect
-            g.navDot - dot nav operates on these
-                rect
-                circle
-</p>
+<p>The basic layout of the carousel is:</p>
 <svg id="schematic" style="display: block; margin: auto;" />
 <script type="text/javascript" src="{{ url_for('static', filename='carousels_1/schematic.js') }}"></script>
+<p>The hierarchical layout in the DOM is:</p>
+<ul>
+    <li>g.carousel
+        <ul>
+            <li>g.itemContainer (dragging operates on this)
+                <ul>
+                    <li>rect.backingRect</li>
+                    <li>path.scrollPath</li>
+                    <li>g.item</li>
+                    ...
+                    <li>g.item</li>
+                </ul>
+            </li>
+            <li>g.navArrow.left (arrow navigation operates on this)
+                <ul>
+                    <li>rect</li>
+                    <li>path</li>
+                </ul>
+            </li>
+            <li>g.navArrow.right (arrow navigation operates on this)
+                <ul>
+                    <li>rect</li>
+                    <li>path</li>
+                </ul>
+            </li>
+            <li>g.navDotContainer
+                <ul>
+                    <li>rect</li>
+                    <li>g.navDot (dot navigation operates on these)
+                        <ul>
+                            <li>rect</li>
+                            <li>circle</li>
+                        </ul>
+                    </li>
+                    <li>g.navDot</li>
+                    ...
+                    <li>g.navDot</li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+</ul>
 <br>
 <h2>Usage</h2>
 <p>
