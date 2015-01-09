@@ -17,7 +17,7 @@
 
 {% block content %}
 <!--Block for including the content of the page within the div.content tag.-->
-<h2>Individually Draggable Item Carousels</h2>
+<h2>Carousels with Individually Draggable Items</h2>
 <div>
     <div class="adj">
         <h3 class="centerText">Uniform Shapes and Sizes</h3>
@@ -82,9 +82,15 @@
 <h2>Items</h2>
 <p>
     The items supplied to the carousel will be moved from their current location in the DOM, so that they have the itemContainer class
-    within the carousel as their parent. The items will also have a clip path added to them. this clip path is unique to each item
+    within the carousel as their parent. The items will also have a clip path added to them. This clip path is unique to each item,
     and ensures that the item is only visible within the boundaries of the carousel. The items can be of any shape, provided that the
     width and height specified for each item correctly encompasses the item.
+</p>
+<p>
+    Each item is assigned a current position and a resting position along the scrollPath path.
+    The current position determines where the item is at any given moment, while the resting position determines where the item should snap back
+    to once the carousel stops moving.
+    The carousel rotates by moving the items along this path, with both the current and resting positions of each item updated as the carousel moves.
 </p>
 <p>
     The items need four data properties to be defined by the user before they are added to the carousel:
@@ -95,7 +101,7 @@
         <li>width - the width of the item</li>
     </ul>
     <br>
-    They will also get four new data properties added to them in the process of being added to the carousel:
+    They will also get four new data properties during the process of being added to the carousel:
     <br><br>
     <ul>
         <li>distAlongPath - the distance along the scroll path of the left edge of the item</li>
@@ -107,21 +113,24 @@
 <br>
 <h2>Notes</h2>
 <ul>
-    <li>The carousel can be scrolled by dragging an item to the edge of it or clicking on the navigation arrows.</li>
-    <li>Naivgation arrows can be double clicked in order an entire new set of items into the carousel.</li>
+    <li>The carousel can be scrolled by dragging an item to the edge of it, or by licking on the navigation arrows.</li>
+    <li>Naivgation arrows can be double clicked in order to scroll an entire new set of items into view.</li>
     <li>Swipe behaviour can easily be added if needed (simply co-opt the dragging behaviour).</li>
     <li>Dragged items are kept on top of all other items by removing them from the DOM and then adding them back into the carousel.</li>
-    <li>If providing a width for the carousel, then you need to ensure that carousel is not wide enough to accommodate all items.</li>
+    <li>If providing a width for the carousel, then you need to ensure that the carousel is not wide enough to accommodate all the items.</li>
     <li>
         As it stands, the items will overlap the portion of the carousel's stroke that lies inside the boundary of the carousel.
-        This can be avoided by altering the items' clip paths to account for the width of the boundary stroke.
+        This can be avoided by altering the items' clip paths to account for the width of this stroke.
     </li>
     <li>
-        Any event handlers defined for the item by the user will still be active while the item is in the carousel.
+        Any event handlers defined for the items by the user will still be active while the item is in the carousel.
         One way of getting around this is to alter the code of the carousel so that handlers are removed from the items when they are added to the carousel
         (and for drag and drop carousels, potentially added back when items are dragged outside the carousel).
     </li>
-    <li>Navigation arrows can be altered to any desired shape or style after the carousel is created, but if the navArrowWidth and/or navArrowHeight don't fully fit the new shape, then clicking on it will be more fiddly.</li>
-    <li>Infinite scrolling is always centered, non-infinite is always non-centered. This can easily be altered.</li>
+    <li>
+        Navigation arrows can be altered to take any desired shape or style after the carousel is created, but if the navArrowWidth and/or
+        navArrowHeight don't fully contain the new shape, then clicking on it will be more fiddly.
+    </li>
+    <li>Infinite scrolling carousels are always centered, non-infinite ones are always left aligned. This can easily be altered if needed.</li>
 </ul>
 {% endblock %}

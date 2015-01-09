@@ -26,7 +26,7 @@ function drag_drop(svgID, isInf)
     var svg = d3.select("#" + svgID)
         .attr("width", 700)
         .attr("height", 400)
-        .style("outline", "thin black solid");
+        .style("background", "black");
 
     // Setup data used to create the items.
     var item = svg.append("g")
