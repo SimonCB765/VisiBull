@@ -18,6 +18,7 @@ _classes
 .adj {display: inline-block;}  /* Class to display elements adjacent to one another. */
 .centerText {text-align: center;}  /* Class to center text. */
 .code.inline {margin: 1em;}  /* Styling to bring the code blocks in line with the demos. */
+.unselectable {-moz-user-select: none; -webkit-user-select: none; -ms-user-select: none;}  /* Prevent the user selecting text. */
 
 /*
 _carousel
