@@ -1,0 +1,16 @@
+{% extends "canvas.html" %}
+
+{% block head %}
+<!--Block for including page specific CSS and JS files within the <head> tag.-->
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='earthquake/earthquake.css') }}">
+<script type="text/javascript" src="{{ url_for('static', filename='earthquake/earthquake.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<!--Block for including the content of the page within the div.content tag.-->
+<p>Either set a min width and height in the CSS file, or do it dynamically with JS (get innerHeight and innerWidth on page load and again on all resizes)</p>
+<br>
+<p>Or give a fixed min-wdith and min-height which is basiclly the maximised screen size</p>
+<br>
+<p>Non-fixed width and heght have the advantage of enabling you to scale all the content, but there's not much point in scaling some chart down to tiny</p>
+{% endblock %}
