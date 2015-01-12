@@ -177,7 +177,7 @@ svg.call(carousel);</code></pre>
 </div>
 <br><br><br>
 <h2>Layout Schematic</h2>
-<p>The basic layout of the carousel is:</p>
+<p>The basic layout of a carousel is:</p>
 <svg id="schematic" style="display: block; margin: auto;" />
 <script type="text/javascript" src="{{ url_for('static', filename='carousels_1/schematic.js') }}"></script>
 <p>The hierarchical layout in the DOM is:</p>
@@ -225,23 +225,25 @@ svg.call(carousel);</code></pre>
 <br>
 <h2>Items</h2>
 <p>
-    The items supplied to the carousel will be moved from their current location in the DOM, so that they have the itemContainer class
-    within the carousel as their parent. The items will also have a clip path added to them. This clip path is unique to each item,
-    and ensures that the item is only visible within the boundaries of the carousel. The items can be of any shape, provided that the
-    width and height specified for each item correctly encompasses the item.
+    The items supplied to the carousel must be <code class="html"><<span class="element">g</span>></code> elements.
+    They will be moved within the DOM so that they have the g.itemContainer element in the carousel as their parent.
+    Each item in the carousel will also have a unique clip path added to it.
+    The clip path will ensure that only the portion of the item within the boundaries of the carousel is visible.
+    The items can be of any shape, provided that the width and height specified for each item correctly encompasses it.
 </p>
 <p>
-    Each item is assigned a current position and a resting position along the scrollPath path.
+    Each item is assigned a current position and a resting position along the path.scrollPath element.
     The current position determines where the item is at any given moment, while the resting position determines where the item should snap back
     to once the carousel stops moving.
-    The carousel rotates by moving the items along this path, with both the current and resting positions of each item updated as the carousel moves.
+    The illusion of a rotating carousel is achieved by moving the items along this path, with both the current and resting positions of each item
+    updated as the carousel 'moves'.
 </p>
 <p>
     The items need four data properties to be defined by the user before they are added to the carousel:
     <ul>
         <li>height - the height of the item</li>
         <li>key - an identifier with a unique value for each item</li>
-        <li>rootID - the root of the ID used to define individual clip paths (can be any string)</li>
+        <li>rootID - the root of the ID used to define the items' clip paths (can be any string)</li>
         <li>width - the width of the item</li>
     </ul>
     <br>
@@ -249,7 +251,7 @@ svg.call(carousel);</code></pre>
     <br><br>
     <ul>
         <li>distAlongPath - the distance along the scroll path of the left edge of the item</li>
-        <li>resting - the distance along the path of the resting position of the item</li>
+        <li>resting - the distance along the path of the resting position of the left edge of the item</li>
         <li>transX - the X coordinate of the top left corner of the item in relation to the top left corner of the carousel</li>
         <li>transX - the Y coordinate of the top left corner of the item in relation to the top left corner of the carousel</li>
     </ul>
@@ -260,8 +262,9 @@ svg.call(carousel);</code></pre>
     <li>The carousel can be scrolled by dragging it, or by clicking on the navigation arrows/dots.</li>
     <li>Swipe behaviour can easily be added if needed (simply co-opt the dragging behaviour).</li>
     <li>If providing a width for the carousel, then you need to ensure that the carousel is not wide enough to accommodate all the items.</li>
+    <li>Using a path along which the items scroll makes it possible to alter the carousel to use any style of path (e.g. oval, rectangle, etc.).</li>
     <li>
-        As it stands, the items will overlap the portion of the carousel's stroke that lies inside the boundary of the carousel.
+        As it stands, the items will overlap the portion of the carousel's stroke (if it has a stroke) that lies inside the boundary of the carousel.
         This can be avoided by altering the items' clip paths to account for the width of this stroke.
     </li>
     <li>Any event handlers defined for the items by the user will still be active while the item is in the carousel.</li>
