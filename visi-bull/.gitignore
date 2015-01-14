@@ -6,4 +6,4 @@ server/lib/*
 settings.py
 
 # Ignore iPython notebook checkpoints.
-*/\.ipynb_checkpoints
+*\.ipynb_checkpoints
