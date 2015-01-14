@@ -1,6 +1,9 @@
 *.pyc
 
-# don't include Flask and depedencies
+# Don't include Flask and depedencies
 server/lib/*
 
 settings.py
+
+# Ignore iPython notebook checkpoints.
+*/\.ipynb_checkpoints
