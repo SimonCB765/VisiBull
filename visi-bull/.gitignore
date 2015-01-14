@@ -1,4 +1,4 @@
-*.pyc
+*\.pyc
 
 # Don't include Flask and depedencies
 server/lib/*
