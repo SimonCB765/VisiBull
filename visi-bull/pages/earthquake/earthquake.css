@@ -1,8 +1,13 @@
 /*
 Contents:
+_element    -> style declarations for all elements of a given type (html, body, table, all p tags etc.).
 _classes    -> style declarations for specific classes.
 */
 
+/*
+_element
+*/
+body {background-color: black; min-height: 400px; min-width: 960px;}
 
 /*
 _classes
