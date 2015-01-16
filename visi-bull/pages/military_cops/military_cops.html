@@ -1,0 +1,12 @@
+{% extends "canvas.html" %}
+
+{% block head %}
+<!--Block for including page specific CSS and JS files within the <head> tag.-->
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='military_cops/military_cops.css') }}">
+<script type="text/javascript" src="{{ url_for('static', filename='military_cops/military_cops.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<!--Block for including the content of the page within the div.content tag.-->
+<svg id="military_cops" />
+{% endblock %}
