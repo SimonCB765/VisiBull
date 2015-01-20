@@ -3,6 +3,7 @@ Contents:
 _element    -> style declarations for all elements of a given type (html, body, table, all p tags etc.).
 _classes    -> style declarations for specific classes.
 _histo      -> style declarations for the histogram slider.
+_map        -> style declarations for the map.
 */
 
 /*
@@ -19,3 +20,8 @@ _classes
 _histo
 */
 .histoBackingRect {fill: #585858; stroke: white; stroke-width: 2;}
+
+/*
+_map
+*/
+.mapBackingRect {fill: #585858; stroke: white; stroke-width: 2;}
