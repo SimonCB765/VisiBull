@@ -66,6 +66,12 @@ $(document).ready(function()
             histoTopEdge = histoTopPadding * svgHeight;
             histoWidth = histoWidthFrac * svgWidth;
             histoHeight = histoHeightFrac * svgHeight;
+            histogram
+                .leftEdge(histoLeftEdge)
+                .topEdge(histoTopEdge)
+                .width(histoWidth)
+                .height(histoHeight);
+            histogram.update();
             
             // Update the map.
             mapLeftEdge = mapLeftPadding * svgWidth;
@@ -73,7 +79,7 @@ $(document).ready(function()
             mapWidth = mapWidthFrac * svgWidth;
             mapHeight = mapHeightFrac * svgHeight;
         });
-    $(window).trigger( "resize" );
+    windowSelection.trigger( "resize" );
 });
 
 function histogramSliderCreator(width, height)
@@ -86,9 +92,9 @@ function histogramSliderCreator(width, height)
         width = width,  // The width of the histogram slider.
         height = height;  // The height of the histogram slider.
 
-    /*************************************
-    * Histogram Slider Creation Function *
-    *************************************/
+    /********************************
+    * Histogram Slider Manipulation *
+    ********************************/
     function histoSlider(selection)
     {
         // Setup the histogram slider container.
@@ -100,6 +106,19 @@ function histogramSliderCreator(width, height)
             .classed("histoBackingRect", true)
             .attr("width", width)
             .attr("height", height);
+
+        // Define the procedure needed to updated the position and size of the histogram slider while it is in use.
+        histoSlider.update = function()
+        {
+            // Update the postion of the slider.
+            histoOuterContainer = selection.append("g")
+                .attr("transform", function() { return "translate(" + leftEdge + "," + topEdge + ")"; });
+
+            // Update the size of the backing rectangle.
+            backingRect
+                .attr("width", width)
+                .attr("height", height);
+        }
     }
 
     /**********************
