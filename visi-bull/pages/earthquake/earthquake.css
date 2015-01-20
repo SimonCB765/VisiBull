@@ -2,6 +2,7 @@
 Contents:
 _element    -> style declarations for all elements of a given type (html, body, table, all p tags etc.).
 _classes    -> style declarations for specific classes.
+_histo      -> style declarations for the histogram slider.
 */
 
 /*
@@ -13,3 +14,8 @@ svg {left: 0; outline: thin solid white; position: absolute; top: 0;}
 /*
 _classes
 */
+
+/*
+_histo
+*/
+.histoBackingRect {fill: #585858; stroke: white; stroke-width: 2;}
