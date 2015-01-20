@@ -8,7 +8,7 @@ _classes    -> style declarations for specific classes.
 _element
 */
 body {background-color: black;}
-svg {outline: thin solid white; position: absolute;}
+svg {left: 0; outline: thin solid white; position: absolute; top: 0;}
 
 /*
 _classes
