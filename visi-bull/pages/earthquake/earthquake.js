@@ -72,12 +72,20 @@ $(document).ready(function()
                 .width(histoWidth)
                 .height(histoHeight);
             histogram.update();
-            
+
             // Update the map.
+            mapTopPadding = histoTopPadding + histoHeightFrac + histoTopPadding + histoTopPadding;
+            mapHeightFrac = 1 - mapTopPadding - histoTopPadding;
             mapLeftEdge = mapLeftPadding * svgWidth;
             mapTopEdge = mapTopPadding * svgHeight;
             mapWidth = mapWidthFrac * svgWidth;
             mapHeight = mapHeightFrac * svgHeight;
+            map
+                .leftEdge(mapLeftEdge)
+                .topEdge(mapTopEdge)
+                .width(mapWidth)
+                .height(mapHeight);
+            map.update();
         });
     windowSelection.trigger( "resize" );
 });
@@ -110,8 +118,8 @@ function histogramSliderCreator(width, height)
         // Define the procedure needed to updated the position and size of the histogram slider while it is in use.
         histoSlider.update = function()
         {
-            // Update the postion of the slider.
-            histoOuterContainer = selection.append("g")
+            // Update the position of the slider.
+            histoOuterContainer
                 .attr("transform", function() { return "translate(" + leftEdge + "," + topEdge + ")"; });
 
             // Update the size of the backing rectangle.
@@ -183,6 +191,19 @@ function mapCreator(width, height)
             .classed("mapBackingRect", true)
             .attr("width", width)
             .attr("height", height);
+
+        // Define the procedure needed to updated the position and size of the map while it is in use.
+        map.update = function()
+        {
+            // Update the position of the map.
+            mapContainer
+                .attr("transform", function() { return "translate(" + leftEdge + "," + topEdge + ")"; });
+
+            // Update the size of the backing rectangle.
+            backingRect
+                .attr("width", width)
+                .attr("height", height);
+        }
     }
 
     /**********************
