@@ -1,5 +1,23 @@
 $(document).ready(function()
 {
+    // Grab the data for the visualisation.
+    var datasetLocation = DATADIR + "/ParsedData.tsv";
+    d3.tsv(datasetLocation, function(error, data)
+        {
+            if (error)
+            {
+                // If error is not null, then something went wrong.
+                console.log(error);  //Log the error.
+                alert("There was an error loading the dataset.");
+            }
+
+            // Create the visualisation once the data is loaded.
+            setupVisualisation(data)
+        });
+});
+
+function setupVisualisation(data)
+{
     // Define the page dimensions.
     var minWidth = 1024,  // Minimum width that the display can be.
         minHeight = 567,  // Minimum height that the display can be.
@@ -7,7 +25,7 @@ $(document).ready(function()
         currentHeight = Math.max(minHeight, window.innerHeight);  // Current height of the display.
 
     // Fix the minimum size of the HTML body.
-    d3.select("body")
+    var body = d3.select("body")
         .style("min-width", minWidth + "px")
         .style("min-height", minHeight + "px");
 
@@ -15,7 +33,7 @@ $(document).ready(function()
     var margin = 10;  // Margin around each outside edge of the SVG. Prevents the SVG being set to the exact size of the window and causing scrollbars to appear.
     var svgWidth = currentWidth - margin - margin,
         svgHeight = currentHeight - margin - margin;
-    var svg = d3.select("#earthquake")
+    var svg = body.append("svg")
         .style("display", "block")
         .style("top", margin)
         .style("left", margin);
@@ -72,8 +90,6 @@ $(document).ready(function()
             histoHeight = histoHeightFrac * svgHeight;
 
             // Update the map position and size information.
-//            mapTopPadding = histoTopPadding + histoHeightFrac + histoTopPadding + histoTopPadding;
-//            mapHeightFrac = 1 - mapTopPadding - histoTopPadding;
             mapLeftEdge = mapLeftPadding * svgWidth;
             mapTopEdge = mapTopPadding * svgHeight;
             mapWidth = mapWidthFrac * svgWidth;
@@ -92,7 +108,7 @@ $(document).ready(function()
             visualisation.update();
         });
     windowSelection.trigger( "resize" );
-});
+}
 
 function visualisationCreator()
 {

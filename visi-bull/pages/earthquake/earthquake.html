@@ -4,9 +4,11 @@
 <!--Block for including page specific CSS and JS files within the <head> tag.-->
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='earthquake/earthquake.css') }}">
 <script type="text/javascript" src="{{ url_for('static', filename='earthquake/earthquake.js') }}"></script>
+<script type="text/javascript">
+    var DATADIR = "{{ url_for('static', filename='earthquake/Data') }}";
+</script>
 {% endblock %}
 
 {% block content %}
 <!--Block for including the content of the page within the div.content tag.-->
-<svg id="earthquake" />
 {% endblock %}
