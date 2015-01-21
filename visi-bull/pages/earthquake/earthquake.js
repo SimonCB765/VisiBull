@@ -29,10 +29,6 @@ $(document).ready(function()
         histoTopEdge = histoTopPadding * svgHeight,  // The Y coordinate of the top edge of the histogram slider.
         histoWidth = histoWidthFrac * svgWidth,  // The width of the histogram slider.
         histoHeight = histoHeightFrac * svgHeight;  // The height of the histogram slider.
-    var histogram = histogramSliderCreator(histoWidth, histoHeight)  // Create the histogram slider.
-        .leftEdge(histoLeftEdge)
-        .topEdge(histoTopEdge);
-    svg.call(histogram);  // Add the histogram slider to the SVG element.
 
     // Determine the size and positioning of the map.
     var mapLeftPadding = histoLeftPadding,  // The fraction of the SVG element's width that should be to the left of the map's left edge.
@@ -43,10 +39,18 @@ $(document).ready(function()
         mapTopEdge = mapTopPadding * svgHeight,  // The Y coordinate of the top edge of the map.
         mapWidth = mapWidthFrac * svgWidth,  // The width of the map.
         mapHeight = mapHeightFrac * svgHeight;  // The height of the map.
-    var map = mapCreator(mapWidth, mapHeight)  // Create the map.
-        .leftEdge(mapLeftEdge)
-        .topEdge(mapTopEdge);
-    svg.call(map);  // Add the histogram slider to the SVG element.
+
+    // Create the histogram slider and map.
+    var visualisation = visualisationCreator()
+        .histoLeftEdge(histoLeftEdge)
+        .histoTopEdge(histoTopEdge)
+        .histoWidth(histoWidth)
+        .histoHeight(histoHeight)
+        .mapLeftEdge(mapLeftEdge)
+        .mapTopEdge(mapTopEdge)
+        .mapWidth(mapWidth)
+        .mapHeight(mapHeight);
+    svg.call(visualisation);
 
     // Attach the listener for resize events, and fire it once to size the SVG.
     var windowSelection = $(window);
@@ -61,71 +65,94 @@ $(document).ready(function()
                 .attr("width", svgWidth)
                 .attr("height", svgHeight);
 
-            // Update the histogram slider.
+            // Update the histogram slider position and size information.
             histoLeftEdge = histoLeftPadding * svgWidth;
             histoTopEdge = histoTopPadding * svgHeight;
             histoWidth = histoWidthFrac * svgWidth;
             histoHeight = histoHeightFrac * svgHeight;
-            histogram
-                .leftEdge(histoLeftEdge)
-                .topEdge(histoTopEdge)
-                .width(histoWidth)
-                .height(histoHeight);
-            histogram.update();
 
-            // Update the map.
-            mapTopPadding = histoTopPadding + histoHeightFrac + histoTopPadding + histoTopPadding;
-            mapHeightFrac = 1 - mapTopPadding - histoTopPadding;
+            // Update the map position and size information.
+//            mapTopPadding = histoTopPadding + histoHeightFrac + histoTopPadding + histoTopPadding;
+//            mapHeightFrac = 1 - mapTopPadding - histoTopPadding;
             mapLeftEdge = mapLeftPadding * svgWidth;
             mapTopEdge = mapTopPadding * svgHeight;
             mapWidth = mapWidthFrac * svgWidth;
             mapHeight = mapHeightFrac * svgHeight;
-            map
-                .leftEdge(mapLeftEdge)
-                .topEdge(mapTopEdge)
-                .width(mapWidth)
-                .height(mapHeight);
-            map.update();
+
+            // Update the visualisation.
+            visualisation
+                .histoLeftEdge(histoLeftEdge)
+                .histoTopEdge(histoTopEdge)
+                .histoWidth(histoWidth)
+                .histoHeight(histoHeight)
+                .mapLeftEdge(mapLeftEdge)
+                .mapTopEdge(mapTopEdge)
+                .mapWidth(mapWidth)
+                .mapHeight(mapHeight);
+            visualisation.update();
         });
     windowSelection.trigger( "resize" );
 });
 
-function histogramSliderCreator(width, height)
+function visualisationCreator()
 {
     /***************************
     * Default Parameter Values *
     ***************************/
-    var leftEdge = 0,  // The X coordinate of the left edge of the histogram slider.
-        topEdge = 0,  // The Y coordinate of the top edge of the histogram slider.
-        width = width,  // The width of the histogram slider.
-        height = height;  // The height of the histogram slider.
+    var histoLeftEdge = 0,  // The X coordinate of the left edge of the histogram slider.
+        histoTopEdge = 0,  // The Y coordinate of the top edge of the histogram slider.
+        histoWidth = 400,  // The width of the histogram slider.
+        histoHeight = 100,  // The height of the histogram slider.
+        mapLeftEdge = 0,  // The X coordinate of the left edge of the map.
+        mapTopEdge = 0,  // The Y coordinate of the top edge of the map.
+        mapWidth = 400,  // The width of the map.
+        mapHeight = 100;  // The height of the map.
 
-    /********************************
-    * Histogram Slider Manipulation *
-    ********************************/
-    function histoSlider(selection)
+    /**************************************
+    * Visualisation Creation and Updating *
+    **************************************/
+    function visual(selection)
     {
         // Setup the histogram slider container.
-        var histoOuterContainer = selection.append("g")
-            .attr("transform", function() { return "translate(" + leftEdge + "," + topEdge + ")"; });
+        var histoContainer = selection.append("g")
+            .attr("transform", function() { return "translate(" + histoLeftEdge + "," + histoTopEdge + ")"; });
 
-        // Create the backing rectangle.
-        var backingRect = histoOuterContainer.append("rect")
-            .classed("histoBackingRect", true)
-            .attr("width", width)
-            .attr("height", height);
+        // Create the histogram slider's backing rectangle.
+        var histoBackingRect = histoContainer.append("rect")
+            .classed("backingRect", true)
+            .attr("width", histoWidth)
+            .attr("height", histoHeight);
 
-        // Define the procedure needed to updated the position and size of the histogram slider while it is in use.
-        histoSlider.update = function()
+        // Setup the map container.
+        var mapContainer = selection.append("g")
+            .attr("transform", function() { return "translate(" + mapLeftEdge + "," + mapTopEdge + ")"; });
+
+        // Create the map's backing rectangle.
+        var mapBackingRect = mapContainer.append("rect")
+            .classed("backingRect", true)
+            .attr("width", mapWidth)
+            .attr("height", mapHeight);
+
+        // Define the procedure needed to updated the position and size of the histogram slider and map while they are in use.
+        visual.update = function()
         {
-            // Update the position of the slider.
-            histoOuterContainer
-                .attr("transform", function() { return "translate(" + leftEdge + "," + topEdge + ")"; });
+            // Update the position of the histogram slider.
+            histoContainer
+                .attr("transform", function() { return "translate(" + histoLeftEdge + "," + histoTopEdge + ")"; });
 
-            // Update the size of the backing rectangle.
-            backingRect
-                .attr("width", width)
-                .attr("height", height);
+            // Update the size of the histogram slider's backing rectangle.
+            histoBackingRect
+                .attr("width", histoWidth)
+                .attr("height", histoHeight);
+
+            // Update the position of the map.
+            mapContainer
+                .attr("transform", function() { return "translate(" + mapLeftEdge + "," + mapTopEdge + ")"; });
+
+            // Update the size of the map's backing rectangle.
+            mapBackingRect
+                .attr("width", mapWidth)
+                .attr("height", mapHeight);
         }
     }
 
@@ -133,113 +160,68 @@ function histogramSliderCreator(width, height)
     * Getters and Setters *
     **********************/
     // Get/Set the X coordinate of the left edge of the histogram slider.
-    histoSlider.leftEdge = function(_)
+    visual.histoLeftEdge = function(_)
     {
-        if (!arguments.length) return leftEdge;
-        leftEdge = _;
-        return histoSlider;
+        if (!arguments.length) return histoLeftEdge;
+        histoLeftEdge = _;
+        return visual;
+    }
+
+    // Get/Set the X coordinate of the left edge of the map.
+    visual.mapLeftEdge = function(_)
+    {
+        if (!arguments.length) return mapLeftEdge;
+        mapLeftEdge = _;
+        return visual;
     }
 
     // Get/Set the Y coordinate of the top edge of the histogram slider.
-    histoSlider.topEdge = function(_)
+    visual.histoTopEdge = function(_)
     {
-        if (!arguments.length) return topEdge;
-        topEdge = _;
-        return histoSlider;
-    }
-
-    // Get/Set the width of the histogram slider.
-    histoSlider.width = function(_)
-    {
-        if (!arguments.length) return width;
-        width = _;
-        return histoSlider;
-    }
-
-    // Get/Set the height of the histogram slider.
-    histoSlider.height = function(_)
-    {
-        if (!arguments.length) return height;
-        height = _;
-        return histoSlider;
-    }
-
-    return histoSlider;
-}
-
-function mapCreator(width, height)
-{
-    /***************************
-    * Default Parameter Values *
-    ***************************/
-    var leftEdge = 0,  // The X coordinate of the left edge of the map.
-        topEdge = 0,  // The Y coordinate of the top edge of the map.
-        width = width,  // The width of the map.
-        height = height;  // The height of the map.
-
-    /************************
-    * Map Creation Function *
-    ************************/
-    function map(selection)
-    {
-        // Setup the map container.
-        var mapContainer = selection.append("g")
-            .attr("transform", function() { return "translate(" + leftEdge + "," + topEdge + ")"; });
-
-        // Create the backing rectangle.
-        var backingRect = mapContainer.append("rect")
-            .classed("mapBackingRect", true)
-            .attr("width", width)
-            .attr("height", height);
-
-        // Define the procedure needed to updated the position and size of the map while it is in use.
-        map.update = function()
-        {
-            // Update the position of the map.
-            mapContainer
-                .attr("transform", function() { return "translate(" + leftEdge + "," + topEdge + ")"; });
-
-            // Update the size of the backing rectangle.
-            backingRect
-                .attr("width", width)
-                .attr("height", height);
-        }
-    }
-
-    /**********************
-    * Getters and Setters *
-    **********************/
-    // Get/Set the X coordinate of the left edge of the map.
-    map.leftEdge = function(_)
-    {
-        if (!arguments.length) return leftEdge;
-        leftEdge = _;
-        return map;
+        if (!arguments.length) return histoTopEdge;
+        histoTopEdge = _;
+        return visual;
     }
 
     // Get/Set the Y coordinate of the top edge of the map.
-    map.topEdge = function(_)
+    visual.mapTopEdge = function(_)
     {
-        if (!arguments.length) return topEdge;
-        topEdge = _;
-        return map;
+        if (!arguments.length) return mapTopEdge;
+        mapTopEdge = _;
+        return visual;
+    }
+
+    // Get/Set the width of the histogram slider.
+    visual.histoWidth = function(_)
+    {
+        if (!arguments.length) return histoWidth;
+        histoWidth = _;
+        return visual;
     }
 
     // Get/Set the width of the map.
-    map.width = function(_)
+    visual.mapWidth = function(_)
     {
-        if (!arguments.length) return width;
-        width = _;
-        return map;
+        if (!arguments.length) return mapWidth;
+        mapWidth = _;
+        return visual;
+    }
+
+    // Get/Set the height of the histogram slider.
+    visual.histoHeight = function(_)
+    {
+        if (!arguments.length) return histoHeight;
+        histoHeight = _;
+        return visual;
     }
 
     // Get/Set the height of the map.
-    map.height = function(_)
+    visual.mapHeight = function(_)
     {
-        if (!arguments.length) return height;
-        height = _;
-        return map;
+        if (!arguments.length) return mapHeight;
+        mapHeight = _;
+        return visual;
     }
 
-    return map;
+    return visual;
 }

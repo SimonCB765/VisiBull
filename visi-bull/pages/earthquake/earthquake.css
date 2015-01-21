@@ -15,13 +15,12 @@ svg {left: 0; outline: thin solid white; position: absolute; top: 0;}
 /*
 _classes
 */
+.backingRect {fill: #585858; stroke: white; stroke-width: 2;}
 
 /*
 _histo
 */
-.histoBackingRect {fill: #585858; stroke: white; stroke-width: 2;}
 
 /*
 _map
 */
-.mapBackingRect {fill: #585858; stroke: white; stroke-width: 2;}
