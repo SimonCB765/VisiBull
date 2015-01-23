@@ -2,7 +2,19 @@ $(document).ready(function()
 {
     // Grab the data for the visualisation.
     var datasetLocation = DATADIR + "/ParsedData.tsv";
-    d3.tsv(datasetLocation, function(error, data)
+    d3.tsv(datasetLocation,
+        function(d)  // Accessor function.
+        {
+          return {
+                  Date: new Date(+d.Year, +d.Month, +d.Day),  // Combine year, month and day to create a date.
+                  Depth: +d.Depth,  // Convert Depth column to a number.
+                  Latitude: +d.Latitude,  // Convert Latitude column to a number.
+                  Longitude: +d.Longitude,  // Convert Longitude column to a number.
+                  Magnitude: +d.Magnitude,  // Convert Magnitude column to a number.
+                  ScaledMagnitude: +d.ScaledMagnitude  // Convert ScaledMagnitude column to a number.
+                 };
+        },
+        function(error, data)
         {
             if (error)
             {
@@ -33,7 +45,6 @@ function setupVisualisation(data)
     var margin = 10;  // Margin around each outside edge of the SVG. Prevents the SVG being set to the exact size of the window and causing scrollbars to appear.
     var svgWidth = currentWidth - margin - margin,
         svgHeight = currentHeight - margin - margin;
-console.log(data);
     var svg = body.append("svg")
         .datum(data)
         .style("display", "block")
@@ -140,7 +151,6 @@ function visualisationCreator()
             .classed("backingRect", true)
             .attr("width", histoWidth)
             .attr("height", histoHeight);
-
         // Setup the map container.
         var mapContainer = selection.append("g")
             .attr("transform", function() { return "translate(" + mapLeftEdge + "," + mapTopEdge + ")"; });
