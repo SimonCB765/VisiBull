@@ -33,7 +33,9 @@ function setupVisualisation(data)
     var margin = 10;  // Margin around each outside edge of the SVG. Prevents the SVG being set to the exact size of the window and causing scrollbars to appear.
     var svgWidth = currentWidth - margin - margin,
         svgHeight = currentHeight - margin - margin;
+console.log(data);
     var svg = body.append("svg")
+        .datum(data)
         .style("display", "block")
         .style("top", margin)
         .style("left", margin);
