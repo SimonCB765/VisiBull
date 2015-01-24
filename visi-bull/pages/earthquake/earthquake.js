@@ -142,15 +142,87 @@ function visualisationCreator()
     **************************************/
     function visual(selection)
     {
+        var earthquakeData = selection.datum(),  // The data about all the earthquakes.
+            minDate = earthquakeData[0].Date,  // The minimum date in the range.
+            maxDate = earthquakeData[earthquakeData.length - 1].Date,  // The maximum date in the range.
+            yearRange = maxDate.getFullYear() - minDate.getFullYear();
+
+        /**************************
+        * Create Histogram Slider *
+        **************************/
+        var histoHorizontalPadding = 45,  // Padding to the left and right of the histogram.
+            histoTopPadding = 10,  // Padding above the histogram.
+            histoBottomPadding = 25,  // Padding below the histogram.
+            histoMinDate = new Date(minDate),
+            histoMaxDate = new Date(maxDate);
+        histoMinDate.setFullYear(histoMinDate.getFullYear() - 1);
+        histoMaxDate.setFullYear(histoMaxDate.getFullYear() + 1);
+
         // Setup the histogram slider container.
         var histoContainer = selection.append("g")
             .attr("transform", function() { return "translate(" + histoLeftEdge + "," + histoTopEdge + ")"; });
-
+/*
         // Create the histogram slider's backing rectangle.
         var histoBackingRect = histoContainer.append("rect")
             .classed("backingRect", true)
             .attr("width", histoWidth)
             .attr("height", histoHeight);
+*/
+        // Create the scale for the histogram's X axis.
+        var xScale = d3.time.scale()
+            .domain([histoMinDate, histoMaxDate])
+            .range([0, histoWidth - histoHorizontalPadding - histoHorizontalPadding]);
+
+        // Create the histogram's X axis.
+        var xAxis = d3.svg.axis()
+            .scale(xScale)
+            .orient("bottom")
+            .tickFormat(d3.time.format("%Y"))
+            .outerTickSize(0);  // Suppress the outer tick marks.
+        
+        // Create the histogram's data.
+        var histogramData = d3.layout.histogram()
+            .bins(xScale.ticks(d3.time.year, 1))
+            (earthquakeData.map(function(d) { return d.Date; }));
+
+        // Create the scale for the histogram's Y axis.
+        var yScale = d3.scale.linear()
+            //.domain([0, d3.max(histogramData, function(d) { return d.y; })])
+            .domain([0, 400])
+            .range([histoHeight - histoBottomPadding, histoTopPadding]);  // Reverse the range as an SVG's Y value increase as you move down the page.
+
+        // Create the histogram's Y axis.
+        var yAxis = d3.svg.axis()
+            .scale(yScale)
+            .orient("left")
+            .tickValues([0, 100, 200, 300, 400]);
+
+        // Create the histogram's bars.
+        var histoBars = histoContainer.selectAll(".bar")
+            .data(histogramData)
+            .enter().append("g")
+                .classed("bar", true)
+                .attr("transform", function(d) { return "translate(" + (histoHorizontalPadding + xScale(d.x)) + "," + yScale(d.y) + ")"; });
+        histoBars.append("rect")
+            .attr("x", 1)  // To shift the bar slightly right of the tick.
+            .attr("width", xScale(new Date(histoMinDate.getTime() + histogramData[0].dx)) - xScale(histoMinDate) - 1)  // Make the bar narrower to ensure that it ends slightly to the left of the tick.
+            .attr("height", function(d) { return histoHeight - histoBottomPadding - yScale(d.y); });
+
+        // Put the X axis in.
+        histoContainer.append("g")
+            .attr("class", "axis")
+            .attr("transform", "translate(" + histoHorizontalPadding + "," + (histoHeight - histoBottomPadding) + ")")
+            .call(xAxis);
+
+        // Put the Y axis in.
+        histoContainer.append("g")
+            .attr("class", "axis")
+            .attr("transform", "translate(" + histoHorizontalPadding + "," + 0 + ")")
+            .call(yAxis);
+
+        /*************
+        * Create Map *
+        *************/
         // Setup the map container.
         var mapContainer = selection.append("g")
             .attr("transform", function() { return "translate(" + mapLeftEdge + "," + mapTopEdge + ")"; });
@@ -167,12 +239,12 @@ function visualisationCreator()
             // Update the position of the histogram slider.
             histoContainer
                 .attr("transform", function() { return "translate(" + histoLeftEdge + "," + histoTopEdge + ")"; });
-
+/*
             // Update the size of the histogram slider's backing rectangle.
             histoBackingRect
                 .attr("width", histoWidth)
                 .attr("height", histoHeight);
-
+*/
             // Update the position of the map.
             mapContainer
                 .attr("transform", function() { return "translate(" + mapLeftEdge + "," + mapTopEdge + ")"; });

@@ -15,13 +15,15 @@ svg {left: 0; outline: thin solid white; position: absolute; top: 0;}
 /*
 _classes
 */
-.backingRect {fill: #585858; stroke: none;}
 
 /*
 _histo
 */
-.bar  rect {fill: white; stroke: none;}
+.axis path, .axis line {fill: none; shape-rendering: crispEdges; stroke: white;}
+.axis text {cursor: default; fill: white; font-size: 14px; stroke: none;}
+.bar  rect {fill: #FF008C; shape-rendering: crispEdges; stroke: none;}
 
 /*
 _map
 */
+.backingRect {fill: #585858; stroke: none;}
